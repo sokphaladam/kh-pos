@@ -85,8 +85,7 @@ export const AuthenticationProvider = ({
 
   const onLogin = useCallback(async (token: string) => {
     const expires = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365);
-    const isSecure =
-      typeof window !== "undefined" && window.location.protocol === "https:";
+    const isSecure = false;
 
     // Cookie options — only set secure flag when actually on HTTPS
     const cookieOptions = {

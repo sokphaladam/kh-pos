@@ -38,9 +38,7 @@ export function AdminClientWrapper({ children }: AdminClientWrapperProps) {
         const expires = new Date(
           new Date().getTime() + 1000 * 60 * 60 * 24 * 365,
         );
-        const isSecure =
-          typeof window !== "undefined" &&
-          window.location.protocol === "https:";
+        const isSecure = false;
 
         // Only set secure flag when actually on HTTPS
         const cookieOptions = {
