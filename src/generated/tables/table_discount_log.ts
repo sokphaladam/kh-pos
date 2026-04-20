@@ -1,0 +1,1 @@
+export interface table_discount_log {  created_at: string | null;  created_by: string | null;  discount_amount?: string | null;  discount_id: string | null;  discount_title: string | null;  discount_type: 'PERCENTAGE' | 'AMOUNT';  id: string;  is_manual_discount?: number | null;  order_detail_id: string | null;  value: string | null;}

@@ -1,0 +1,1 @@
+export interface table_modifier {  modifier_id: string;  title: string;  description: string;  created_at: string | null;  update_at: string | null;  created_by: string;  updated_by: string;  deleted_at: string | null;  deleted_by: string | null;}

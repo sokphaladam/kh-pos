@@ -1,0 +1,1 @@
+export interface table_fulfilment_detail {  fulfilment_id: string | null;  id: string;  order_detail_id: string | null;  transaction_id: string | null;}

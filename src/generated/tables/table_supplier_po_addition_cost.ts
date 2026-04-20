@@ -1,0 +1,1 @@
+export interface table_supplier_po_addition_cost {  id: string;  supplier_po_id: string | null;  name: string | null;  cost: string | null;  created_at: string | null;  updated_at: string | null;  status: 'pending' | 'received' | 'cancelled';}

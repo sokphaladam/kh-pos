@@ -1,0 +1,1 @@
+export interface table_product_option_value {  id?: string;  product_option_id: string | null;  value: string;  created_at: string;  updated_at: string;}

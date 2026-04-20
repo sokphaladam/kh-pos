@@ -1,0 +1,1 @@
+/* eslint-disable */export interface table_user_activity_logs {  log_id?: string;  user_id: string;  action: string;  table_name: string | null;  timestamp: string;  key: string;  content: any;}

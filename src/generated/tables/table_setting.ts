@@ -1,0 +1,1 @@
+export interface table_setting {  id?: number;  option: string | null;  value: string | null;  warehouse: string | null;}

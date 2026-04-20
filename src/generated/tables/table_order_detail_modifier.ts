@@ -1,0 +1,1 @@
+export interface table_order_detail_modifier {  created_at: string;  created_by: string;  modifier_item_id: string;  notes: string | null;  order_detail_id: string;  price?: string;}

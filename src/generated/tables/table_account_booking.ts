@@ -1,0 +1,1 @@
+export interface table_account_booking {  account_id: string;  amount?: string | null;  created_at?: string | null;  created_by: string;  deleted_at: string | null;  deleted_by: string | null;  description: string | null;  id: string;  warehouse_id: string | null;}

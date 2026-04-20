@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DB_MAIN: $DB_MAIN
+        PORT: $PORT
+    ports:
+      - "$PORT:$PORT" # host:container
+    environment:
+      PORT: $PORT # Should match build args
+      DB_MAIN: $DB_MAIN
+    restart: always
+    command: ["sh", "-c", "npm start -- -p $PORT"]

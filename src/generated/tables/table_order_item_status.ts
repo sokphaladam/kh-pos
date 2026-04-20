@@ -1,0 +1,1 @@
+export interface table_order_item_status {  created_at: string;  created_by: string;  order_item_id: string;  qty?: number;  status: 'pending' | 'cooking' | 'ready' | 'served' | 'cancelled';}

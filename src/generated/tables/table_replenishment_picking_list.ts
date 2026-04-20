@@ -1,0 +1,1 @@
+export interface table_replenishment_picking_list {  variant_id: string;  slot_id: string;  qty?: number;  replenishment_id: string;}

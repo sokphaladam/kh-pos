@@ -1,0 +1,1 @@
+export interface table_general_ledger {  account_id: string;  created_at?: string | null;  created_by: string | null;  credit?: string | null;  debit?: string | null;  deleted_at: string | null;  deleted_by: string | null;  description: string | null;  id: string;  related_id: string | null;}

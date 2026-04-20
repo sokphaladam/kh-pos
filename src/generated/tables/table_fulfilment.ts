@@ -1,0 +1,1 @@
+export interface table_fulfilment {  created_at: string | null;  created_by: string | null;  id: string;  order_id: string | null;}

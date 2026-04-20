@@ -1,0 +1,1 @@
+export interface table_product_lot {  id?: string;  variant_id: string;  lot_number: string | null;  manufacturing_date: string | null;  expiration_date: string | null;  cost_per_unit: string | null;  created_at: string | null;}

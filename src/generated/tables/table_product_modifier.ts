@@ -1,0 +1,1 @@
+export interface table_product_modifier {  product_id: string;  modifier_id: string;}

@@ -1,0 +1,1 @@
+export interface table_product_categories {  id?: string;  product_id: string;  category_id: string;  created_at: string | null;  updated_at: string | null;}

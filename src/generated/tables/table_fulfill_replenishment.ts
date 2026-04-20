@@ -1,0 +1,1 @@
+export interface table_fulfill_replenishment {  id: string;  replenishment_id: string | null;  created_at: string | null;  created_by: string | null;}

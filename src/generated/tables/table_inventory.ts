@@ -1,0 +1,1 @@
+export interface table_inventory {  id?: string;  slot_id: string;  variant_id: string;  expired_at: string;  lot_id: string;  qty: number;}
