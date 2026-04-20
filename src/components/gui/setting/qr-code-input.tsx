@@ -1,4 +1,4 @@
-import { useUploadFile } from "@/app/hooks/use-upload-file";
+import { useUploadFileMinIO } from "@/app/hooks/use-upload-file";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -18,7 +18,7 @@ export function QrCodeInput({
 }: Props) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { trigger, isMutating: isUploading } = useUploadFile();
+  const { trigger, isMutating: isUploading } = useUploadFileMinIO();
 
   const handleQrCodeUpload = useCallback(
     (file: File) => {
@@ -68,7 +68,7 @@ export function QrCodeInput({
           });
         });
     },
-    [trigger, setQrCodePreview]
+    [trigger, setQrCodePreview],
   );
 
   const removeQrCode = () => {
@@ -115,8 +115,8 @@ export function QrCodeInput({
                 disabled
                   ? "border-gray-200 bg-gray-100 cursor-not-allowed opacity-50"
                   : isDragging
-                  ? "border-blue-400 bg-blue-50 cursor-pointer"
-                  : "border-gray-300 hover:border-gray-400 bg-white cursor-pointer"
+                    ? "border-blue-400 bg-blue-50 cursor-pointer"
+                    : "border-gray-300 hover:border-gray-400 bg-white cursor-pointer"
               } ${isUploading ? "pointer-events-none opacity-50" : ""}`}
               onDragOver={(e) => {
                 if (disabled) return;

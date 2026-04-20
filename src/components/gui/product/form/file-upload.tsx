@@ -5,9 +5,9 @@ import Image from "next/image";
 import { useRef, useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useUploadFile } from "@/app/hooks/use-upload-file";
 import { cn } from "@/lib/utils";
 import ImageViewer from "@/components/image-viewer";
+import { useUploadFileMinIO } from "@/app/hooks/use-upload-file";
 
 interface FileUploadProps {
   type: "image" | "video";
@@ -36,7 +36,7 @@ export function FileUpload({
   disabled = false,
   className,
 }: FileUploadProps) {
-  const { trigger } = useUploadFile();
+  const { trigger } = useUploadFileMinIO();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -55,7 +55,7 @@ export function FileUpload({
         toast.error(
           `Invalid file type. Please upload ${
             type === "image" ? "an image" : "a video"
-          } file.`
+          } file.`,
         );
         return;
       }
@@ -64,8 +64,8 @@ export function FileUpload({
       if (file.size > maxSize) {
         toast.error(
           `File is too large (${formatFileSize(
-            file.size
-          )}). Maximum size is ${formatFileSize(maxSize)}.`
+            file.size,
+          )}). Maximum size is ${formatFileSize(maxSize)}.`,
         );
         return;
       }
@@ -74,8 +74,8 @@ export function FileUpload({
       if (type === "video" && file.size > 50 * 1024 * 1024) {
         toast.info(
           `Large file detected (${formatFileSize(
-            file.size
-          )}). Upload may take some time.`
+            file.size,
+          )}). Upload may take some time.`,
         );
       }
 
@@ -107,18 +107,18 @@ export function FileUpload({
           error instanceof Error ? error.message : "Unknown error occurred";
         if (errorMessage.includes("CORS") || errorMessage.includes("fetch")) {
           toast.error(
-            `Network error: Unable to upload ${label.toLowerCase()}. Please check your connection and try again.`
+            `Network error: Unable to upload ${label.toLowerCase()}. Please check your connection and try again.`,
           );
         } else {
           toast.error(
-            `Failed to upload ${label.toLowerCase()}. ${errorMessage}`
+            `Failed to upload ${label.toLowerCase()}. ${errorMessage}`,
           );
         }
       } finally {
         setIsUploading(false);
       }
     },
-    [type, maxSize, trigger, onChange, label]
+    [type, maxSize, trigger, onChange, label],
   );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

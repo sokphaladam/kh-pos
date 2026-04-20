@@ -6,7 +6,6 @@ import {
   useCreateWarehouseV2,
   useUpdateWarehouseV2,
 } from "@/app/hooks/use-query-warehouse";
-import { useUploadFile } from "@/app/hooks/use-upload-file";
 import { createSheet } from "@/components/create-sheet";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,7 @@ import { Switch } from "@/components/ui/switch";
 import { produce } from "immer";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useUploadFileMinIO } from "@/app/hooks/use-upload-file";
 
 const EMPTY_VALUE: CreateWarehouseV2Input = {
   warehouseName: "",
@@ -57,7 +57,8 @@ export const createWarehouseSheetV2 = createSheet<
       useCreateWarehouseV2();
     const { trigger: update, isMutating: loadingUpdate } =
       useUpdateWarehouseV2();
-    const { trigger: uploadFile, isMutating: isUploading } = useUploadFile();
+    const { trigger: uploadFile, isMutating: isUploading } =
+      useUploadFileMinIO();
 
     const handleImageUpload = useCallback(
       (file: File) => {

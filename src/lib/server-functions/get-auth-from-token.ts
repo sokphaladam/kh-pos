@@ -107,7 +107,7 @@ export async function getCustomerAuthFromToken(
       "customer.is_active": 1,
     })
     .whereRaw(
-      `("customer_token"."expires_at" IS NULL OR "customer_token"."expires_at" > ?)`,
+      `(customer_token.expires_at IS NULL OR customer_token.expires_at > ?)`,
       [now],
     )
     .select(["customer.*", "customer_token.lat", "customer_token.lng"])

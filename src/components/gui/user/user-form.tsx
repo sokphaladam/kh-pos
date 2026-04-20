@@ -2,11 +2,11 @@ import { Label } from "@/components/ui/label";
 import { UserInput } from "@/lib/types";
 import { useCallback } from "react";
 import LabelInput from "@/components/label-input";
-import { useUploadFile } from "@/app/hooks/use-upload-file";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 // import { WarehouseDropdown } from "./warehouse-dropdown";
 import { MaterialInput } from "@/components/ui/material-input";
 import { RoleDropdown } from "./role-dropdown";
+import { useUploadFileMinIO } from "@/app/hooks/use-upload-file";
 
 interface Props {
   userInput: UserInput;
@@ -17,7 +17,7 @@ interface Props {
 
 export function UserForm(props: Props) {
   const { userInput, setUserInput, edit } = props;
-  const { trigger, isMutating } = useUploadFile();
+  const { trigger, isMutating } = useUploadFileMinIO();
 
   const onChangeInput = useCallback(
     (key: keyof typeof userInput, value: unknown) => {
