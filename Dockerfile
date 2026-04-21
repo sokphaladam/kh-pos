@@ -43,6 +43,8 @@ COPY . .
 RUN npm run build
 
 EXPOSE ${PORT}
+RUN cp -r public .next/standalone/public && \
+    cp -r .next/static .next/standalone/.next/static
 
 RUN echo '#!/bin/bash\n\
 set -e\n\
