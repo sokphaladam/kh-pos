@@ -7,21 +7,23 @@ export const GET = withAuthApi(async ({ db, userAuth }) => {
   const excelData = await new UploadFromExcel(
     db,
     userAuth.admin!,
-    "product_list.xlsx"
+    "product_list.xlsx",
   ).uploadProducts();
   // Process the excelData as needed
   console.log(excelData);
   return NextResponse.json({ success: true, data: excelData });
 });
 
-
-export const POST = withAuthApi<unknown, {data: ExcelRow[]}, ResponseType<unknown>>(async ({body, userAuth, db}) => {
-
+export const POST = withAuthApi<
+  unknown,
+  { data: ExcelRow[] },
+  ResponseType<unknown>
+>(async ({ body, userAuth, db }) => {
   const excelData = await new UploadFromExcel(
     db,
     userAuth.admin!,
-    "product_list.xlsx"
+    "product_list.xlsx",
   ).uploadProducts(body?.data);
 
   return NextResponse.json({ success: true, data: excelData });
-})
+});
