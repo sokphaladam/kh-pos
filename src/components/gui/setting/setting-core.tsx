@@ -38,6 +38,7 @@ import { PrintSocketInput } from "./print-socket-input";
 import { AccountingSetting } from "./accounting";
 import { BrandIntegrateSetting } from "./brand-integrate";
 import { InventorySetting } from "./inventory";
+import { BrandSetting } from "./brand";
 
 // ==================== Setting Configuration Registry ====================
 
@@ -61,7 +62,8 @@ export interface SettingConfig {
     | "print-socket"
     | "accounting"
     | "brand_integration"
-    | "inventory";
+    | "inventory"
+    | "brand";
   unit?: string;
   placeholder?: string;
 }
@@ -183,6 +185,12 @@ export const SETTING_CONFIGS: Record<string, SettingConfig> = {
     label: "Inventory",
     description: "Settings related to inventory management",
     type: "inventory",
+  },
+  BRAND: {
+    icon: <Blocks className="h-4 w-4" />,
+    label: "Brand",
+    description: "Brand information and customization settings",
+    type: "brand",
   },
 };
 
@@ -335,6 +343,8 @@ export const SettingEditorFactory: React.FC<SettingEditorFactoryProps> = ({
         return <BrandIntegrateSetting value={value} onChange={handleChange} />;
       case "inventory":
         return <InventorySetting value={value} onChange={handleChange} />;
+      case "brand":
+        return <BrandSetting value={value} onChange={handleChange} />;
       default:
         return (
           <TextSettingInput
