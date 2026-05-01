@@ -162,8 +162,8 @@ export function TemplateFunbeerking(props: Props) {
                 )}
               </div>
             )}
-            {!!rtb && (
-              <>
+            <>
+              {!!rtb && (
                 <div
                   style={{
                     width: "100%",
@@ -189,51 +189,51 @@ export function TemplateFunbeerking(props: Props) {
                     <div>{rtb}</div>
                   </div>
                 </div>
-                {currentWarehouse?.address && (
+              )}
+              {currentWarehouse?.address && (
+                <div
+                  style={{
+                    width: "100%",
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    marginTop: 4,
+                  }}
+                >
                   <div
                     style={{
-                      width: "100%",
-                      position: "relative",
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      marginTop: 4,
+                      fontSize: "9pt",
+                      textWrap: "wrap",
+                      textAlign: "center",
                     }}
                   >
-                    <div
-                      style={{
-                        fontSize: "9pt",
-                        textWrap: "wrap",
-                        textAlign: "center",
-                      }}
-                    >
-                      {currentWarehouse?.address}
-                    </div>
+                    {currentWarehouse?.address}
                   </div>
-                )}
-                {currentWarehouse?.phone && (
+                </div>
+              )}
+              {currentWarehouse?.phone && (
+                <div
+                  style={{
+                    width: "100%",
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                  }}
+                >
                   <div
                     style={{
-                      width: "100%",
-                      position: "relative",
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "center",
+                      fontSize: "9pt",
+                      textWrap: "wrap",
+                      textAlign: "center",
                     }}
                   >
-                    <div
-                      style={{
-                        fontSize: "9pt",
-                        textWrap: "wrap",
-                        textAlign: "center",
-                      }}
-                    >
-                      Tel: {currentWarehouse?.phone.split("/").join(" / ")}
-                    </div>
+                    Tel: {currentWarehouse?.phone.split("/").join(" / ")}
                   </div>
-                )}
-              </>
-            )}
+                </div>
+              )}
+            </>
           </div>
         </div>
         <br />
