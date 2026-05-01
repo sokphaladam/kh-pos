@@ -27,6 +27,7 @@ export const getMenu = withDatabaseApi<
         ? filter.categoryKeys?.split(",")
         : undefined,
       includeProductNotForSale: filter.includeProductNotForSale === "true",
+      compositeOnly: filter.compositeOnly === "true",
     });
   });
   return NextResponse.json({ success: true, result }, { status: 200 });

@@ -13,6 +13,7 @@ export interface PrintProductLotProps {
   lotId: string;
   price: string;
   manufacturingDate: string;
+  slot: string;
 }
 
 interface Props {

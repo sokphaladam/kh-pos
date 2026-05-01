@@ -219,7 +219,6 @@ export async function middleware(request: NextRequest) {
       pathname !== FORBIDDEN_PATH
     ) {
       const hasPermission = hasRoutePermission(pathname, permissions, userRole);
-      console.log(hasPermission);
       if (!hasPermission) {
         // Redirect to forbidden page
         const response = NextResponse.redirect(

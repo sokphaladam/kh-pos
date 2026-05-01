@@ -55,6 +55,7 @@ export class PdfGenerator {
   static async generateFromHtml(
     html: string,
     options: PdfGeneratorOptions = {},
+    date?: string,
   ): Promise<string> {
     const {
       outputPath,
@@ -81,7 +82,8 @@ export class PdfGenerator {
 
     // Determine output path
     const pdfPath =
-      outputPath || path.join(tmpDir, `generated-pdf-${Date.now()}.pdf`);
+      outputPath ||
+      path.join(tmpDir, `generated-pdf-${date ? date : Date.now()}.pdf`);
 
     // Launch browser
     const browser = await puppeteer.launch({

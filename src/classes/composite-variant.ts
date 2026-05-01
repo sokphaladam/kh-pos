@@ -38,7 +38,10 @@ export interface CompositionDraft extends ProductVariantComponent {
 }
 
 export class CompositeVariant {
-  constructor(protected trx: Knex, protected user: UserInfo) {}
+  constructor(
+    protected trx: Knex,
+    protected user: UserInfo,
+  ) {}
 
   // flow to compose a variant:
   // 1. User search and select composed variant and input production quantity
@@ -53,7 +56,7 @@ export class CompositeVariant {
   private async getCompositeVariantAndComponentStocks(
     trx: Knex,
     variantId: string,
-    qty: number
+    qty: number,
   ) {
     const compositeVariant: table_product_variant = await trx
       .table<table_product_variant>("product_variant")
@@ -77,13 +80,13 @@ export class CompositeVariant {
 
     const variantWithStockLoader = LoaderFactory.productVariantByIdLoader(
       trx,
-      this.user.currentWarehouseId!
+      this.user.currentWarehouseId!,
     );
 
     const componentStocks: ProductVariantComponent[] = await Promise.all(
       componentVariants.map(async (component) => {
         const stock = await variantWithStockLoader.load(
-          component.variant_component_id
+          component.variant_component_id,
         );
         const requiredStock = (component.qty || 0) * qty;
         const availableStock = stock?.stock || 0;
@@ -93,7 +96,7 @@ export class CompositeVariant {
           requiredStock,
           canProduce: availableStock >= requiredStock,
         } as ProductVariantComponent;
-      })
+      }),
     );
 
     return { compositeVariant, componentVariants, componentStocks };
@@ -101,7 +104,7 @@ export class CompositeVariant {
 
   async getCompositionDraft(
     variantId: string,
-    qty: number
+    qty: number,
   ): Promise<CompositionDraft[]> {
     return await this.trx.transaction(async (trx) => {
       const { componentStocks } =
@@ -114,19 +117,19 @@ export class CompositeVariant {
       const findProductService = new FindProductInSlotService(
         trx,
         this.user,
-        slots.map((slot) => slot.id!)
+        slots.map((slot) => slot.id!),
       );
 
       const stockInSlots = await findProductService.findProduct(
         componentStocks.map((stock) => ({
           variantId: stock.id,
           toFindQty: stock.requiredStock,
-        }))
+        })),
       );
 
       return componentStocks.map((stock) => {
         const stockInSlot = stockInSlots.filter(
-          (s) => s.variant?.id === stock.id
+          (s) => s.variant?.id === stock.id,
         );
         return {
           ...stock,
@@ -142,22 +145,22 @@ export class CompositeVariant {
         await this.getCompositeVariantAndComponentStocks(
           trx,
           data.composedVariant.variantId,
-          data.composedVariant.qty
+          data.composedVariant.qty,
         );
 
       const insufficientStocks = componentStocks.filter(
-        (stock) => !stock.canProduce
+        (stock) => !stock.canProduce,
       );
 
       if (insufficientStocks.length > 0) {
         const errorMessages = insufficientStocks.map(
           (stock) =>
-            ` Variant ${stock.basicProduct?.title} (${stock.name}): required ${stock.requiredStock}, available ${stock.availableStock}`
+            ` Variant ${stock.basicProduct?.title} (${stock.name}): required ${stock.requiredStock}, available ${stock.availableStock}`,
         );
         throw new Error(
           `Cannot produce composite variant due to insufficient stocks:\n${errorMessages.join(
-            "\n"
-          )}`
+            "\n",
+          )}`,
         );
       }
 
@@ -165,13 +168,13 @@ export class CompositeVariant {
       // componentStocks that has been fetched
       for (const component of componentStocks) {
         const matchingComponent = data.componentVariants.filter(
-          (c) => c.id === component.id
+          (c) => c.id === component.id,
         );
         if (matchingComponent.length === 0) {
           throw new Error(
             `Component variant ${getVariantProperName(
-              component as ProductVariantType
-            )} not found in the provided components`
+              component as ProductVariantType,
+            )} not found in the provided components`,
           );
         }
 
@@ -179,15 +182,15 @@ export class CompositeVariant {
           (acc, curr) =>
             acc +
             curr.stockSlots.reduce((slotAcc, slot) => slotAcc + slot.qty, 0),
-          0
+          0,
         );
         if (givenStock !== component.requiredStock) {
           throw new Error(
             `Component variant ${getVariantProperName(
-              component as ProductVariantType
+              component as ProductVariantType,
             )} has a mismatch in required stock. Expected ${
               component.requiredStock
-            }, but got ${givenStock}`
+            }, but got ${givenStock}`,
           );
         }
       }

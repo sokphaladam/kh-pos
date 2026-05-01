@@ -42,7 +42,13 @@ export const restaurantCustomFoodDelivery = createSheet<Props, unknown>(
     const { state, onRefetch } = useRestaurant();
     const [servedType, setServedType] = useState<
       "dine_in" | "take_away" | "food_delivery"
-    >(currentTable?.orders?.servedType || "dine_in");
+    >(
+      currentTable?.orders?.servedType === "dine_in" ||
+        currentTable?.orders?.servedType === "take_away" ||
+        currentTable?.orders?.servedType === "food_delivery"
+        ? currentTable.orders.servedType
+        : "dine_in",
+    );
     const [searchPhone, setSearchPhone] = useState("");
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
       null,

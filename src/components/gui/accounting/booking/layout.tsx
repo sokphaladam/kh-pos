@@ -290,6 +290,9 @@ export function BookingLayout() {
                   <TableHead className="text-nowrap text-xs">
                     Description
                   </TableHead>
+                  <TableHead className="text-nowrap text-xs">
+                    Created By
+                  </TableHead>
                   <TableHead className="text-nowrap text-xs w-[60px]" />
                 </TableRow>
               </TableHeader>
@@ -342,6 +345,9 @@ export function BookingLayout() {
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground max-w-[240px] truncate">
                           {booking.description || "—"}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground max-w-[240px] truncate">
+                          {booking.createdBy?.fullname}
                         </TableCell>
                         <TableCell>
                           <BasicMenuAction

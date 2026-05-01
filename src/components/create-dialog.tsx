@@ -1,5 +1,11 @@
 "use client";
-import { FunctionComponent, useCallback, useEffect, useState } from "react";
+import {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Dialog, DialogContent, DialogDescription } from "./ui/dialog";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +22,12 @@ export function DialogProvider({
   const [resolve, setResolve] = useState<(props: unknown) => void>();
   const [defaultCloseValue, setDefaultCloseValue] = useState<unknown>();
   const [className, setClassName] = useState("");
+  // Increment on every show() call to force the dialog component to remount
+  // with fresh state, preventing stale checkbox/form values from a previous open.
+  const [showKey, setShowKey] = useState(0);
+  // Ref tracks whether the current promise has already been resolved,
+  // preventing double-resolution from both close() and onOpenChange firing.
+  const resolvedRef = useRef(false);
   const DialogComponent = component;
 
   const showToggle = useCallback(
@@ -32,14 +44,16 @@ export function DialogProvider({
       defaultCloseValue: unknown;
       className?: string;
     }) => {
+      resolvedRef.current = false;
       setComponent(() => component);
       setOptions(options);
       setResolve(() => resolve);
       setDefaultCloseValue(defaultCloseValue);
       setOpen(true);
       setClassName(cn || "");
+      setShowKey((k) => k + 1);
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -61,7 +75,10 @@ export function DialogProvider({
           open={open}
           onOpenChange={(state) => {
             if (!state) {
-              if (resolve) resolve(defaultCloseValue);
+              if (!resolvedRef.current && resolve) {
+                resolvedRef.current = true;
+                resolve(defaultCloseValue);
+              }
               setOpen(false);
             }
           }}
@@ -73,10 +90,14 @@ export function DialogProvider({
           >
             <DialogDescription></DialogDescription>
             <DialogComponent
+              key={showKey}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               {...(options as any)}
               close={(value: unknown) => {
-                if (resolve) resolve(value);
+                if (!resolvedRef.current && resolve) {
+                  resolvedRef.current = true;
+                  resolve(value);
+                }
                 setOpen(false);
               }}
             />
@@ -89,7 +110,7 @@ export function DialogProvider({
 
 type DialogComponentProps<
   ParamType = unknown,
-  ReturnType = undefined
+  ReturnType = undefined,
 > = ParamType & {
   close: (value: ReturnType) => void;
 };
@@ -105,7 +126,7 @@ export function createDialog<ParamType = unknown, ReturnType = undefined>(
      */
     slot?: DialogProviderSlot;
     className?: string;
-  }
+  },
 ) {
   return {
     show: (props: ParamType) => {

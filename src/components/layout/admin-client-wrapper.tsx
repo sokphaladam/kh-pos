@@ -36,14 +36,14 @@ export function AdminClientWrapper({ children }: AdminClientWrapperProps) {
     } else {
       if (data?.user) {
         const expires = new Date(
-          new Date().getTime() + 1000 * 60 * 60 * 24 * 365,
+          new Date().getTime() + 1000 * 60 * 60 * 24 * 365
         );
-        const isSecure = false;
+        const isProduction = process.env.NODE_ENV === "production";
 
-        // Only set secure flag when actually on HTTPS
+        // Keep cookie options consistent with login
         const cookieOptions = {
           expires,
-          secure: isSecure,
+          secure: isProduction, // Only secure in production (HTTPS)
           sameSite: "lax" as const,
           path: "/",
         };

@@ -19,7 +19,7 @@ const logger = new CronLogger("DailyMovieShowtimeReportJob");
  */
 export async function testDailyMovieShowtimeReportJob(date?: string) {
   logger.info("Starting daily movie showtime report generation...");
-  const today = moment();
+  const today = moment().tz("Asia/Phnom_Penh");
 
   const pastday = date
     ? moment(date).format("YYYY-MM-DD")
@@ -73,20 +73,24 @@ export async function testDailyMovieShowtimeReportJob(date?: string) {
 
       if (data.length > 0) {
         // Generate HTML for PDF
-        const html = generateMovieShowtimeHtml(data);
+        const html = generateMovieShowtimeHtml(data, pastday);
 
         // Generate PDF from HTML
         logger.info("Generating PDF...");
-        const pdfPath = await PdfGenerator.generateFromHtml(html, {
-          format: "A4",
-          margin: {
-            top: "0mm",
-            bottom: "0mm",
-            left: "0mm",
-            right: "0mm",
+        const pdfPath = await PdfGenerator.generateFromHtml(
+          html,
+          {
+            format: "A4",
+            margin: {
+              top: "0mm",
+              bottom: "0mm",
+              left: "0mm",
+              right: "0mm",
+            },
+            landscape: true,
           },
-          landscape: true,
-        });
+          pastday,
+        );
         logger.info(`PDF generated successfully at: ${pdfPath}`);
         // Send email with PDF attachment
         // default email if email is null or empty 2keppere@gmail.com

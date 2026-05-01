@@ -1,5 +1,5 @@
 "use client";
-import { useUploadFileMinIO } from "@/app/hooks/use-upload-file";
+import { useUploadFile } from "@/app/hooks/use-upload-file";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,7 +25,7 @@ interface Props {
 
 export function InvoiceInput(props: Props) {
   const { toast } = useToast();
-  const { trigger, isMutating: isUploading } = useUploadFileMinIO();
+  const { trigger, isMutating: isUploading } = useUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 

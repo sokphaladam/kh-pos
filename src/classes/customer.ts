@@ -28,6 +28,8 @@ export interface Customer {
   orders: Order[];
   type: "general" | "delivery";
   extraPrice: string | null;
+  photo?: string | null;
+  email?: string | null;
 }
 
 export class CustomerService {

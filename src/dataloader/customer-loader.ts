@@ -31,6 +31,8 @@ export function createCustomerLoader(db: Knex) {
         warehouse: row.pos_warehouse_id
           ? warehouseLoader.load(row.pos_warehouse_id)
           : null,
+        email: row.email,
+        photo: row.photo,
       } as Customer;
     });
   });

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Kantumruy_Pro } from "next/font/google";
-import getKnex from "@/lib/knex";
 import "./globals.css";
+import getKnex from "@/lib/knex";
 
 const latin = Geist({
   subsets: ["latin"],
@@ -16,43 +16,41 @@ const khmer = Kantumruy_Pro({
   variable: "--font-kantumruy-pro",
 });
 
-// export const metadata: Metadata = {
-//   title: "The Mood",
-//   description:
-//     "The mood stands for Point of Sale, which refers to the place and system where a retail transaction is completed. It typically involves both hardware and software used by businesses to process sales, accept payments, and manage related operations like inventory and customer data.",
-//   icons: {
-//     icon: "/favicon.ico",
-//   },
-// };
+const defaultMetadata: Metadata = {
+  title: "Point of Sale (POS) System",
+  description:
+    "L-POS stands for Point of Sale, which refers to the place and system where a retail transaction is completed. It typically involves both hardware and software used by businesses to process sales, accept payments, and manage related operations like inventory and customer data.",
+  icons: {
+    icon: "/api/favicon",
+  },
+};
 
 export async function generateMetadata(): Promise<Metadata> {
-  const db = await getKnex();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result: any[] = await db.table("setting").where({ warehouse: null });
-
-  const brand = JSON.parse(
+  try {
+    const db = await getKnex();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    result.find((f: any) => f.option === "BRAND")?.value || "{}",
-  );
+    const result: any[] = await db.table("setting").where({ warehouse: null });
 
-  if (!brand) {
+    const brand = JSON.parse(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      result.find((f: any) => f.option === "BRAND")?.value || "{}",
+    );
+
+    if (!brand?.title) {
+      return defaultMetadata;
+    }
+
     return {
-      title: "The Mood",
-      description:
-        "The mood stands for Point of Sale, which refers to the place and system where a retail transaction is completed. It typically involves both hardware and software used by businesses to process sales, accept payments, and manage related operations like inventory and customer data.",
+      title: brand.title,
+      description: brand.description,
       icons: {
-        icon: "/favicon.ico",
+        icon: "/api/favicon",
       },
     };
+  } catch (error) {
+    console.log("Error fetching metadata:", error);
+    return defaultMetadata;
   }
-
-  return {
-    title: brand.title,
-    description: brand.description,
-    icons: {
-      icon: brand.icon || "/favicon.ico",
-    },
-  };
 }
 
 export default function RootLayout({

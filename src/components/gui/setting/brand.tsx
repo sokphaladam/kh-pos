@@ -6,8 +6,8 @@ import { Tag, AlignLeft, ImageIcon, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useUploadFileMinIO } from "@/app/hooks/use-upload-file";
 import { toast } from "sonner";
+import { useUploadFile } from "@/app/hooks/use-upload-file";
 
 interface Props {
   value: string;
@@ -29,7 +29,7 @@ function IconUpload({
   value: string;
   onChange: (url: string) => void;
 }) {
-  const { trigger: uploadFile, isMutating: isUploading } = useUploadFileMinIO();
+  const { trigger: uploadFile, isMutating: isUploading } = useUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback(

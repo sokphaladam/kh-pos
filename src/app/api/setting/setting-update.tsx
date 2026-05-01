@@ -1,5 +1,6 @@
 import withAuthApi from "@/lib/server-functions/with-auth-api";
 import { ResponseType } from "@/lib/types";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -38,6 +39,8 @@ export const settingUpdate = withAuthApi<
           },
     )
     .update({ value: input.value });
+
+  revalidatePath("/", "layout");
 
   return NextResponse.json({ success: true, result: input }, { status: 200 });
 });

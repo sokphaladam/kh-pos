@@ -45,7 +45,7 @@ function ProductImageSlideshow({
         <div
           className={cn(
             "bg-gray-100 flex items-center justify-center rounded-t-xl aspect-[5/5] w-full relative",
-            className
+            className,
           )}
         >
           <span className="text-gray-400 text-xs sm:text-sm">No Image</span>
@@ -61,7 +61,7 @@ function ProductImageSlideshow({
               <div
                 className={cn(
                   "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-white shadow-sm",
-                  stockStatus.isInStock ? "bg-green-500" : "bg-red-500"
+                  stockStatus.isInStock ? "bg-green-500" : "bg-red-500",
                 )}
               />
             )}
@@ -83,7 +83,7 @@ function ProductImageSlideshow({
       <div
         className={cn(
           "relative overflow-hidden group aspect-[5/5] w-full rounded-t-xl",
-          className
+          className,
         )}
       >
         {images[0].url ? (
@@ -112,7 +112,7 @@ function ProductImageSlideshow({
             <div
               className={cn(
                 "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-white shadow-sm",
-                stockStatus.isInStock ? "bg-green-500" : "bg-red-500"
+                stockStatus.isInStock ? "bg-green-500" : "bg-red-500",
               )}
             />
           )}
@@ -156,7 +156,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
       limit: PAGE_SIZE,
       offset: page * PAGE_SIZE,
       replenishment: false,
-      compositeOnly: true,
+      compositeOnly: false,
       categoryKeys: selectedCategory !== "All" ? selectedCategory : "",
       warehouse: currentWarehouse?.id || "",
       type: "pos" as "all" | "pos",
@@ -187,8 +187,8 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
             (newProduct) =>
               !prev.some(
                 (existingProduct) =>
-                  existingProduct.variantId === newProduct.variantId
-              )
+                  existingProduct.variantId === newProduct.variantId,
+              ),
           );
           return [...prev, ...newProducts];
         });
@@ -231,25 +231,25 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
     (variantId: string) => {
       if (!current?.orders?.items) return 0;
       const orderItem = current.orders.items.find(
-        (item) => item.productVariant?.id === variantId
+        (item) => item.productVariant?.id === variantId,
       );
       return orderItem?.status?.reduce((a, b) => a + b.qty, 0) || 0;
     },
-    [current?.orders?.items]
+    [current?.orders?.items],
   );
 
   const handleClick = useCallback(
     async (
       variant: ProductVariantType | undefined,
       item: ProductSearchResult,
-      event: React.MouseEvent<HTMLDivElement>
+      event: React.MouseEvent<HTMLDivElement>,
     ) => {
       if (!props.allowCreate) return;
       if (!loading && !isRequest) {
         // Trigger flying animation
         const clickedElement = event.currentTarget;
         const imageByVariant = item.images?.find(
-          (f) => f.productVariantId === item.variantId
+          (f) => f.productVariantId === item.variantId,
         );
         const productImage = imageByVariant?.url || "";
         const productTitle = item.productTitle || "";
@@ -280,7 +280,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
         }
       }
     },
-    [current, selectProduct, loading, isRequest, triggerFlyingAnimation, props]
+    [current, selectProduct, loading, isRequest, triggerFlyingAnimation, props],
   );
 
   return (
@@ -328,7 +328,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                       item.variants as ProductVariantType[]
                     )?.find((f) => f.id === item.variantId);
                     const imageByVariant = item.images?.find(
-                      (f) => f.productVariantId === item.variantId
+                      (f) => f.productVariantId === item.variantId,
                     );
                     const images = imageByVariant
                       ? [imageByVariant]
@@ -340,7 +340,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                         ];
 
                     const quantityInOrder = getProductQuantityInOrder(
-                      item.variantId || ""
+                      item.variantId || "",
                     );
 
                     return (
@@ -353,7 +353,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                             : "cursor-pointer hover:-translate-y-1 active:scale-95",
                           props.allowCreate
                             ? ""
-                            : "cursor-not-allowed opacity-50"
+                            : "cursor-not-allowed opacity-50",
                         )}
                         onClick={(event) => handleClick(variant, item, event)}
                       >
@@ -445,10 +445,10 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                 ))
               : displayProducts.map((item, index) => {
                   const variant = (item.variants as ProductVariantType[])?.find(
-                    (f) => f.id === item.variantId
+                    (f) => f.id === item.variantId,
                   );
                   const imageByVariant = item.images?.find(
-                    (f) => f.productVariantId === item.variantId
+                    (f) => f.productVariantId === item.variantId,
                   );
                   const images = imageByVariant
                     ? [imageByVariant]
@@ -460,7 +460,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                       ];
 
                   const quantityInOrder = getProductQuantityInOrder(
-                    item.variantId || ""
+                    item.variantId || "",
                   );
 
                   return (
@@ -471,7 +471,9 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                         loading || isRequest
                           ? "cursor-not-allowed opacity-60"
                           : "cursor-pointer hover:-translate-y-1 active:scale-95",
-                        props.allowCreate ? "" : "cursor-not-allowed opacity-50"
+                        props.allowCreate
+                          ? ""
+                          : "cursor-not-allowed opacity-50",
                       )}
                       onClick={(event) => handleClick(variant, item, event)}
                     >

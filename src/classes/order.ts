@@ -99,7 +99,7 @@ export interface Order {
   printCount?: number;
   tableName?: string;
   customerLoader?: Customer | null;
-  servedType?: "dine_in" | "take_away" | "food_delivery";
+  servedType?: "dine_in" | "take_away" | "food_delivery" | "customer";
   deliveryCode?: string | null;
 }
 
@@ -308,6 +308,29 @@ export class OrderService {
     const result: Order[] = await Promise.all(
       orders.map(async (order) => {
         const items = await orderDetailLoader.load(order.order_id!);
+        let createdBy: UserInfo | null = null;
+
+        if (order.created_by) {
+          if (order.served_type === "customer") {
+            const customerCreated = await customerLoader.load(order.created_by);
+            createdBy = {
+              id: customerCreated?.id || "",
+              username: "",
+              fullname: customerCreated?.customerName || "",
+              phoneNumber: customerCreated?.phone || "",
+              token: "",
+              profile: customerCreated?.photo || "",
+              roleId: null,
+              currentWarehouseId: customerCreated?.warehouse?.id || "",
+              isDev: false,
+              role: undefined,
+              warehouse: customerCreated?.warehouse,
+            };
+          } else {
+            createdBy = await userLoader.load(order.created_by);
+          }
+        }
+
         return {
           orderId: order.order_id!,
           invoiceNo: order.invoice_no,
@@ -317,9 +340,7 @@ export class OrderService {
             ? Formatter.dateTime(order.created_at)
             : "",
           paidAt: order.paid_at ? Formatter.dateTime(order.paid_at) : null,
-          createdBy: order.created_by
-            ? await userLoader.load(order.created_by)
-            : null,
+          createdBy,
           totalAmount: order.total_amount,
           transferBy: order.transfer_by
             ? await userLoader.load(order.transfer_by)

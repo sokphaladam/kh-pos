@@ -38,7 +38,7 @@ export type AuthenticationContextType = {
       showCode?: boolean;
       minimumFractionDigits?: number;
       maximumFractionDigits?: number;
-    },
+    }
   ) => string;
 };
 
@@ -85,14 +85,14 @@ export const AuthenticationProvider = ({
 
   const onLogin = useCallback(async (token: string) => {
     const expires = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365);
-    const isSecure = false;
+    const isProduction = process.env.NODE_ENV === "production";
 
-    // Cookie options — only set secure flag when actually on HTTPS
+    // Cookie options for production (HTTPS) and development
     const cookieOptions = {
       expires,
-      secure: isSecure,
-      sameSite: "lax" as const,
-      path: "/",
+      secure: isProduction, // Only set secure flag in production (HTTPS)
+      sameSite: "lax" as const, // Required by Chrome for cross-site cookies
+      path: "/", // Make cookie available across the entire domain
     };
 
     Cookies.set("session", JSON.stringify({ token }), cookieOptions);
@@ -124,7 +124,7 @@ export const AuthenticationProvider = ({
 
     const openShifts = shift.result.data.filter((f) => f.status === "OPEN");
     const userOpenShift = openShifts.find(
-      (f) => f.opened_by?.id === currentUser.id,
+      (f) => f.opened_by?.id === currentUser.id
     );
 
     return userOpenShift || null;
@@ -149,7 +149,7 @@ export const AuthenticationProvider = ({
           showCode?: boolean;
           minimumFractionDigits?: number;
           maximumFractionDigits?: number;
-        },
+        }
       ) => formatCurrency(amount, currencyCode, options),
     };
   }, [setting.data]);

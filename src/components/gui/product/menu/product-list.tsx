@@ -40,7 +40,7 @@ export function ProductList() {
       limit: PAGE_SIZE,
       offset: page * PAGE_SIZE,
       replenishment: false,
-      compositeOnly: true,
+      compositeOnly: false,
       categoryKeys: selectedCategory !== "All" ? selectedCategory : "",
       warehouse: params.get("warehouse") || "",
       type: "pos" as "all" | "pos",
@@ -71,8 +71,8 @@ export function ProductList() {
             (newProduct) =>
               !prev.some(
                 (existingProduct) =>
-                  existingProduct.variantId === newProduct.variantId
-              )
+                  existingProduct.variantId === newProduct.variantId,
+              ),
           );
           return [...prev, ...newProducts];
         });
@@ -157,7 +157,7 @@ export function ProductList() {
                     "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base px-2 sm:px-3 py-1 sm:py-2",
                     selectedCategory === "All"
                       ? "bg-primary text-primary-foreground shadow-sm"
-                      : "hover:bg-gray-50 border-gray-300"
+                      : "hover:bg-gray-50 border-gray-300",
                   )}
                 >
                   All Categories
@@ -183,7 +183,7 @@ export function ProductList() {
                           "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base px-2 sm:px-3 py-1 sm:py-2",
                           selectedCategory === category.id
                             ? "bg-primary text-primary-foreground shadow-sm"
-                            : "hover:bg-gray-50 border-gray-300"
+                            : "hover:bg-gray-50 border-gray-300",
                         )}
                       >
                         {category.title}
@@ -211,10 +211,10 @@ export function ProductList() {
               ))
             : displayProducts.map((item, index) => {
                 const variant = (item.variants as ProductVariantType[])?.find(
-                  (f) => f.id === item.variantId
+                  (f) => f.id === item.variantId,
                 );
                 const imageByVariant = item.images?.find(
-                  (f) => f.productVariantId === item.variantId
+                  (f) => f.productVariantId === item.variantId,
                 );
                 const images = imageByVariant
                   ? [imageByVariant]
@@ -228,7 +228,7 @@ export function ProductList() {
                 const stock = variant?.stock || item.stock || 0;
                 const isInStock = stock > 0;
                 const price = formatForDisplay(
-                  variant?.price || item.price || 0
+                  variant?.price || item.price || 0,
                 );
 
                 return (
@@ -238,7 +238,7 @@ export function ProductList() {
                       "overflow-hidden border border-gray-200 shadow-sm transition-all duration-300 bg-white rounded-xl h-full flex flex-col relative",
                       loading || isRequest
                         ? "cursor-not-allowed opacity-60"
-                        : "cursor-pointer active:scale-95"
+                        : "cursor-pointer active:scale-95",
                     )}
                     onClick={() =>
                       !loading && !isRequest && handleProductClick(item)

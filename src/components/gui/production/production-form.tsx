@@ -1,3 +1,4 @@
+"use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ProductSearchResult } from "@/app/api/product/search-product/types";
 import {
@@ -20,9 +21,10 @@ import { cn } from "@/lib/utils";
 import { useAuthentication } from "contexts/authentication-context";
 import { produce } from "immer";
 import { LoaderCircle, Package } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ProductSlotCombobox } from "../product/product-slot-combobox";
+import { ProductionScanDialog } from "./production-scan-dialog";
 
 interface PropsInput {
   composedVariant: any;
@@ -38,7 +40,7 @@ interface Props {
 }
 
 export function ProductionForm(props: Props) {
-  const { currentWarehouse, currency } = useAuthentication();
+  const { currentWarehouse, currency, setting } = useAuthentication();
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState<PropsInput>({
     componentVariants: [],
@@ -51,56 +53,81 @@ export function ProductionForm(props: Props) {
   });
 
   const { trigger, isMutating } = useMutationCompose();
+  const [scanOpen, setScanOpen] = useState(false);
+
+  const inventorySetting: {
+    restrict_product_lot: boolean;
+    print_name: string;
+  } = useMemo(() => {
+    const raw = setting?.data?.result?.find(
+      (f) => f.option === "INVENTORY",
+    )?.value;
+    try {
+      return raw
+        ? JSON.parse(raw)
+        : { restrict_product_lot: false, print_name: "" };
+    } catch {
+      return { restrict_product_lot: false, print_name: "" };
+    }
+  }, [setting]);
 
   const onGenerateComposition = useCallback(
-    async (qty: number, variantId?: string) => {
+    (qty: number, variantId?: string) => {
       if (value.composedVariant.variantId || variantId) {
         setLoading(true);
-        const res = await requestCompose(
-          variantId ?? value.composedVariant.variantId,
-          qty
-        );
-        if (res.success) {
-          setValue(
-            produce((draft) => {
-              draft.componentVariants = (res.result ?? []).map((x) => {
-                return {
-                  id: x.id || "",
-                  variant: x,
-                  stockSlots: x.stockSlots.map((s) => ({
-                    slotId: s.slot?.id || "",
-                    qty: s.qty,
-                  })),
-                };
-              });
-            })
-          );
-        } else {
-          toast.error(res.error);
-        }
-        setLoading(false);
+        requestCompose(variantId ?? value.composedVariant.variantId, qty)
+          .then((res) => {
+            if (res.success) {
+              setValue(
+                produce((draft) => {
+                  draft.componentVariants = (res.result ?? []).map((x) => {
+                    return {
+                      id: x.id || "",
+                      variant: x,
+                      stockSlots: x.stockSlots.map((s) => ({
+                        slotId: s.slot?.id || "",
+                        qty: s.qty,
+                        lot: s.lot,
+                      })),
+                    };
+                  });
+                }),
+              );
+            } else {
+              toast.error(res.error);
+            }
+          })
+          .catch((err) => {
+            toast.error(err.message || "Failed to generate composition");
+          })
+          .finally(() => setLoading(false));
       }
     },
-    [value]
+    [value],
   );
 
-  // Helper function to calculate total quantity from stockSlots
-  const getTotalQuantity = (stockSlots: CompositeStockSlotInput[]) => {
-    return stockSlots.reduce((total, slot) => total + slot.qty, 0);
-  };
-
-  const getSuggestedQty = () => {
+  const getSuggestedQty = (input: PropsInput) => {
+    if (input.componentVariants.length === 0) return 0;
     return Math.min(
-      ...value.componentVariants.map((item) => {
-        const itemQty = getTotalQuantity(item.stockSlots);
+      ...input.componentVariants.map((item) => {
+        const itemQty = item.variant.requiredStock || 0;
         return Math.floor(
-          item.variant.availableStock / (itemQty / value.composedVariant.qty)
+          (item.variant.availableStock || 0) /
+            (itemQty / (input.composedVariant.qty || 0)),
         );
-      })
+      }),
     );
   };
 
-  const onSave = useCallback(() => {
+  const hasLotValidationError = useMemo(() => {
+    if (!inventorySetting.restrict_product_lot) return false;
+    if (value.componentVariants.length === 0) return false;
+    return value.componentVariants.some((item) =>
+      item.variant.stockSlots.some((slot) => !slot.lot?.id),
+    );
+  }, [inventorySetting.restrict_product_lot, value.componentVariants]);
+
+  const doSave = useCallback(() => {
     const input: ComposeVariantProps = {
       composedVariant: {
         variantId: value.composedVariant.variantId,
@@ -117,10 +144,13 @@ export function ProductionForm(props: Props) {
       })),
     };
 
+    console.log("Saving composition with input:", input);
+
     trigger(input)
       .then((res) => {
         if (res.success) {
           toast.success("Composition saved successfully");
+          setScanOpen(false);
           props.onSaved?.();
         } else {
           toast.error(res.error || "Failed to save composition");
@@ -131,6 +161,19 @@ export function ProductionForm(props: Props) {
       });
   }, [props, trigger, value]);
 
+  const onSave = useCallback(() => {
+    if (inventorySetting.restrict_product_lot) {
+      if (hasLotValidationError) {
+        toast.error("Some composition slots are missing a lot number.");
+        return;
+      }
+      // Reset verified state and open scan dialog
+      setScanOpen(true);
+      return;
+    }
+    doSave();
+  }, [inventorySetting.restrict_product_lot, hasLotValidationError, doSave]);
+
   const onSelectProduct = useCallback(
     (v: ProductSearchResult) => {
       setValue(
@@ -139,13 +182,13 @@ export function ProductionForm(props: Props) {
           draft.composedVariant.productLot = {
             costPerUnit: Number(v.price),
           };
-        })
+        }),
       );
       if (Number(value.composedVariant.qty) > 0) {
         onGenerateComposition(value.composedVariant.qty, v.variantId);
       }
     },
-    [value.composedVariant.qty, onGenerateComposition]
+    [value.composedVariant.qty, onGenerateComposition],
   );
 
   const handleBlur = useCallback(() => {
@@ -184,7 +227,7 @@ export function ProductionForm(props: Props) {
                   setValue(
                     produce((draft) => {
                       draft.composedVariant.slotId = v;
-                    })
+                    }),
                   );
                 }}
               />
@@ -201,7 +244,7 @@ export function ProductionForm(props: Props) {
                   setValue(
                     produce((draft) => {
                       draft.composedVariant.qty = isNaN(qty) ? 1 : qty;
-                    })
+                    }),
                   );
                 }}
                 className="text-center w-full"
@@ -246,14 +289,15 @@ export function ProductionForm(props: Props) {
                   <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
                     {value.componentVariants.map((x, index) => {
                       const image = x.variant.basicProduct?.images.find(
-                        (f) => f.productVariantId === x.id
+                        (f) => f.productVariantId === x.id,
                       );
-                      const xQty = getTotalQuantity(x.stockSlots);
+                      const xQty = x.variant.requiredStock || 0;
                       const isStockSufficient =
                         x.variant.availableStock >= xQty;
                       const unitRequired = Math.ceil(
-                        xQty / value.composedVariant.qty
+                        xQty / value.composedVariant.qty,
                       );
+
                       return (
                         <div
                           key={x.id}
@@ -261,7 +305,7 @@ export function ProductionForm(props: Props) {
                             "relative overflow-hidden rounded-lg border bg-card transition-all duration-200 hover:shadow-sm",
                             isStockSufficient
                               ? "border-border"
-                              : "border-red-200 bg-red-50/30 dark:border-red-800 dark:bg-red-950/10"
+                              : "border-red-200 bg-red-50/30 dark:border-red-800 dark:bg-red-950/10",
                           )}
                         >
                           {/* Header with item number and status indicator */}
@@ -325,7 +369,7 @@ export function ProductionForm(props: Props) {
                               {/* Quantity info */}
                               <div className="flex-shrink-0 text-right">
                                 <div className="text-sm font-medium">
-                                  {getTotalQuantity(x.stockSlots)} needed
+                                  {x.variant.requiredStock} needed
                                 </div>
                                 <div className="text-xs text-muted-foreground">
                                   {unitRequired} × {value.composedVariant.qty}
@@ -343,14 +387,34 @@ export function ProductionForm(props: Props) {
                                   <div className="flex flex-wrap gap-1">
                                     {x.variant.stockSlots.map((slot, index) => (
                                       <div
-                                        key={slot.slot?.id ?? index}
+                                        key={index}
                                         className={cn(
                                           "inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-muted",
-                                          slot.slot ? "" : "italic"
+                                          slot.slot ? "" : "italic",
+                                          inventorySetting.restrict_product_lot &&
+                                            !slot.lot?.id
+                                            ? "border border-red-400 bg-red-50 dark:bg-red-950/20"
+                                            : "",
                                         )}
                                       >
                                         <span>
                                           {slot.slot?.name ?? slot.message}
+                                          <br />
+                                          <small
+                                            className={cn(
+                                              "text-muted-foreground",
+                                              inventorySetting.restrict_product_lot &&
+                                                !slot.lot?.id
+                                                ? "text-red-500 font-medium"
+                                                : "",
+                                            )}
+                                          >
+                                            LOT:{" "}
+                                            {slot.lot?.lotNumber ??
+                                              (inventorySetting.restrict_product_lot
+                                                ? "⚠ Required"
+                                                : "N/A")}
+                                          </small>
                                         </span>
                                         <Badge
                                           variant="outline"
@@ -377,9 +441,9 @@ export function ProductionForm(props: Props) {
                   <span
                     className={cn(
                       "font-medium",
-                      getSuggestedQty() < value.composedVariant.qty
+                      getSuggestedQty(value) < value.composedVariant.qty
                         ? "text-red-600"
-                        : ""
+                        : "",
                     )}
                   >
                     {value.composedVariant.qty} Quantity
@@ -388,10 +452,10 @@ export function ProductionForm(props: Props) {
                 <div className="flex justify-between items-center text-sm">
                   <span>Max Compositions Possible:</span>
                   <span className="font-medium text-blue-600">
-                    {getSuggestedQty()} Quantity
+                    {getSuggestedQty(value)} Quantity
                   </span>
                 </div>
-                {getSuggestedQty() < value.composedVariant.qty && (
+                {getSuggestedQty(value) < value.composedVariant.qty && (
                   <div className="text-red-600 text-xs mt-1">
                     ⚠️ Exceeds available stock
                   </div>
@@ -411,12 +475,22 @@ export function ProductionForm(props: Props) {
             loading ||
             !value.composedVariant.slotId ||
             value.componentVariants.length === 0 ||
-            getSuggestedQty() < value.composedVariant.qty
+            getSuggestedQty(value) < value.composedVariant.qty ||
+            hasLotValidationError
           }
         >
           Produce
         </Button>
       </div>
+
+      {/* Lot scan-verify dialog */}
+      <ProductionScanDialog
+        value={value}
+        doSave={doSave}
+        scanOpen={scanOpen}
+        setScanOpen={setScanOpen}
+        isLoading={isMutating}
+      />
     </div>
   );
 }

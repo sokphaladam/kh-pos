@@ -22,8 +22,8 @@ export const settingList = withAuthApi<
 
     return NextResponse.json(
       { success: true, result, error: "" },
-      { status: 200 },
+      { status: 200 }
     );
   },
-  ["ADMIN", "CUSTOMER", "PUBLIC"],
+  ["ADMIN", "CUSTOMER"]
 );

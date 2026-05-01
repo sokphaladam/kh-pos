@@ -24,7 +24,10 @@ export interface ReceivedItem {
 }
 
 export class ReceivePurchaseOrder {
-  constructor(protected db: Knex, protected purchaseOrderId: string) {}
+  constructor(
+    protected db: Knex,
+    protected purchaseOrderId: string,
+  ) {}
 
   async receive({ receivedItems, createdBy }: ReceivePurchaseOrderProps) {
     return this.db.transaction(async (tx) => {
@@ -34,13 +37,13 @@ export class ReceivePurchaseOrder {
       const receivedId = await createReceivedPurchaseOrder(
         this.purchaseOrderId,
         createdBy.id,
-        tx
+        tx,
       );
 
       for (const item of receivedItems) {
         const purchaseOrderDetail = await getPurchaseOrderDetail(
           item.purchaseOrderDetailId,
-          tx
+          tx,
         );
         if (!purchaseOrderDetail) {
           throw new Error("Purchase order detail not found");
@@ -73,14 +76,14 @@ export class ReceivePurchaseOrder {
         await tx.table("receive_po_detail").insert({
           id: generateId(),
           receive_id: receivedId,
-          transaction_id: transactionId,
+          transaction_id: transactionId.transactionId,
         });
 
         // update purchase order detail
         await updateReceivePurchaseOrderDetail(
           purchaseOrderDetail.id!,
           item.qty,
-          tx
+          tx,
         );
       }
 
@@ -106,11 +109,11 @@ async function updatePurchaseOrder(purchaseOrderId: string, tx: Knex) {
 async function updateReceivePurchaseOrderDetail(
   purchaseOrderDetailId: string,
   receivedQty: number,
-  tx: Knex
+  tx: Knex,
 ) {
   await tx
     .table<table_supplier_purchase_order_detail>(
-      "supplier_purchase_order_detail"
+      "supplier_purchase_order_detail",
     )
     .where("id", purchaseOrderDetailId)
     .update({
@@ -136,7 +139,7 @@ async function getPurchaseOrderDetail(id: string, tx: Knex) {
 async function createReceivedPurchaseOrder(
   purchaseOrderId: string,
   createdBy: string,
-  tx: Knex
+  tx: Knex,
 ) {
   const receivedId = generateId();
   await tx.table("receive_po").insert({

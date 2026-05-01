@@ -45,7 +45,8 @@ export type Resource =
   | "ticket"
   | "digital"
   | "settlement"
-  | "product-group";
+  | "product-group"
+  | "board-member-sale-report";
 
 export const actions: Action[] = ["create", "update", "delete", "read"];
 
@@ -95,6 +96,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Resource, Action[]> = {
   digital: actions,
   settlement: actions,
   "product-group": actions,
+  "board-member-sale-report": actions,
 };
 
 export function hasPermission(resource: Resource, action: Action[]): boolean {

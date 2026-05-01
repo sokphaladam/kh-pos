@@ -14,7 +14,23 @@ import { cn } from "@/lib/utils";
 import { useAuthentication } from "contexts/authentication-context";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
 import { format } from "date-fns";
-import { ExternalLink, Eye, FileText, Printer, Undo2 } from "lucide-react";
+import {
+  ExternalLink,
+  Eye,
+  FileText,
+  Mail,
+  Phone,
+  Printer,
+  Undo2,
+  UserCircle,
+  UserCog,
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useState } from "react";
 import {
   OrderStatus,
@@ -139,7 +155,7 @@ export function OrderTable({
                 <TableHead className="font-semibold text-right">
                   Total
                 </TableHead>
-                <TableHead className="font-semibold">Staff</TableHead>
+                <TableHead className="font-semibold">Created By</TableHead>
                 <TableHead className="font-semibold text-center">
                   Actions
                 </TableHead>
@@ -244,9 +260,64 @@ export function OrderTable({
                       {formatForDisplay(order.totalAmount)}
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        {order.createdBy?.fullname || "Unknown"}
-                      </div>
+                      {order.servedType === "customer" ? (
+                        <TooltipProvider>
+                          <Tooltip delayDuration={300}>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex cursor-default items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                <UserCircle className="h-3.5 w-3.5" />
+                                {order.customerLoader?.customerName ||
+                                  "Customer"}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              className="bg-popover text-popover-foreground border border-border shadow-lg p-0 rounded-lg"
+                            >
+                              <div className="flex flex-col min-w-[180px]">
+                                <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+                                  <UserCircle className="h-4 w-4 text-blue-500" />
+                                  <span className="text-sm font-semibold">
+                                    Customer Order
+                                  </span>
+                                </div>
+                                <div className="flex flex-col gap-1.5 px-3 py-2">
+                                  {order.customerLoader?.customerName && (
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <UserCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      <span>
+                                        {order.customerLoader.customerName}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {order.customerLoader?.phone && (
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      <span>{order.customerLoader.phone}</span>
+                                    </div>
+                                  )}
+                                  {order.customerLoader?.email && (
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      <span>{order.customerLoader.email}</span>
+                                    </div>
+                                  )}
+                                  {!order.customerLoader && (
+                                    <span className="text-xs text-muted-foreground">
+                                      No customer info
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-sm">
+                          <UserCog className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span>{order.createdBy?.fullname || "Unknown"}</span>
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-center">
                       <BasicMenuAction
@@ -303,7 +374,63 @@ export function OrderTable({
 
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-muted-foreground">
-                    Staff: {order.createdBy?.fullname || "Unknown"}
+                    {order.servedType === "customer" ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="inline-flex cursor-default items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                              <UserCircle className="h-3 w-3" />
+                              {order.customerLoader?.customerName || "Customer"}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="top"
+                            className="bg-popover text-popover-foreground border border-border shadow-lg p-0 rounded-lg"
+                          >
+                            <div className="flex flex-col min-w-[180px]">
+                              <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+                                <UserCircle className="h-4 w-4 text-blue-500" />
+                                <span className="text-sm font-semibold">
+                                  Customer Order
+                                </span>
+                              </div>
+                              <div className="flex flex-col gap-1.5 px-3 py-2">
+                                {order.customerLoader?.customerName && (
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <UserCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <span>
+                                      {order.customerLoader.customerName}
+                                    </span>
+                                  </div>
+                                )}
+                                {order.customerLoader?.phone && (
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <span>{order.customerLoader.phone}</span>
+                                  </div>
+                                )}
+                                {order.customerLoader?.email && (
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <span>{order.customerLoader.email}</span>
+                                  </div>
+                                )}
+                                {!order.customerLoader && (
+                                  <span className="text-xs text-muted-foreground">
+                                    No customer info
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <span className="inline-flex items-center gap-1">
+                        <UserCog className="h-3 w-3" />
+                        {order.createdBy?.fullname || "Unknown"}
+                      </span>
+                    )}
                   </div>
                   <div className="flex gap-1">
                     <Button

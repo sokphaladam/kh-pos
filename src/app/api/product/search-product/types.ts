@@ -19,6 +19,7 @@ export interface ProductSearchFilter {
   supplierId?: string;
   type?: "all" | "pos";
   includeProductNotForSale?: boolean;
+  compositeOnly?: boolean;
 }
 
 export interface ProductSearchResult {

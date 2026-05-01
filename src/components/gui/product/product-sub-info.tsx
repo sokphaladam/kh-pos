@@ -1,5 +1,6 @@
 import { ProductV2 } from "@/classes/product-v2";
 import { ImageWithFallback } from "@/components/image-with-fallback";
+import { useCurrencyFormat } from "@/hooks/use-currency-format";
 
 export function ProductSubInfo({
   product,
@@ -8,6 +9,7 @@ export function ProductSubInfo({
   product: ProductV2;
   variantId?: string;
 }) {
+  const { formatForDisplay } = useCurrencyFormat();
   const variant = product.productVariants.find((f) => f.id === variantId);
   return (
     <div className="flex flex-row gap-2 text-sm justify-start items-start">
@@ -25,7 +27,7 @@ export function ProductSubInfo({
           {product.title} ({variant?.name})
         </div>
         <div>
-          {variant?.sku} (${variant?.purchasePrice})
+          {variant?.sku} ({formatForDisplay(variant?.purchasePrice || "0")})
         </div>
       </div>
     </div>

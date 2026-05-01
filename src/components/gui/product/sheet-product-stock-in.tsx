@@ -37,6 +37,7 @@ import {
 import { BasicMenuAction } from "@/components/basic-menu-action";
 import { useAuthentication } from "contexts/authentication-context";
 import { printProductLotDialog } from "./print/print-product-dialog";
+import { useCurrencyFormat } from "@/hooks/use-currency-format";
 
 interface StockProp extends StockByLot {
   actualStock: number;
@@ -52,10 +53,12 @@ function MenuItem({
   value,
   product,
   variantId,
+  slot,
 }: {
   value: StockProp;
   product: ProductV2 | null;
   variantId?: string;
+  slot: string;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
   return (
@@ -82,6 +85,7 @@ function MenuItem({
             sku:
               product?.productVariants.find((f) => f.id === variantId)?.sku +
               "",
+            slot,
           },
         ]}
         type="MENU"
@@ -113,6 +117,7 @@ export const sheetProductStockIn = createSheet<
   ({ product, variantId, close }) => {
     const { setting } = useAuthentication();
     const { showDialog } = useCommonDialog();
+    const { getSymbol } = useCurrencyFormat();
     const [slotSelected, setSlotSelected] = useState<{
       slotId: string;
       slotName: string;
@@ -250,6 +255,7 @@ export const sheetProductStockIn = createSheet<
                 sku:
                   product?.productVariants.find((f) => f.id === variantId)
                     ?.sku + "",
+                slot: slotSelected.slotName,
               });
             }),
           );
@@ -376,7 +382,9 @@ export const sheetProductStockIn = createSheet<
                 <TableHead className="text-xs">Manufacturing</TableHead>
                 <TableHead className="text-xs">Current Stock</TableHead>
                 <TableHead className="text-xs">Stock Qty</TableHead>
-                <TableHead className="text-xs">Cost Per Unit($)</TableHead>
+                <TableHead className="text-xs">
+                  Cost Per Unit({getSymbol()})
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -508,6 +516,7 @@ export const sheetProductStockIn = createSheet<
                         value={x}
                         product={product}
                         variantId={variantId}
+                        slot={slotSelected.slotName}
                       />
                     </TableCell>
                   </TableRow>

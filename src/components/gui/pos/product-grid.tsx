@@ -83,7 +83,7 @@ export function ProductGrid({
       limit: PAGE_SIZE,
       offset: page * PAGE_SIZE,
       replenishment: false,
-      compositeOnly: true,
+      compositeOnly: false,
       categoryKeys: selectedCategory !== "All" ? selectedCategory : "",
       warehouse: warehouse || "",
       type: "pos" as "all" | "pos",

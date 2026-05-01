@@ -5,6 +5,7 @@ import { DateRange } from "react-day-picker";
 import { endOfMonth, startOfMonth } from "date-fns";
 import { useState, useEffect, useMemo } from "react";
 import moment from "moment-timezone";
+import Link from "next/link";
 
 interface WarehouseData {
   total_amount: string;
@@ -16,6 +17,8 @@ interface WarehouseData {
     phone?: string;
     address?: string;
   };
+  local: boolean;
+  brandName: string;
 }
 
 interface IntegrationGroup {
@@ -28,9 +31,18 @@ interface SaleByWarehouseResult {
   integration: IntegrationGroup[];
 }
 
-function WarehouseCard({ item }: { item: WarehouseData }) {
+function WarehouseCard({
+  item,
+  date,
+}: {
+  item: WarehouseData;
+  date: { startDate: string; endDate: string };
+}) {
   return (
-    <div className="bg-white dark:bg-[#18181b] rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-5 flex flex-col gap-3 border border-gray-100 dark:border-gray-800">
+    <Link
+      href={`/admin/board-member-sale-report?local=${!!item.local ? "1" : "0"}&warehouseId=${item.warehouse_id}&warehouse=${item.warehouse.name}&brandName=${item.brandName}&startDate=${date.startDate}&endDate=${date.endDate}`}
+      className="bg-white dark:bg-[#18181b] rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-5 flex flex-col gap-3 border border-gray-100 dark:border-gray-800"
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
@@ -69,7 +81,7 @@ function WarehouseCard({ item }: { item: WarehouseData }) {
           {item.warehouse.address}
         </p>
       )}
-    </div>
+    </Link>
   );
 }
 
@@ -114,8 +126,13 @@ export default function BoardMemberDashboardPage() {
   const result = data?.result as SaleByWarehouseResult | undefined;
 
   const localItems = useMemo<WarehouseData[]>(() => {
-    const local = result?.local ?? [];
-    const group = result?.integration ?? [];
+    const local =
+      result?.local.map((x) => ({ ...x, local: true, brandName: "" })) ?? [];
+    const group =
+      result?.integration.map((x) => ({
+        ...x,
+        data: x.data.map((d) => ({ ...d, brandName: x.name, local: false })),
+      })) ?? [];
 
     return [...local, ...group.flatMap((g) => g.data)];
   }, [result]);
@@ -170,7 +187,11 @@ export default function BoardMemberDashboardPage() {
           ) : (
             <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {localItems.map((item) => (
-                <WarehouseCard key={item.warehouse_id} item={item} />
+                <WarehouseCard
+                  key={item.warehouse_id}
+                  item={item}
+                  date={dateFilters}
+                />
               ))}
             </div>
           )}

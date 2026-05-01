@@ -24,6 +24,7 @@ import {
 } from "@/classes/purchase-order-service";
 import { toast } from "sonner";
 import { ReceivedItem } from "@/classes/receive-po";
+import { Formatter } from "@/lib/formatter";
 
 function ReceiveItemsSheetComponent({
   purchaseOrderId,
@@ -65,7 +66,13 @@ function ReceiveItemsSheetComponent({
       // Call the API
       const result = await receiveItems({
         purchaseOrderId,
-        receivedItems: validItems,
+        receivedItems: validItems.map((item) => {
+          const formattedExpiredAt = Formatter.date(item.expiredAt);
+          return {
+            ...item,
+            expiredAt: formattedExpiredAt ?? undefined,
+          };
+        }),
       });
 
       if (result.success) {

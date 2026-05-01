@@ -1,5 +1,5 @@
 import { useMutationSetSettlement } from "@/app/hooks/cinema/use-query-settlement";
-import { useUploadFileMinIO } from "@/app/hooks/use-upload-file";
+import { useUploadFile } from "@/app/hooks/use-upload-file";
 import { createDialog } from "@/components/create-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,8 +23,7 @@ export const proofSettlementDialog = createDialog<Props, unknown>(
   ({ settlementId, close }) => {
     const { trigger: setSettlementTrigger, isMutating: isSetSettling } =
       useMutationSetSettlement();
-    const { trigger: uploadFile, isMutating: isUploading } =
-      useUploadFileMinIO();
+    const { trigger: uploadFile, isMutating: isUploading } = useUploadFile();
 
     const [proofUrl, setProofUrl] = useState<string | null>(null);
     const [preview, setPreview] = useState<string | null>(null);

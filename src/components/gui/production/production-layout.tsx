@@ -1,3 +1,4 @@
+"use client";
 import { TopToolbar } from "@/components/top-toolbar";
 import React, { useCallback, useEffect, useState } from "react";
 import { SheetProduction } from "./sheet-production";

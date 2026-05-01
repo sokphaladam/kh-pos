@@ -325,7 +325,7 @@ export function generateMovieShowtimeHtml(
         
         <div class="report-info">
             From: ${formatDateHeader(startDate)}&nbsp;&nbsp;Until: ${formatDateHeader(endDate)}&nbsp;&nbsp;Cinema: All<br>
-            Distributor: MediaLoad Picture&nbsp;&nbsp;Movie Format: All&nbsp;&nbsp;Split Movie Format: Yes&nbsp;&nbsp;Show Comp Tickets: No&nbsp;&nbsp;Report Type: Daily
+            Distributor: ${movieGroup.director}&nbsp;&nbsp;Movie Format: All&nbsp;&nbsp;Split Movie Format: Yes&nbsp;&nbsp;Show Comp Tickets: No&nbsp;&nbsp;Report Type: Daily
         </div>
 `;
 

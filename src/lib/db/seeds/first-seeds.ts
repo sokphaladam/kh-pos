@@ -1,4 +1,4 @@
-import { Formatter } from "../../formatter";
+import { Formatter } from "@/lib/formatter";
 import { readFileSync } from "fs";
 import { Knex } from "knex";
 import { dirname, resolve } from "path";
@@ -10,7 +10,7 @@ export async function seed(knex: Knex): Promise<void> {
   const sql = readFileSync(sqlFilePath, "utf8");
 
   const seedName = "first-seeds";
-  const dbName = "mood-pos";
+  const dbName = "bayon";
 
   await knex.raw(`CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`);
   await knex.raw(`USE \`${dbName}\`;`);

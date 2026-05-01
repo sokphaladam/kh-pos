@@ -41,6 +41,54 @@ export function useQueryReportSaleBreakdownByCategory(filter: {
   }
 
   return useGenericSWR<ResponseType<SaleByCategoryReportRow[]>>(
-    `/api/report/sale-by-category?${params.toString()}`
+    `/api/report/sale-by-category?${params.toString()}`,
+  );
+}
+
+export function useQueryReportSaleBreakdownByCategoryWithIntegration(filter: {
+  brandName: string;
+  startDate: string;
+  endDate: string;
+  warehouseId: string;
+  groupBy: "product" | "time";
+  userIds?: string[];
+  categoryIds?: string[];
+  productId?: string;
+}) {
+  const params = new URLSearchParams();
+
+  if (filter.brandName) {
+    params.set("brandName", filter.brandName);
+  }
+
+  if (filter.startDate) {
+    params.set("startDate", filter.startDate);
+  }
+
+  if (filter.endDate) {
+    params.set("endDate", filter.endDate + " 23:59:59");
+  }
+
+  if (filter.warehouseId) {
+    params.set("warehouseId", filter.warehouseId);
+  }
+  if (filter.groupBy) {
+    params.set("groupBy", filter.groupBy);
+  }
+
+  if (filter.userIds && filter.userIds.length > 0) {
+    params.set("userIds", filter.userIds.join(","));
+  }
+
+  if (filter.categoryIds && filter.categoryIds.length > 0) {
+    params.set("categoryIds", filter.categoryIds.join(","));
+  }
+
+  if (filter.productId) {
+    params.set("productId", filter.productId);
+  }
+
+  return useGenericSWR<ResponseType<SaleByCategoryReportRow[]>>(
+    `/api/report/sale-by-category/integrate?${params.toString()}`,
   );
 }

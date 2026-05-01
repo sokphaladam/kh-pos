@@ -323,6 +323,18 @@ export class WarehouseService {
               restrict_product_lot: true,
             }),
           },
+          {
+            warehouse: null,
+            option: "BRAND",
+            value: JSON.stringify({
+              title: "Point of Sale (POS) System",
+              description:
+                "L-POS stands for Point of Sale, which refers to the place and system where a retail transaction is completed. It typically involves both hardware and software used by businesses to process sales, accept payments, and manage related operations like inventory and customer data.",
+              icons: {
+                icon: "/favicon.ico",
+              },
+            }),
+          },
         );
       }
 

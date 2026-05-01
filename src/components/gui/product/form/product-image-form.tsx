@@ -2,6 +2,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { EllipsisVertical, LoaderIcon, UploadCloud } from "lucide-react";
+import { useUploadFile } from "@/app/hooks/use-upload-file";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { produce } from "immer";
 import { Formatter } from "@/lib/formatter";
@@ -23,7 +24,6 @@ import {
 import { cn } from "@/lib/utils";
 import { productDialog } from "@/components/product/dialog-product";
 import { generateId } from "@/lib/generate-id";
-import { useUploadFileMinIO } from "@/app/hooks/use-upload-file";
 
 function DropDownMenuImage(props: {
   onClickDelete?: () => void;
@@ -86,7 +86,7 @@ function DropDownMenuImage(props: {
 export function ProductFormImage() {
   const [draft, setDraft] = useState<ProductImage[]>([]);
   const { product, setProduct } = useProductForm();
-  const { trigger, isMutating: isUploading } = useUploadFileMinIO();
+  const { trigger, isMutating: isUploading } = useUploadFile();
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -122,12 +122,12 @@ export function ProductFormImage() {
                 updatedAt: Formatter.getNowDateTime(),
                 productVariantId: "",
               });
-            }),
+            })
           );
           setState(
             produce((d) => {
               d.count += 1;
-            }),
+            })
           );
         } else {
           toast.error("Failed to upload image");
@@ -155,7 +155,7 @@ export function ProductFormImage() {
         processQueuedFiles();
       }, debounceMs);
     },
-    [processQueuedFiles],
+    [processQueuedFiles]
   );
 
   useEffect(() => {
@@ -167,7 +167,7 @@ export function ProductFormImage() {
               ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 [...(product.productImages as any[]), ...draft]
               : draft;
-        }),
+        })
       );
       setDraft([]);
     }
@@ -183,7 +183,7 @@ export function ProductFormImage() {
       });
       debouncedProcessFiles(files);
     },
-    [debouncedProcessFiles],
+    [debouncedProcessFiles]
   );
 
   return (
@@ -203,13 +203,13 @@ export function ProductFormImage() {
       <div className="grid grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {product.productImages.map((image, idx) => {
           const variant = product.productVariants.find(
-            (f) => f.id === image.productVariantId,
+            (f) => f.id === image.productVariantId
           )?.name;
           return (
             <ContextMenu key={idx}>
               <ContextMenuTrigger
                 className={cn(
-                  "border border-dashed text-sm rounded-md overflow-hidden max-w-32 max-h-32 flex items-center justify-center relative",
+                  "border border-dashed text-sm rounded-md overflow-hidden max-w-32 max-h-32 flex items-center justify-center relative"
                   // image.productVariantId ? "hidden" : ""
                 )}
               >
@@ -225,7 +225,7 @@ export function ProductFormImage() {
                     setProduct(
                       produce(product, (dr) => {
                         dr.productImages?.splice(idx, 1);
-                      }),
+                      })
                     );
                   }}
                   image={{
@@ -241,7 +241,7 @@ export function ProductFormImage() {
                     setProduct(
                       produce(product, (dr) => {
                         dr.productImages[idx].productVariantId = "";
-                      }),
+                      })
                     );
                   }}
                 />
@@ -280,7 +280,7 @@ export function ProductFormImage() {
                     setProduct(
                       produce(product, (dr) => {
                         dr.productImages?.splice(idx, 1);
-                      }),
+                      })
                     );
                   }}
                 >

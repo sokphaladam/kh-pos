@@ -39,6 +39,7 @@ interface ReportFiltersSidebarProps {
   onClearFiltersAction: () => void;
   activeFiltersCount: number;
   viewMode: "list" | "graph";
+  forBoardMember?: boolean;
   // users: UserInfo[];
   // isLoadingUsers: boolean;
 }
@@ -49,6 +50,7 @@ export function ReportFiltersSidebar({
   onClearFiltersAction,
   activeFiltersCount,
   viewMode,
+  forBoardMember = false,
 }: // users,
 ReportFiltersSidebarProps) {
   return (
@@ -59,7 +61,14 @@ ReportFiltersSidebarProps) {
     >
       <SidebarHeader className="border-b border-gray-200">
         {/* Back to Dashboard */}
-        <Link href="/admin/dashboard" className="block mb-3">
+        <Link
+          href={
+            forBoardMember
+              ? "/admin/board-member-dashboard"
+              : "/admin/dashboard"
+          }
+          className="block mb-3"
+        >
           <Button
             variant="ghost"
             size="sm"
@@ -110,44 +119,53 @@ ReportFiltersSidebarProps) {
         <SidebarSeparator />
 
         {/* Warehouse Filter Only for owners */}
-        <SidebarGroup>
-          <SidebarGroupContent className="space-y-3">
-            <ReportWarehousePicker
-              selectedWarehouseIds={filters.warehouseIds}
-              onSelectionChange={(v) => {
-                onFiltersChangeAction("warehouseIds", v);
-              }}
-            />
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {!forBoardMember && (
+          <SidebarGroup>
+            <SidebarGroupContent className="space-y-3">
+              <ReportWarehousePicker
+                selectedWarehouseIds={filters.warehouseIds}
+                onSelectionChange={(v) => {
+                  onFiltersChangeAction("warehouseIds", v);
+                }}
+              />
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* User Filter */}
-        <SidebarGroup>
-          <SidebarGroupContent className="space-y-3">
-            <UserPicker
-              selectedUserIds={filters.userIds}
-              onSelectionChange={(userIds) => {
-                onFiltersChangeAction("userIds", userIds);
-              }}
-            />
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
+        {!forBoardMember && (
+          <>
+            <SidebarGroup>
+              <SidebarGroupContent className="space-y-3">
+                <UserPicker
+                  selectedUserIds={filters.userIds}
+                  onSelectionChange={(userIds) => {
+                    onFiltersChangeAction("userIds", userIds);
+                  }}
+                />
+              </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarSeparator />
+          </>
+        )}
 
         {/* Category Filter */}
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <ReportCategoryPicker
-              selectedCategoryIds={filters.categoryId}
-              onSelectionChange={(v) => {
-                onFiltersChangeAction("categoryId", v);
-              }}
-            />
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {!forBoardMember && (
+          <>
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <ReportCategoryPicker
+                  selectedCategoryIds={filters.categoryId}
+                  onSelectionChange={(v) => {
+                    onFiltersChangeAction("categoryId", v);
+                  }}
+                />
+              </SidebarGroupContent>
+            </SidebarGroup>
 
-        <SidebarSeparator />
+            <SidebarSeparator />
+          </>
+        )}
 
         {/* Product Filter */}
         <SidebarGroup>
@@ -167,14 +185,16 @@ ReportFiltersSidebarProps) {
               <Label htmlFor="groupProduct">Group by Product</Label>
             </div>
           </SidebarGroupContent>
-          <SidebarGroupContent>
-            <ReportProductPicker
-              selectedProductId={filters.productId || ""}
-              onSelectionChange={(v) => {
-                onFiltersChangeAction("productId", v);
-              }}
-            />
-          </SidebarGroupContent>
+          {!forBoardMember && (
+            <SidebarGroupContent>
+              <ReportProductPicker
+                selectedProductId={filters.productId || ""}
+                onSelectionChange={(v) => {
+                  onFiltersChangeAction("productId", v);
+                }}
+              />
+            </SidebarGroupContent>
+          )}
         </SidebarGroup>
 
         <SidebarSeparator />

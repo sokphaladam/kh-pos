@@ -15,6 +15,7 @@ import {
 import { Formatter } from "@/lib/formatter";
 import { LoaderCircle } from "lucide-react";
 import { ProductSubInfo } from "./product-sub-info";
+import { useCurrencyFormat } from "@/hooks/use-currency-format";
 
 const transactionTypeConfig: Record<string, { color: string; label: string }> =
   {
@@ -42,8 +43,9 @@ export const sheetProductTransaction = createSheet<{
   product: ProductV2 | null;
   variantId?: string;
 }>(({ variantId, product }) => {
+  const { formatForDisplay } = useCurrencyFormat();
   const { data, isLoading, isValidating } = useQueryProductVariantTransaction(
-    variantId || ""
+    variantId || "",
   );
   const total = data?.result?.reduce(
     (a, b) => {
@@ -53,7 +55,7 @@ export const sheetProductTransaction = createSheet<{
           a.value + b.qty * Number.parseFloat(b.productLot?.costPerUnit || "0"),
       };
     },
-    { qty: 0, value: 0 }
+    { qty: 0, value: 0 },
   ) || { qty: 0, value: 0 };
 
   return (
@@ -105,7 +107,7 @@ export const sheetProductTransaction = createSheet<{
                   </span>
                 </TableCell>
                 <TableCell className="text-right font-bold">
-                  ${total.value.toFixed(2)}
+                  {formatForDisplay(total.value.toFixed(2))}
                 </TableCell>
                 <TableCell></TableCell>
               </TableRow>
@@ -164,9 +166,12 @@ export const sheetProductTransaction = createSheet<{
                       </span>
                     </TableCell>
                     <TableCell className="text-right text-xs">
-                      ${totalValue.toFixed(2)}
+                      {formatForDisplay(totalValue.toFixed(2))}
                       <div className="text-xs text-muted-foreground">
-                        ${transaction.productLot?.costPerUnit}/unit
+                        {formatForDisplay(
+                          transaction.productLot?.costPerUnit || "0",
+                        )}
+                        /unit
                       </div>
                     </TableCell>
                     <TableCell className="text-xs">

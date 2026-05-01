@@ -22,6 +22,7 @@ function PrintProductLotTest({ config }: { config: any }) {
       lotId: "3af64575-8a9c-452e-8004-17e4fd921277",
       price: "$9.99",
       manufacturingDate: "2025-01-15",
+      slot: "SLOT-A01",
     };
     return [testData];
   }, []);

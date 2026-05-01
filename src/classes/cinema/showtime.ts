@@ -123,6 +123,7 @@ export class ShowtimeService {
     status?: string[],
     showDate?: string,
     movieId?: string,
+    warehouseId?: string,
   ) {
     const query = this.tx.table("showtime").where("deleted_at", null);
 
@@ -141,10 +142,11 @@ export class ShowtimeService {
       }
     }
 
-    if (this.user.currentWarehouseId) {
+    const effectiveWarehouseId = warehouseId ?? this.user?.currentWarehouseId;
+    if (effectiveWarehouseId) {
       query
         .join("user", "user.id", "showtime.created_by")
-        .where("user.warehouse_id", this.user.currentWarehouseId);
+        .where("user.warehouse_id", effectiveWarehouseId);
     }
 
     const { total } = await query
@@ -163,7 +165,7 @@ export class ShowtimeService {
     const userLoader = LoaderFactory.userLoader(this.tx);
     const variantLoader = LoaderFactory.productVariantByIdLoader(
       this.tx,
-      this.user?.currentWarehouseId || "",
+      effectiveWarehouseId || "",
     );
     const pricingTemplateLoader = LoaderFactory.cinemaPricingTemplateLoader(
       this.tx,

@@ -25,13 +25,13 @@ export async function testDailyAccountBookingMovieShowtimeJob() {
   logger.info(
     "Starting daily account booking movie showtime report generation...",
   );
-  const today = moment();
+  const today = moment().tz("Asia/Phnom_Penh");
 
   const pastday = today.subtract(1, "day").format("YYYY-MM-DD");
 
   const db = getKnexSync();
 
-  logger.info("Querying account booking movie showtime data...");
+  logger.info(`Querying account booking movie showtime data on ${pastday}...`);
 
   const result = await db.transaction(async (trx) => {
     const reportData = await queryMovieShowtimeData(trx, {
@@ -86,7 +86,12 @@ export async function testDailyAccountBookingMovieShowtimeJob() {
 
       const systemAdmin: table_user = await trx
         .table("user")
-        .where({ is_system_admin: true, warehouse_id: showtime.warehouse_id })
+        .where({
+          is_system_admin: true,
+          warehouse_id: showtime.warehouse_id,
+          is_dev: false,
+          is_deleted: 0,
+        })
         .first();
 
       if (findIndex === -1) {

@@ -20,13 +20,13 @@ const logger = new CronLogger("DailyAccountBookingSaleOrderJob");
 export async function testDailyAccountBookingSaleOrderJob() {
   logger.info("Starting daily account booking sale order report generation...");
 
-  const today = moment();
+  const today = moment().tz("Asia/Phnom_Penh");
 
   const pastday = today.subtract(1, "day").format("YYYY-MM-DD");
 
   const db = getKnexSync();
 
-  logger.info("Querying account booking sale order data...");
+  logger.info(`Querying account booking sale order data on ${pastday}...`);
 
   const result = await db.transaction(async (trx) => {
     const reportData = await querySaleOrderReport(trx, {
@@ -67,7 +67,12 @@ export async function testDailyAccountBookingSaleOrderJob() {
     for (const row of reportData) {
       const systemAdmin: table_user = await trx
         .table("user")
-        .where({ is_system_admin: true, warehouse_id: row.warehouse_id })
+        .where({
+          is_system_admin: true,
+          warehouse_id: row.warehouse_id,
+          is_dev: false,
+          is_deleted: 0,
+        })
         .first();
       const date = Formatter.date(row.paid_date);
       rows.push({
@@ -99,7 +104,7 @@ export async function testDailyAccountBookingSaleOrderJob() {
 
 export function registerDailyAccountBookingSaleOrderJob(): ScheduledTask {
   const job = cron.schedule(
-    "0 15 4 * * *",
+    "0 15 4 * * *", //run at 4:15 AM every day
     createSafeJob(
       "DailyAccountBookingSaleOrderJob",
       testDailyAccountBookingSaleOrderJob,

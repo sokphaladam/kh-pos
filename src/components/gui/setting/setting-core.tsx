@@ -16,6 +16,7 @@ import {
   ReceiptText,
   Settings,
   Table,
+  Tag,
   Warehouse,
 } from "lucide-react";
 import React, { ReactNode, useCallback } from "react";
@@ -187,9 +188,9 @@ export const SETTING_CONFIGS: Record<string, SettingConfig> = {
     type: "inventory",
   },
   BRAND: {
-    icon: <Blocks className="h-4 w-4" />,
+    icon: <Tag className="h-4 w-4" />,
     label: "Brand",
-    description: "Brand information and customization settings",
+    description: "Brand information such as title, description, and icon",
     type: "brand",
   },
 };

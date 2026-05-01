@@ -1,6 +1,5 @@
 import { LoaderFactory } from "@/dataloader/loader-factory";
 import {
-  table_product_images,
   table_product_variant,
   table_variant_composite,
 } from "@/generated/tables";
@@ -53,7 +52,7 @@ const inputProductVariantSchema = z
       message:
         "compositeVariants must have at least one item when isComposite is true",
       path: ["compositeVariants"],
-    },
+    }
   );
 
 export const inputProductVariantsSchema = z.array(inputProductVariantSchema);
@@ -65,21 +64,21 @@ export class ProductVariantService {
   constructor(
     protected trx: Knex,
     protected user: UserInfo,
-    protected productId: string,
+    protected productId: string
   ) {}
 
   async getProductVariants() {
     const variantLoader = LoaderFactory.productVariantLoader(
       this.trx,
-      this.user.currentWarehouseId!,
+      this.user.currentWarehouseId!
     );
     return await variantLoader.load(this.productId);
   }
 
-  async createProductVariant(variant: ProductVariant, imageUrl?: string) {
+  async createProductVariant(variant: ProductVariant) {
     const now = Formatter.getNowDateTime();
 
-    await this.insertProductVariant(variant, now, imageUrl);
+    await this.insertProductVariant(variant, now);
     await this.insertProductVariantOptionValues(variant);
   }
 
@@ -110,7 +109,7 @@ export class ProductVariantService {
           variant,
           this.productId,
           trx,
-          this.user,
+          this.user
         );
       }
     });
@@ -120,7 +119,7 @@ export class ProductVariantService {
     variant: ProductVariant,
     productId: string,
     trx: Knex,
-    user: UserInfo,
+    user: UserInfo
   ) {
     const now = Formatter.getNowDateTime();
     const existingVariant = await trx
@@ -151,14 +150,14 @@ export class ProductVariantService {
           variant.compositeVariants,
           variant.id,
           trx,
-          user,
+          user
         );
       }
     } else {
       await new ProductVariantService(
         trx,
         user,
-        productId,
+        productId
       ).createProductVariant(variant);
     }
   }
@@ -170,11 +169,7 @@ export class ProductVariantService {
     });
   }
 
-  private async insertProductVariant(
-    variant: ProductVariant,
-    now: string,
-    imageUrl?: string,
-  ) {
+  private async insertProductVariant(variant: ProductVariant, now: string) {
     await this.trx.transaction(async (trx) => {
       // variants
       await trx.table<table_product_variant>("product_variant").insert({
@@ -202,24 +197,8 @@ export class ProductVariantService {
             qty: composite.quantity,
             created_at: now,
             created_by: this.user.id,
-          })),
+          }))
         );
-      }
-
-      if (imageUrl) {
-        const imageCount = await trx
-          .table("product_images")
-          .where("product_id", this.productId)
-          .count<{ count: number }>("id as count")
-          .first();
-        await trx.table<table_product_images>("product_images").insert({
-          id: generateId(),
-          product_id: this.productId,
-          image_url: imageUrl,
-          created_at: now,
-          product_variant_id: variant.id,
-          image_order: (imageCount?.count || 0) + 1,
-        });
       }
     });
   }
@@ -229,7 +208,7 @@ export class ProductVariantService {
       variant.optionValues.map((value) => ({
         product_variant_id: variant.id,
         option_value_id: value.id,
-      })),
+      }))
     );
   }
 }
@@ -238,7 +217,7 @@ async function updateCompositeVariants(
   data: CompositeVariant[],
   compositeId: string,
   knex: Knex,
-  user: UserInfo,
+  user: UserInfo
 ) {
   const now = Formatter.getNowDateTime();
   await knex.transaction(async (trx) => {
@@ -266,7 +245,7 @@ async function updateCompositeVariants(
         .where({ variant_composite_id: compositeId })
         .whereNotIn(
           "id",
-          oldCompositeVariants.map((v) => v.id!),
+          oldCompositeVariants.map((v) => v.id!)
         );
     }
 
@@ -295,7 +274,7 @@ async function updateCompositeVariants(
           qty: variant.quantity,
           created_at: now,
           created_by: user.id,
-        })),
+        }))
       );
     }
   });

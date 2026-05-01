@@ -75,6 +75,10 @@ export class ProductService {
       searchQuery.where("warehouse_slot.for_replenishment", 1);
     }
 
+    if (filter?.compositeOnly !== undefined && filter?.compositeOnly === true) {
+      searchQuery.where("product_variant.is_composite", true);
+    }
+
     if (filter?.categoryKeys) {
       searchQuery.whereIn(
         "product_categories.category_id",

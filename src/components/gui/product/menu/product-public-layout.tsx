@@ -37,7 +37,7 @@ function ProductImageDisplay({
         <div
           className={cn(
             "bg-gray-100 flex items-center justify-center rounded-t-xl aspect-[5/5] w-full relative",
-            className
+            className,
           )}
         >
           <span className="text-gray-400 text-xs sm:text-sm">No Image</span>
@@ -53,7 +53,7 @@ function ProductImageDisplay({
               <div
                 className={cn(
                   "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-white shadow-sm",
-                  stockStatus.isInStock ? "bg-green-500" : "bg-red-500"
+                  stockStatus.isInStock ? "bg-green-500" : "bg-red-500",
                 )}
               />
             )}
@@ -75,7 +75,7 @@ function ProductImageDisplay({
       <div
         className={cn(
           "relative overflow-hidden group aspect-[5/5] w-full rounded-t-xl",
-          className
+          className,
         )}
       >
         {images[0].url ? (
@@ -134,7 +134,7 @@ export function ProductPublicLayout() {
       limit: PAGE_SIZE,
       offset: page * PAGE_SIZE,
       replenishment: false,
-      compositeOnly: true,
+      compositeOnly: false,
       categoryKeys: selectedCategory !== "All" ? selectedCategory : "",
       warehouse: params.get("warehouse") || "",
       type: "pos" as "all" | "pos",
@@ -167,8 +167,8 @@ export function ProductPublicLayout() {
             (newProduct) =>
               !prev.some(
                 (existingProduct) =>
-                  existingProduct.variantId === newProduct.variantId
-              )
+                  existingProduct.variantId === newProduct.variantId,
+              ),
           );
           return [...prev, ...newProducts];
         });
@@ -250,7 +250,7 @@ export function ProductPublicLayout() {
                     "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base",
                     selectedCategory === "All"
                       ? "bg-primary text-primary-foreground shadow-sm"
-                      : "hover:bg-gray-50 border-gray-300"
+                      : "hover:bg-gray-50 border-gray-300",
                   )}
                 >
                   All Categories
@@ -276,7 +276,7 @@ export function ProductPublicLayout() {
                           "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base",
                           selectedCategory === category.id
                             ? "bg-primary text-primary-foreground shadow-sm"
-                            : "hover:bg-gray-50 border-gray-300"
+                            : "hover:bg-gray-50 border-gray-300",
                         )}
                       >
                         {category.title}
@@ -308,10 +308,10 @@ export function ProductPublicLayout() {
               ))
             : displayProducts.map((item, index) => {
                 const variant = (item.variants as ProductVariantType[])?.find(
-                  (f) => f.id === item.variantId
+                  (f) => f.id === item.variantId,
                 );
                 const imageByVariant = item.images?.find(
-                  (f) => f.productVariantId === item.variantId
+                  (f) => f.productVariantId === item.variantId,
                 );
                 const images = imageByVariant
                   ? [imageByVariant]
@@ -323,7 +323,7 @@ export function ProductPublicLayout() {
                     ];
 
                 const price = formatForDisplay(
-                  variant?.price || item.price || 0
+                  variant?.price || item.price || 0,
                 );
 
                 return (
@@ -333,7 +333,7 @@ export function ProductPublicLayout() {
                       "group overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 bg-white rounded-xl hover:border-gray-300 h-full flex flex-col relative",
                       loading
                         ? "cursor-not-allowed opacity-60"
-                        : "cursor-pointer hover:-translate-y-1 active:scale-95"
+                        : "cursor-pointer hover:-translate-y-1 active:scale-95",
                     )}
                     onClick={() => !loading && handleProductClick(item)}
                   >

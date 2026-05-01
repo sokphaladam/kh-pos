@@ -331,6 +331,7 @@ export function DefaultPrint({
                           textAlign: "start",
                           display: "flex",
                           flexDirection: "row",
+                          maxWidth: "20mm",
                         }}
                         // className="text-start flex flex-row !border-y-0"
                       >
@@ -363,6 +364,7 @@ export function DefaultPrint({
                                       alignItems: "center",
                                       justifyContent: "flex-start",
                                       width: 100,
+                                      fontSize: 10,
                                     }}
                                   >
                                     <div

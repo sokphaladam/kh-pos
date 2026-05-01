@@ -1,5 +1,11 @@
 "use client";
-import { FunctionComponent, useCallback, useEffect, useState } from "react";
+import {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 
 type SheetProviderSlot = "default" | "base";
@@ -14,6 +20,8 @@ export function SheetProvider({
   const [options, setOptions] = useState<unknown>();
   const [resolve, setResolve] = useState<(props: unknown) => void>();
   const [defaultCloseValue, setDefaultCloseValue] = useState<unknown>();
+  const [showKey, setShowKey] = useState(0);
+  const resolvedRef = useRef(false);
 
   const SheetComponent = component;
 
@@ -29,13 +37,15 @@ export function SheetProvider({
       resolve: (props: unknown) => void;
       defaultCloseValue: unknown;
     }) => {
+      resolvedRef.current = false;
       setComponent(() => component);
       setOptions(options);
       setResolve(() => resolve);
       setDefaultCloseValue(defaultCloseValue);
       setOpen(true);
+      setShowKey((k) => k + 1);
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -57,7 +67,10 @@ export function SheetProvider({
           open={open}
           onOpenChange={(state) => {
             if (!state) {
-              if (resolve) resolve(defaultCloseValue);
+              if (!resolvedRef.current && resolve) {
+                resolvedRef.current = true;
+                resolve(defaultCloseValue);
+              }
               setOpen(false);
             }
           }}
@@ -72,10 +85,14 @@ export function SheetProvider({
               <SheetTitle>Default Sheet</SheetTitle>
             </SheetHeader>
             <SheetComponent
+              key={showKey}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               {...(options as any)}
               close={(value: unknown) => {
-                if (resolve) resolve(value);
+                if (!resolvedRef.current && resolve) {
+                  resolvedRef.current = true;
+                  resolve(value);
+                }
                 setOpen(false);
               }}
             />
@@ -88,7 +105,7 @@ export function SheetProvider({
 
 type SheetComponentProps<
   ParamType = unknown,
-  ReturnType = undefined
+  ReturnType = undefined,
 > = ParamType & {
   close: (value: ReturnType) => void;
 };
@@ -103,7 +120,7 @@ export function createSheet<ParamType = unknown, ReturnType = undefined>(
      * it will be rendered to the deepest available slot.
      */
     slot?: SheetProviderSlot;
-  }
+  },
 ) {
   return {
     show: (props: ParamType) => {

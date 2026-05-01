@@ -1,0 +1,1 @@
+export interface table_bind_user {  group: number | null;  id?: number;  is_main_user?: number | null;  user_id: string | null;}

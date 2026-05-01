@@ -13,6 +13,7 @@ export const getShowtimeList = withAuthApi<
     status?: string;
     showDate?: string;
     movieId?: string;
+    warehouseId?: string;
   }
 >(
   async ({ db, userAuth, searchParams }) => {
@@ -22,6 +23,7 @@ export const getShowtimeList = withAuthApi<
     const status = params?.status ? params?.status.split(",") : undefined;
     const showDate = params?.showDate || undefined;
     const movieId = params?.movieId || undefined;
+    const warehouseId = params?.warehouseId || undefined;
     const authUser = (userAuth.admin ?? userAuth.customer) as NonNullable<
       typeof userAuth.admin
     >;
@@ -33,6 +35,7 @@ export const getShowtimeList = withAuthApi<
       status,
       showDate,
       movieId,
+      warehouseId,
     );
 
     return NextResponse.json(

@@ -12,6 +12,7 @@ import moment from "moment-timezone";
 import SkeletonTableList from "@/components/skeleton-table-list";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import { Pagination } from "@/components/pagination";
+import { useCurrencyFormat } from "@/hooks/use-currency-format";
 
 interface Props {
   offset?: number;
@@ -21,10 +22,11 @@ interface Props {
 }
 
 export function RecentTrasaction(props: Props) {
+  const { formatForDisplay } = useCurrencyFormat();
   const { data, isLoading, isValidating } = useQueryInventoryTransaction(
     props.offset || 0,
     props.limit || 5,
-    props.status?.join(",")
+    props.status?.join(","),
   );
 
   if (isLoading || isValidating) {
@@ -153,14 +155,14 @@ export function RecentTrasaction(props: Props) {
                   </TableCell>
                   <TableCell className="font-semibold text-green-700 dark:text-green-300 text-center">
                     {x.transactionType === "SALE"
-                      ? `$${Math.abs(
-                          Number(x.productLot?.costPerUnit) * x.qty
+                      ? `${formatForDisplay(
+                          Math.abs(Number(x.productLot?.costPerUnit) * x.qty),
                         )}`
-                      : `${x.qty >= 0 ? "" : "-"}$${(
-                          Number(x.productLot?.costPerUnit) * x.qty
-                        )
-                          .toString()
-                          .replace("-", "")}`}
+                      : `${x.qty >= 0 ? "" : "-"}${formatForDisplay(
+                          (Number(x.productLot?.costPerUnit) * x.qty)
+                            .toString()
+                            .replace("-", ""),
+                        )}`}
                   </TableCell>
                 </TableRow>
               );

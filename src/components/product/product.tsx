@@ -87,11 +87,33 @@ export function Product({
         ],
       });
     },
-    [deleteProduct, onDelete, showDialog]
+    [deleteProduct, onDelete, showDialog],
   );
 
   const onClickStockCounting = useCallback(
     async (variant: ProductVariantType) => {
+      if (!!variant.isComposite) {
+        showDialog({
+          title: "Composite Product",
+          content:
+            "Is this a composite product. Do you want to continue to count the components?",
+          actions: [
+            {
+              text: "Continue",
+              onClick: async () => {
+                const res = await sheetProduct.show({
+                  product,
+                  variantId: variant.id,
+                });
+                if (res) {
+                  onCompleted?.();
+                }
+              },
+            },
+          ],
+        });
+        return;
+      }
       const res = await sheetProduct.show({
         product,
         variantId: variant.id,
@@ -100,11 +122,33 @@ export function Product({
         onCompleted?.();
       }
     },
-    [onCompleted, product]
+    [onCompleted, product, showDialog],
   );
 
   const onClickStockIn = useCallback(
     async (variant: ProductVariantType) => {
+      if (!!variant.isComposite) {
+        showDialog({
+          title: "Composite Product",
+          content:
+            "Is this a composite product. Do you want to continue to stock in the components?",
+          actions: [
+            {
+              text: "Continue",
+              onClick: async () => {
+                const res = await sheetProductStockIn.show({
+                  product,
+                  variantId: variant.id,
+                });
+                if (res) {
+                  onCompleted?.();
+                }
+              },
+            },
+          ],
+        });
+        return;
+      }
       const res = await sheetProductStockIn.show({
         product,
         variantId: variant.id,
@@ -113,7 +157,7 @@ export function Product({
         onCompleted?.();
       }
     },
-    [product, onCompleted]
+    [product, onCompleted, showDialog],
   );
 
   const onClickStockOut = useCallback(
@@ -126,7 +170,7 @@ export function Product({
         onCompleted?.();
       }
     },
-    [product, onCompleted]
+    [product, onCompleted],
   );
 
   const price =
@@ -137,7 +181,7 @@ export function Product({
   const hasLowStock =
     product.trackStock &&
     !!product.productVariants?.find(
-      (f) => Number(f.stock || 0) < Number(f.lowStockQty || 0)
+      (f) => Number(f.stock || 0) < Number(f.lowStockQty || 0),
     );
 
   let allow = false;
@@ -152,7 +196,7 @@ export function Product({
     ? 0
     : product.productVariants?.reduce(
         (acc, variant) => acc + (variant.stock || 0),
-        0
+        0,
       ) || 0;
 
   // Mobile Card View
@@ -222,7 +266,7 @@ export function Product({
             <span
               className={cn(
                 "font-medium ml-1 text-xs",
-                hasLowStock ? "text-red-600" : "text-gray-900"
+                hasLowStock ? "text-red-600" : "text-gray-900",
               )}
             >
               {hasConversion ? "N/A" : totalStock}
@@ -303,7 +347,7 @@ export function Product({
             variant="ghost"
             className={cn(
               "h-6 w-6 p-0 transition-transform duration-200",
-              product.productVariants?.length > 0 ? "visible" : "invisible"
+              product.productVariants?.length > 0 ? "visible" : "invisible",
             )}
             onClick={() => {
               setShowStock(!showStock);
@@ -364,7 +408,7 @@ export function Product({
       <TableCell
         className={cn(
           "text-sm font-medium text-center w-[80px]",
-          hasLowStock ? "text-red-600" : "text-gray-900"
+          hasLowStock ? "text-red-600" : "text-gray-900",
         )}
       >
         {hasConversion ? (
@@ -443,7 +487,7 @@ export function Product({
         !!showStock &&
         product.productVariants.map((variant) => {
           const images = product.productImages.filter(
-            (f) => f.productVariantId === variant.id
+            (f) => f.productVariantId === variant.id,
           );
 
           if (isMobile) {
@@ -511,7 +555,7 @@ export function Product({
                           Number(variant.stock || 0) <
                             Number(variant.lowStockQty || 0)
                             ? "text-red-600"
-                            : "text-gray-900"
+                            : "text-gray-900",
                         )}
                       >
                         {variant.stock}
@@ -583,6 +627,12 @@ export function Product({
                 </TableCell>
                 <TableCell className="text-xs text-center w-[90px]">
                   {/* Empty - no variant count display */}
+                  {variant.isComposite && (
+                    <Badge variant="outline" className="text-xs">
+                      <Package className="w-3 h-3 mr-1" />
+                      Composite
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell
                   className={cn(
@@ -590,7 +640,7 @@ export function Product({
                     Number(variant.stock || 0) <
                       Number(variant.lowStockQty || 0)
                       ? "text-red-600"
-                      : "text-gray-900"
+                      : "text-gray-900",
                   )}
                 >
                   {variant.stock}

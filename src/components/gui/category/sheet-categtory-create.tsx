@@ -2,7 +2,7 @@ import {
   useCreateCategory,
   useUpdateCategory,
 } from "@/app/hooks/use-query-category";
-import { useUploadFileMinIO } from "@/app/hooks/use-upload-file";
+import { useUploadFile } from "@/app/hooks/use-upload-file";
 import { createSheet } from "@/components/create-sheet";
 import LabelInput from "@/components/label-input";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ export const createCategorySheet = createSheet<
   const [input, setInput] = useState<Omit<Category, "id">>(
     data ?? defaultValue,
   );
-  const { trigger, isMutating: isUploading } = useUploadFileMinIO();
+  const { trigger, isMutating: isUploading } = useUploadFile();
 
   const { trigger: create, isMutating: isCreating } = useCreateCategory();
   const { trigger: update, isMutating: isUpdating } = useUpdateCategory();
