@@ -28,6 +28,7 @@ import { TableFlowControls } from "./table-flow-controls";
 import { TableFlowNode, TableNodeData } from "./table-flow-node";
 import { useTablePositions } from "./use-table-positions";
 import { tableQRCode } from "./table-qr-code";
+import { generateTableDialog } from "./generate-table-dialog";
 
 const nodeTypes: NodeTypes = {
   tableNode: TableFlowNode,
@@ -437,12 +438,22 @@ function TableFlowLayoutContent(
               : "Create your first table to start managing your restaurant layout."}
           </div>
           {state && (
-            <button
-              onClick={handleAddTable}
-              className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-md"
-            >
-              Add First Table
-            </button>
+            <>
+              <button
+                onClick={handleAddTable}
+                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+              >
+                Add First Table
+              </button>
+              <button
+                className="ml-4 px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors shadow-md"
+                onClick={async () => {
+                  await generateTableDialog.show({});
+                }}
+              >
+                Generate Tables
+              </button>
+            </>
           )}
         </div>
       </div>

@@ -78,3 +78,20 @@ export function useQueryTableById(id: string) {
     focusThrottleInterval: 3000, // Throttle focus revalidation to avoid spam
   });
 }
+
+type TableLayoutUpdate = {
+  count: number;
+  default: {
+    key: string;
+    capacity: number;
+    section: string;
+    shape: string;
+  };
+};
+
+export function useMutationGenerateTableLayout() {
+  return useGenericMutation<TableLayoutUpdate, ResponseType<unknown>>(
+    "POST",
+    "/api/table/layout",
+  );
+}

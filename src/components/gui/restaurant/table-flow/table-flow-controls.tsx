@@ -25,6 +25,7 @@ import {
   LayoutGrid,
   Lock,
   Maximize2,
+  MonitorCog,
   Move,
   Plus,
   RotateCcw,
@@ -33,6 +34,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
+import { generateTableDialog } from "./generate-table-dialog";
 
 interface TableFlowControlsProps extends WithLayoutPermissionProps {
   stats: {
@@ -445,6 +447,18 @@ export function TableFlowControls({
                 <DropdownMenuItem onClick={() => window.print()}>
                   <Move className="h-4 w-4 mr-2" />
                   Print Layout
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={async () => {
+                    const result = await generateTableDialog.show({});
+
+                    if (result) {
+                    }
+                  }}
+                >
+                  <MonitorCog className="h-4 w-4 mr-2" />
+                  Generate Table
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

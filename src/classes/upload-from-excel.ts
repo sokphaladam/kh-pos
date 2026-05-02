@@ -1,10 +1,12 @@
 import {
   table_product_category,
   table_supplier,
+  table_user,
+  table_user_role,
   table_warehouse_slot,
 } from "@/generated/tables";
 import { Formatter } from "@/lib/formatter";
-import { generateId } from "@/lib/generate-id";
+import { generateId, generateUserToken } from "@/lib/generate-id";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import * as ExcelJS from "exceljs";
 import { Knex } from "knex";
@@ -14,6 +16,7 @@ import { ProductOptionService, ProductOptionsInput } from "./product-options";
 import { ProductInput, ProductServiceV2 } from "./product-v2";
 import { ProductVariant, ProductVariantService } from "./product-variant";
 import { SlotMovementService } from "./slot-movement";
+import bcrypt from "bcryptjs";
 
 export interface ExcelRow {
   barcode: string;
@@ -24,6 +27,14 @@ export interface ExcelRow {
   estimationGP: number;
   category: string;
   stocks: number;
+}
+
+export interface UserExcelRow {
+  fullName: string;
+  username: string;
+  phoneNumber: string;
+  position: string;
+  profile: string;
 }
 
 export class UploadFromExcel {
@@ -133,6 +144,102 @@ export class UploadFromExcel {
         }
       });
     }
+  }
+
+  async uploadUsers(dataInput: UserExcelRow[]) {
+    const data = dataInput ? dataInput : await this.readUserExcel();
+    const length = data.length;
+    console.log(`Total user rows to process: ${length}`);
+    let processed = 0;
+    console.log(`Starting upload of users...`);
+    for (const row of data) {
+      processed++;
+      console.log(
+        `Processing user row ${processed} of ${length}: ${row.username}`,
+      );
+
+      await this.knex.transaction(async (trx) => {
+        const hashedPassword = await bcrypt.hash("123456", 10);
+        const role = await trx("user_role")
+          .where("role", "=", row.position)
+          .first();
+
+        const roleId = role ? role.id : generateId();
+
+        if (!role) {
+          await trx.table<table_user_role>("role").insert({
+            id: roleId,
+            role: row.position,
+            created_at: Formatter.getNowDateTime(),
+            is_default: 0,
+            permissions: {
+              order: "create,read,update,delete",
+              restaurant: "read,delete,create,update",
+              "order-preparation": "read,create,update,delete",
+            },
+          });
+        }
+
+        const defaultSystemAdmin = await trx
+          .table<table_user>("user")
+          .where("is_system_admin", 1)
+          .where("is_deleted", 0)
+          .where("is_dev", 0)
+          .where("warehouse_id", this.user.currentWarehouseId!)
+          .first();
+
+        const user: table_user = {
+          id: generateId(),
+          username: row.username,
+          phone_number: row.phoneNumber,
+          password: hashedPassword,
+          fullname: row.fullName,
+          profile: row.profile,
+          role_id: roleId,
+          created_at: Formatter.getNowDateTime(),
+          created_by: defaultSystemAdmin ? defaultSystemAdmin.id : null,
+          token: generateUserToken(),
+          warehouse_id: this.user.currentWarehouseId!,
+          is_system_admin: 0,
+          is_dev: 0,
+          is_deleted: 0,
+        };
+
+        await trx.table<table_user>("user").insert(user);
+      });
+    }
+  }
+
+  private async readUserExcel(): Promise<UserExcelRow[]> {
+    const workbook = new ExcelJS.Workbook();
+    const fullPath = path.resolve(this.excelFilePath);
+
+    // Read the Excel file
+    await workbook.xlsx.readFile(fullPath);
+    // Get the first worksheet (assuming data is in the first sheet)
+    const worksheet = workbook.getWorksheet(1);
+
+    if (!worksheet) {
+      throw new Error("No worksheet found in the Excel file");
+    }
+    const excelData: UserExcelRow[] = [];
+    // Skip the header row (assuming row 1 contains headers)
+    // Iterate through rows starting from row 2
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return; // Skip header row
+      const rowData: UserExcelRow = {
+        fullName: this.getCellValue(row.getCell(1)) || "", // Column A
+        username: this.getCellValue(row.getCell(2)) || "", // Column B
+        phoneNumber: this.getCellValue(row.getCell(3)) || "", // Column C
+        position: this.getCellValue(row.getCell(4)) || "", // Column D
+        profile: this.getCellValue(row.getCell(5)) || "", // Column E
+      };
+      // Only add rows that have at least a username or fullName
+      if (rowData.username || rowData.fullName) {
+        excelData.push(rowData);
+      }
+    });
+    return excelData;
   }
 
   private async readExcel(): Promise<ExcelRow[]> {
