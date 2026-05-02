@@ -7,12 +7,15 @@ import { NextResponse } from "next/server";
 export const GET = withAuthApi<
   unknown,
   unknown,
-  ResponseType<table_print_queue[]>
->(async ({ db, userAuth }) => {
+  ResponseType<table_print_queue[]>,
+  {
+    printer_name: string;
+  }
+>(async ({ db, userAuth, searchParams }) => {
   const printQueues = await new PrintToKitchenService(
     db,
     userAuth.admin!,
-  ).getPrintQueues();
+  ).getPrintQueues(searchParams?.printer_name);
   return NextResponse.json(
     { success: true, result: printQueues },
     { status: 200 },

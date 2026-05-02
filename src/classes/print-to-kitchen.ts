@@ -35,7 +35,7 @@ export class PrintToKitchenService {
     protected user: UserInfo,
   ) {}
 
-  async getPrintQueues() {
+  async getPrintQueues(printer_name?: string) {
     const setting = await this.tx
       .table("setting")
       .where({
@@ -48,11 +48,18 @@ export class PrintToKitchenService {
 
     const printerSettingGroupBy = printerSettings.group_by || "ITEM";
 
-    const printQueues: table_print_queue[] = await this.tx
+    const query = this.tx
       .table<table_print_queue>("print_queue")
-      .where("warehouse_id", this.user.currentWarehouseId)
-      .orderBy("id")
-      .select();
+      .where("warehouse_id", this.user.currentWarehouseId);
+
+    if (printer_name) {
+      query.whereRaw(
+        "JSON_UNQUOTE(JSON_EXTRACT(printer_info, '$.printer_name')) = ?",
+        [printer_name],
+      );
+    }
+
+    const printQueues: table_print_queue[] = await query.orderBy("id").select();
 
     if (printerSettingGroupBy === "TABLE") {
       const groupedQueues: any[] = [];
