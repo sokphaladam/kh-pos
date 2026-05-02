@@ -38,10 +38,12 @@ export const createTable = withAuthApi<RestaurantTable>(
       warehouse_id: user.currentWarehouseId || "",
       deleted_at: null,
       deleted_by: null,
+      position_x: null,
+      position_y: null,
     };
 
     await db.table<table_restaurant_tables>("restaurant_tables").insert(data);
 
     return NextResponse.json({ success: true, result: data }, { status: 200 });
-  }
+  },
 );
