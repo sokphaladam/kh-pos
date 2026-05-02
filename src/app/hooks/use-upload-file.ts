@@ -1,37 +1,47 @@
 import useSWRMutation from "swr/mutation";
 
-export async function requestUploadFile(
+export function requestUploadFileMinIO(
   url: string,
-  { file }: { file: File }
+  { arg: { file } }: { arg: { file: File } },
 ): Promise<{ url: string }> {
-  const myHeaders = new Headers();
-  myHeaders.append(
-    "Authorization",
-    "Bearer mxa1b7695b97e29314bcf4821b28f3511c"
-  );
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
 
-  const formdata = new FormData();
-  formdata.append("file", file);
+    reader.onloadend = async () => {
+      const base64data = reader.result?.toString().split(",")[1];
 
-  const requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: formdata,
-    // redirect: "follow" as RequestRedirect,
-  };
+      if (!base64data) {
+        reject(new Error("Failed to read file as base64"));
+        return;
+      }
 
-  const raw = await fetch(url, requestOptions);
+      const uniqueId = new Date().getTime();
+      const extension = file.name.split(".").pop();
+      const newFileName = `${uniqueId}.${extension}`;
 
-  const text = await raw.text();
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: newFileName,
+          fileContent: base64data,
+        }),
+      });
 
-  return JSON.parse(text);
+      const data = await res.json();
+      resolve(data);
+    };
+
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 }
 
-export function useUploadFile() {
+export function useUploadFileMinIO() {
   return useSWRMutation<{ url: string }, unknown, string, { file: File }>(
-    "https://sv-k8.l192.com/upload/chuck",
-    (url, arg) => {
-      return requestUploadFile(url, { file: arg.arg.file });
-    }
+    "/api/upload",
+    requestUploadFileMinIO,
   );
 }

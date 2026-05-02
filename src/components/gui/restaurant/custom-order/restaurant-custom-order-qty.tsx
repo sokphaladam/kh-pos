@@ -32,6 +32,7 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useRestaurantActions } from "../hooks/use-restaurant-actions";
 import { SelectProductItem } from "./restaurant-custom-order";
+import { useCommonDialog } from "@/components/common-dialog";
 
 export function RestaurantCustomOrderQty({
   status,
@@ -47,6 +48,7 @@ export function RestaurantCustomOrderQty({
   table?: table_restaurant_tables;
   onChange?: (status: OrderItemStatusType[] | null) => void;
 }) {
+  const { showDialog } = useCommonDialog();
   const { updateProductQty, removeProduct } = useRestaurantActions();
   const { trigger: triggerForceUpdateOrderItemStatus, isMutating: isForcing } =
     useMutationForceUpdateQtyByStatus(orderId);
@@ -66,42 +68,64 @@ export function RestaurantCustomOrderQty({
   const [serveQty, setServeQty] = useState(cooking);
 
   // Helper function to check if user can edit a specific status
-  const canEditStatus = useCallback((statusType: "pending" | "cooking" | "served", newQty: number) => {
-    // For cooking and served status changes, require canUpdateStatus
-    if ((statusType === "cooking" || statusType === "served") && !canUpdateStatus) {
-      return false;
-    }
-    
-    // For setting cooking or served to 0, require canDeleteItem
-    if ((statusType === "cooking" || statusType === "served") && newQty === 0 && !canDeleteItem) {
-      return false;
-    }
-    
-    // Calculate what the total quantities would be after this change
-    const newPending = statusType === "pending" ? newQty : pending;
-    const newCooking = statusType === "cooking" ? newQty : cooking;
-    const newServed = statusType === "served" ? newQty : served;
-    const totalQty = newPending + newCooking + newServed;
-    
-    // Don't allow all statuses to be 0
-    if (totalQty === 0) {
-      return false;
-    }
-    
-    return true;
-  }, [canUpdateStatus, canDeleteItem, pending, cooking, served]);
+  const canEditStatus = useCallback(
+    (statusType: "pending" | "cooking" | "served", newQty: number) => {
+      // For cooking and served status changes, require canUpdateStatus
+      if (
+        (statusType === "cooking" || statusType === "served") &&
+        !canUpdateStatus
+      ) {
+        return false;
+      }
+
+      // For setting cooking or served to 0, require canDeleteItem
+      if (
+        (statusType === "cooking" || statusType === "served") &&
+        !canDeleteItem
+      ) {
+        return false;
+      }
+
+      // Calculate what the total quantities would be after this change
+      const newPending = statusType === "pending" ? newQty : pending;
+      const newCooking = statusType === "cooking" ? newQty : cooking;
+      const newServed = statusType === "served" ? newQty : served;
+      const totalQty = newPending + newCooking + newServed;
+
+      // Don't allow all statuses to be 0
+      if (totalQty === 0) {
+        toast.error(
+          "At least one item must remain in pending, cooking, or served status",
+        );
+        return false;
+      }
+
+      return true;
+    },
+    [canUpdateStatus, canDeleteItem, pending, cooking, served],
+  );
 
   const handleQtyChange = useCallback(
     (qty: number, statusType: "pending" | "cooking" | "served") => {
       // Validation 1: If changing cooking or served status, require canUpdateStatus
-      if ((statusType === "cooking" || statusType === "served") && !canUpdateStatus) {
-        toast.error("You don't have permission to update cooking or served quantities");
+      if (
+        (statusType === "cooking" || statusType === "served") &&
+        !canUpdateStatus
+      ) {
+        toast.error(
+          "You don't have permission to update cooking or served quantities",
+        );
         return;
       }
 
       // Validation 2: If changing cooking or served to 0, require canDeleteItem
-      if ((statusType === "cooking" || statusType === "served") && qty === 0 && !canDeleteItem) {
-        toast.error("You don't have permission to remove cooking or served items");
+      if (
+        (statusType === "cooking" || statusType === "served") &&
+        !canDeleteItem
+      ) {
+        toast.error(
+          "You don't have permission to remove cooking or served items",
+        );
         return;
       }
 
@@ -113,40 +137,67 @@ export function RestaurantCustomOrderQty({
 
       // Validation 3: Not allow all statuses to be 0 - at least have 1 qty somewhere
       if (totalQty === 0) {
-        toast.error("At least one item must remain in pending, cooking, or served status");
+        toast.error(
+          "At least one item must remain in pending, cooking, or served status",
+        );
         return;
       }
 
-      if (qty < 1 && statusType !== "pending") return;
-
-      triggerForceUpdateOrderItemStatus({
-        orderDetailId: orderDetailId,
-        status: statusType,
-        qty,
-      }).then((res) => {
-        if (res.success && table) {
-          updateProductQty(
-            orderDetailId || "",
-            totalQty,
-            table,
-            statusType,
-            qty,
-            "force"
-          );
-          onChange?.(
-            status?.map((f) => {
-              if (f.status === statusType) {
-                return { ...f, qty };
-              }
-              return f;
-            }) || []
-          );
-          if (totalQty === 0) {
-            removeProduct(orderDetailId, table, "");
-            onChange?.(null);
+      const doUpdate = () => {
+        triggerForceUpdateOrderItemStatus({
+          orderDetailId: orderDetailId,
+          status: statusType,
+          qty,
+        }).then((res) => {
+          if (res.success && table) {
+            updateProductQty(
+              orderDetailId || "",
+              totalQty,
+              table,
+              statusType,
+              qty,
+              "force",
+            );
+            onChange?.(
+              status?.map((f) => {
+                if (f.status === statusType) {
+                  return { ...f, qty };
+                }
+                return f;
+              }) || [],
+            );
+            if (totalQty === 0) {
+              removeProduct(orderDetailId, table, "");
+              onChange?.(null);
+            }
           }
-        }
-      });
+        });
+      };
+
+      if (qty < 1 && statusType !== "pending") {
+        console.log(
+          "Showing confirmation dialog for setting",
+          statusType,
+          "to",
+          qty,
+        );
+        showDialog({
+          title: "Confirm Quantity Change",
+          content: `You are setting the quantity of ${statusType} items to ${qty}, which will remove this status from the item. Are you sure?`,
+          destructive: true,
+          actions: [
+            {
+              text: "Yes, change it",
+              onClick: async () => {
+                doUpdate();
+              },
+            },
+          ],
+        });
+        return;
+      }
+
+      doUpdate();
     },
     [
       triggerForceUpdateOrderItemStatus,
@@ -161,7 +212,8 @@ export function RestaurantCustomOrderQty({
       removeProduct,
       canUpdateStatus,
       canDeleteItem,
-    ]
+      showDialog,
+    ],
   );
 
   const handleSendToKitchen = useCallback(() => {
@@ -181,7 +233,7 @@ export function RestaurantCustomOrderQty({
             table,
             "cooking",
             pending,
-            "convert"
+            "convert",
           );
           onChange?.(
             status?.map((f) => {
@@ -192,7 +244,7 @@ export function RestaurantCustomOrderQty({
                 return { ...f, qty: f.qty + pending };
               }
               return f;
-            }) || []
+            }) || [],
           );
         }
       });
@@ -226,7 +278,7 @@ export function RestaurantCustomOrderQty({
             table,
             "served",
             serveQty,
-            "convert"
+            "convert",
           );
           onChange?.(
             status?.map((f) => {
@@ -237,7 +289,7 @@ export function RestaurantCustomOrderQty({
                 return { ...f, qty: f.qty + serveQty };
               }
               return f;
-            }) || []
+            }) || [],
           );
         }
       });
@@ -262,24 +314,34 @@ export function RestaurantCustomOrderQty({
       setEditingStatus(statusType);
       setEditingQty(currentQty);
     },
-    []
+    [],
   );
 
   const handleSubmitEdit = useCallback(() => {
     if (editingStatus && editingQty >= 0) {
       // Apply the same validations as in handleQtyChange
-      
+
       // Validation 1: If changing cooking or served status, require canUpdateStatus
-      if ((editingStatus === "cooking" || editingStatus === "served") && !canUpdateStatus) {
-        toast.error("You don't have permission to update cooking or served quantities");
+      if (
+        (editingStatus === "cooking" || editingStatus === "served") &&
+        !canUpdateStatus
+      ) {
+        toast.error(
+          "You don't have permission to update cooking or served quantities",
+        );
         setEditingStatus(null);
         setEditingQty(0);
         return;
       }
 
       // Validation 2: If changing cooking or served to 0, require canDeleteItem
-      if ((editingStatus === "cooking" || editingStatus === "served") && editingQty === 0 && !canDeleteItem) {
-        toast.error("You don't have permission to remove cooking or served items");
+      if (
+        (editingStatus === "cooking" || editingStatus === "served") &&
+        !canDeleteItem
+      ) {
+        toast.error(
+          "You don't have permission to remove cooking or served items",
+        );
         setEditingStatus(null);
         setEditingQty(0);
         return;
@@ -293,20 +355,38 @@ export function RestaurantCustomOrderQty({
 
       // Validation 3: Not allow all statuses to be 0 - at least have 1 qty somewhere
       if (totalQty === 0) {
-        toast.error("At least one item must remain in pending, cooking, or served status");
+        toast.error(
+          "At least one item must remain in pending, cooking, or served status",
+        );
         setEditingStatus(null);
         setEditingQty(0);
         return;
       }
 
+      console.log(
+        "All validations passed, updating status:",
+        editingStatus,
+        "to qty:",
+        editingQty,
+      );
+
       handleQtyChange(
         editingQty,
-        editingStatus as "pending" | "cooking" | "served"
+        editingStatus as "pending" | "cooking" | "served",
       );
       setEditingStatus(null);
       setEditingQty(0);
     }
-  }, [editingStatus, editingQty, handleQtyChange, canUpdateStatus, canDeleteItem, pending, cooking, served]);
+  }, [
+    editingStatus,
+    editingQty,
+    handleQtyChange,
+    canUpdateStatus,
+    canDeleteItem,
+    pending,
+    cooking,
+    served,
+  ]);
 
   const handleCancelEdit = useCallback(() => {
     setEditingStatus(null);
@@ -404,7 +484,7 @@ export function RestaurantCustomOrderQty({
                           value={editingQty}
                           onChange={(e) =>
                             setEditingQty(
-                              Math.max(0, parseInt(e.target.value) || 0)
+                              Math.max(0, parseInt(e.target.value) || 0),
                             )
                           }
                           className="w-16 h-6 text-center text-xs px-1"
@@ -447,7 +527,7 @@ export function RestaurantCustomOrderQty({
                           variant="secondary"
                           className={cn(
                             "text-xs px-1.5 py-0.5 h-auto",
-                            item.color
+                            item.color,
                           )}
                         >
                           {item.qty}
@@ -460,10 +540,14 @@ export function RestaurantCustomOrderQty({
                           className="px-1.5 h-6 ml-1"
                           disabled={
                             // Disable if user doesn't have canUpdateStatus for cooking/served
-                            (item.status === "cooking" || item.status === "served") && !canUpdateStatus
+                            (item.status === "cooking" ||
+                              item.status === "served") &&
+                            !canUpdateStatus
                           }
                           title={
-                            (item.status === "cooking" || item.status === "served") && !canUpdateStatus
+                            (item.status === "cooking" ||
+                              item.status === "served") &&
+                            !canUpdateStatus
                               ? "You don't have permission to edit this status"
                               : "Edit quantity"
                           }
@@ -586,8 +670,8 @@ export function RestaurantCustomOrderQty({
                   setServeQty(
                     Math.max(
                       1,
-                      Math.min(cooking, parseInt(e.target.value) || 1)
-                    )
+                      Math.min(cooking, parseInt(e.target.value) || 1),
+                    ),
                   )
                 }
                 className="col-span-3"

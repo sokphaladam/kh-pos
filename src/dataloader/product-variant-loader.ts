@@ -55,23 +55,54 @@ export interface ProductVariantType {
   movie: MovieInput | null;
 }
 
-export function createProductVariantLoader(db: Knex, warehouseId: string) {
+export function createProductVariantLoader(
+  db: Knex,
+  warehouseId: string,
+  user?: UserInfo,
+) {
   return new DataLoader(async (keys: readonly string[]) => {
-    const rows: table_product_variant[] = await db("product_variant")
-      .whereIn("product_id", keys)
-      .where("deleted_at", null)
-      .where("available", 1);
+    const query = db("product_variant")
+      .whereIn("product_variant.product_id", keys)
+      .where("product_variant.deleted_at", null)
+      .where("product_variant.available", 1);
+
+    if (user && user.warehouse?.useMainBranchVisibility) {
+      query
+        .join(
+          "group_products",
+          "group_products.product_variant_id",
+          "product_variant.id",
+        )
+        .join(
+          "product_groups",
+          "product_groups.group_id",
+          "group_products.group_id",
+        )
+        .join(
+          "warehouse_groups",
+          "warehouse_groups.group_id",
+          "group_products.group_id",
+        )
+        .where({
+          "warehouse_groups.warehouse_id": user?.currentWarehouseId || "",
+          "product_groups.deleted_at": null,
+        })
+        .groupBy("product_variant.id");
+    }
+
+    const rows: table_product_variant[] =
+      await query.select("product_variant.*");
 
     const variantStockLoader = LoaderFactory.variantStockLoader(
       db,
-      warehouseId
+      warehouseId,
     );
 
     const basicProductLoader = LoaderFactory.basicProductLoader(db);
 
     const variantValue = await getVariantOptionValue(
       db,
-      rows.map((x) => x.id!)
+      rows.map((x) => x.id!),
     );
 
     const productVariantMap: Record<string, ProductVariantType[]> = {};
@@ -107,7 +138,7 @@ export function createProductVariantLoader(db: Knex, warehouseId: string) {
           visible: x.visible ? Boolean(x.visible) : false,
           compositeVariants: x.is_composite
             ? await LoaderFactory.compositeVariantLoader(db, warehouseId).load(
-                x.id ?? ""
+                x.id ?? "",
               )
             : undefined,
           movie,
@@ -115,7 +146,7 @@ export function createProductVariantLoader(db: Knex, warehouseId: string) {
 
         productVariantMap[x.product_id] = productVariantMap[x.product_id] || [];
         productVariantMap[x.product_id].push(variant);
-      })
+      }),
     );
 
     // Sort variants of each product by sku asc
@@ -136,19 +167,19 @@ export function createProductVariantLoader(db: Knex, warehouseId: string) {
 
 export async function getVariantOptionValue(
   tx: Knex,
-  variantIds: string[]
+  variantIds: string[],
 ): Promise<{ product_variant_id: string; id: string; value: string }[]> {
   return await tx
     .table("product_variant_options")
     .innerJoin(
       "product_option_value",
       "product_variant_options.option_value_id",
-      "product_option_value.id"
+      "product_option_value.id",
     )
     .whereIn("product_variant_id", variantIds)
     .select(
       "product_variant_options.product_variant_id",
       "product_option_value.id",
-      "product_option_value.value"
+      "product_option_value.value",
     );
 }

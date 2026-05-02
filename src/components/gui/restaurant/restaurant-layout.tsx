@@ -2,6 +2,7 @@
 import { useQueryCategory } from "@/app/hooks/use-query-category";
 import { useQueryPOSInfo } from "@/app/hooks/use-query-order";
 import { useQueryTable } from "@/app/hooks/use-query-table";
+import { CommonDialogProvider } from "@/components/common-dialog";
 import { DialogProvider } from "@/components/create-dialog";
 import { SheetProvider } from "@/components/create-sheet";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -185,8 +186,10 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
         initialState={data}
         onRefetch={queryTable.mutate}
       >
-        <SheetProvider slot="default" />
-        <DialogProvider slot="default" />
+        <CommonDialogProvider>
+          <SheetProvider slot="default" />
+          <DialogProvider slot="default" />
+        </CommonDialogProvider>
         <div className="overflow-hidden">
           <RestaurantHeader />
           <div className="flex flex-1 relative p-4 bg-muted/40">

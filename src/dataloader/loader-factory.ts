@@ -63,6 +63,7 @@ import { createChartOfAccountsLoader } from "./chart-of-accounts-loader";
 import { createWarehouseGroupByGroupIdLoader } from "./warehouse-group-loader";
 import { createGroupProductByGroupIdLoader } from "./group-product-loader";
 import { createKitchenLogByOrderDetailLoader } from "./kitchen-log-loader";
+import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 
 export class LoaderFactory {
   static productImageLoader(db: Knex) {
@@ -104,8 +105,8 @@ export class LoaderFactory {
     return createProductVariantByIdLoader(db, warehouseId);
   }
 
-  static productVariantLoader(db: Knex, warehouseId: string) {
-    return createProductVariantLoader(db, warehouseId);
+  static productVariantLoader(db: Knex, warehouseId: string, user?: UserInfo) {
+    return createProductVariantLoader(db, warehouseId, user);
   }
 
   static discountLoader(db: Knex) {

@@ -7,6 +7,7 @@ import { RestaurantOrderItem } from "../contexts/restaurant-context";
 import { useRestaurantActions } from "../hooks/use-restaurant-actions";
 import { useMutationPrintToKitchen } from "@/app/hooks/use-query-order-update-status-item";
 import { toast } from "sonner";
+import { useCommonDialog } from "@/components/common-dialog";
 
 interface RestaurantItemMenuProps extends WithLayoutPermissionProps {
   item: RestaurantOrderItem;
@@ -19,6 +20,7 @@ export function RestaurantItemMenu({
   table,
   ...rest
 }: RestaurantItemMenuProps) {
+  const { showDialog } = useCommonDialog();
   const { removeProduct } = useRestaurantActions();
   const { trigger, isMutating } = useMutationPrintToKitchen();
 
@@ -29,9 +31,9 @@ export function RestaurantItemMenu({
     return a;
   }, 0);
 
-  let allowDelete = rest.allowDelete && qtyAreNotPending === 0;
+  let allowDelete = false;
 
-  if (!allowDelete && qtyAreNotPending === 0) {
+  if (rest.allowDelete) {
     allowDelete = true;
   }
 
@@ -50,11 +52,31 @@ export function RestaurantItemMenu({
           allowDelete
             ? () => {
                 if (table) {
-                  removeProduct(
-                    item.orderDetailId,
-                    table.id ? table : (table as any).tables,
-                    "",
-                  );
+                  if ((qtyAreNotPending || 0) > 0) {
+                    showDialog({
+                      title: "Confirm Delete Item",
+                      content: `This item has ${qtyAreNotPending} quantity that is not in pending status. Are you sure you want to delete it?`,
+                      destructive: true,
+                      actions: [
+                        {
+                          text: "Delete",
+                          onClick: async () => {
+                            removeProduct(
+                              item.orderDetailId,
+                              table.id ? table : (table as any).tables,
+                              "",
+                            );
+                          },
+                        },
+                      ],
+                    });
+                  } else {
+                    removeProduct(
+                      item.orderDetailId,
+                      table.id ? table : (table as any).tables,
+                      "",
+                    );
+                  }
                 }
               }
             : undefined

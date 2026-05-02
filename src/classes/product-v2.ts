@@ -133,7 +133,8 @@ export class ProductServiceV2 {
         .where({
           "warehouse_groups.warehouse_id": this.user.currentWarehouseId!,
           "product_groups.deleted_at": null,
-        });
+        })
+        .groupBy("product.id");
     }
 
     query.orderBy("created_at", "desc");
@@ -152,6 +153,7 @@ export class ProductServiceV2 {
     const variantLoader = LoaderFactory.productVariantLoader(
       this.trx,
       this.user.currentWarehouseId!,
+      this.user,
     );
     const modifierByProductLoader = LoaderFactory.modifierByProductLoader(
       this.trx,

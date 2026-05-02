@@ -147,7 +147,11 @@ export class ProductService {
     if (!isMain && !!warehouse?.useMainBranchVisibility) {
       const warehouseId = this.user?.currentWarehouseId || filter?.warehouse;
       searchQuery
-        .join("group_products", "group_products.product_id", "product.id")
+        .join(
+          "group_products",
+          "group_products.product_variant_id",
+          "product_variant.id",
+        )
         .join(
           "product_groups",
           "product_groups.group_id",
@@ -170,6 +174,7 @@ export class ProductService {
     const variantLoader = LoaderFactory.productVariantLoader(
       this.trx,
       this.user?.currentWarehouseId || "",
+      this.user,
     );
     const modifierByProductLoader = LoaderFactory.modifierByProductLoader(
       this.trx,
