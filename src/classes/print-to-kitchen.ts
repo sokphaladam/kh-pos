@@ -125,7 +125,7 @@ export class PrintToKitchenService {
     return true;
   }
 
-  async printOrderToKitchen(orderItemId: string, qty: number) {
+  async printOrderToKitchen(orderItemId: string, qty: number, reprint = false) {
     const orderItem = await getOrderDetail(orderItemId, this.tx);
     if (!orderItem?.variant_id)
       throw new Error("Order item variant ID not found");
@@ -253,7 +253,7 @@ export class PrintToKitchenService {
       .table("print_kitchen_log")
       .where("order_detail_id", orderItemId);
 
-    if (existingQueue.length > 0) {
+    if (existingQueue.length > 0 && !!reprint) {
       contentToPrint.push({
         type: "text",
         value: `***** Resend to Kitchen By ${this.user.fullname} (${existingQueue.length}) *****`,

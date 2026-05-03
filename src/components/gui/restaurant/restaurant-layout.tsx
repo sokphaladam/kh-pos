@@ -156,6 +156,8 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
                             | "served"
                             | "ready"
                             | "cancelled",
+                          createdAt: item.status?.[i]?.createdAt || null,
+                          createdBy: item.status?.[i]?.createdBy || null,
                         };
                       }
                     },

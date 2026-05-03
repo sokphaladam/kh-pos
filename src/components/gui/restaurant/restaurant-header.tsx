@@ -74,7 +74,7 @@ export function RestaurantHeader() {
   // };
 
   const currentTable = state.activeTables.find(
-    (t) => t.tables?.id === params.get("table") || ""
+    (t) => t.tables?.id === params.get("table") || "",
   );
 
   return (
@@ -109,7 +109,7 @@ export function RestaurantHeader() {
                 <RefreshCcw
                   className={cn(
                     "h-3.5 w-3.5 sm:h-4 sm:w-4",
-                    isRequest || loading ? "animate-spin" : ""
+                    isRequest || loading ? "animate-spin" : "",
                   )}
                 />
               </Button>
@@ -146,7 +146,10 @@ export function RestaurantHeader() {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent
+              align="end"
+              className="w-48 overflow-y-auto h-64"
+            >
               <DropdownMenuItem
                 onClick={() => handleViewAllTables()}
                 className={

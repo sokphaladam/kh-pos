@@ -31,9 +31,20 @@ export function RestaurantItemMenu({
     return a;
   }, 0);
 
+  const qtyArePending = item.status?.reduce((a, b) => {
+    if (b.status === "pending") {
+      return a + Number(b.qty);
+    }
+    return a;
+  }, 0);
+
   let allowDelete = false;
 
   if (rest.allowDelete) {
+    allowDelete = true;
+  }
+
+  if (!rest.allowDelete && (qtyArePending || 0) > 0 && qtyAreNotPending === 0) {
     allowDelete = true;
   }
 
@@ -90,6 +101,7 @@ export function RestaurantItemMenu({
                     trigger({
                       orderDetailId: item.orderDetailId,
                       qty: item.qty,
+                      reprint: true,
                     })
                       .then((res) => {
                         if (res.success) {

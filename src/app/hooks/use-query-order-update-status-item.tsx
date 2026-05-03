@@ -19,7 +19,7 @@ export function useMutationUpdateOrderItemStatusAPI(orderId: string) {
 
 export function useMutationPrintToKitchen() {
   return useGenericMutation<
-    { orderDetailId: string; qty: number },
+    { orderDetailId: string; qty: number; reprint?: boolean },
     ResponseType<unknown>
   >("POST", `/api/print-queue`);
 }

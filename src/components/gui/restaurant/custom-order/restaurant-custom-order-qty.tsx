@@ -61,9 +61,13 @@ export function RestaurantCustomOrderQty({
   const canUpdateStatus = orderPreparationPermissions.includes("update");
   const canDeleteItem = orderPreparationPermissions.includes("delete");
 
-  const cooking = status?.find((f) => f.status === "cooking")?.qty || 0;
-  const served = status?.find((f) => f.status === "served")?.qty || 0;
-  const pending = status?.find((f) => f.status === "pending")?.qty || 0;
+  const cookingStatus = status?.find((f) => f.status === "cooking");
+  const servedStatus = status?.find((f) => f.status === "served");
+  const pendingStatus = status?.find((f) => f.status === "pending");
+
+  const cooking = cookingStatus?.qty || 0;
+  const served = servedStatus?.qty || 0;
+  const pending = pendingStatus?.qty || 0;
 
   const [serveQty, setServeQty] = useState(cooking);
 
@@ -400,6 +404,8 @@ export function RestaurantCustomOrderQty({
       qty: pending,
       color: "bg-yellow-100 text-yellow-800 border-yellow-200",
       icon: Clock,
+      createdBy: pendingStatus?.createdBy,
+      createdAt: pendingStatus?.createdAt,
       actions: [
         {
           type: "send-kitchen",
@@ -416,6 +422,8 @@ export function RestaurantCustomOrderQty({
       qty: cooking,
       color: "bg-orange-100 text-orange-800 border-orange-200",
       icon: UtensilsCrossed,
+      createdBy: cookingStatus?.createdBy,
+      createdAt: cookingStatus?.createdAt,
       actions: [
         {
           type: "edit",
@@ -439,6 +447,8 @@ export function RestaurantCustomOrderQty({
       qty: served,
       color: "bg-green-100 text-green-800 border-green-200",
       icon: Check,
+      createdBy: servedStatus?.createdBy,
+      createdAt: servedStatus?.createdAt,
       actions: [
         {
           type: "edit",
@@ -471,90 +481,100 @@ export function RestaurantCustomOrderQty({
               >
                 <div className="flex items-center gap-2">
                   <StatusIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-medium capitalize">
-                      {item.label}
-                    </span>
-                    {isEditing ? (
-                      // Edit mode: show input field in place of badge
-                      <div className="flex items-center gap-1">
-                        <Input
-                          type="number"
-                          min="0"
-                          value={editingQty}
-                          onChange={(e) =>
-                            setEditingQty(
-                              Math.max(0, parseInt(e.target.value) || 0),
-                            )
-                          }
-                          className="w-16 h-6 text-center text-xs px-1"
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleSubmitEdit();
-                            } else if (e.key === "Escape") {
-                              handleCancelEdit();
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-medium capitalize">
+                        {item.label}
+                      </span>
+                      {isEditing ? (
+                        // Edit mode: show input field in place of badge
+                        <div className="flex items-center gap-1">
+                          <Input
+                            type="number"
+                            min="0"
+                            value={editingQty}
+                            onChange={(e) =>
+                              setEditingQty(
+                                Math.max(0, parseInt(e.target.value) || 0),
+                              )
                             }
-                          }}
-                          autoFocus
-                        />
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={handleSubmitEdit}
-                          className="px-1 h-6"
-                          disabled={!canEditStatus(item.status, editingQty)}
-                          title={
-                            !canEditStatus(item.status, editingQty)
-                              ? "This change is not allowed"
-                              : "Save changes"
-                          }
-                        >
-                          <Check className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={handleCancelEdit}
-                          className="px-1 h-6"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ) : (
-                      // Normal mode: show badge and edit button
-                      <>
-                        <Badge
-                          variant="secondary"
-                          className={cn(
-                            "text-xs px-1.5 py-0.5 h-auto",
-                            item.color,
-                          )}
-                        >
-                          {item.qty}
-                        </Badge>
+                            className="w-16 h-6 text-center text-xs px-1"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleSubmitEdit();
+                              } else if (e.key === "Escape") {
+                                handleCancelEdit();
+                              }
+                            }}
+                            autoFocus
+                          />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleSubmitEdit}
+                            className="px-1 h-6"
+                            disabled={!canEditStatus(item.status, editingQty)}
+                            title={
+                              !canEditStatus(item.status, editingQty)
+                                ? "This change is not allowed"
+                                : "Save changes"
+                            }
+                          >
+                            <Check className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleCancelEdit}
+                            className="px-1 h-6"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        // Normal mode: show badge and edit button
+                        <>
+                          <Badge
+                            variant="secondary"
+                            className={cn(
+                              "text-xs px-1.5 py-0.5 h-auto",
+                              item.color,
+                            )}
+                          >
+                            {item.qty}
+                          </Badge>
 
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleStartEdit(item.status, item.qty)}
-                          className="px-1.5 h-6 ml-1"
-                          disabled={
-                            // Disable if user doesn't have canUpdateStatus for cooking/served
-                            (item.status === "cooking" ||
-                              item.status === "served") &&
-                            !canUpdateStatus
-                          }
-                          title={
-                            (item.status === "cooking" ||
-                              item.status === "served") &&
-                            !canUpdateStatus
-                              ? "You don't have permission to edit this status"
-                              : "Edit quantity"
-                          }
-                        >
-                          <Edit3 className="h-3 w-3" />
-                        </Button>
-                      </>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() =>
+                              handleStartEdit(item.status, item.qty)
+                            }
+                            className="px-1.5 h-6 ml-1"
+                            disabled={
+                              // Disable if user doesn't have canUpdateStatus for cooking/served
+                              (item.status === "cooking" ||
+                                item.status === "served") &&
+                              !canUpdateStatus
+                            }
+                            title={
+                              (item.status === "cooking" ||
+                                item.status === "served") &&
+                              !canUpdateStatus
+                                ? "You don't have permission to edit this status"
+                                : "Edit quantity"
+                            }
+                          >
+                            <Edit3 className="h-3 w-3" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    {item.createdBy && (
+                      <span className="text-[10px] text-muted-foreground leading-tight">
+                        {item.createdBy.fullname || item.createdBy.username}
+                        {item.createdAt && ` · ${item.createdAt}`}
+                      </span>
                     )}
                   </div>
                 </div>

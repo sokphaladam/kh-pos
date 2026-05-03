@@ -43,12 +43,13 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
     const { transferTable } = useRestaurantActions();
     const { state, loading } = useRestaurant();
     const [selectedTable, setSelectedTable] = useState<SelectedTable | null>(
-      null
+      null,
     );
     const [transferItems, setTransferItems] = useState<TransferItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { trigger: triggerTransferOrder, isMutating: isTransferring } = useTransferOrderTable();
+    const { trigger: triggerTransferOrder, isMutating: isTransferring } =
+      useTransferOrderTable();
 
     // Initialize transfer items from the order
     useState(() => {
@@ -76,13 +77,14 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
         .filter((table) => table.id !== data.tables?.id)
         .map((table) => {
           const activeTable = state.activeTables.find(
-            (at) => at.tables?.id === table.id
+            (at) => at.tables?.id === table.id,
           );
           return {
             ...table,
             hasOrder: !!activeTable?.orders,
           };
-        });
+        })
+        .sort((a, b) => a.table_name.localeCompare(b.table_name));
     }, [state.tables, state.activeTables, data.tables?.id]);
 
     // Calculate transfer type and validation
@@ -90,13 +92,13 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
       if (!selectedTable) return null;
 
       const hasSelectedItems = transferItems.some(
-        (item) => item.selectedQty > 0
+        (item) => item.selectedQty > 0,
       );
       const isFullTransfer = transferItems.every(
-        (item) => item.selectedQty === item.qty
+        (item) => item.selectedQty === item.qty,
       );
       const isPartialTransfer = transferItems.some(
-        (item) => item.selectedQty > 0 && item.selectedQty < item.qty
+        (item) => item.selectedQty > 0 && item.selectedQty < item.qty,
       );
 
       let transferType: "transfer" | "split" | "merge" = "transfer";
@@ -125,7 +127,7 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
       try {
         // Validation
         const selectedItems = transferItems.filter(
-          (item) => item.selectedQty > 0
+          (item) => item.selectedQty > 0,
         );
         if (selectedItems.length === 0) {
           setError("Please select at least one item to transfer");
@@ -134,11 +136,11 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
 
         // Validate quantities
         const invalidItems = selectedItems.filter(
-          (item) => item.selectedQty > item.qty || item.selectedQty <= 0
+          (item) => item.selectedQty > item.qty || item.selectedQty <= 0,
         );
         if (invalidItems.length > 0) {
           setError(
-            "Invalid quantities selected. Please check your selections."
+            "Invalid quantities selected. Please check your selections.",
           );
           return;
         }
@@ -161,7 +163,7 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
                   s.qty,
                   item.selectedQtyByStatus[
                     s.status as keyof typeof item.selectedQtyByStatus
-                  ]
+                  ],
                 ),
               }))
               .filter((f) => f.quantity > 0),
@@ -183,11 +185,11 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
                     s.qty,
                     item.selectedQtyByStatus[
                       s.status as keyof typeof item.selectedQtyByStatus
-                    ]
+                    ],
                   ),
                 })),
               })),
-              data.orders!
+              data.orders!,
             );
             close(true);
           }
@@ -197,7 +199,7 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
         setError(
           error instanceof Error
             ? error.message
-            : "An unexpected error occurred"
+            : "An unexpected error occurred",
         );
       } finally {
         setIsLoading(false);
@@ -301,7 +303,7 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
                       className={cn(
                         "border rounded-lg p-2 cursor-pointer transition-all hover:border-primary hover:shadow-sm",
                         selectedTable?.id === table.id &&
-                          "border-primary bg-primary/5 shadow-sm"
+                          "border-primary bg-primary/5 shadow-sm",
                       )}
                       onClick={() => setSelectedTable(table)}
                     >
@@ -312,7 +314,7 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
                           </div>
                           {getTableStatusBadge(
                             table.status as string,
-                            table.hasOrder
+                            table.hasOrder,
                           )}
                         </div>
                         {selectedTable?.id === table.id && (
@@ -419,7 +421,9 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
           </Button>
           <Button
             onClick={handleTransfer}
-            disabled={!transferInfo?.isValid || isLoading || loading || isTransferring}
+            disabled={
+              !transferInfo?.isValid || isLoading || loading || isTransferring
+            }
             className="w-full sm:w-auto sm:min-w-28 h-8 text-xs"
           >
             {isLoading || loading || isTransferring ? (
@@ -439,5 +443,5 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
       </>
     );
   },
-  { defaultValue: null }
+  { defaultValue: null },
 );

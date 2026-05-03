@@ -24,13 +24,14 @@ export const GET = withAuthApi<
 
 export const POST = withAuthApi<
   unknown,
-  { orderDetailId: string; qty: number },
+  { orderDetailId: string; qty: number; reprint?: boolean },
   ResponseType<unknown>
 >(async ({ db, userAuth, body }) => {
   const printToKitchenService = new PrintToKitchenService(db, userAuth.admin!);
   await printToKitchenService.printOrderToKitchen(
     body?.orderDetailId || "",
     body?.qty || 0,
+    body?.reprint || false,
   );
   return NextResponse.json({ success: true, result: true }, { status: 200 });
 });
