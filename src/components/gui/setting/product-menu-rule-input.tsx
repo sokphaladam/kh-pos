@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/alt-text */
 "use client";
 
 import { useUploadFileMinIO } from "@/app/hooks/use-upload-file";
