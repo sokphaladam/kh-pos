@@ -121,7 +121,7 @@ export function TemplateFunbeerking(props: Props) {
               src={invoiceReceipt.at(2)}
               alt=""
               style={{
-                width: 105,
+                width: 65,
                 objectFit: "contain",
                 aspectRatio: "1/1",
                 marginBottom: "-5%",
