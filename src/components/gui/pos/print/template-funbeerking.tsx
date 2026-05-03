@@ -122,7 +122,7 @@ export function TemplateFunbeerking(props: Props) {
               alt=""
               style={{
                 width: 105,
-                objectFit: "cover",
+                objectFit: "contain",
                 aspectRatio: "1/1",
                 marginBottom: "-5%",
                 marginTop: "-5%",
