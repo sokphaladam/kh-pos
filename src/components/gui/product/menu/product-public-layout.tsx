@@ -9,7 +9,7 @@ import { useWindowSize } from "@/components/use-window-size";
 import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
 import { cn } from "@/lib/utils";
-import { ChevronDown, Loader2, Search } from "lucide-react";
+import { ChevronDown, Loader2, Search, Store, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -113,7 +113,19 @@ function ProductImageDisplay({
   );
 }
 
-export function ProductPublicLayout() {
+interface ProductPublicLayoutProps {
+  logo?: string;
+  warehouseName?: string;
+  address?: string;
+  menuBanner?: string;
+}
+
+export function ProductPublicLayout({
+  logo,
+  warehouseName,
+  address,
+  menuBanner,
+}: ProductPublicLayoutProps) {
   const params = useSearchParams();
   const { height } = useWindowSize();
   const [searchQuery, setSearchQuery] = useState("");
@@ -211,19 +223,73 @@ export function ProductPublicLayout() {
   const displayProducts =
     allProducts.length > 0 ? allProducts : data?.result || [];
 
+  const [bannerOpen, setBannerOpen] = useState(!!menuBanner);
+
   const handleProductClick = useCallback((item: ProductSearchResult) => {
     // Handle product click - can be customized based on requirements
     console.log("Product clicked:", item);
   }, []);
 
   return (
-    <div className="w-full flex flex-col gap-4 relative">
-      <div
-        className="w-full overflow-x-auto"
-        style={{ minHeight: height ? height - 120 : "80vh" }}
-      >
+    <div className="w-full flex flex-col relative">
+      {/* Menu Banner Dialog */}
+      {menuBanner && bannerOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => setBannerOpen(false)}
+        >
+          <div
+            className="relative max-w-lg w-full rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={menuBanner}
+              alt="Menu banner"
+              className="w-full object-contain"
+            />
+            <button
+              onClick={() => setBannerOpen(false)}
+              className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors"
+              aria-label="Close banner"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Sticky header group — must be outside any overflow container */}
+      <div className="sticky top-0 z-20 bg-white shadow-sm">
+        {/* Store Header */}
+        <div className="border-b border-gray-100 px-4 py-4 sm:py-5">
+          <div className="flex items-center gap-3 sm:gap-4 max-w-5xl mx-auto">
+            {logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logo}
+                alt={warehouseName || "Store logo"}
+                className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl object-contain aspect-square flex-shrink-0 border border-gray-100 shadow-sm"
+              />
+            ) : (
+              <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
+                <Store className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+                {warehouseName || "Our Menu"}
+              </h1>
+              <p className="text-sm text-gray-500 mt-0.5">
+                {address ||
+                  "Welcome to our store! Browse our delicious offerings."}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Search Header */}
-        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-4">
+        <div className="border-b border-gray-200 p-4">
           <div className="relative max-w-md mx-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
@@ -237,7 +303,7 @@ export function ProductPublicLayout() {
         </div>
 
         {/* Category Tabs */}
-        <div className="sticky top-[76px] z-10 bg-white/95 border-b border-gray-200 px-4 py-3">
+        <div className="border-b border-gray-200 px-4 py-3">
           <div className="relative">
             <div className="overflow-x-auto scrollbar-hide">
               <div className="flex gap-2 min-w-fit scroll-smooth snap-x snap-mandatory pb-1">
@@ -285,11 +351,14 @@ export function ProductPublicLayout() {
               </div>
             </div>
             {/* Scroll indicators */}
-            <div className="absolute right-0 top-0 bottom-0 w-8  to-transparent pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-8 to-transparent pointer-events-none" />
             <div className="absolute left-0 top-0 bottom-0 w-8 to-transparent pointer-events-none" />
           </div>
         </div>
+      </div>
 
+      {/* Scrollable content — overflow only wraps product content */}
+      <div style={{ minHeight: height ? height - 120 : "80vh" }}>
         {/* Products Grid */}
         <div className="p-2 sm:p-4 pt-4 sm:pt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 sm:gap-3 md:gap-4 pb-20">
           {(isLoading || loading) &&

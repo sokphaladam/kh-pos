@@ -60,6 +60,7 @@ export interface WarehouseResponseType {
   slot: WarehouseSlotResponseType[];
   lat: string;
   lng: string;
+  address?: string;
 }
 
 export interface WarehouseSlotResponseType {

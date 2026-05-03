@@ -13,13 +13,14 @@ import { getDistanceFromLatLonInMeters } from "@/lib/utils";
 import Cookies from "js-cookie";
 import { v4 as uuidv4 } from "uuid";
 import { getDeviceInfo } from "@/lib/device-info";
+import { useQuerySetting } from "@/app/hooks/use-setting";
 
 export function ProductMenuPageRender() {
   const searchParams = useSearchParams();
   const session = getCustomerCookies();
   const warehouseId = useMemo(
     () => searchParams.get("warehouse") || "",
-    [searchParams]
+    [searchParams],
   );
   const [lat, setLat] = useState(0);
   const [lng, setLng] = useState(0);
@@ -32,13 +33,40 @@ export function ProductMenuPageRender() {
     isLoading: isLoadingCustomer,
     mutate,
   } = useQueryCustomer();
+  const { data: settingData, isLoading: isLoadingSetting } =
+    useQuerySetting(warehouseId);
+
+  const invoiceReceiptSetting = useMemo(
+    () =>
+      isLoadingSetting
+        ? ""
+        : settingData?.result
+            ?.find((s) => s.option === "INVOICE_RECEIPT")
+            ?.value?.split(","),
+    [settingData, isLoadingSetting],
+  );
+
+  const productMenuSetting = useMemo(() => {
+    return isLoadingSetting
+      ? null
+      : JSON.parse(
+          settingData?.result?.find((s) =>
+            s.option === "PRODUCT_MENU" ? s : null,
+          )?.value || "{}",
+        );
+  }, [isLoadingSetting, settingData]);
+
+  const logo = isLoadingSetting ? "" : invoiceReceiptSetting?.at(2) || "";
+  const menuBanner = isLoadingSetting
+    ? ""
+    : productMenuSetting?.bannerUrl || "";
 
   // Get user's location
   useEffect(() => {
     const getLocation = async () => {
       try {
         const pos = await new Promise<GeolocationPosition>((res, rej) =>
-          navigator.geolocation.getCurrentPosition(res, rej)
+          navigator.geolocation.getCurrentPosition(res, rej),
         );
         setLat(pos.coords.latitude);
         setLng(pos.coords.longitude);
@@ -60,7 +88,7 @@ export function ProductMenuPageRender() {
           lat,
           lng,
           Number(warehouse?.lat),
-          Number(warehouse?.lng)
+          Number(warehouse?.lng),
         );
         const inZone = distance <= radiusInMeters;
         if (!inZone) {
@@ -103,7 +131,12 @@ export function ProductMenuPageRender() {
     handleWalkInLogin();
   }, [searchParams, session, trigger, lat, lng, zone, mutate]);
 
-  if (!isLoggingIn && !isLoadingWarehouse && !isLoadingCustomer) {
+  if (
+    !isLoggingIn &&
+    !isLoadingWarehouse &&
+    !isLoadingCustomer &&
+    !isLoadingSetting
+  ) {
     return (
       <>
         {session &&
@@ -115,7 +148,12 @@ export function ProductMenuPageRender() {
             warehouse={warehouseData?.result?.data.at(0)}
           />
         ) : (
-          <ProductPublicLayout />
+          <ProductPublicLayout
+            logo={logo}
+            menuBanner={menuBanner}
+            warehouseName={warehouseData?.result?.data.at(0)?.name}
+            address={warehouseData?.result?.data.at(0)?.address}
+          />
         )}
       </>
     );

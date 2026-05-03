@@ -52,7 +52,11 @@ export function HeadSidebar() {
   const triggerContent = (
     <>
       <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-        <img src={logo} alt="" className="size-8 object-cover" />
+        <img
+          src={logo}
+          alt=""
+          className="size-8 object-contain aspect-square"
+        />
       </div>
       <div className="grid flex-1 text-left text-sm leading-tight">
         <span className="truncate font-semibold">{currentWarehouse?.name}</span>

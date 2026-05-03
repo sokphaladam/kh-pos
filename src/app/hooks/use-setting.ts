@@ -9,19 +9,25 @@ export interface Setting {
   warehouse: string | null;
 }
 
-export function useQuerySetting() {
-  return useGenericSWR<ResponseType<Setting[]>>("/api/setting");
+export function useQuerySetting(warehouseId?: string) {
+  const params = new URLSearchParams();
+  if (warehouseId) {
+    params.append("warehouseId", warehouseId);
+  }
+  return useGenericSWR<ResponseType<Setting[]>>(
+    `/api/setting?${params.toString()}`,
+  );
 }
 
 export function useUpdateSetting() {
   return useGenericMutation<inputSettingType, ResponseType<unknown>>(
     "PUT",
-    "/api/setting"
+    "/api/setting",
   );
 }
 
 export function useQueryPublicSetting(warehouseId?: string) {
   return useGenericSWR<ResponseType<Setting[]>>(
-    "/api/warehouse/setting" + (warehouseId ? `?warehouse=${warehouseId}` : "")
+    "/api/warehouse/setting" + (warehouseId ? `?warehouse=${warehouseId}` : ""),
   );
 }

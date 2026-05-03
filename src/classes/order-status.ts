@@ -84,7 +84,11 @@ export class OrderStatusService {
       // decrement the quantity from the source status
       await trx("order_item_status")
         .where({ order_item_id: orderDetailId, status: fromStatus })
-        .decrement("qty", qty);
+        .decrement("qty", qty)
+        .update({
+          created_at: Formatter.getNowDateTime(),
+          created_by: this.user.id,
+        });
 
       await updateOrderItemQty(orderDetailId, trx);
 

@@ -6,12 +6,19 @@ import { NextResponse } from "next/server";
 export const settingList = withAuthApi<
   unknown,
   unknown,
-  ResponseType<table_setting[]>
+  ResponseType<table_setting[]>,
+  { warehouseId?: string }
 >(
-  async ({ userAuth, db }) => {
-    const warehouseId = userAuth.admin
-      ? userAuth.admin.currentWarehouseId
-      : userAuth.customer?.warehouseId;
+  async ({ userAuth, db, searchParams }) => {
+    let warehouseId = searchParams?.warehouseId;
+
+    if (userAuth.admin) {
+      warehouseId = userAuth.admin.currentWarehouseId;
+    }
+
+    if (userAuth.customer) {
+      warehouseId = userAuth.customer?.warehouseId;
+    }
 
     const list = await db
       .table("setting")
@@ -22,8 +29,8 @@ export const settingList = withAuthApi<
 
     return NextResponse.json(
       { success: true, result, error: "" },
-      { status: 200 }
+      { status: 200 },
     );
   },
-  ["ADMIN", "CUSTOMER"]
+  ["ADMIN", "CUSTOMER", "PUBLIC"],
 );

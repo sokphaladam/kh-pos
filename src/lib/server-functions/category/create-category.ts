@@ -204,14 +204,22 @@ export async function getCategoryList({
     .count("* as total")
     .first<{ total: number }>();
 
-  const items = await raws
+  const query = raws
     .clone()
+    .select("product_category.*")
+    .limit(limit)
+    .offset(offset);
+
+  const items = await query;
+
+  const itemsCount = await db
+    .table("product_category")
     .select(
       db.raw("COUNT(product_categories.id) as product_count"),
       db.raw("SUM(IF(product.is_for_sale = 1, 1 , 0)) as for_sale_count"),
-      "product_category.*",
+      "product_category.id",
     )
-    .leftJoin(
+    .rightJoin(
       "product_categories",
       "product_categories.category_id",
       "product_category.id",
@@ -221,8 +229,11 @@ export async function getCategoryList({
     .where({
       "product.deleted_at": null,
     })
-    .limit(limit)
-    .offset(offset);
+    .whereIn(
+      "product_category.id",
+      items.map((i) => i.id),
+    );
+
   const warehouse_printer = await db
     .table("warehouse_category_printer")
     .select()
@@ -231,6 +242,10 @@ export async function getCategoryList({
 
   const categories: Category[] = items.map((raw) => {
     const printer = warehouse_printer.find((wp) => wp.category_id === raw.id);
+    const productCount =
+      itemsCount.find((ic) => ic.id === raw.id)?.product_count || 0;
+    const forSaleCount =
+      itemsCount.find((ic) => ic.id === raw.id)?.for_sale_count || 0;
     return {
       id: raw.id,
       title: raw.title,
@@ -246,8 +261,8 @@ export async function getCategoryList({
       sortOrder: raw.sort_order,
       excludeFeeDelivery: raw.exclude_fee_delivery === 1,
       markExtraFee: Number(raw.mark_extra_fee),
-      productCount: Number(raw.product_count) || 0,
-      forSaleCount: Number(raw.for_sale_count) || 0,
+      productCount: Number(productCount) || 0,
+      forSaleCount: Number(forSaleCount) || 0,
     };
   });
 
