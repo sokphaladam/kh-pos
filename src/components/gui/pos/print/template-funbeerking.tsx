@@ -81,6 +81,7 @@ export function TemplateFunbeerking(props: Props) {
 
   const change = receive <= 0 ? 0 : receive - totalAfterDiscount;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const displayTotalDiscount =
     invoiceReceipt.at(7) === "amount"
       ? formatForDisplay(Number(totalAfterDiscount))
@@ -553,15 +554,17 @@ export function TemplateFunbeerking(props: Props) {
                         {totalKHR ? totalKHR : ""}
                       </div>
                       <div style={{ height: "1.5rem" }}>
-                        {totalDiscount && invoiceReceipt.at(7) === "amount"
-                          ? currency === "$"
-                            ? Formatter.formatCurrencyKH(
-                                (totalDiscount || 0) * exchangeRate,
-                              )
-                            : `$${(
-                                Number(totalDiscount) / exchangeRate
-                              ).toFixed(2)}`
-                          : displayTotalDiscount}
+                        {totalDiscount === 0
+                          ? formatForDisplay(0)
+                          : invoiceReceipt.at(7) === "amount"
+                            ? currency === "$"
+                              ? Formatter.formatCurrencyKH(
+                                  (totalDiscount || 0) * exchangeRate,
+                                )
+                              : `$${(
+                                  Number(totalDiscount) / exchangeRate
+                                ).toFixed(2)}`
+                            : formatForDisplay(0)}
                       </div>
                     </div>
                   </td>
@@ -573,7 +576,9 @@ export function TemplateFunbeerking(props: Props) {
                         {formatForDisplay(Number(total))}
                       </div>
                       <div style={{ height: "1.5rem" }}>
-                        {displayTotalDiscount}
+                        {totalDiscount === 0
+                          ? formatForDisplay(0)
+                          : totalDiscount}
                       </div>
                     </div>
                   </td>
