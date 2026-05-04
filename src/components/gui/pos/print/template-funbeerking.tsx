@@ -92,8 +92,8 @@ export function TemplateFunbeerking(props: Props) {
   if (invoiceReceipt.at(8) === "amount") {
     displayTotalDiscountAmount = formatForDisplay(Number(totalDiscount));
   } else if (invoiceReceipt.at(8) === "percentage") {
-    displayTotalDiscountAmount =
-      ((Number(totalDiscount) / total) * 100).toFixed(2) + "%";
+    const roundOneDecimal = ((Number(totalDiscount) / total) * 100).toFixed(1);
+    displayTotalDiscountAmount = Math.ceil(Number(roundOneDecimal)) + "%";
   }
 
   return (
@@ -578,7 +578,7 @@ export function TemplateFunbeerking(props: Props) {
                       <div style={{ height: "1.5rem" }}>
                         {totalDiscount === 0
                           ? formatForDisplay(0)
-                          : totalDiscount}
+                          : totalDiscount?.toFixed(2)}
                       </div>
                     </div>
                   </td>
@@ -696,6 +696,7 @@ export function TemplateFunbeerking(props: Props) {
                           )
                         : `$${(Number(totalDiscount || 0) / exchangeRate).toFixed(2)}`}
                     </div>
+                    {/* Display payment list from customer pay*/}
                     {props.order?.payments.map((payment) => {
                       const amount =
                         payment.currency === "KHR" && currency === "$"
