@@ -209,7 +209,7 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
     const getTableStatusBadge = (status: string, hasOrder: boolean) => {
       if (hasOrder) {
         return (
-          <Badge variant="default" className="bg-amber-500 hover:bg-amber-600">
+          <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
             Occupied
           </Badge>
         );
@@ -218,22 +218,25 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
       switch (status) {
         case "available":
           return (
-            <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
+            <Badge
+              variant="default"
+              className="bg-green-500 hover:bg-green-600"
+            >
               Available
             </Badge>
           );
         case "cleaning":
           return (
-            <Badge variant="default" className="bg-rose-500 hover:bg-rose-600">
+            <Badge
+              variant="default"
+              className="bg-amber-500 hover:bg-amber-600"
+            >
               Cleaning
             </Badge>
           );
         case "order_taken":
           return (
-            <Badge
-              variant="default"
-              className="bg-amber-500 hover:bg-amber-600"
-            >
+            <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
               Occupied
             </Badge>
           );

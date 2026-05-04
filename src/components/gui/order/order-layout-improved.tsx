@@ -4,6 +4,7 @@ import { OrderFilters } from "./components/order-filters";
 import { OrderList } from "./components/order-list-improved";
 import { useOrderFilters } from "./hooks/use-order-filters";
 import { useMemo } from "react";
+import { OrderSummary } from "./order-summary";
 
 export function OrderLayoutImproved() {
   const { setting } = useAuthentication();
@@ -65,6 +66,12 @@ export function OrderLayoutImproved() {
             </button>
           </div>
         </div>
+
+        {/* Order Summary */}
+        <OrderSummary
+          startDate={filters.startDate || ""}
+          endDate={filters.endDate || ""}
+        />
 
         {/* Filters */}
         <OrderFilters

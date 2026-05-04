@@ -130,6 +130,10 @@ export class PrintToKitchenService {
     if (!orderItem?.variant_id)
       throw new Error("Order item variant ID not found");
 
+    const order: table_customer_order = await this.tx
+      .table("customer_order")
+      .where("order_id", orderItem?.order_id)
+      .first();
     const printer = await getPrinterInfo(
       orderItem?.variant_id,
       this.tx,
@@ -191,7 +195,11 @@ export class PrintToKitchenService {
       },
     ];
 
-    if (table.section === "delivery") {
+    if (
+      table.section === "delivery" ||
+      order.served_type === "take_away" ||
+      order.served_type === "food_delivery"
+    ) {
       contentToPrint.push({
         type: "text",
         value: "ប្រភេទ: វេចខ្ចប់",
