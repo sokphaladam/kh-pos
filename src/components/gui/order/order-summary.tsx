@@ -93,13 +93,10 @@ export function OrderSummary(props: Props) {
       } else if (order.orderStatus === "DRAFT") {
         draftCount++;
         draftTotal += amount;
-      } else if (
-        order.orderStatus === "APPROVED" ||
-        order.orderStatus === "PROCESSING"
-      ) {
-        expectationCount++;
-        expectationTotal += amount;
       }
+
+      expectationCount++;
+      expectationTotal += amount;
     }
 
     return {
@@ -141,7 +138,7 @@ export function OrderSummary(props: Props) {
       <SummaryCard
         label="Expected Revenue"
         count={summary.expectationCount}
-        countLabel="pending"
+        countLabel="orders"
         total={summary.expectationTotal}
         formatCurrency={formatForDisplay}
         isLoading={isLoading}
