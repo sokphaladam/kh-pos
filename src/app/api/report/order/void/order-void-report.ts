@@ -1,5 +1,6 @@
 import { VoidOrderData } from "@/app/admin/(admin)/reports/void-order/types";
 import { LoaderFactory } from "@/dataloader/loader-factory";
+import { Formatter } from "@/lib/formatter";
 import withAuthApi from "@/lib/server-functions/with-auth-api";
 import { ResponseType } from "@/lib/types";
 import { NextResponse } from "next/server";
@@ -15,12 +16,12 @@ export const getOrderVoidReport = withAuthApi<
     .leftJoin(
       "customer_order",
       "customer_order.order_id",
-      "print_kitchen_log.order_id"
+      "print_kitchen_log.order_id",
     )
     .leftJoin(
       "customer_order_detail",
       "customer_order_detail.order_detail_id",
-      "print_kitchen_log.order_detail_id"
+      "print_kitchen_log.order_detail_id",
     );
 
   if (searchParams?.startDate && searchParams?.endDate) {
@@ -37,14 +38,14 @@ export const getOrderVoidReport = withAuthApi<
       "print_kitchen_log.order_id",
       "print_kitchen_log.order_detail_id",
       db.raw(
-        "SUM(SUBSTRING_INDEX(JSON_UNQUOTE(JSON_EXTRACT(content, '$[4].value')), 'x', -1)) AS qty_from_kitchen"
+        "SUM(SUBSTRING_INDEX(JSON_UNQUOTE(JSON_EXTRACT(content, '$[4].value')), 'x', -1)) AS qty_from_kitchen",
       ),
       "print_kitchen_log.item_price as price_from_kitchen",
       "customer_order_detail.qty as qty_from_order",
       "customer_order_detail.price as price_from_order",
       "print_kitchen_log.printed_at",
       "customer_order.order_id as customer_order_id",
-      "print_kitchen_log.content"
+      "print_kitchen_log.content",
     )
     .orderBy("printed_at", "desc")
     .groupBy("print_kitchen_log.order_detail_id");
@@ -65,7 +66,9 @@ export const getOrderVoidReport = withAuthApi<
         invoice: item.invoice_no,
         orderId: item.order_id,
         orderDetailId: item.order_detail_id,
-        printedAt: item.printed_at,
+        printedAt: item.printed_at
+          ? (Formatter.dateTime(item.printed_at) ?? undefined)
+          : undefined,
         qtyFromPrintLog: Number(item.qty_from_kitchen),
         priceFromPrintLog: Number(item.price_from_kitchen),
         actualQty: Number(item.qty_from_order),
@@ -74,7 +77,7 @@ export const getOrderVoidReport = withAuthApi<
         content: item.content,
         payments,
       };
-    })
+    }),
   );
 
   return NextResponse.json(
@@ -83,6 +86,6 @@ export const getOrderVoidReport = withAuthApi<
       result,
       error: "",
     },
-    { status: 200 }
+    { status: 200 },
   );
 });

@@ -5,7 +5,7 @@ export type VoidOrderData = {
   invoice: string;
   orderId: string;
   orderDetailId: string;
-  printedAt: string;
+  printedAt?: string;
   qtyFromPrintLog: number | null;
   priceFromPrintLog: number;
   actualQty: number;
