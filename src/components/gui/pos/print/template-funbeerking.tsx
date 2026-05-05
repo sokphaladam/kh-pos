@@ -578,7 +578,7 @@ export function TemplateFunbeerking(props: Props) {
                       <div style={{ height: "1.5rem" }}>
                         {totalDiscount === 0
                           ? formatForDisplay(0)
-                          : totalDiscount?.toFixed(2)}
+                          : formatForDisplay(Number(totalDiscount?.toFixed(2)))}
                       </div>
                     </div>
                   </td>
