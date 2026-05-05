@@ -49,7 +49,6 @@ export function createOrderDetailLoader(
         if (!orderDetailMap[x.order_id!]) {
           orderDetailMap[x.order_id!] = [];
         }
-        console.log(x.total_amount);
         orderDetailMap[x.order_id!].push({
           orderDetailId: x.order_detail_id || "",
           variantId: x.variant_id || "",
