@@ -71,7 +71,7 @@ export function RestaurantItemMenu({
   function handleResendConfirm() {
     trigger({
       orderDetailId: item.orderDetailId,
-      qty: resendQty,
+      qty: Number(resendQty),
       reprint: true,
     })
       .then((res) => {
@@ -86,6 +86,7 @@ export function RestaurantItemMenu({
       })
       .finally(() => {
         setResendDialogOpen(false);
+        setResendQty(totalStatusQty);
       });
   }
 
@@ -97,18 +98,57 @@ export function RestaurantItemMenu({
             <DialogTitle>Resend to Kitchen</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="resend-qty">Quantity to resend</Label>
-            <Input
-              id="resend-qty"
-              type="number"
-              min={1}
-              max={totalStatusQty}
-              value={resendQty}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                if (val >= 1) setResendQty(val);
-              }}
-            />
+            <Label htmlFor="resend-qty">
+              Quantity to resend{" "}
+              <span className="text-muted-foreground font-normal">
+                (max {totalStatusQty})
+              </span>
+            </Label>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-10 w-10 shrink-0 text-lg"
+                onClick={() => setResendQty((q) => Math.max(1, q - 1))}
+                disabled={resendQty <= 1}
+              >
+                −
+              </Button>
+              <Input
+                id="resend-qty"
+                type="number"
+                min={1}
+                value={resendQty}
+                className="text-center text-lg font-semibold"
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setResendQty(val);
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-10 w-10 shrink-0 text-lg"
+                onClick={() =>
+                  setResendQty((q) => Math.min(totalStatusQty, q + 1))
+                }
+                disabled={resendQty >= totalStatusQty}
+              >
+                +
+              </Button>
+            </div>
+            {resendQty >= totalStatusQty && (
+              <p className="text-sm text-muted-foreground">
+                Maximum quantity reached ({totalStatusQty})
+              </p>
+            )}
+            {resendQty < 1 && (
+              <p className="text-sm text-muted-foreground">
+                Minimum quantity reached (1)
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button
@@ -117,7 +157,12 @@ export function RestaurantItemMenu({
             >
               Cancel
             </Button>
-            <Button disabled={isMutating} onClick={handleResendConfirm}>
+            <Button
+              disabled={
+                isMutating || resendQty > totalStatusQty || resendQty < 1
+              }
+              onClick={handleResendConfirm}
+            >
               Resend
             </Button>
           </DialogFooter>
