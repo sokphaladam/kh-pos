@@ -8,6 +8,17 @@ import { useRestaurantActions } from "../hooks/use-restaurant-actions";
 import { useMutationPrintToKitchen } from "@/app/hooks/use-query-order-update-status-item";
 import { toast } from "sonner";
 import { useCommonDialog } from "@/components/common-dialog";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface RestaurantItemMenuProps extends WithLayoutPermissionProps {
   item: RestaurantOrderItem;
@@ -23,6 +34,9 @@ export function RestaurantItemMenu({
   const { showDialog } = useCommonDialog();
   const { removeProduct } = useRestaurantActions();
   const { trigger, isMutating } = useMutationPrintToKitchen();
+
+  const [resendDialogOpen, setResendDialogOpen] = useState(false);
+  const [resendQty, setResendQty] = useState(1);
 
   const qtyAreNotPending = item.status?.reduce((a, b) => {
     if (b.status !== "pending") {
@@ -54,8 +68,61 @@ export function RestaurantItemMenu({
 
   const totalStatusQty = item.status?.reduce((a, b) => a + b.qty, 0) || 0;
 
+  function handleResendConfirm() {
+    trigger({
+      orderDetailId: item.orderDetailId,
+      qty: resendQty,
+      reprint: true,
+    })
+      .then((res) => {
+        if (res.success) {
+          toast.success("Item sent to kitchen");
+        } else {
+          toast.error("Failed to send item to kitchen");
+        }
+      })
+      .catch(() => {
+        toast.error("Failed to send item to kitchen");
+      })
+      .finally(() => {
+        setResendDialogOpen(false);
+      });
+  }
+
   return (
     <div className={cn("flex-shrink-0")} onClick={(e) => e.stopPropagation()}>
+      <Dialog open={resendDialogOpen} onOpenChange={setResendDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Resend to Kitchen</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="resend-qty">Quantity to resend</Label>
+            <Input
+              id="resend-qty"
+              type="number"
+              min={1}
+              max={totalStatusQty}
+              value={resendQty}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                if (val >= 1) setResendQty(val);
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setResendDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button disabled={isMutating} onClick={handleResendConfirm}>
+              Resend
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <BasicMenuAction
         disabled={isMutating}
         value={item}
@@ -98,21 +165,8 @@ export function RestaurantItemMenu({
                 {
                   label: "Resend to Kitchen",
                   onClick: () => {
-                    trigger({
-                      orderDetailId: item.orderDetailId,
-                      qty: item.qty,
-                      reprint: true,
-                    })
-                      .then((res) => {
-                        if (res.success) {
-                          toast.success("Item sent to kitchen");
-                        } else {
-                          toast.error("Failed to send item to kitchen");
-                        }
-                      })
-                      .catch(() => {
-                        toast.error("Failed to send item to kitchen");
-                      });
+                    setResendQty(totalStatusQty || 1);
+                    setResendDialogOpen(true);
                   },
                 },
               ]
