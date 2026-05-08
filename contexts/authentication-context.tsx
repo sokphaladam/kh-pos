@@ -107,7 +107,7 @@ export const AuthenticationProvider = ({
       Cookies.set("session", JSON.stringify(user), cookieOptions);
       setIsAuthenticated(true);
       // Navigate to admin instead of reload
-      safeNavigate("/admin");
+      safeNavigate("/");
     } else {
       Cookies.remove("session", { path: "/" });
       setIsAuthenticated(false);

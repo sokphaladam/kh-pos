@@ -12,6 +12,7 @@ interface DirectPrintProps {
   onPrintComplete: () => void;
   autoprint?: boolean;
   type: "default" | "template-i" | "template-ch" | "template-funbeerking";
+  receiptCountPerCheckout?: number;
 }
 
 export function DirectPrint({
@@ -19,6 +20,7 @@ export function DirectPrint({
   onPrintComplete,
   autoprint = true,
   type = "default",
+  receiptCountPerCheckout = 1,
 }: DirectPrintProps) {
   const ref = useRef<HTMLDivElement>(null);
   const printFrameRef = useRef<HTMLIFrameElement>(null);
@@ -28,11 +30,11 @@ export function DirectPrint({
   useEffect(() => {
     if (ref.current && printFrameRef.current && data && !!autoprint) {
       setDoc(
-        `<div>` +
+        `<!DOCTYPE html><html><head><link rel="stylesheet" href="/printing.css"/><style>@media print { div[data-receipt] { page-break-after: always; } div[data-receipt]:last-child { page-break-after: avoid; } }</style></head><body>` +
           ref.current.innerHTML +
-          "</div><script>window.print(); window.onafterprint = function() {parent.postMessage('print-complete', '*');};/*" +
+          "</body><script>window.onload = function() { window.print(); window.onafterprint = function() {parent.postMessage('print-complete', '*');}; };/*" +
           Math.random().toString() +
-          "*/</script>",
+          "*/</script></html>",
       );
     }
   }, [data, autoprint]);
@@ -72,12 +74,23 @@ export function DirectPrint({
       }}
     >
       <div ref={ref}>
-        {type === "default" && <DefaultPrint order={order} />}
-        {type === "template-i" && <TemplateIPrint order={order} />}
-        {type === "template-ch" && <TemplateChhounHour order={order} />}
-        {type === "template-funbeerking" && (
-          <TemplateFunbeerking order={order} />
-        )}
+        {[...new Array(receiptCountPerCheckout)].map((_, index, arr) => {
+          return (
+            <div
+              key={index}
+              data-receipt
+              style={index < arr.length - 1 ? { pageBreakAfter: "always" } : {}}
+              className="pagebreak"
+            >
+              {type === "default" && <DefaultPrint order={order} />}
+              {type === "template-i" && <TemplateIPrint order={order} />}
+              {type === "template-ch" && <TemplateChhounHour order={order} />}
+              {type === "template-funbeerking" && (
+                <TemplateFunbeerking order={order} />
+              )}
+            </div>
+          );
+        })}
       </div>
       <iframe
         ref={printFrameRef}

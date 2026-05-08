@@ -84,7 +84,10 @@ function getFirstAccessibleRoute(
   }
 
   // BOARD_MEMBER always goes to board member dashboard
-  if (userRole === "BOARD MEMBER" && permissions["board-member-dashboard"]) {
+  if (
+    userRole?.toUpperCase() === "BOARD MEMBER" &&
+    permissions["board-member-dashboard"]
+  ) {
     return BOARD_MEMBER_DASHBOARD_PATH;
   }
 

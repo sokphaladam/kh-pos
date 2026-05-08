@@ -52,6 +52,13 @@ export function RestaurantContent(
           ?.value?.split(",")[0]
       : "default";
 
+  const receiptCountPerCheckout =
+    !setting?.isLoading && !setting?.isValidating
+      ? setting?.data?.result
+          ?.find((f) => f.option === "INVOICE_RECEIPT")
+          ?.value?.split(",")[9] || "1"
+      : "1";
+
   const printAction = useMemo(() => {
     if (printingOrder) {
       return (
@@ -66,12 +73,21 @@ export function RestaurantContent(
             }
           }}
           type={template as unknown as "default" | "template-i" | "template-ch"}
+          receiptCountPerCheckout={Number(receiptCountPerCheckout)}
         />
       );
     }
 
     return <></>;
-  }, [params, pathname, printingOrder, router, setPrintingOrder, template]);
+  }, [
+    params,
+    pathname,
+    printingOrder,
+    router,
+    setPrintingOrder,
+    template,
+    receiptCountPerCheckout,
+  ]);
 
   return (
     <>

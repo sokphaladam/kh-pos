@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import {
@@ -125,16 +126,20 @@ export function InvoicePreview({ value, onChangeValue }: Props) {
     margin,
     limitProductName,
     productNameLimitLine,
+    autoResetEveryDay,
+    discountDisplayFormat,
+    showTotalDiscount,
+    receiptCountPerCheckout,
   ] = useMemo(() => value.split(","), [value]);
 
   const onPrint = () => {
     if (ref.current && printFrameRef.current) {
       setDoc(
-        `<div>` +
+        `<!DOCTYPE html><html><head><link rel="stylesheet" href="/printing.css"/><style>@media print { div[data-receipt] { page-break-after: always; } div[data-receipt]:last-child { page-break-after: avoid; } }</style></head><body>` +
           ref.current.innerHTML +
-          "</div><script>window.print(); window.onafterprint = function() {parent.postMessage('print-complete', '*');};/*" +
+          "</body><script>window.onload = function() { window.print(); window.onafterprint = function() {parent.postMessage('print-complete', '*');}; };/*" +
           Math.random().toString() +
-          "*/</script>",
+          "*/</script></html>",
       );
     }
   };
@@ -186,7 +191,24 @@ export function InvoicePreview({ value, onChangeValue }: Props) {
       <div className="space-y-2">
         <Label className="text-xs text-gray-600">Invoice preview</Label>
         <div className="w-[80mm] border">
-          <div ref={ref}>{renderTemplate()}</div>
+          <div ref={ref}>
+            {[...new Array(Number(receiptCountPerCheckout || "1"))].map(
+              (_, index, arr) => {
+                return (
+                  <div
+                    key={index}
+                    data-receipt
+                    style={
+                      index < arr.length - 1 ? { pageBreakAfter: "always" } : {}
+                    }
+                    className="pagebreak"
+                  >
+                    {renderTemplate()}
+                  </div>
+                );
+              },
+            )}
+          </div>
         </div>
       </div>
       <iframe

@@ -41,6 +41,7 @@ export function InvoiceInput(props: Props) {
       autoResetEveryDay: parts?.at(6) || "0",
       discountDisplayFormat: parts?.at(7) || "amount",
       showTotalDiscount: parts?.at(8) || "none",
+      receiptCountPerCheckout: parts?.at(9) || "1",
     };
   }, []);
 
@@ -49,7 +50,7 @@ export function InvoiceInput(props: Props) {
   const updateValue = useCallback(
     (updates: Partial<typeof currentValue>) => {
       const newValue = { ...currentValue, ...updates };
-      const csvValue = `${newValue.template},${newValue.title},${newValue.logoUrl},${newValue.settings},${newValue.limitProductName},${newValue.productNameLimitLine},${newValue.autoResetEveryDay},${newValue.discountDisplayFormat},${newValue.showTotalDiscount}`;
+      const csvValue = `${newValue.template},${newValue.title},${newValue.logoUrl},${newValue.settings},${newValue.limitProductName},${newValue.productNameLimitLine},${newValue.autoResetEveryDay},${newValue.discountDisplayFormat},${newValue.showTotalDiscount},${newValue.receiptCountPerCheckout}`;
       props.onChangeValue(csvValue);
     },
     [currentValue, props],
@@ -322,6 +323,25 @@ export function InvoiceInput(props: Props) {
             Choose how total discounts are displayed on invoices and receipts
           </p>
         </div>
+      </div>
+
+      {/* Receipt Count Per Checkout */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium text-gray-600">
+          Receipts to Print per Checkout
+        </Label>
+        <Input
+          type="number"
+          min={1}
+          value={currentValue.receiptCountPerCheckout}
+          onChange={(e) =>
+            updateValue({ receiptCountPerCheckout: e.target.value })
+          }
+          className="text-sm w-32"
+        />
+        <p className="text-xs text-gray-500">
+          Number of receipt copies to print automatically on each checkout
+        </p>
       </div>
 
       {/* Print Settings */}
