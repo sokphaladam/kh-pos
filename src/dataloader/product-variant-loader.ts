@@ -66,7 +66,16 @@ export function createProductVariantLoader(
       .where("product_variant.deleted_at", null)
       .where("product_variant.available", 1);
 
-    if (user && user.warehouse?.useMainBranchVisibility) {
+    const useMainBranchVisibility =
+      user && user?.warehouse?.useMainBranchVisibility;
+
+    const queryProductWarehouseVisibility = db
+      .table("product_warehouse_visibility")
+      .where({
+        warehouse_id: user?.currentWarehouseId || "",
+      });
+
+    if (useMainBranchVisibility) {
       query
         .join(
           "group_products",
@@ -92,6 +101,20 @@ export function createProductVariantLoader(
 
     const rows: table_product_variant[] =
       await query.select("product_variant.*");
+
+    if (useMainBranchVisibility && rows.length > 0) {
+      queryProductWarehouseVisibility.whereIn(
+        "product_variant_id",
+        rows.map((x) => x.id!),
+      );
+    }
+
+    const visibilityList = await queryProductWarehouseVisibility.select(
+      "product_id",
+      "product_variant_id",
+      "is_visible",
+      "is_for_sale",
+    );
 
     const variantStockLoader = LoaderFactory.variantStockLoader(
       db,
@@ -135,7 +158,12 @@ export function createProductVariantLoader(
           optionValues,
           basicProduct: await basicProductLoader.load(x.product_id),
           isComposite: x.is_composite ? Boolean(x.is_composite) : false,
-          visible: x.visible ? Boolean(x.visible) : false,
+          visible: useMainBranchVisibility
+            ? visibilityList.find((v) => v.product_variant_id === x.id)
+                ?.is_visible === 1
+            : x.visible
+              ? Boolean(x.visible)
+              : false,
           compositeVariants: x.is_composite
             ? await LoaderFactory.compositeVariantLoader(db, warehouseId).load(
                 x.id ?? "",

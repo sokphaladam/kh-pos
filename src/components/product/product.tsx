@@ -1,8 +1,13 @@
 "use client";
 import { useDeleteProduct } from "@/app/hooks/use-query-product";
+import {
+  useMutationSetForSaleProductWarehouseVisibility,
+  useMutationSetVisibilityProductWarehouseVisibility,
+} from "@/app/hooks/user-query-product-warehouse-visibility";
 import { ProductV2 } from "@/classes/product-v2";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { TableCell, TableRow } from "@/components/ui/table";
 import {
   Tooltip,
@@ -21,7 +26,10 @@ import {
   ChevronDown,
   ChevronUp,
   DollarSign,
+  Eye,
+  EyeOff,
   Package,
+  ShoppingCart,
   Tag,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -59,6 +67,90 @@ export function Product({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const deleteProduct = useDeleteProduct();
+  const setForSaleMutation = useMutationSetForSaleProductWarehouseVisibility();
+  const setVisibilityMutation =
+    useMutationSetVisibilityProductWarehouseVisibility();
+
+  // Sub-warehouse with product groups assigned from main warehouse
+  const isSubWarehouseWithGroups =
+    !currentWarehouse?.isMain && !!currentWarehouse?.useMainBranchVisibility;
+
+  // Optimistic state for for-sale toggle (product level)
+  const [isForSaleState, setIsForSaleState] = useState(
+    product.isForSale ?? true,
+  );
+  // Optimistic state for variant visibility (per variant)
+  const [variantVisibilityState, setVariantVisibilityState] = useState<
+    Record<string, boolean>
+  >(() =>
+    Object.fromEntries(
+      product.productVariants?.map((v) => [v.id, v.visible]) ?? [],
+    ),
+  );
+
+  const onToggleForSale = useCallback(
+    (newValue: boolean) => {
+      showDialog({
+        title: newValue ? "Enable For Sale" : "Disable For Sale",
+        content: newValue
+          ? `Allow "${product.title}" to be sold in this warehouse?`
+          : `Stop selling "${product.title}" in this warehouse?`,
+        actions: [
+          {
+            text: newValue ? "Enable" : "Disable",
+            onClick: async () => {
+              setIsForSaleState(newValue);
+              const res = await setForSaleMutation.trigger({
+                productId: product.id,
+                isForSale: newValue,
+              });
+              if (res?.success) {
+                onCompleted?.();
+              } else {
+                setIsForSaleState(!newValue);
+              }
+            },
+          },
+        ],
+      });
+    },
+    [product.id, product.title, setForSaleMutation, onCompleted, showDialog],
+  );
+
+  const onToggleVariantVisibility = useCallback(
+    (variantId: string, newValue: boolean, variantName?: string) => {
+      showDialog({
+        title: newValue ? "Show Variant" : "Hide Variant",
+        content: newValue
+          ? `Make "${variantName ?? variantId}" visible in this warehouse?`
+          : `Hide "${variantName ?? variantId}" from this warehouse?`,
+        actions: [
+          {
+            text: newValue ? "Show" : "Hide",
+            onClick: async () => {
+              setVariantVisibilityState((prev) => ({
+                ...prev,
+                [variantId]: newValue,
+              }));
+              const res = await setVisibilityMutation.trigger({
+                productVariantId: variantId,
+                isVisible: newValue,
+              });
+              if (res?.success) {
+                onCompleted?.();
+              } else {
+                setVariantVisibilityState((prev) => ({
+                  ...prev,
+                  [variantId]: !newValue,
+                }));
+              }
+            },
+          },
+        ],
+      });
+    },
+    [setVisibilityMutation, onCompleted, showDialog],
+  );
 
   // Check if we're in barcode search mode and auto-expand variants
   const isBarcodeSearch = searchParams.get("barcode") !== null;
@@ -240,6 +332,25 @@ export function Product({
                   </Badge>
                 )}
               </div>
+              {isSubWarehouseWithGroups && (
+                <div className="flex items-center gap-1.5">
+                  <Switch
+                    checked={isForSaleState}
+                    disabled={setForSaleMutation.isMutating}
+                    className="h-4 w-8 data-[state=checked]:bg-green-500"
+                    onCheckedChange={onToggleForSale}
+                  />
+                  <span
+                    className={cn(
+                      "text-xs font-medium flex items-center gap-0.5",
+                      isForSaleState ? "text-green-600" : "text-gray-400",
+                    )}
+                  >
+                    <ShoppingCart className="w-3 h-3" />
+                    {isForSaleState ? "For Sale" : "Not For Sale"}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
           {allow && (
@@ -397,6 +508,40 @@ export function Product({
               <AlertTriangle className="w-3 h-3 mr-1" />
               Low Stock
             </Badge>
+          )}
+          {isSubWarehouseWithGroups && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className="flex items-center gap-1.5 mt-1 w-fit"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Switch
+                      checked={isForSaleState}
+                      disabled={setForSaleMutation.isMutating}
+                      className="h-3.5 w-7 data-[state=checked]:bg-green-500"
+                      onCheckedChange={onToggleForSale}
+                    />
+                    <span
+                      className={cn(
+                        "text-xs font-medium",
+                        isForSaleState ? "text-green-600" : "text-gray-400",
+                      )}
+                    >
+                      {isForSaleState ? "For Sale" : "Not For Sale"}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    {isForSaleState
+                      ? "Click to disable for sale in this branch"
+                      : "Click to enable for sale in this branch"}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </TableCell>
@@ -570,6 +715,40 @@ export function Product({
                         {variant.price}
                       </span>
                     </div>
+
+                    {isSubWarehouseWithGroups && (
+                      <div className="col-span-2 flex items-center gap-1.5 pt-1 border-t border-gray-100">
+                        <Switch
+                          checked={
+                            variantVisibilityState[variant.id] ??
+                            variant.visible
+                          }
+                          disabled={setVisibilityMutation.isMutating}
+                          className="h-4 w-8 data-[state=checked]:bg-blue-500"
+                          onCheckedChange={(val) =>
+                            onToggleVariantVisibility(
+                              variant.id,
+                              val,
+                              variant.optionValues
+                                .map((x) => x.value)
+                                .join(" / "),
+                            )
+                          }
+                        />
+                        {(variantVisibilityState[variant.id] ??
+                        variant.visible) ? (
+                          <span className="text-xs font-medium text-blue-600 flex items-center gap-0.5">
+                            <Eye className="w-3 h-3" />
+                            Visible in branch
+                          </span>
+                        ) : (
+                          <span className="text-xs font-medium text-gray-400 flex items-center gap-0.5">
+                            <EyeOff className="w-3 h-3" />
+                            Hidden in branch
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -623,6 +802,56 @@ export function Product({
                     <span className="text-xs text-gray-500">
                       SKU: {variant.barcode || "N/A"}
                     </span>
+                    {isSubWarehouseWithGroups && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              className="flex items-center gap-1.5 mt-1 cursor-pointer w-fit"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Switch
+                                checked={
+                                  variantVisibilityState[variant.id] ??
+                                  variant.visible
+                                }
+                                disabled={setVisibilityMutation.isMutating}
+                                className="h-3.5 w-7 data-[state=checked]:bg-blue-500"
+                                onCheckedChange={(val) =>
+                                  onToggleVariantVisibility(
+                                    variant.id,
+                                    val,
+                                    variant.optionValues
+                                      .map((x) => x.value)
+                                      .join(" / "),
+                                  )
+                                }
+                              />
+                              {(variantVisibilityState[variant.id] ??
+                              variant.visible) ? (
+                                <span className="text-xs font-medium text-blue-600 flex items-center gap-0.5">
+                                  <Eye className="w-3 h-3" />
+                                  Visible
+                                </span>
+                              ) : (
+                                <span className="text-xs font-medium text-gray-400 flex items-center gap-0.5">
+                                  <EyeOff className="w-3 h-3" />
+                                  Hidden
+                                </span>
+                              )}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>
+                              {(variantVisibilityState[variant.id] ??
+                              variant.visible)
+                                ? "Click to hide this variant in this branch"
+                                : "Click to show this variant in this branch"}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="text-xs text-center w-[90px]">

@@ -42,6 +42,10 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { generateId } from "@/lib/generate-id";
+import {
+  useMutationRemoveProductWarehouseVisibility,
+  useMutationSetProductWarehouseVisibility,
+} from "@/app/hooks/user-query-product-warehouse-visibility";
 
 interface SelectedProduct {
   productId: string;
@@ -93,6 +97,12 @@ export function ProductGroupForm({ edit, close }: Props) {
   const { trigger: unassignWarehouses } =
     useMutationUnassignWarehouseFromGroup(groupId);
   const { data: warehouseData } = useWarehouseList(100, 0);
+
+  const { trigger: setProductWarehouseVisibility } =
+    useMutationSetProductWarehouseVisibility();
+  const { trigger: removeProductWarehouseVisibility } =
+    useMutationRemoveProductWarehouseVisibility();
+
   const allWarehouses = warehouseData?.result?.data ?? [];
 
   const addProduct = useCallback(
@@ -182,17 +192,70 @@ export function ProductGroupForm({ edit, close }: Props) {
 
         // Run each async step sequentially — each waits for the previous to finish
         await updateGroup({ groupId: edit.groupId, groupName, description });
-        if (toAssignProducts.length > 0) await assignProducts(toAssignProducts);
-        if (toUnassignProducts.length > 0)
+        if (toAssignProducts.length > 0) {
+          await assignProducts(toAssignProducts);
+          if (warehouses.length > 0) {
+            await setProductWarehouseVisibility({
+              input: toAssignProducts.flatMap((p) =>
+                warehouses.map((w) => ({
+                  warehouseId: w.warehouseId,
+                  productId: p.productId,
+                  productVariantId: p.productVariantId,
+                  isVisible: true,
+                  isForSale: true,
+                })),
+              ),
+            });
+          }
+        }
+        if (toUnassignProducts.length > 0) {
           await unassignProducts(toUnassignProducts);
-        if (toAssignWarehouses.length > 0)
+          if (warehouses.length > 0) {
+            await removeProductWarehouseVisibility({
+              input: toUnassignProducts.flatMap((p) =>
+                warehouses.map((w) => ({
+                  warehouseId: w.warehouseId,
+                  productId: p.productId,
+                  productVariantId: p.productVariantId,
+                })),
+              ),
+            });
+          }
+        }
+        if (toAssignWarehouses.length > 0) {
           await assignWarehouses({
             warehouseIds: toAssignWarehouses,
           });
-        if (toUnassignWarehouses.length > 0)
+          if (products.length > 0) {
+            await setProductWarehouseVisibility({
+              input: products.flatMap((p) =>
+                toAssignWarehouses.map((warehouseId) => ({
+                  warehouseId,
+                  productId: p.productId,
+                  productVariantId: p.productVariantId,
+                  isVisible: true,
+                  isForSale: true,
+                })),
+              ),
+            });
+          }
+        }
+        if (toUnassignWarehouses.length > 0) {
           await unassignWarehouses({
             warehouseIds: toUnassignWarehouses || [],
           });
+          if (products.length > 0) {
+            await removeProductWarehouseVisibility({
+              input: products.flatMap((p) =>
+                toUnassignWarehouses.map((warehouseId) => ({
+                  warehouseId,
+                  productId: p.productId,
+                  productVariantId: p.productVariantId,
+                })),
+              ),
+            });
+          }
+        }
 
         toast.success("Product group updated");
       } else {
@@ -225,6 +288,21 @@ export function ProductGroupForm({ edit, close }: Props) {
           });
         }
 
+        // Step 4: set warehouse visibility for all product × warehouse combinations
+        if (products.length > 0 && warehouses.length > 0) {
+          await setProductWarehouseVisibility({
+            input: products.flatMap((p) =>
+              warehouses.map((w) => ({
+                warehouseId: w.warehouseId,
+                productId: p.productId,
+                productVariantId: p.productVariantId,
+                isVisible: true,
+                isForSale: true,
+              })),
+            ),
+          });
+        }
+
         toast.success("Product group created");
       }
 
@@ -246,6 +324,8 @@ export function ProductGroupForm({ edit, close }: Props) {
     unassignProducts,
     assignWarehouses,
     unassignWarehouses,
+    setProductWarehouseVisibility,
+    removeProductWarehouseVisibility,
     close,
     groupId,
   ]);

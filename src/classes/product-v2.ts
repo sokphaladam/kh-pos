@@ -83,18 +83,15 @@ export class ProductServiceV2 {
     categoryId,
   }: ProductFilterProps) {
     const isMain = this.user.warehouse?.isMain || false;
-    const query = this.trx
-      .table("product")
-      .select("product.*")
-      .where("product.deleted_at", null);
+    const query = this.trx.table("product").where("product.deleted_at", null);
     if (id) {
-      query.where("id", id);
+      query.where("product.id", id);
     }
     if (searchTitle) {
-      query.where("title", "like", `%${searchTitle}%`);
+      query.where("product.title", "like", `%${searchTitle}%`);
     }
     if (supplierId) {
-      query.where("supplier_id", supplierId);
+      query.where("product.supplier_id", supplierId);
     }
     if (categoryId) {
       query
@@ -117,7 +114,10 @@ export class ProductServiceV2 {
       query.where("product_variant.barcode", barcode);
     }
 
-    if (!isMain && !!this.user?.warehouse?.useMainBranchVisibility) {
+    const useMainBranchVisibility =
+      !isMain && !!this.user?.warehouse?.useMainBranchVisibility;
+
+    if (useMainBranchVisibility) {
       query
         .join("group_products", "group_products.product_id", "product.id")
         .join(
@@ -137,7 +137,7 @@ export class ProductServiceV2 {
         .groupBy("product.id");
     }
 
-    query.orderBy("created_at", "desc");
+    query.orderBy("product.created_at", "desc");
 
     const { total } = await query
       .clone()
@@ -145,6 +145,7 @@ export class ProductServiceV2 {
       .first<{ total: number }>();
 
     const productList: table_product[] = await query
+      .select("product.*")
       .limit(limit || 30)
       .offset(offset || 0);
 
@@ -165,6 +166,26 @@ export class ProductServiceV2 {
         this.user.currentWarehouseId!,
       );
 
+    const queryProductWarehouseVisibility = this.trx
+      .table("product_warehouse_visibility")
+      .where({
+        warehouse_id: this.user.currentWarehouseId!,
+      });
+
+    if (useMainBranchVisibility && productList.length > 0) {
+      queryProductWarehouseVisibility.whereIn(
+        "product_id",
+        productList.map((p) => p.id!),
+      );
+    }
+
+    const visibilityList = await queryProductWarehouseVisibility.select(
+      "product_id",
+      "product_variant_id",
+      "is_visible",
+      "is_for_sale",
+    );
+
     const data: ProductV2[] = await Promise.all(
       productList.map(async (p) => ({
         id: p.id!,
@@ -183,7 +204,9 @@ export class ProductServiceV2 {
         isComposite: p.is_composite === 1,
         useProduction: p.use_production === 1,
         trackStock: p.track_stock === 1,
-        isForSale: p.is_for_sale === 1,
+        isForSale: useMainBranchVisibility
+          ? visibilityList.find((v) => v.product_id === p.id)?.is_for_sale === 1
+          : p.is_for_sale === 1,
         modifiers: p.id
           ? ((await modifierByProductLoader.load(p.id)).filter(
               (m) => m !== null,

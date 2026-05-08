@@ -18,8 +18,9 @@ export interface MaterialRenderItemInfo<T> {
   index: number;
 }
 
-export interface MaterialInputProps<T = unknown>
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface MaterialInputProps<
+  T = unknown,
+> extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   animate?: "float" | "none";
@@ -57,7 +58,7 @@ const MaterialInput = React.forwardRef<
       variant = "default",
       ...props
     },
-    ref
+    ref,
   ) => {
     const [open, setOpen] = React.useState(false);
     const [isFocused, setIsFocused] = React.useState(false);
@@ -80,7 +81,7 @@ const MaterialInput = React.forwardRef<
         setOpen(true); // Open dropdown when user types
         props.onChange?.(e);
       },
-      [props]
+      [props],
     );
 
     const handleSelectItem = React.useCallback(
@@ -94,7 +95,7 @@ const MaterialInput = React.forwardRef<
           inputRef.current?.blur();
         }
       },
-      [targetValue, onSelectedItem]
+      [targetValue, onSelectedItem],
     );
 
     const onFocus = React.useCallback(
@@ -107,7 +108,7 @@ const MaterialInput = React.forwardRef<
         e.target.select();
         props.onFocus?.(e);
       },
-      [props, data]
+      [props, data],
     );
 
     const onBlur = React.useCallback(
@@ -135,7 +136,7 @@ const MaterialInput = React.forwardRef<
 
         props.onBlur?.(e);
       },
-      [props]
+      [props],
     );
 
     const renderCustomInput = () =>
@@ -146,7 +147,7 @@ const MaterialInput = React.forwardRef<
           {...props}
           className={cn(
             error && "border-red-500 focus:border-red-500",
-            className
+            className,
           )}
           value={props.value === null ? "" : props.value}
           onChange={handleChange}
@@ -168,7 +169,7 @@ const MaterialInput = React.forwardRef<
           className={cn(
             "peer w-full font-normal border-gray-300 bg-transparent px-0 py-2 border-b-[1px] dark:border-gray-600 focus:border-primary text-base md:text-sm text-gray-900 focus:outline-none dark:text-white dark:focus:border-primary transition-colors duration-200",
             error && "border-red-500 focus:border-red-500",
-            className
+            className,
           )}
           value={props.value === null ? "" : props.value}
           onChange={handleChange}
@@ -232,7 +233,7 @@ const MaterialInput = React.forwardRef<
                             !hasValue &&
                             !props.value &&
                             "opacity-0",
-                          variant === "standard" ? "top-0" : "top-2"
+                          variant === "standard" ? "top-0" : "top-2",
                         )}
                       >
                         {label}
@@ -253,81 +254,79 @@ const MaterialInput = React.forwardRef<
 
             {!open && <CommandList aria-hidden="true" className="hidden" />}
 
-            <PopoverPrimitive.Portal>
-              <PopoverContent
-                asChild
-                onOpenAutoFocus={(e) => e.preventDefault()}
-                onInteractOutside={(e) => {
-                  const target = e.target as Element;
-                  // Don't close if clicking on the input itself or any part of the trigger
-                  if (
-                    target &&
-                    (target.hasAttribute("cmdk-input") ||
-                      target.closest("[data-radix-popover-trigger]") ||
-                      inputRef.current?.contains(target))
-                  ) {
-                    e.preventDefault();
-                    return;
-                  }
-                  // Close the popover for all other outside clicks
-                  setOpen(false);
-                }}
-                className="w-[--radix-popover-trigger-width] p-0 rounded-none"
-                align="start"
-                side="bottom"
-                sideOffset={0}
-                avoidCollisions={true}
-                collisionBoundary={undefined}
-                sticky="always"
-              >
-                {data && (
-                  <CommandList className="max-h-[400px] overflow-y-auto">
-                    <>
-                      {data.length > 0 && (
-                        <CommandGroup>
-                          {(data ?? []).map((item, index) => (
-                            <CommandItem
-                              key={index}
-                              value={
-                                typeof item === "string"
-                                  ? item
-                                  : targetValue
+            <PopoverContent
+              asChild
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              onInteractOutside={(e) => {
+                const target = e.target as Element;
+                // Don't close if clicking on the input itself or any part of the trigger
+                if (
+                  target &&
+                  (target.hasAttribute("cmdk-input") ||
+                    target.closest("[data-radix-popover-trigger]") ||
+                    inputRef.current?.contains(target))
+                ) {
+                  e.preventDefault();
+                  return;
+                }
+                // Close the popover for all other outside clicks
+                setOpen(false);
+              }}
+              className="w-[--radix-popover-trigger-width] p-0 rounded-none"
+              align="start"
+              side="bottom"
+              sideOffset={0}
+              avoidCollisions={true}
+              collisionBoundary={undefined}
+              sticky="always"
+            >
+              {data && (
+                <CommandList className="max-h-[400px] overflow-y-auto">
+                  <>
+                    {data.length > 0 && (
+                      <CommandGroup>
+                        {(data ?? []).map((item, index) => (
+                          <CommandItem
+                            key={index}
+                            value={
+                              typeof item === "string"
+                                ? item
+                                : targetValue
                                   ? item[targetValue]
                                   : JSON.stringify(item)
-                              }
-                              onMouseDown={(e) => e.preventDefault()}
-                              onSelect={() => handleSelectItem(item)}
-                            >
-                              {renderItem ? (
-                                renderItem({ item, index })
-                              ) : (
-                                <span className="text-sm">
-                                  {typeof item === "string"
-                                    ? item
-                                    : targetValue
+                            }
+                            onMouseDown={(e) => e.preventDefault()}
+                            onSelect={() => handleSelectItem(item)}
+                          >
+                            {renderItem ? (
+                              renderItem({ item, index })
+                            ) : (
+                              <span className="text-sm">
+                                {typeof item === "string"
+                                  ? item
+                                  : targetValue
                                     ? item[targetValue]
                                     : JSON.stringify(item)}
-                                </span>
-                              )}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      )}
-                      {ListFooterComponent && (
-                        <div className="border-t border-gray-200 dark:border-gray-700 p-2">
-                          {ListFooterComponent}
-                        </div>
-                      )}
-                    </>
-                  </CommandList>
-                )}
-              </PopoverContent>
-            </PopoverPrimitive.Portal>
+                              </span>
+                            )}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    )}
+                    {ListFooterComponent && (
+                      <div className="border-t border-gray-200 dark:border-gray-700 p-2">
+                        {ListFooterComponent}
+                      </div>
+                    )}
+                  </>
+                </CommandList>
+              )}
+            </PopoverContent>
           </Command>
         </Popover>
       </div>
     );
-  }
+  },
 );
 
 MaterialInput.displayName = "MaterialInput";

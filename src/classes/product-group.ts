@@ -92,13 +92,15 @@ export class ProductGroupService {
   }
 
   async assignProductsToGroup(groupId: string, groupProducts: GroupProduct[]) {
-    const insertData = groupProducts.map((gp) => {
-      return {
+    const insertData = [];
+
+    for (const gp of groupProducts) {
+      insertData.push({
         group_id: groupId,
         product_id: gp.productId,
         product_variant_id: gp.productVariantId,
-      };
-    });
+      });
+    }
 
     if (insertData.length === 0) {
       return false;

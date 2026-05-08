@@ -92,11 +92,30 @@ export class ProductService {
       searchQuery.where("product.supplier_id", filter.supplierId);
     }
 
+    let warehouse = this.user?.warehouse;
+
+    if (!warehouse) {
+      warehouse = await LoaderFactory.warehouseLoader(this.trx).load(
+        filter?.warehouse || "",
+      );
+    }
+
+    const useMainBranchVisibility =
+      !isMain && !!warehouse?.useMainBranchVisibility;
+
     const query = searchQuery
       .select("product_variant.*")
       .select("product.title")
       .select("inventory.slot_id")
       .select("product_categories.category_id");
+
+    if (useMainBranchVisibility) {
+      query.leftJoin(
+        "product_warehouse_visibility",
+        "product_warehouse_visibility.product_variant_id",
+        "product_variant.id",
+      );
+    }
 
     const setting = await this.trx
       .table("setting")
@@ -120,7 +139,12 @@ export class ProductService {
       const settingValue = JSON.parse(setting.value);
 
       if (settingValue.onlyForSale) {
-        query.where("product.is_for_sale", true);
+        if (!useMainBranchVisibility) {
+          query.where("product.is_for_sale", true);
+        } else {
+          // if using main branch visibility, we will check product_warehouse_visibility table for is_for_sale field
+          query.where("product_warehouse_visibility.is_for_sale", true);
+        }
       }
 
       if (settingValue.onlyInStock) {
@@ -128,7 +152,11 @@ export class ProductService {
       }
     }
 
-    query.where({ "product_variant.visible": true });
+    if (!useMainBranchVisibility) {
+      query.where({ "product_variant.visible": true });
+    } else {
+      query.where({ "product_warehouse_visibility.is_visible": true });
+    }
 
     query
       .where({
@@ -136,15 +164,7 @@ export class ProductService {
       })
       .where("product_variant.deleted_at", null);
 
-    let warehouse = this.user?.warehouse;
-
-    if (!warehouse) {
-      warehouse = await LoaderFactory.warehouseLoader(this.trx).load(
-        filter?.warehouse || "",
-      );
-    }
-
-    if (!isMain && !!warehouse?.useMainBranchVisibility) {
+    if (useMainBranchVisibility) {
       const warehouseId = this.user?.currentWarehouseId || filter?.warehouse;
       searchQuery
         .join(

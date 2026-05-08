@@ -36,6 +36,7 @@ import { useCallback } from "react";
 import { productGroupSheet } from "./product-group-sheet";
 import { BasicMenuAction } from "@/components/basic-menu-action";
 import { useCommonDialog } from "@/components/common-dialog";
+import { useMutationRemoveProductWarehouseVisibility } from "@/app/hooks/user-query-product-warehouse-visibility";
 
 const LIMIT = 20;
 
@@ -59,6 +60,8 @@ export function ProductGroupLayout() {
   });
 
   const { trigger: deleteGroup } = useMutationDeleteProductGroup();
+  const { trigger: removeProductWarehouseVisibility } =
+    useMutationRemoveProductWarehouseVisibility();
 
   const groups = data?.result?.result || [];
   const total = data?.result?.total || 0;
@@ -85,7 +88,7 @@ export function ProductGroupLayout() {
   );
 
   const onDeleteGroup = useCallback(
-    async (groupId: string) => {
+    async (group: (typeof groups)[number]) => {
       showDialog({
         title: "Delete Product Group",
         content: "Are you sure you want to delete this product group?",
@@ -93,8 +96,18 @@ export function ProductGroupLayout() {
         actions: [
           {
             onClick: async () => {
-              const res = await deleteGroup({ groupId });
+              const res = await deleteGroup({ groupId: group.groupId });
               if (res.result) {
+                const pairs = group.products.flatMap((p) =>
+                  group.warehouses.map((w) => ({
+                    warehouseId: w.warehouseId,
+                    productId: p.productId,
+                    productVariantId: p.productVariantId,
+                  })),
+                );
+                if (pairs.length > 0) {
+                  await removeProductWarehouseVisibility({ input: pairs });
+                }
                 mutate();
               }
             },
@@ -103,7 +116,7 @@ export function ProductGroupLayout() {
         ],
       });
     },
-    [deleteGroup, mutate, showDialog],
+    [deleteGroup, mutate, showDialog, removeProductWarehouseVisibility],
   );
 
   return (
@@ -206,7 +219,7 @@ export function ProductGroupLayout() {
                               mutate();
                             }
                           }}
-                          onDelete={() => onDeleteGroup(group.groupId)}
+                          onDelete={() => onDeleteGroup(group)}
                           value={group}
                         />
                       </TableCell>
