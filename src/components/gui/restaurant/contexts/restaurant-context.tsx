@@ -54,6 +54,8 @@ type RestaurantContextType =
       isRequest: boolean;
       setIsRequest: (v: boolean) => void;
       onRefetch?: () => void;
+      useSetting: boolean;
+      setUseSetting: (v: boolean) => void;
     }
   | undefined;
 
@@ -75,6 +77,7 @@ export function RestaurantProvider({
   const [loading, setLoading] = useState(false);
   const [isRequest, setIsRequest] = useState(false);
   const [printingOrder, setPrintingOrder] = useState<string | null>(null);
+  const [useSetting, setUseSetting] = useState(false);
 
   const syncInitialState = useCallback(() => {
     dispatch({
@@ -118,6 +121,8 @@ export function RestaurantProvider({
         isRequest: isRequest || processing || false,
         setIsRequest,
         onRefetch,
+        useSetting,
+        setUseSetting,
       }}
     >
       {children}

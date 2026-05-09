@@ -21,6 +21,7 @@
   .pagebreak {
     clear: both;
     page-break-before: always;
+    break-before: page;
   }
 }
 

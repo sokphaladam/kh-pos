@@ -212,7 +212,7 @@ export async function getCategoryList({
 
   const items = await query;
 
-  const itemsCount = await db
+  const queryProductCount = db
     .table("product_category")
     .select(
       db.raw("COUNT(product_categories.id) as product_count"),
@@ -233,6 +233,30 @@ export async function getCategoryList({
       "product_category.id",
       items.map((i) => i.id),
     );
+
+  if (user && user.warehouse?.useMainBranchVisibility) {
+    queryProductCount
+      .leftJoin(
+        "product_warehouse_visibility",
+        "product_warehouse_visibility.product_id",
+        "product.id",
+      )
+      .select(
+        db.raw("COUNT(product_categories.id) as product_count"),
+        db.raw(
+          "SUM(IF(product_warehouse_visibility.is_for_sale = 1, 1 , 0)) as for_sale_count",
+        ),
+        "product_category.id",
+      );
+  } else {
+    queryProductCount.select(
+      db.raw("COUNT(product_categories.id) as product_count"),
+      db.raw("SUM(IF(product.is_for_sale = 1, 1 , 0)) as for_sale_count"),
+      "product_category.id",
+    );
+  }
+
+  const itemsCount = await queryProductCount.clone();
 
   const warehouse_printer = await db
     .table("warehouse_category_printer")

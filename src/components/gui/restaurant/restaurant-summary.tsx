@@ -42,7 +42,7 @@ export function RestaurantSummary(props: WithLayoutPermissionProps) {
   const pathname = usePathname();
   const { sendAllToKitchent, serverAllItems, setOrderPrintTime } =
     useRestaurantActions();
-  const { setPrintingOrder } = useRestaurant();
+  const { setPrintingOrder, setUseSetting } = useRestaurant();
   const orderPreparationPermissions = usePermission("order-preparation");
   const canUpdateStatus = orderPreparationPermissions.includes("update");
 
@@ -288,6 +288,7 @@ export function RestaurantSummary(props: WithLayoutPermissionProps) {
                 onClick={() => {
                   if (currentTable?.tables && currentTable.orders?.orderId) {
                     setOrderPrintTime(currentTable.tables).then(() => {
+                      setUseSetting(false);
                       setPrintingOrder(
                         `${currentTable.orders?.orderId}@stay` || "",
                       );

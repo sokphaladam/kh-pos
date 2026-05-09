@@ -27,7 +27,8 @@ export function RestaurantContent(
     setAutoRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   },
 ) {
-  const { state, printingOrder, setPrintingOrder } = useRestaurant();
+  const { state, printingOrder, setPrintingOrder, useSetting, setUseSetting } =
+    useRestaurant();
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -66,6 +67,7 @@ export function RestaurantContent(
           orderId={printingOrder.split("@").at(0) || ""}
           onPrintComplete={() => {
             setPrintingOrder(null);
+            setUseSetting(false);
             if (printingOrder.split("@").at(1) !== "stay") {
               const param = new URLSearchParams(params.toString());
               param.delete("table");
@@ -73,7 +75,9 @@ export function RestaurantContent(
             }
           }}
           type={template as unknown as "default" | "template-i" | "template-ch"}
-          receiptCountPerCheckout={Number(receiptCountPerCheckout)}
+          receiptCountPerCheckout={
+            useSetting ? Number(receiptCountPerCheckout) : 1
+          }
         />
       );
     }
@@ -87,6 +91,8 @@ export function RestaurantContent(
     setPrintingOrder,
     template,
     receiptCountPerCheckout,
+    useSetting,
+    setUseSetting,
   ]);
 
   return (
@@ -111,7 +117,7 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
   const { currentWarehouse } = useAuthentication();
   const [autoRefresh, setAutoRefresh] = useState(true);
   const queryTable = useQueryTable(autoRefresh);
-  const queryCategory = useQueryCategory(100, 0);
+  const queryCategory = useQueryCategory(100, 0, undefined, undefined, true);
   const queryPOSInfo = useQueryPOSInfo(currentWarehouse?.id || "");
 
   if (

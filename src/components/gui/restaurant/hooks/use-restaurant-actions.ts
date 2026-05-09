@@ -43,8 +43,14 @@ export function useRestaurantActions() {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { dispatch, state, setPrintingOrder, setIsRequest, onRefetch } =
-    useRestaurant();
+  const {
+    dispatch,
+    state,
+    setPrintingOrder,
+    setIsRequest,
+    onRefetch,
+    setUseSetting,
+  } = useRestaurant();
 
   const current = state.activeTables.find(
     (f) => f.tables?.id === params.get("table"),
@@ -539,13 +545,14 @@ export function useRestaurantActions() {
           },
         });
         setTimeout(() => {
+          setUseSetting(true);
           setPrintingOrder(id);
         }, 500);
       } else {
         toast.error("Failed to checkout order");
       }
     },
-    [dispatch, setPrintingOrder, state, triggerCheckout],
+    [dispatch, setPrintingOrder, state, triggerCheckout, setUseSetting],
   );
 
   const addModifier = useCallback(

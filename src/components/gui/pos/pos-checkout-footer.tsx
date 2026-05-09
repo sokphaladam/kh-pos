@@ -696,6 +696,7 @@ export function POSCheckoutFooter() {
             type={
               template as unknown as "default" | "template-i" | "template-ch"
             }
+            receiptCountPerCheckout={1}
           />
         </>
       )}

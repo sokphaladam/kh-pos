@@ -30,7 +30,7 @@ export function DirectPrint({
   useEffect(() => {
     if (ref.current && printFrameRef.current && data && !!autoprint) {
       setDoc(
-        `<!DOCTYPE html><html><head><link rel="stylesheet" href="/printing.css"/><style>@media print { div[data-receipt] { page-break-after: always; } div[data-receipt]:last-child { page-break-after: avoid; } }</style></head><body>` +
+        `<!DOCTYPE html><html><head><link rel="stylesheet" href="/printing.css"/><style>@page { margin: 0; } @media print { div[data-receipt] { page-break-after: always; break-after: page; } div[data-receipt]:last-child { page-break-after: avoid; break-after: avoid; } }</style></head><body>` +
           ref.current.innerHTML +
           "</body><script>window.onload = function() { window.print(); window.onafterprint = function() {parent.postMessage('print-complete', '*');}; };/*" +
           Math.random().toString() +
@@ -79,7 +79,11 @@ export function DirectPrint({
             <div
               key={index}
               data-receipt
-              style={index < arr.length - 1 ? { pageBreakAfter: "always" } : {}}
+              style={
+                index < arr.length - 1
+                  ? { pageBreakAfter: "always", breakAfter: "page" }
+                  : {}
+              }
               className="pagebreak"
             >
               {type === "default" && <DefaultPrint order={order} />}
