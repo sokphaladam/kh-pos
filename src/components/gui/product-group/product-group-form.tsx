@@ -73,9 +73,14 @@ export function ProductGroupForm({ edit, close }: Props) {
     edit?.products.map((p) => ({
       productId: p.productId,
       productVariantId: p.productVariantId,
-      label:
+      label: [
         p.product?.title ??
-        String(p.variant?.sku ?? `${p.productId} / ${p.productVariantId}`),
+          String(p.variant?.sku ?? `${p.productId} / ${p.productVariantId}`),
+        p.variant?.name && `(${p.variant.name})`,
+        p.variant?.barcode && `(${p.variant.barcode})`,
+      ]
+        .filter(Boolean)
+        .join(" "),
     })) ?? [],
   );
 
@@ -405,6 +410,7 @@ export function ProductGroupForm({ edit, close }: Props) {
                 onChange={addProduct}
                 clearInput
                 variant="standard"
+                selectedVariantIds={products.map((p) => p.productVariantId)}
               />
             </div>
           </div>

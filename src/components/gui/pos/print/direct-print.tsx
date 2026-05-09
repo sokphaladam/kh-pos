@@ -25,24 +25,41 @@ export function DirectPrint({
   const ref = useRef<HTMLDivElement>(null);
   const printFrameRef = useRef<HTMLIFrameElement>(null);
   const [doc, setDoc] = useState("");
+  const printQueueRef = useRef<string[]>([]);
   const { data, isLoading, isValidating } = useQueryOrder(orderId);
 
   useEffect(() => {
-    if (ref.current && printFrameRef.current && data && !!autoprint) {
-      setDoc(
-        `<!DOCTYPE html><html><head><link rel="stylesheet" href="/printing.css"/><style>@page { margin: 0; } @media print { div[data-receipt] { page-break-after: always; break-after: page; } div[data-receipt]:last-child { page-break-after: avoid; break-after: avoid; } }</style></head><body>` +
-          ref.current.innerHTML +
-          "</body><script>window.onload = function() { window.print(); window.onafterprint = function() {parent.postMessage('print-complete', '*');}; };/*" +
-          Math.random().toString() +
-          "*/</script></html>",
-      );
+    if (ref.current && data && !!autoprint) {
+      const receiptElements =
+        ref.current.querySelectorAll<HTMLElement>("[data-receipt]");
+      const jobs: string[] = [];
+      receiptElements.forEach((el) => {
+        jobs.push(
+          `<!DOCTYPE html><html><head><link rel="stylesheet" href="/printing.css"/><style>@page { margin: 0; }</style></head><body>` +
+            el.outerHTML +
+            "</body><script>window.onload = function() { window.print(); window.onafterprint = function() {parent.postMessage('print-complete', '*');}; };/*" +
+            Math.random().toString() +
+            "*/</script></html>",
+        );
+      });
+      printQueueRef.current = jobs;
+      if (jobs.length > 0) {
+        setDoc(jobs[0]);
+      }
     }
   }, [data, autoprint]);
 
   useEffect(() => {
     function handlePrintComplete(event: MessageEvent) {
       if (event.data === "print-complete") {
-        onPrintComplete();
+        const queue = printQueueRef.current;
+        if (queue.length > 1) {
+          printQueueRef.current = queue.slice(1);
+          setDoc(printQueueRef.current[0]);
+        } else {
+          printQueueRef.current = [];
+          onPrintComplete();
+        }
       }
     }
     window.addEventListener("message", handlePrintComplete);

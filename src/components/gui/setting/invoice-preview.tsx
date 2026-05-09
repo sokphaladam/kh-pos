@@ -13,7 +13,7 @@ import moment from "moment-timezone";
 import { DefaultPrint } from "../pos/print/default-print";
 import { TemplateIPrint } from "../pos/print/template-i-print";
 import { Button } from "@/components/ui/button";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { TemplateChhounHour } from "../pos/print/template-chhoun-hour";
 import { CustomPrint } from "../pos/print/custom-print";
@@ -28,6 +28,23 @@ export function InvoicePreview({ value, onChangeValue }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const printFrameRef = useRef<HTMLIFrameElement>(null);
   const [doc, setDoc] = useState("");
+  const printQueueRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data === "print-complete") {
+        const queue = printQueueRef.current;
+        if (queue.length > 1) {
+          printQueueRef.current = queue.slice(1);
+          setDoc(printQueueRef.current[0]);
+        } else {
+          printQueueRef.current = [];
+        }
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   const DUMMY_DATA: any = {
     orderInfo: {
@@ -133,14 +150,23 @@ export function InvoicePreview({ value, onChangeValue }: Props) {
   ] = useMemo(() => value.split(","), [value]);
 
   const onPrint = () => {
-    if (ref.current && printFrameRef.current) {
-      setDoc(
-        `<!DOCTYPE html><html><head><link rel="stylesheet" href="/printing.css"/><style>@media print { div[data-receipt] { page-break-after: always; } div[data-receipt]:last-child { page-break-after: avoid; } }</style></head><body>` +
-          ref.current.innerHTML +
-          "</body><script>window.onload = function() { window.print(); window.onafterprint = function() {parent.postMessage('print-complete', '*');}; };/*" +
-          Math.random().toString() +
-          "*/</script></html>",
-      );
+    if (ref.current) {
+      const receiptElements =
+        ref.current.querySelectorAll<HTMLElement>("[data-receipt]");
+      const jobs: string[] = [];
+      receiptElements.forEach((el) => {
+        jobs.push(
+          `<!DOCTYPE html><html><head><link rel="stylesheet" href="/printing.css"/></head><body>` +
+            el.outerHTML +
+            "</body><script>window.onload = function() { window.print(); window.onafterprint = function() {parent.postMessage('print-complete', '*');}; };/*" +
+            Math.random().toString() +
+            "*/</script></html>",
+        );
+      });
+      printQueueRef.current = jobs;
+      if (jobs.length > 0) {
+        setDoc(jobs[0]);
+      }
     }
   };
 
@@ -213,7 +239,13 @@ export function InvoicePreview({ value, onChangeValue }: Props) {
       </div>
       <iframe
         ref={printFrameRef}
-        style={{ position: "absolute", width: "0", height: "0", border: "0" }}
+        style={{
+          position: "absolute",
+          width: "0",
+          height: "0",
+          border: "0",
+          top: -9999,
+        }}
         srcDoc={doc}
         title="Print Frame"
       />

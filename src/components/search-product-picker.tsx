@@ -32,6 +32,7 @@ interface Props {
   variant?: "default" | "standard";
   label?: string;
   includeProductNotForSale?: boolean;
+  selectedVariantIds?: string[];
 }
 
 interface ExtendedProductSearchResult extends ProductSearchResult {
@@ -133,7 +134,13 @@ const NoMoreItems = () => (
   </div>
 );
 
-const ProductItem = ({ item }: { item: ProductSearchResult }) => {
+const ProductItem = ({
+  item,
+  isSelected,
+}: {
+  item: ProductSearchResult;
+  isSelected?: boolean;
+}) => {
   const { formatForDisplay } = useCurrencyFormat();
   const variant = (
     item.variants as { sku: string; stock: number }[] | undefined
@@ -145,7 +152,11 @@ const ProductItem = ({ item }: { item: ProductSearchResult }) => {
   const trackStock = item.variants?.at(0)?.basicProduct?.trackStock;
 
   return (
-    <div className="w-full flex items-center gap-2 py-1 px-3 border-b border-gray-100 last:border-b-0 cursor-pointer">
+    <div
+      className={`w-full flex items-center gap-2 py-1 px-3 border-b border-gray-100 last:border-b-0 ${
+        isSelected ? "cursor-default opacity-50 bg-gray-50" : "cursor-pointer"
+      }`}
+    >
       <ProductImage item={item} />
 
       <div className="flex-1 min-w-0">
@@ -163,7 +174,12 @@ const ProductItem = ({ item }: { item: ProductSearchResult }) => {
         </div>
       </div>
 
-      {trackStock === true && <StockBadge stock={stock} />}
+      {isSelected && (
+        <span className="text-xs text-blue-600 font-medium whitespace-nowrap">
+          Added
+        </span>
+      )}
+      {!isSelected && trackStock === true && <StockBadge stock={stock} />}
     </div>
   );
 };
@@ -183,6 +199,7 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
       variant,
       label,
       includeProductNotForSale,
+      selectedVariantIds,
     },
     ref,
   ) {
@@ -288,9 +305,15 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
     // Render functions
     const renderItem = useCallback(
       ({ item }: MaterialRenderItemInfo<ExtendedProductSearchResult>) => (
-        <ProductItem item={item} />
+        <ProductItem
+          item={item}
+          isSelected={
+            !!item.variantId &&
+            !!(selectedVariantIds ?? []).includes(item.variantId)
+          }
+        />
       ),
-      [],
+      [selectedVariantIds],
     );
 
     const renderFooter = useCallback(() => {
@@ -367,6 +390,11 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
           onSelectedItem={(item: unknown) => {
             const extendedItem = item as ExtendedProductSearchResult;
             if (extendedItem.isNoMoreItem) return;
+            if (
+              extendedItem.variantId &&
+              (selectedVariantIds ?? []).includes(extendedItem.variantId)
+            )
+              return;
             onSelectItem(item as ProductSearchResult);
           }}
           renderItem={renderItem}
