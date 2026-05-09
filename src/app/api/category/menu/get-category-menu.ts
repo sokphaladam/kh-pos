@@ -1,3 +1,4 @@
+import { LoaderFactory } from "@/dataloader/loader-factory";
 import { Category } from "@/lib/server-functions/category/create-category";
 import withDatabaseApi from "@/lib/server-functions/with-database-api";
 import { ResponseType } from "@/lib/types";
@@ -16,6 +17,12 @@ export const getCategoryMenu = withDatabaseApi<
 >(async ({ db, searchParams }) => {
   const validatedParams = categorySchema.parse(searchParams);
   const warehouseId = validatedParams.warehouse;
+  const warehouseLoader = LoaderFactory.warehouseLoader(db);
+
+  const warehouse = warehouseId
+    ? await warehouseLoader.load(warehouseId)
+    : null;
+
   const query = db
     .table("product_category")
     .innerJoin(
@@ -41,14 +48,29 @@ export const getCategoryMenu = withDatabaseApi<
       .whereNotNull("warehouse_category_printer.printer_id");
   }
 
-  const items = await query
-    .select(
+  if (warehouse && warehouse.useMainBranchVisibility) {
+    query
+      .leftJoin(
+        "product_warehouse_visibility",
+        "product_warehouse_visibility.product_id",
+        "product.id",
+      )
+      .select(
+        db.raw("COUNT(product_categories.id) as product_count"),
+        db.raw(
+          "SUM(IF(product_warehouse_visibility.is_for_sale = 1, 1 , 0)) as for_sale_count",
+        ),
+        "product_category.*",
+      );
+  } else {
+    query.select(
       db.raw("COUNT(product_categories.id) as product_count"),
       db.raw("SUM(IF(product.is_for_sale = 1, 1 , 0)) as for_sale_count"),
       "product_category.*",
-    )
-    .distinct()
-    .whereNull("delete_date");
+    );
+  }
+
+  const items = await query.distinct().whereNull("delete_date");
 
   const categories: Category[] = items.map((raw) => {
     return {
