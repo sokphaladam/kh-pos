@@ -411,6 +411,8 @@ export function ProductGroupForm({ edit, close }: Props) {
                 clearInput
                 variant="standard"
                 selectedVariantIds={products.map((p) => p.productVariantId)}
+                showCategoryFilter
+                includeProductNotForSale
               />
             </div>
           </div>

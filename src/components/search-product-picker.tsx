@@ -1,4 +1,5 @@
 import { ProductSearchResult } from "@/app/api/product/search-product/types";
+import { useQueryCategory } from "@/app/hooks/use-query-category";
 import { useLazyQuerySearchProduct } from "@/app/hooks/use-query-product";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import {
@@ -6,6 +7,11 @@ import {
   MaterialInputRef,
   MaterialRenderItemInfo,
 } from "@/components/ui/material-input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import React, {
   forwardRef,
   useCallback,
@@ -33,6 +39,7 @@ interface Props {
   label?: string;
   includeProductNotForSale?: boolean;
   selectedVariantIds?: string[];
+  showCategoryFilter?: boolean;
 }
 
 interface ExtendedProductSearchResult extends ProductSearchResult {
@@ -200,6 +207,7 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
       label,
       includeProductNotForSale,
       selectedVariantIds,
+      showCategoryFilter,
     },
     ref,
   ) {
@@ -212,6 +220,13 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
     const [status, setStatus] = useState<"loadMore" | "searching" | null>(null);
     const [hasMore, setHasMore] = useState(true);
     const [allResults, setAllResults] = useState<ProductSearchResult[]>([]);
+    const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
+      [],
+    );
+    const [searchMode, setSearchMode] = useState<"title" | "barcode">("title");
+
+    // Category data
+    const { categories } = useQueryCategory(100, 0);
 
     // Refs
     const innerRef = useRef<MaterialInputRef>(null);
@@ -224,20 +239,27 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
     const params = useMemo(
       () => ({
         ...(warehouse ? { warehouse } : {}),
-        search: debouncedSearch,
+        ...(searchMode === "title"
+          ? { search: debouncedSearch }
+          : { barcode: debouncedSearch }),
         limit: PAGE_SIZE,
         offset: page * PAGE_SIZE,
         replenishment: forReplenishment ?? false,
         compositeOnly,
         includeProductNotForSale: includeProductNotForSale ?? false,
+        ...(selectedCategoryIds.length > 0
+          ? { categoryKeys: selectedCategoryIds.join(",") }
+          : {}),
       }),
       [
         warehouse,
         debouncedSearch,
+        searchMode,
         forReplenishment,
         compositeOnly,
         includeProductNotForSale,
         page,
+        selectedCategoryIds,
       ],
     );
     const [trigger, { data }] = useLazyQuerySearchProduct(params);
@@ -276,7 +298,7 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
 
     // Effects
     useEffect(() => {
-      if (!debouncedSearch.trim()) return;
+      if (!debouncedSearch.trim() && selectedCategoryIds.length === 0) return;
       setLoading(true);
 
       if (page !== 0 && status === "searching") setPage(0);
@@ -288,7 +310,7 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
         lastSearchRef.current = debouncedSearch;
         setStatus(null);
       });
-    }, [debouncedSearch, trigger, page, status]);
+    }, [debouncedSearch, selectedCategoryIds, trigger, page, status]);
 
     useEffect(() => {
       if (!data?.result) return;
@@ -375,7 +397,138 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
     }, [allResults, hasMore]);
 
     return (
-      <div className="relative w-full">
+      <div className="relative w-full flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          {/* Search mode toggle */}
+          <div className="flex rounded-md border border-gray-300 overflow-hidden text-xs font-medium shrink-0">
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setSearchMode("title");
+                setSearch("");
+                valueRef.current = "";
+                setAllResults([]);
+                setPage(0);
+              }}
+              className={`px-2.5 py-1 transition-colors ${
+                searchMode === "title"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Title
+            </button>
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setSearchMode("barcode");
+                setSearch("");
+                valueRef.current = "";
+                setAllResults([]);
+                setPage(0);
+              }}
+              className={`px-2.5 py-1 border-l border-gray-300 transition-colors ${
+                searchMode === "barcode"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              Barcode
+            </button>
+          </div>
+
+          {/* Category filter popover */}
+          {showCategoryFilter && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium transition-colors shrink-0 ${
+                    selectedCategoryIds.length > 0
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600"
+                  }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"
+                    />
+                  </svg>
+                  {selectedCategoryIds.length > 0
+                    ? `${selectedCategoryIds.length} categor${selectedCategoryIds.length === 1 ? "y" : "ies"}`
+                    : "Category"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-64 p-2">
+                <div className="flex items-center justify-between px-1 pb-1.5">
+                  <p className="text-xs font-semibold text-gray-500">
+                    Filter by category
+                  </p>
+                  {selectedCategoryIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategoryIds([]);
+                        setPage(0);
+                        setAllResults([]);
+                      }}
+                      className="text-xs text-blue-600 hover:underline"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-col gap-0.5 max-h-60 overflow-y-auto">
+                  {categories?.data?.map((cat) => {
+                    const checked = selectedCategoryIds.includes(cat.id!);
+                    return (
+                      <label
+                        key={cat.id}
+                        className="flex items-center gap-2 px-2 py-1.5 rounded text-sm cursor-pointer hover:bg-gray-100 transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => {
+                            setSelectedCategoryIds((prev) =>
+                              checked
+                                ? prev.filter((id) => id !== cat.id)
+                                : [...prev, cat.id!],
+                            );
+                            setPage(0);
+                            setAllResults([]);
+                          }}
+                          className="accent-blue-600 w-3.5 h-3.5 shrink-0"
+                        />
+                        <span
+                          className={
+                            checked
+                              ? "text-blue-700 font-medium"
+                              : "text-gray-700"
+                          }
+                        >
+                          {cat.title}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
+
         <MaterialInput
           ref={innerRef}
           label={label ? label : "Search Item"}
@@ -402,7 +555,11 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
           onFocus={onFocus}
           onBlur={onBlur}
           readOnly={disabled}
-          placeholder="Type to search products..."
+          placeholder={
+            searchMode === "barcode"
+              ? "Scan or type barcode..."
+              : "Type to search by title..."
+          }
           className="w-full relative"
           variant={variant}
         />
