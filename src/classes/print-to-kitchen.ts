@@ -80,7 +80,7 @@ export class PrintToKitchenService {
             {
               type: "text",
               style: {
-                fontFamily: "Hanuman, 'Courier New', Courier, monospace",
+                fontFamily: `'Kantumruy Pro', 'Hanuman', 'Courier New', Courier, monospace`,
               },
               value: "*****************************",
             },
@@ -170,27 +170,27 @@ export class PrintToKitchenService {
         type: "text",
         value: `តុលេខ: ${table?.table_name}`,
         style: {
-          fontSize: "20px",
+          fontSize: "25px",
           fontWeight: "bold",
-          fontFamily: `Hanuman, 'Courier New', Courier, monospace`,
+          fontFamily: `'Kantumruy Pro', 'Hanuman', 'Courier New', Courier, monospace`,
         },
       },
       {
         type: "text",
         value: `កាលបរិច្ឆេទ: ${Formatter.getNowDateTime()}`,
         style: {
-          fontSize: "18px",
+          fontSize: "23px",
           fontWeight: "bold",
-          fontFamily: `Hanuman, 'Courier New', Courier, monospace`,
+          fontFamily: `'Kantumruy Pro', 'Hanuman', 'Courier New', Courier, monospace`,
         },
       },
       {
         type: "text",
         value: `បញ្ជាទិញដោយ: ${orderByUser?.fullname}`,
         style: {
-          fontSize: "18px",
+          fontSize: "23px",
           fontWeight: "bold",
-          fontFamily: `Hanuman, 'Courier New', Courier, monospace`,
+          fontFamily: `'Kantumruy Pro', 'Hanuman', 'Courier New', Courier, monospace`,
         },
       },
     ];
@@ -204,9 +204,9 @@ export class PrintToKitchenService {
         type: "text",
         value: "ប្រភេទ: វេចខ្ចប់",
         style: {
-          fontSize: "18px",
+          fontSize: "23px",
           fontWeight: "bold",
-          fontFamily: `Hanuman, 'Courier New', Courier, monospace`,
+          fontFamily: `'Kantumruy Pro', 'Hanuman', 'Courier New', Courier, monospace`,
         },
       });
     }
@@ -216,25 +216,25 @@ export class PrintToKitchenService {
         type: "text",
         value: `ចំនួន: x${qty}`,
         style: {
-          fontSize: "18px",
+          fontSize: "23px",
           fontWeight: "bold",
-          fontFamily: `Hanuman, 'Courier New', Courier, monospace`,
+          fontFamily: `'Kantumruy Pro', 'Hanuman', 'Courier New', Courier, monospace`,
         },
       },
       {
         type: "text",
         value: "--------------------------------",
         style: {
-          fontFamily: `Hanuman, 'Courier New', Courier, monospace`,
+          fontFamily: `'Kantumruy Pro', 'Hanuman', 'Courier New', Courier, monospace`,
         },
       },
       {
         type: "text",
         value: `ទំនិញ:   ${productVariant?.basicProduct?.title} (${productVariant?.name})`,
         style: {
-          fontSize: "18px",
+          fontSize: "23px",
           fontWeight: "bold",
-          fontFamily: `Hanuman, 'Courier New', Courier, monospace`,
+          fontFamily: `'Kantumruy Pro', 'Hanuman', 'Courier New', Courier, monospace`,
           whiteSpace: "pre-wrap",
           width: "257px",
           display: "block",
@@ -249,9 +249,9 @@ export class PrintToKitchenService {
           type: "text",
           value: `   + ${m.modifier}`,
           style: {
-            fontSize: "18px",
+            fontSize: "23px",
             fontWeight: "bold",
-            fontFamily: `Hanuman, 'Courier New', Courier, monospace`,
+            fontFamily: `'Kantumruy Pro', 'Hanuman', 'Courier New', Courier, monospace`,
           },
         });
       }
@@ -266,9 +266,9 @@ export class PrintToKitchenService {
         type: "text",
         value: `***** Resend to Kitchen By ${this.user.fullname} (${existingQueue.length}) *****`,
         style: {
-          fontSize: "18px",
+          fontSize: "23px",
           fontWeight: "bold",
-          fontFamily: `Hanuman, 'Courier New', Courier, monospace`,
+          fontFamily: `'Kantumruy Pro', 'Hanuman', 'Courier New', Courier, monospace`,
         },
       });
     }
