@@ -178,7 +178,7 @@ export class PrintToKitchenService {
       },
       {
         type: "text",
-        value: `កាលបរិច្ឆេទ: ${moment(Formatter.getNowDateTime()).tz("Asia/Phnom_Penh").format("YYYY-MM-DD h:mm:ss A")}`,
+        value: `កាលបរិច្ឆេទ: ${moment().tz("Asia/Phnom_Penh").format("YYYY-MM-DD hh:mm:ss A")}`,
         style: {
           fontSize: "23px",
           fontWeight: "bold",
