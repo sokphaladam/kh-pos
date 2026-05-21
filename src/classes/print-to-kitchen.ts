@@ -15,6 +15,7 @@ import { Formatter } from "@/lib/formatter";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import { Knex } from "knex";
 import { getOrderDetail } from "./order";
+import moment from "moment-timezone";
 
 interface Printers {
   printers: PrinterInfo[];
@@ -177,7 +178,7 @@ export class PrintToKitchenService {
       },
       {
         type: "text",
-        value: `កាលបរិច្ឆេទ: ${Formatter.getNowDateTime()}`,
+        value: `កាលបរិច្ឆេទ: ${moment(Formatter.getNowDateTime()).tz("Asia/Phnom_Penh").format("YYYY-MM-DD h:mm:ss A")}`,
         style: {
           fontSize: "18px",
           fontWeight: "bold",
