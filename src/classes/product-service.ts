@@ -61,11 +61,14 @@ export class ProductService {
       searchQuery.where("product_variant.barcode", filter.barcode);
     }
 
-    if (filter?.search) {
-      searchQuery.whereRaw(
-        "MATCH(product.title) AGAINST (? IN NATURAL LANGUAGE MODE)",
-        [filter.search],
-      );
+    const searchText = filter?.search;
+    if (searchText) {
+      searchQuery.where(function () {
+        this.whereRaw(
+          "MATCH(product.title) AGAINST (? IN NATURAL LANGUAGE MODE)",
+          [searchText],
+        ).orWhere("product_variant.name", "like", `${searchText}%`);
+      });
     }
     if (filter?.sku) {
       searchQuery.where("product_variant.sku", filter.sku);
