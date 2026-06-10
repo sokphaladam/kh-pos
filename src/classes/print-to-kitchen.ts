@@ -16,6 +16,7 @@ import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import { Knex } from "knex";
 import { getOrderDetail } from "./order";
 import moment from "moment-timezone";
+import { faker } from "@faker-js/faker";
 
 interface Printers {
   printers: PrinterInfo[];
@@ -35,6 +36,109 @@ export class PrintToKitchenService {
     protected tx: Knex,
     protected user: UserInfo,
   ) {}
+
+  async printTestContent(receiptCount: number) {
+    const setting = await this.tx
+      .table("setting")
+      .where({
+        option: "PRINT_SERVER",
+        warehouse: this.user.currentWarehouseId,
+      })
+      .first();
+
+    if (setting) {
+      const data = [];
+      const printerSettings = JSON.parse(setting.value);
+
+      for (let i = 0; i < receiptCount; i++) {
+        const contentToPrint: Record<string, unknown>[] = [
+          {
+            type: "image",
+            url: "https://s9.kh1.co/12d44b8ec749071f404ae797cffcaa30.webp",
+            width: "160px", // width of image in px; default: auto
+            height: "80px",
+            style: {
+              margin: "10 0px 0 0px",
+            },
+          },
+          {
+            type: "text",
+            value: `តុលេខ: ${String(i + 1).padStart(2, "0")}`,
+            style: {
+              fontSize: "20px",
+              fontWeight: "bold",
+              fontFamily: `'Kantumruy Pro', Hanuman, 'Courier New', Courier, monospace`,
+            },
+          },
+          {
+            type: "text",
+            value: `កាលបរិច្ឆេទ: ${Formatter.getNowDateTime()}`,
+            style: {
+              fontSize: "18px",
+              fontWeight: "bold",
+              fontFamily: `'Kantumruy Pro', Hanuman, 'Courier New', Courier, monospace`,
+            },
+          },
+          {
+            type: "text",
+            value: `បញ្ជាទិញដោយ: ${this.user.fullname}`,
+            style: {
+              fontSize: "18px",
+              fontWeight: "bold",
+              fontFamily: `'Kantumruy Pro', Hanuman, 'Courier New', Courier, monospace`,
+            },
+          },
+          {
+            type: "text",
+            value: `ចំនួន: x${Math.floor(Math.random() * 5) + 1}`,
+            style: {
+              fontSize: "18px",
+              fontWeight: "bold",
+              fontFamily: `'Kantumruy Pro', Hanuman, 'Courier New', Courier, monospace`,
+            },
+          },
+          {
+            type: "text",
+            value: "--------------------------------",
+            style: {
+              fontFamily: `'Kantumruy Pro', Hanuman, 'Courier New', Courier, monospace`,
+            },
+          },
+          {
+            type: "text",
+            value: `ទំនិញ:   ${faker.food.meat()}`,
+            style: {
+              fontSize: "18px",
+              fontWeight: "bold",
+              fontFamily: `'Kantumruy Pro', Hanuman, 'Courier New', Courier, monospace`,
+              whiteSpace: "pre-wrap",
+              width: "257px",
+              display: "block",
+              wordBreak: "break-word",
+            },
+          },
+        ];
+
+        const legnth = printerSettings.printers.length;
+
+        data.push({
+          created_at: Formatter.getNowDateTime(),
+          created_by: this.user.id,
+          content: JSON.stringify(contentToPrint),
+          printer_info: JSON.stringify(
+            printerSettings.printers[Math.floor(Math.random() * legnth)],
+          ),
+          warehouse_id: this.user.currentWarehouseId,
+          order_id: null,
+          order_detail_id: null,
+          item_price: 1,
+        });
+      }
+
+      await this.tx.table("print_queue").insert(data);
+      return true;
+    }
+  }
 
   async getPrintQueues(printer_name?: string) {
     const setting = await this.tx

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CustomerOrderDiscount } from "@/dataloader/discount-by-order-items-loader";
 import { LoaderFactory } from "@/dataloader/loader-factory";
 import { OrderModifierType } from "@/dataloader/order-modifier-loader";
@@ -388,7 +389,6 @@ export class OrderService {
         return acc + amount;
       }, 0);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const reservationItems: any[] = [];
 
       const items = option.items.map((item) => {
@@ -824,12 +824,13 @@ export class OrderService {
 export async function recalculateCustomerOrder(
   orderItem: table_customer_order_detail,
   knex: Knex,
+  _retries = 3,
 ): Promise<{
   totalDiscount: number;
   orderItemAmount: number;
   discountLog: CustomerOrderDiscount[];
 }> {
-  // initial order item value
+  // Reset initial order item values on each attempt (fields are mutated in-place below)
   orderItem.total_amount = (
     Number(orderItem.price || 0) * Number(orderItem.qty || 0)
   ).toString();
@@ -837,43 +838,56 @@ export async function recalculateCustomerOrder(
   orderItem.discount_amount = "0";
   orderItem.modifer_amount = "0";
 
-  return await knex.transaction(async (trx) => {
-    await applyModifierToOrderItem(orderItem, trx);
+  try {
+    return await knex.transaction(async (trx) => {
+      await applyModifierToOrderItem(orderItem, trx);
 
-    await applyDiscountToOrderItem(orderItem, trx);
+      await applyDiscountToOrderItem(orderItem, trx);
 
-    await updateOrderDetail(
-      orderItem.order_detail_id!,
-      {
-        total_amount: orderItem.total_amount,
-        discount_amount: orderItem.discount_amount,
-        modifer_amount: orderItem.modifer_amount,
-      },
-      trx,
-    );
+      await updateOrderDetail(
+        orderItem.order_detail_id!,
+        {
+          total_amount: orderItem.total_amount,
+          discount_amount: orderItem.discount_amount,
+          modifer_amount: orderItem.modifer_amount,
+        },
+        trx,
+      );
 
-    // recalculate total amount of order
-    await updateOrderTotalAmount(orderItem.order_id!, trx);
+      // recalculate total amount of order
+      await updateOrderTotalAmount(orderItem.order_id!, trx);
 
-    return {
-      totalDiscount: Number(orderItem.discount_amount),
-      orderItemAmount: Number(orderItem.total_amount),
-      discountLog: [],
-    };
-  });
+      return {
+        totalDiscount: Number(orderItem.discount_amount),
+        orderItemAmount: Number(orderItem.total_amount),
+        discountLog: [],
+      };
+    });
+  } catch (err: any) {
+    // MySQL deadlock error (errno 1213 / sqlState '40001') — retry with jitter
+    if (_retries > 0 && (err?.errno === 1213 || err?.sqlState === "40001")) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, 50 + Math.random() * 100),
+      );
+      return recalculateCustomerOrder(orderItem, knex, _retries - 1);
+    }
+    throw err;
+  }
 }
 
 async function updateOrderTotalAmount(orderId: string, trx: Knex) {
-  await trx.raw(
-    `
-      UPDATE customer_order
-      SET total_amount = (
-        SELECT SUM(COALESCE(total_amount, 0)) FROM customer_order_detail WHERE order_id = :order_id
-      )
-      WHERE order_id = :order_id
-    `,
+  // Two-step: compute the sum first, then update — avoids self-referential
+  // subquery lock contention that leads to deadlocks under concurrent writes.
+  const [rows] = await trx.raw<[{ total: string }[]]>(
+    `SELECT SUM(COALESCE(total_amount, 0)) AS total FROM customer_order_detail WHERE order_id = :order_id`,
     { order_id: orderId },
   );
+  const total = rows[0]?.total ?? "0";
+
+  await trx
+    .table("customer_order")
+    .where({ order_id: orderId })
+    .update({ total_amount: total });
 }
 
 export async function updateOrderDetail(
