@@ -36,45 +36,80 @@ interface OrderItemStatus {
 }
 
 export class TransferOrderTableService {
-  constructor(protected tx: Knex, protected user: UserInfo) {}
+  constructor(
+    protected tx: Knex,
+    protected user: UserInfo,
+  ) {}
 
   async createOrderTransfer(orderInfo: TransferProp) {
-    const { sourceTableId, orderId, orderItems, destinationTableId } =
-      orderInfo;
+    await this.tx.transaction(async (trx) => {
+      const { sourceTableId, orderId, orderItems, destinationTableId } =
+        orderInfo;
 
-    const order = await getOrder(orderId, this.tx);
-    if (!order) throw new Error("Order not found");
+      const order = await getOrder(orderId, trx);
+      if (!order) throw new Error("Order not found");
 
-    const tableInfo = await getTableInfo(destinationTableId, this.tx);
-    if (!tableInfo) throw new Error("Destination table not found");
-    const originalOrderItem = await getOrderItems(orderId, this.tx);
-    if (!originalOrderItem) throw new Error("Original order items not found");
+      const tableInfo = await getTableInfo(destinationTableId, trx);
+      if (!tableInfo) throw new Error("Destination table not found");
+      const originalOrderItem = await getOrderItems(orderId, trx);
+      if (!originalOrderItem) throw new Error("Original order items not found");
 
-    const isCompletedOrderItem = isExactMatch(
-      originalOrderItem.map((item) => ({
-        orderItemId: item.item.order_detail_id || "",
-        quantity: item.item.qty || 0,
-        variantId: item.item.variant_id || "",
-        orderItemStatuses: item.status.map((status) => ({
-          status: status.status,
-          quantity: status.qty || 0,
+      const isCompletedOrderItem = isExactMatch(
+        originalOrderItem.map((item) => ({
+          orderItemId: item.item.order_detail_id || "",
+          quantity: item.item.qty || 0,
+          variantId: item.item.variant_id || "",
+          orderItemStatuses: item.status.map((status) => ({
+            status: status.status,
+            quantity: status.qty || 0,
+          })),
         })),
-      })),
-      orderItems
-    );
+        orderItems,
+      );
 
-    if (tableInfo.status === "available" || tableInfo.status === "cleaning") {
-      if (isCompletedOrderItem) {
-        // transfer: transfer all ordered items from one table to another empty table
-        return await transferTable(
-          orderId,
-          sourceTableId,
+      if (tableInfo.status === "available" || tableInfo.status === "cleaning") {
+        if (isCompletedOrderItem) {
+          // transfer: transfer all ordered items from one table to another empty table
+          return await transferTable(
+            orderId,
+            sourceTableId,
+            destinationTableId,
+            trx,
+          );
+        } else {
+          // split: transfer partial items from one table to another empty table
+          return splitTable(
+            order,
+            originalOrderItem.map((item) => ({
+              orderItemId: item.item.order_detail_id || "",
+              quantity: item.item.qty || 0,
+              variantId: item.item.variant_id || "",
+              price: item.item.price || "",
+              discount_amount: item.item.discount_amount || "",
+              modifer_amount: item.item.modifer_amount || "",
+              orderItemStatuses: item.status.map((status) => ({
+                status: status.status,
+                quantity: status.qty || 0,
+              })),
+            })),
+            orderItems,
+            destinationTableId,
+            trx,
+            this.user,
+          );
+        }
+      } else if (tableInfo.status === "order_taken") {
+        // merge: transfer items(all or partial) to occupied table
+        const destinationOrder = await getDraftOrderByTableId(
           destinationTableId,
-          this.tx
+          order.warehouse_id || "",
+          trx,
         );
-      } else {
-        // split: transfer partial items from one table to another empty table
-        return splitTable(
+        if (!destinationOrder) {
+          throw new Error("No draft order found for destination table");
+        }
+
+        return mergeTable(
           order,
           originalOrderItem.map((item) => ({
             orderItemId: item.item.order_detail_id || "",
@@ -89,43 +124,13 @@ export class TransferOrderTableService {
             })),
           })),
           orderItems,
-          destinationTableId,
-          this.tx,
-          this.user
+          destinationOrder,
+          sourceTableId,
+          trx,
+          this.user,
         );
       }
-    } else if (tableInfo.status === "order_taken") {
-      // merge: transfer items(all or partial) to occupied table
-      const destinationOrder = await getDraftOrderByTableId(
-        destinationTableId,
-        order.warehouse_id || "",
-        this.tx
-      );
-      if (!destinationOrder) {
-        throw new Error("No draft order found for destination table");
-      }
-
-      return mergeTable(
-        order,
-        originalOrderItem.map((item) => ({
-          orderItemId: item.item.order_detail_id || "",
-          quantity: item.item.qty || 0,
-          variantId: item.item.variant_id || "",
-          price: item.item.price || "",
-          discount_amount: item.item.discount_amount || "",
-          modifer_amount: item.item.modifer_amount || "",
-          orderItemStatuses: item.status.map((status) => ({
-            status: status.status,
-            quantity: status.qty || 0,
-          })),
-        })),
-        orderItems,
-        destinationOrder,
-        sourceTableId,
-        this.tx,
-        this.user
-      );
-    }
+    });
   }
 }
 
@@ -139,7 +144,7 @@ async function splitTable(
   itemsToTransfer: OrderItem[],
   destinationTableId: string,
   tx: Knex,
-  user: UserInfo
+  user: UserInfo,
 ): Promise<string> {
   return await tx.transaction(async (trx) => {
     const orderService = new OrderService(trx);
@@ -148,7 +153,7 @@ async function splitTable(
     // find invoice number
     const invoiceNumber = await new InvoiceNumberService(
       trx,
-      user
+      user,
     ).getNextInvoiceNumber(1);
     const newOrder = await orderService.create({
       items: [],
@@ -162,13 +167,13 @@ async function splitTable(
 
     for (const itemToTransfer of itemsToTransfer) {
       const originalItem = originalItems.find(
-        (i) => i.orderItemId === itemToTransfer.orderItemId
+        (i) => i.orderItemId === itemToTransfer.orderItemId,
       );
       if (!originalItem) continue;
 
       for (const status of itemToTransfer.orderItemStatuses) {
         const originalStatus = originalItem.orderItemStatuses.find(
-          (s) => s.status === status.status
+          (s) => s.status === status.status,
         );
         if (!originalStatus) continue;
 
@@ -194,14 +199,14 @@ async function splitTable(
           price: originalItem.price || "",
         },
         user,
-        "TRANSFER"
+        "TRANSFER",
       );
 
       // apply discount if any
       if (Number(originalItem.discount_amount || 0) > 0) {
         const discounts = await getDiscountLogByOrderDetailId(
           originalItem.orderItemId,
-          trx
+          trx,
         );
         const discountService = new OrderDiscountService(trx);
         for (const discount of discounts) {
@@ -228,7 +233,7 @@ async function splitTable(
       // apply modifier if any
       const modifiers = await getAppliedModifiers(
         originalItem.orderItemId,
-        trx
+        trx,
       );
 
       const modifierService = new OrderModifierService(trx, user);
@@ -265,7 +270,7 @@ async function mergeTable(
   destinationOrder: table_customer_order,
   sourceTableId: string,
   tx: Knex,
-  user: UserInfo
+  user: UserInfo,
 ): Promise<string> {
   return await tx.transaction(async (trx) => {
     const orderService = new OrderService(trx);
@@ -276,14 +281,14 @@ async function mergeTable(
       let originalModifier: table_order_detail_modifier[] = [];
       // Find the corresponding original item with full details
       const originalItem = originalItems.find(
-        (i) => i.orderItemId === itemToTransfer.orderItemId
+        (i) => i.orderItemId === itemToTransfer.orderItemId,
       );
       if (!originalItem) continue;
 
       // Update source order quantities by reducing the transferred amounts
       for (const status of itemToTransfer.orderItemStatuses) {
         const originalStatus = originalItem.orderItemStatuses.find(
-          (s) => s.status === status.status
+          (s) => s.status === status.status,
         );
         if (!originalStatus) continue;
 
@@ -302,7 +307,7 @@ async function mergeTable(
       // Calculate total quantity being transferred for this item
       const totalTransferQty = itemToTransfer.orderItemStatuses.reduce(
         (acc, status) => acc + status.quantity,
-        0
+        0,
       );
 
       // Check if the same product variant already exists in destination order
@@ -339,7 +344,7 @@ async function mergeTable(
           // Check if both items have identical modifiers
           isSameModifier = isOrderItemModifierSame(
             originalModifier,
-            existingModifier
+            existingModifier,
           );
 
           if (!isSameModifier) {
@@ -353,7 +358,7 @@ async function mergeTable(
                 qty: totalTransferQty,
                 price: originalItem.price || "",
               },
-              user
+              user,
             );
           } else {
             // Same modifiers: merge with existing item by adding quantities
@@ -365,7 +370,7 @@ async function mergeTable(
             // Combine existing quantities with transferred quantities
             orderStatus = itemToTransfer.orderItemStatuses.map((s) => {
               const qty = Number(
-                existingStatus.find((f) => f.status === s.status)?.qty ?? 0
+                existingStatus.find((f) => f.status === s.status)?.qty ?? 0,
               );
               return {
                 ...s,
@@ -386,7 +391,7 @@ async function mergeTable(
             price: originalItem.price || "",
           },
           user,
-          "TRANSFER"
+          "TRANSFER",
         );
       }
 
@@ -394,7 +399,7 @@ async function mergeTable(
       if (Number(originalItem.discount_amount || 0) > 0) {
         const discounts = getDiscountLogByOrderDetailId(
           originalItem.orderItemId,
-          trx
+          trx,
         );
         const discountService = new OrderDiscountService(trx);
         for (const discount of await discounts) {
@@ -447,7 +452,7 @@ async function mergeTable(
     // Check if the source order has any remaining items after the transfer
     const remainingItems = await getOrderItems(sourceOrder.order_id!, trx);
     const hasRemainingItems = remainingItems?.some((item) =>
-      item.status.some((status) => (status.qty || 0) > 0)
+      item.status.some((status) => (status.qty || 0) > 0),
     );
 
     // Clean up source if completely empty after transfer
@@ -468,7 +473,7 @@ async function mergeTable(
 async function getDraftOrderByTableId(
   tableId: string,
   warehouseId: string,
-  tx: Knex
+  tx: Knex,
 ) {
   const draftOrder = await tx<table_customer_order>("customer_order")
     .where("table_number", tableId)
@@ -482,7 +487,7 @@ async function transferTable(
   orderId: string,
   fromTableId: string,
   toTableId: string,
-  tx: Knex
+  tx: Knex,
 ) {
   return await tx.transaction(async (trx) => {
     await trx<table_customer_order>("customer_order")
@@ -509,7 +514,7 @@ async function getTableInfo(tableId: string, tx: Knex) {
 
 async function getOrderItems(orderId: string, tx: Knex) {
   const orderItems = await tx<table_customer_order_detail>(
-    "customer_order_detail"
+    "customer_order_detail",
   ).where("order_id", orderId);
   if (orderItems.length === 0) {
     return null;
@@ -517,15 +522,15 @@ async function getOrderItems(orderId: string, tx: Knex) {
 
   // get order items status
   const orderItemStatuses = await tx<table_order_item_status>(
-    "order_item_status"
+    "order_item_status",
   ).whereIn(
     "order_item_id",
-    orderItems.map((item) => item.order_detail_id)
+    orderItems.map((item) => item.order_detail_id),
   );
   return orderItems.map((item) => ({
     item: item,
     status: orderItemStatuses.filter(
-      (status) => status.order_item_id === item.order_detail_id
+      (status) => status.order_item_id === item.order_detail_id,
     ),
   }));
 }
@@ -539,7 +544,7 @@ async function getOrder(orderId: string, tx: Knex) {
 
 function isExactMatch(
   originalItems: OrderItem[],
-  toTransferItems: OrderItem[]
+  toTransferItems: OrderItem[],
 ): boolean {
   if (originalItems.length !== toTransferItems.length) {
     return false;
@@ -547,18 +552,18 @@ function isExactMatch(
 
   for (const originalItem of originalItems) {
     const matchingItem = toTransferItems.find(
-      (item) => item.orderItemId === originalItem.orderItemId
+      (item) => item.orderItemId === originalItem.orderItemId,
     );
     if (!matchingItem) {
       return false;
     }
     const totalOriginalQty = originalItem.orderItemStatuses.reduce(
       (total, status) => total + (status.quantity || 0),
-      0
+      0,
     );
     const totalMatchingQty = matchingItem.orderItemStatuses.reduce(
       (total, status) => total + (status.quantity || 0),
-      0
+      0,
     );
     if (totalOriginalQty !== totalMatchingQty) {
       return false;
@@ -570,17 +575,17 @@ function isExactMatch(
 
 function isOrderItemModifierSame(
   originalModifiers: table_order_detail_modifier[],
-  toCheckModifiers: table_order_detail_modifier[]
+  toCheckModifiers: table_order_detail_modifier[],
 ): boolean {
   if (originalModifiers.length !== toCheckModifiers.length) {
     return false;
   }
 
   const sortedOriginal = [...originalModifiers].sort(
-    (a, b) => a.order_detail_id?.localeCompare(b.modifier_item_id ?? "") ?? 0
+    (a, b) => a.order_detail_id?.localeCompare(b.modifier_item_id ?? "") ?? 0,
   );
   const sortedToCheck = [...toCheckModifiers].sort(
-    (a, b) => a.order_detail_id?.localeCompare(b.modifier_item_id ?? "") ?? 0
+    (a, b) => a.order_detail_id?.localeCompare(b.modifier_item_id ?? "") ?? 0,
   );
 
   for (let i = 0; i < sortedOriginal.length; i++) {
