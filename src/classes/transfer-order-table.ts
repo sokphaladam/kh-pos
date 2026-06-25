@@ -42,7 +42,7 @@ export class TransferOrderTableService {
   ) {}
 
   async createOrderTransfer(orderInfo: TransferProp) {
-    await this.tx.transaction(async (trx) => {
+    return await this.tx.transaction(async (trx) => {
       const { sourceTableId, orderId, orderItems, destinationTableId } =
         orderInfo;
 
