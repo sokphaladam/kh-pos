@@ -38,6 +38,8 @@ export interface TableNodeData extends table_restaurant_tables {
   onTableReset?: (table: table_restaurant_tables) => void;
   onTableQRCode?: (table: table_restaurant_tables) => void;
   permission?: WithLayoutPermissionProps;
+  serviceChargeAmount?: string;
+  serviceChargePercentage?: string;
 }
 
 export function TableFlowNode({ data, selected }: NodeProps) {
@@ -184,14 +186,23 @@ export function TableFlowNode({ data, selected }: NodeProps) {
         ]
       : [];
 
-  if (
-    tableData.status !== "available" &&
-    !(tableData as table_with_order).order
-  ) {
-    menuAction.push({
-      label: "Reset to Available",
-      onClick: () => tableData.onTableReset?.(tableData),
-    });
+  if (tableData.status !== "available") {
+    if (
+      !!(tableData as table_with_order)?.order &&
+      (tableData as table_with_order).order?.items?.length === 0
+    ) {
+      menuAction.push({
+        label: "Reset to Available",
+        onClick: () => tableData.onTableReset?.(tableData),
+      });
+    }
+
+    if (!(tableData as table_with_order)?.order) {
+      menuAction.push({
+        label: "Reset to Available",
+        onClick: () => tableData.onTableReset?.(tableData),
+      });
+    }
   }
 
   if (
@@ -317,9 +328,6 @@ export function TableFlowNode({ data, selected }: NodeProps) {
               <div className="text-xs text-right">
                 {tableData.totalOrder && (
                   <div className="flex flex-col items-end gap-0.5">
-                    <div className="flex items-center gap-1 text-green-600 font-medium">
-                      <span>{formatForDisplay(tableData.totalOrder)}</span>
-                    </div>
                     {tableData.totalDiscount && tableData.totalDiscount > 0 ? (
                       <div className="flex items-center gap-1 text-orange-600 text-[10px]">
                         <TicketPercent className="h-2.5 w-2.5" />
@@ -328,6 +336,28 @@ export function TableFlowNode({ data, selected }: NodeProps) {
                         </span>
                       </div>
                     ) : null}
+                    {tableData.serviceChargeAmount &&
+                    Number(tableData.serviceChargeAmount) > 0 ? (
+                      <div className="flex items-center gap-1 text-purple-600 text-[10px]">
+                        <span>
+                          +
+                          {formatForDisplay(
+                            Number(tableData.serviceChargeAmount),
+                          )}
+                        </span>
+                        <span className="text-gray-400">
+                          (SC {tableData.serviceChargePercentage}%)
+                        </span>
+                      </div>
+                    ) : null}
+                    <div className="flex items-center gap-1 text-green-600 font-medium">
+                      <span>
+                        {formatForDisplay(
+                          tableData.totalOrder +
+                            Number(tableData.serviceChargeAmount || 0),
+                        )}
+                      </span>
+                    </div>
                   </div>
                 )}
                 {tableData.orderElapsedTime && (

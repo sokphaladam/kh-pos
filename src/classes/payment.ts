@@ -48,7 +48,10 @@ export interface Payment {
 }
 
 export class PaymentService {
-  constructor(protected db: Knex) {}
+  constructor(
+    protected db: Knex,
+    protected user?: UserInfo,
+  ) {}
 
   async createPayment({
     orderId,
@@ -62,8 +65,20 @@ export class PaymentService {
   }: CreatePaymentOption) {
     const paymentId = generateId();
     const shift = await new ShiftService(this.db).getOpenedShiftByUser(
-      createdBy
+      createdBy,
     );
+
+    const setting = await this.db
+      .table("setting")
+      .where({
+        option: "TYPE_POS",
+        warehouse: this.user?.currentWarehouseId,
+      })
+      .first();
+
+    const type_pos_setting = setting
+      ? JSON.parse(setting.value || '{ "system_type": "", enviroment: "" }')
+      : { system_type: "", enviroment: "" };
 
     const payment = {
       payment_id: paymentId,
@@ -77,6 +92,7 @@ export class PaymentService {
       amount_usd: amountUsd.toString(),
       shift_id: shift?.shiftId,
       amount_used: used.toString(),
+      is_testing: type_pos_setting.enviroment === "testing" ? 1 : 0,
     };
     await this.db<table_order_payment>("order_payment").insert(payment);
 
@@ -122,7 +138,7 @@ export class PaymentService {
       .innerJoin(
         "payment_method",
         "order_payment.payment_method",
-        "payment_method.method_id"
+        "payment_method.method_id",
       )
       .select("order_payment.*", "payment_method.method")
       .whereNull("order_payment.deleted_at")
@@ -153,7 +169,7 @@ export class PaymentService {
             ? await userLoader.load(payment.deleted_by)
             : null,
         };
-      })
+      }),
     );
   }
 }

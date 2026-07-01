@@ -214,6 +214,18 @@ export class PrintToKitchenService {
       .select();
 
     if (items.length > 0) {
+      const setting = await this.tx
+        .table("setting")
+        .where({
+          option: "TYPE_POS",
+          warehouse: this.user.currentWarehouseId,
+        })
+        .first();
+
+      const type_pos_setting = setting
+        ? JSON.parse(setting.value || '{ "system_type": "", enviroment: "" }')
+        : { system_type: "", enviroment: "" };
+
       await this.tx.table("print_kitchen_log").insert(
         items.map((item) => ({
           order_id: item.order_id || "",
@@ -222,6 +234,8 @@ export class PrintToKitchenService {
           printed_at: Formatter.getNowDateTime(),
           content: JSON.stringify(item.content),
           printer_info: JSON.stringify(item.printer_info),
+          is_testing: type_pos_setting.enviroment === "testing" ? 1 : 0,
+          warehouse_id: item.warehouse_id,
         })),
       );
     }

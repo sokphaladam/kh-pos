@@ -383,6 +383,24 @@ export class OrderService {
         }
       }
 
+      const setting = await tx
+        .table("setting")
+        .where({
+          option: "TYPE_POS",
+        })
+        .andWhereRaw("(setting.warehouse = ? OR setting.warehouse IS NULL)", [
+          option.warehouseId,
+        ]);
+
+      const type_pos_setting = setting.find((s) => s.option === "TYPE_POS")
+        ? JSON.parse(
+            setting.find((s) => s.option === "TYPE_POS")?.value ||
+              '{ "system_type": "", enviroment: "" }',
+          )
+        : { system_type: "", enviroment: "" };
+
+      const isTesting = type_pos_setting.enviroment === "testing";
+
       const total = option.items.reduce((acc, item) => {
         const price = parseFloat(item.price);
         const amount = price * item.qty;
@@ -438,12 +456,13 @@ export class OrderService {
         total_amount: total.toString(),
         table_number: option.tableNumber ?? "",
         customer: option.customer || 1,
+        is_testing: isTesting ? 1 : 0,
       };
 
       if (items.length > 0) {
         await tx
           .table<table_customer_order_detail>("customer_order_detail")
-          .insert(items);
+          .insert(items.map((x) => ({ ...x, is_testing: isTesting ? 1 : 0 })));
 
         if (reservationItems.length > 0) {
           await tx.table("seat_reservation").insert(reservationItems);
@@ -687,6 +706,18 @@ export class OrderService {
       const now = Formatter.getNowDateTime();
       const totalPrice = parseFloat(data.price) * data.qty;
 
+      const setting = await trx
+        .table("setting")
+        .where({
+          option: "TYPE_POS",
+          warehouse: user.currentWarehouseId,
+        })
+        .first();
+
+      const type_pos_setting = setting
+        ? JSON.parse(setting.value || '{ "system_type": "", enviroment: "" }')
+        : { system_type: "", enviroment: "" };
+
       const item: table_customer_order_detail = {
         order_detail_id: data.id,
         created_at: now,
@@ -699,6 +730,7 @@ export class OrderService {
         qty: data.qty,
         fulfilled_qty: 0,
         modifer_amount: "0",
+        is_testing: type_pos_setting.enviroment === "testing" ? 1 : 0,
       };
 
       await trx

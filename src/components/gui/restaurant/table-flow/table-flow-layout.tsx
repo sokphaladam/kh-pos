@@ -28,7 +28,8 @@ import { TableFlowControls } from "./table-flow-controls";
 import { TableFlowNode, TableNodeData } from "./table-flow-node";
 import { useTablePositions } from "./use-table-positions";
 import { tableQRCode } from "./table-qr-code";
-import { generateTableDialog } from "./generate-table-dialog";
+import { table_with_order } from "@/app/hooks/use-query-table";
+import { useCommonDialog } from "@/components/common-dialog";
 
 const nodeTypes: NodeTypes = {
   tableNode: TableFlowNode,
@@ -46,10 +47,11 @@ function TableFlowLayoutContent(
     setAutoRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   },
 ) {
+  const { showDialog } = useCommonDialog();
   const { state, isRequest } = useRestaurant();
   const router = useRouter();
   const pathname = usePathname();
-  const { selectTable, removeTable, resetTableToAvailable } =
+  const { selectTable, removeTable, resetTableToAvailable, onRemoveOrder } =
     useRestaurantActions();
   const { savePositions, loadPositions, clearPositions, isSaving } =
     useTablePositions();
@@ -154,11 +156,36 @@ function TableFlowLayoutContent(
   );
 
   const handleTableReset = useCallback(
-    (table: table_restaurant_tables) => {
-      resetTableToAvailable(table);
-      toast.success(`Table ${table.table_name} reset to available`);
+    async (table: table_restaurant_tables) => {
+      const t = table as table_with_order;
+      if (!!t.order) {
+        await showDialog({
+          title: "Remove Order",
+          content:
+            "Are you sure you want to remove this entire order? This action cannot be undone.",
+          destructive: true,
+          actions: [
+            {
+              text: "Remove Order",
+              onClick: async () => {
+                if (table) {
+                  onRemoveOrder(table, t.order?.orderId).then(() => {
+                    toast.success(
+                      `Table ${table.table_name} reset to available`,
+                    );
+                  });
+                }
+              },
+            },
+          ],
+        });
+      } else {
+        resetTableToAvailable(table).then(() => {
+          toast.success(`Table ${table.table_name} reset to available`);
+        });
+      }
     },
-    [resetTableToAvailable],
+    [resetTableToAvailable, onRemoveOrder, showDialog],
   );
 
   const handleTableQRCode = useCallback(
@@ -256,6 +283,12 @@ function TableFlowLayoutContent(
           allowCreate: props.allowCreate,
           allowViewOnly: props.allowViewOnly,
         },
+        // serviceChargeAmount: String(
+        //   activeTable?.orders?.serviceChargeAmount ?? "0",
+        // ),
+        // serviceChargePercentage: String(
+        //   activeTable?.orders?.serviceChargePercentage ?? "0",
+        // ),
       };
 
       return {
@@ -438,22 +471,12 @@ function TableFlowLayoutContent(
               : "Create your first table to start managing your restaurant layout."}
           </div>
           {state && (
-            <>
-              <button
-                onClick={handleAddTable}
-                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-md"
-              >
-                Add First Table
-              </button>
-              <button
-                className="ml-4 px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors shadow-md"
-                onClick={async () => {
-                  await generateTableDialog.show({});
-                }}
-              >
-                Generate Tables
-              </button>
-            </>
+            <button
+              onClick={handleAddTable}
+              className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+            >
+              Add First Table
+            </button>
           )}
         </div>
       </div>

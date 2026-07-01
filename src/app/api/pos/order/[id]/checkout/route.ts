@@ -60,7 +60,7 @@ export const POST = withAuthApi<
       createdBy: user,
     });
 
-    const paymentService = new PaymentService(trx);
+    const paymentService = new PaymentService(trx, userAuth.admin);
 
     for (const payment of data.payments) {
       await paymentService.createPayment({

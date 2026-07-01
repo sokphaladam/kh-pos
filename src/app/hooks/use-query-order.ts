@@ -147,3 +147,11 @@ export function requestOrderPrintTime(id: string) {
     {},
   );
 }
+
+export function requestDeleteOrder(orderId: string) {
+  return requestDatabase<ResponseType<boolean>>(
+    `/api/pos/order/${orderId}`,
+    "DELETE",
+    {},
+  );
+}

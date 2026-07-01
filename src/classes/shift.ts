@@ -24,9 +24,21 @@ export class ShiftService {
     userId: string,
     openedCashUsd: number,
     openedCashKhr: number,
-    exchangeRate: number
+    exchangeRate: number,
   ) {
     const shiftId = generateId();
+    const user = await this.db.table("user").where("id", userId).first();
+    const setting = await this.db
+      .table("setting")
+      .where({
+        option: "TYPE_POS",
+        warehouse: user?.warehouse_id,
+      })
+      .first();
+
+    const type_pos_setting = setting
+      ? JSON.parse(setting.value || '{ "system_type": "", enviroment: "" }')
+      : { system_type: "", enviroment: "" };
     const shift = {
       shift_id: shiftId,
       opened_at: Formatter.getNowDateTime(),
@@ -35,6 +47,7 @@ export class ShiftService {
       opened_cash_khr: openedCashKhr.toString(),
       opened_by: userId,
       exchange_rate: exchangeRate.toString(),
+      is_testing: type_pos_setting.enviroment === "testing" ? 1 : 0,
     };
     await this.db<table_shift>("shift").insert(shift);
     return shiftId;
@@ -44,10 +57,10 @@ export class ShiftService {
     userId: string,
     shiftId: string,
     actualCashUsd: number,
-    actualCashKhr: number
+    actualCashKhr: number,
   ) {
     const existingShift = await new ShiftService(this.db).getShiftDetail(
-      shiftId
+      shiftId,
     );
     if (!existingShift) {
       throw new Error("Invalid provided shift");
@@ -60,7 +73,7 @@ export class ShiftService {
     const shiftReceipt = await this.getShiftReceipt(
       shiftId,
       actualCashUsd,
-      actualCashKhr
+      actualCashKhr,
     );
     const shift = {
       closed_at: Formatter.getNowDateTime(),
@@ -109,7 +122,7 @@ export class ShiftService {
   async getShiftReceipt(
     shiftId: string,
     actualCashUsd: number,
-    actualCashKhr: number
+    actualCashKhr: number,
   ) {
     const shift = await this.getShiftDetail(shiftId);
     if (!shift) return null;
@@ -168,7 +181,7 @@ export class ShiftService {
       .innerJoin(
         "payment_method",
         "order_payment.payment_method",
-        "payment_method.method_id"
+        "payment_method.method_id",
       )
       .whereNull("order_payment.deleted_at")
       .andWhere({ shift_id: shiftId })
@@ -180,7 +193,7 @@ export class ShiftService {
 
     const orders = await this.db.table("customer_order").whereIn(
       "order_id",
-      payments.map((p) => p.order_id)
+      payments.map((p) => p.order_id),
     );
     const settings = await this.db.table("setting").select("option", "value");
 
@@ -192,7 +205,7 @@ export class ShiftService {
     const totalPayments = payments.length;
     const amountReturned = returns.reduce(
       (a, b) => a + Number(b.refund_amount || 0),
-      0
+      0,
     );
     const amountByMethod: Record<
       string,
@@ -210,7 +223,7 @@ export class ShiftService {
                     ? Number(payment.amount_used) /
                         Number(payment.exchange_rate)
                     : Number(payment.amount_used) *
-                        Number(payment.exchange_rate)
+                        Number(payment.exchange_rate),
                 )
               : 0,
           qty: 1,
@@ -223,7 +236,7 @@ export class ShiftService {
             ? Number(
                 currentCurrency === "KHR"
                   ? Number(payment.amount_used) / Number(payment.exchange_rate)
-                  : Number(payment.amount_used) * Number(payment.exchange_rate)
+                  : Number(payment.amount_used) * Number(payment.exchange_rate),
               )
             : 0;
         amountByMethod[payment.method!].qty += 1;
@@ -233,7 +246,7 @@ export class ShiftService {
     const orderSummary = await this.db("customer_order")
       .whereIn(
         "order_id",
-        payments.map((payment) => payment.order_id)
+        payments.map((payment) => payment.order_id),
       )
       .countDistinct("order_id as total_order")
       .sum("total_amount as total_amount")
@@ -251,7 +264,7 @@ export class ShiftService {
       amountReturned,
       returns: returns.reduce((a, b) => a + Number(b.quantity), 0),
       totalCustomer: Number(
-        orders.reduce((a, b) => a + Number(b.customer || 0), 0)
+        orders.reduce((a, b) => a + Number(b.customer || 0), 0),
       ),
       avgCustomer:
         Number(totalOrderPerOrder.reduce((a, b) => a + b, 0)) /

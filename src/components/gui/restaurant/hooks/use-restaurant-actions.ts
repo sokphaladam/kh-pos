@@ -1,9 +1,9 @@
 import { UpdateOrderItemStatusSchemaAPIInput } from "@/app/api/pos/order/[id]/update-item-status/update-order-item-status";
 import {
   requestAutoInvoiceNumber,
+  requestDeleteOrder,
   requestOrderPrintTime,
   useCreateOrder,
-  useDeleteOrder,
   useMutationCheckout,
   useMutationCreateOrderItem,
   useMutationDeleteOrderItem,
@@ -72,9 +72,6 @@ export function useRestaurantActions() {
   const { trigger: triggerForceUpdateQtyByStatus } =
     useMutationForceUpdateQtyByStatus(current?.orders?.orderId || "");
 
-  const { trigger: triggerDeleteOrder } = useDeleteOrder(
-    current?.orders?.orderId || "",
-  );
   const { trigger: triggerDeleteTable } = useMutationDeleteTable();
 
   const selectTable = useCallback(
@@ -616,9 +613,11 @@ export function useRestaurantActions() {
   );
 
   const onRemoveOrder = useCallback(
-    async (table: table_restaurant_tables) => {
+    async (table: table_restaurant_tables, orderId?: string) => {
       setIsRequest(true);
-      const deleteOrderRes = await triggerDeleteOrder({});
+      const deleteOrderRes = await requestDeleteOrder(
+        orderId ? orderId : current?.orders?.orderId || "",
+      );
       if (!deleteOrderRes.success) {
         setIsRequest(false);
         return;
@@ -642,8 +641,8 @@ export function useRestaurantActions() {
       pathname,
       router,
       setIsRequest,
-      triggerDeleteOrder,
       onRefetch,
+      current?.orders?.orderId,
     ],
   );
 
