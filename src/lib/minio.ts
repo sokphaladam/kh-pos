@@ -6,8 +6,8 @@ export const s3 = new S3Client({
   endpoint: process.env.UPLOAD_ENDPOINT, // MinIO API port
   region: "us-east-1",
   credentials: {
-    accessKeyId: "minioadmin",
-    secretAccessKey: "minioadmin",
+    accessKeyId: process.env.MINIO_KEY || "minioadmin",
+    secretAccessKey: process.env.MINIO_SECRET || "minioadmin",
   },
   forcePathStyle: true, // required for MinIO
 });
