@@ -9,8 +9,9 @@ export async function seed(knex: Knex): Promise<void> {
   const sqlFilePath = resolve(__dirname, "../database.sql");
   const sql = readFileSync(sqlFilePath, "utf8");
 
+  const mysqlConnection = process.env.DB_MAIN || "";
   const seedName = "first-seeds";
-  const dbName = "bayon";
+  const dbName = mysqlConnection.split("/").pop();
 
   await knex.raw(`CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`);
   await knex.raw(`USE \`${dbName}\`;`);

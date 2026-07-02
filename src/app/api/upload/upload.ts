@@ -16,7 +16,7 @@ export async function uploadFileMinIO(req: Request) {
 
   return NextResponse.json(
     {
-      url: `https://image.mood.international/images/${fileName}`,
+      url: `${process.env.PATH_UPLOAD}/${fileName}`,
     },
     { status: 200 },
   );
