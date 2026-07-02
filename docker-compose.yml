@@ -11,7 +11,15 @@ services:
     ports:
       - "$PORT:$PORT" # host:container
     environment:
-      PORT: $PORT # Should match build args
+      NODE_ENV: production
+      PORT: $PORT
       DB_MAIN: $DB_MAIN
+      UPLOAD_ENDPOINT: $UPLOAD_ENDPOINT
+      MINIO_KEY: $MINIO_KEY
+      MINIO_SECRET: $MINIO_SECRET
+      PATH_UPLOAD: $PATH_UPLOAD
+      MAIL_SERVER: $MAIL_SERVER
+      SKIP_EMAIL: $SKIP_EMAIL
+      TZ: $TZ
     restart: always
-    command: ["sh", "-c", "npm start -- -p $PORT"]
+    # Removed command override — lets Dockerfile CMD (start.sh) run the standalone server
