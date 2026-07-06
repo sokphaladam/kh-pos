@@ -388,19 +388,29 @@ function TableFlowLayoutContent(
     savePositions(nodes);
   }, [nodes, savePositions]);
 
-  // Reset to grid layout
+  // Reset to grid layout, sorted by table name (e.g. A-01, A-02, B-01)
   const handleResetLayout = useCallback(() => {
-    const updatedNodes = nodes.map((node, index) => {
-      if (node.id.startsWith("table-")) {
-        const row = Math.floor(index / 10);
-        const col = index % 10;
-        const x = col * (TABLE_WIDTH + TABLE_SPACING) + 50;
-        const y = row * (TABLE_HEIGHT + TABLE_SPACING) + 50;
-        return { ...node, position: { x, y } };
-      }
-      return node;
+    const tableNodes = nodes
+      .filter((node) => node.id.startsWith("table-"))
+      .sort((a, b) => {
+        const nameA = String(a.data?.table_name ?? "");
+        const nameB = String(b.data?.table_name ?? "");
+        return nameA.localeCompare(nameB, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
+      });
+    const otherNodes = nodes.filter((node) => !node.id.startsWith("table-"));
+
+    const updatedTableNodes = tableNodes.map((node, index) => {
+      const row = Math.floor(index / 10);
+      const col = index % 10;
+      const x = col * (TABLE_WIDTH + TABLE_SPACING) + 50;
+      const y = row * (TABLE_HEIGHT + TABLE_SPACING) + 50;
+      return { ...node, position: { x, y } };
     });
-    setNodes(updatedNodes);
+
+    setNodes([...updatedTableNodes, ...otherNodes]);
     clearPositions(debugTables);
     toast.success("Layout reset to grid");
   }, [nodes, setNodes, clearPositions, debugTables]);
