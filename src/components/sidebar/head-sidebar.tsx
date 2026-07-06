@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useQueryBindUserList } from "@/app/hooks/use-query-bind-user";
 import { Warehouse } from "@/dataloader/warehouse-loader";
-import { ChevronsUpDown, Building2 } from "lucide-react";
+import { ChevronsUpDown, Building2, Building } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useAuthentication } from "../../../contexts/authentication-context";
 import {
@@ -18,6 +18,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "../ui/sidebar";
+import Link from "next/link";
 
 interface BindUserItem {
   userId: string;
@@ -41,6 +42,12 @@ export function HeadSidebar() {
 
   const bindUsers = (bindUserList?.result as BindUserItem[] | undefined) ?? [];
   const hasMultipleWarehouses = bindUsers.length > 1;
+
+  const intergratesRaw = setting?.data?.result?.find(
+    (f) => f.option === "BRAND_INTEGRATION",
+  )?.value;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const intergrates: any[] = intergratesRaw ? JSON.parse(intergratesRaw) : [];
 
   const onChangeOpen = useCallback((state: boolean) => {
     if (!state) {
@@ -107,6 +114,30 @@ export function HeadSidebar() {
                     </div>
                   </DropdownMenuItem>
                 ))}
+              {intergrates.length > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  {intergrates.map((item, index) => {
+                    return (
+                      <DropdownMenuItem key={index} asChild>
+                        <Link
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Building className="mr-2 size-4" />
+                          <div className="flex flex-col">
+                            <span>{item.name ?? "Unknown"}</span>
+                            <span className="text-xs text-muted-foreground">
+                              Brand Integration
+                            </span>
+                          </div>
+                        </Link>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (

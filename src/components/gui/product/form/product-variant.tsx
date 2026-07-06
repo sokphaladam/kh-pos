@@ -17,8 +17,18 @@ export function ProductVariant() {
   const [allPrice, setAllPrice] = useState<string>("");
 
   const onClickOptions = useCallback(async () => {
+    const options = product.productOption.map((x) => {
+      const variants = product.productVariants.map((v) => v.name);
+      return {
+        ...x,
+        values: x.values
+          .filter((f) => variants.includes(f.value))
+          .map((v) => ({ ...v })),
+      };
+    });
+
     const res = await createDialogProductVariant.show({
-      edit: product.productOption || [],
+      edit: options,
       id: product.productId || "",
     });
     if (res) {
@@ -51,7 +61,7 @@ export function ProductVariant() {
                     .split("/")
                     .map((n) => n.trim())
                     .reverse()
-                    .join("")
+                    .join(""),
             );
             return {
               ...x,
@@ -70,7 +80,7 @@ export function ProductVariant() {
             compositeVariants: [],
             ...variant,
           }));
-        })
+        }),
       );
     }
   }, [product, setProduct]);
@@ -126,7 +136,7 @@ export function ProductVariant() {
                           price: Number(e.target.value),
                         };
                       }) || [];
-                  })
+                  }),
                 );
               }}
               step={0.1}

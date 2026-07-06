@@ -22,7 +22,10 @@ import { toast } from "sonner";
 import { v4 } from "uuid";
 
 export const createDialogProductVariant = createDialog<
-  { edit: ProductOption[]; id: string },
+  {
+    edit: ProductOption[];
+    id: string;
+  },
   {
     option: ProductOption[];
     generate: ProductVariant[];
@@ -43,7 +46,7 @@ export const createDialogProductVariant = createDialog<
             name: "",
             values: [],
           });
-        })
+        }),
       );
     }, []);
 
@@ -51,7 +54,7 @@ export const createDialogProductVariant = createDialog<
       setInput(
         produce((draft) => {
           draft.splice(idx, 1);
-        })
+        }),
       );
     }, []);
 
@@ -163,7 +166,7 @@ export const createDialogProductVariant = createDialog<
                         setInput(
                           produce((draft) => {
                             draft[idx].name = e.target.value;
-                          })
+                          }),
                         );
                       }}
                       className={`h-8 text-sm ${
@@ -194,8 +197,10 @@ export const createDialogProductVariant = createDialog<
                     <TagsInput
                       lock={
                         option.values
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          .filter((x: any) => !!x.edit)
+                          .filter(
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            (x: any) => !!x.edit,
+                          )
                           .map((x) => x.value) || []
                       }
                       tags={option.values.map((x) => x.value)}
@@ -205,7 +210,7 @@ export const createDialogProductVariant = createDialog<
                             const values = [];
                             for (const t of tags) {
                               const index = input[idx].values.findIndex(
-                                (f) => f.value === t
+                                (f) => f.value === t,
                               );
                               if (index >= 0) {
                                 values.push({
@@ -221,19 +226,19 @@ export const createDialogProductVariant = createDialog<
                               }
                             }
                             draft[idx].values = values;
-                          })
+                          }),
                         );
                         setDraft(
                           produce((d) => {
                             d[option.name] = "";
-                          })
+                          }),
                         );
                       }}
                       onDraftValue={(e) => {
                         setDraft(
                           produce((d) => {
                             d[option.name] = e;
-                          })
+                          }),
                         );
                       }}
                     />
@@ -291,7 +296,7 @@ export const createDialogProductVariant = createDialog<
                 onClick={onClickSave}
                 disabled={
                   !input.some(
-                    (option) => option.name && option.values.length > 0
+                    (option) => option.name && option.values.length > 0,
                   )
                 }
                 className="flex-1 sm:flex-none h-8"
@@ -305,5 +310,5 @@ export const createDialogProductVariant = createDialog<
       </>
     );
   },
-  { defaultValue: null, className: "max-w-2xl" }
+  { defaultValue: null, className: "max-w-2xl" },
 );
