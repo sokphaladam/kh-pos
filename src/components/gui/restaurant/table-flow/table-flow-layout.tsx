@@ -392,8 +392,8 @@ function TableFlowLayoutContent(
   const handleResetLayout = useCallback(() => {
     const updatedNodes = nodes.map((node, index) => {
       if (node.id.startsWith("table-")) {
-        const row = Math.floor(index / 4);
-        const col = index % 4;
+        const row = Math.floor(index / 10);
+        const col = index % 10;
         const x = col * (TABLE_WIDTH + TABLE_SPACING) + 50;
         const y = row * (TABLE_HEIGHT + TABLE_SPACING) + 50;
         return { ...node, position: { x, y } };
