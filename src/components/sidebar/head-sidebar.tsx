@@ -41,13 +41,14 @@ export function HeadSidebar() {
     ?.value?.split(",")[2];
 
   const bindUsers = (bindUserList?.result as BindUserItem[] | undefined) ?? [];
-  const hasMultipleWarehouses = bindUsers.length > 1;
 
   const intergratesRaw = setting?.data?.result?.find(
     (f) => f.option === "BRAND_INTEGRATION",
   )?.value;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const intergrates: any[] = intergratesRaw ? JSON.parse(intergratesRaw) : [];
+
+   const hasMultipleWarehouses = [...bindUsers, ...intergrates].length > 1;
 
   const onChangeOpen = useCallback((state: boolean) => {
     if (!state) {
