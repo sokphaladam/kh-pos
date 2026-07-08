@@ -1,3 +1,4 @@
+"use client";
 import { ProductSearchResult } from "@/app/api/product/search-product/types";
 import { useQueryCategoryMenu } from "@/app/hooks/use-query-category";
 import { useLazyPublicProductList } from "@/app/hooks/use-query-product";
@@ -8,7 +9,9 @@ import { useDebouncedValue } from "@/components/use-debounce";
 import { useWindowSize } from "@/components/use-window-size";
 import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
+import { Formatter } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
+import { useProgress } from "@bprogress/next";
 import { ChevronDown, Loader2, Search, Store, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -126,6 +129,7 @@ export function ProductPublicLayout({
   address,
   menuBanner,
 }: ProductPublicLayoutProps) {
+  const { start, stop } = useProgress();
   const params = useSearchParams();
   const { height } = useWindowSize();
   const [searchQuery, setSearchQuery] = useState("");
@@ -140,6 +144,8 @@ export function ProductPublicLayout({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { formatForDisplay } = useCurrencyFormat();
 
+  start();
+
   const filter = useMemo(() => {
     return {
       search: debouncedSearchQuery.toLowerCase().trim(),
@@ -152,6 +158,23 @@ export function ProductPublicLayout({
       type: "pos" as "all" | "pos",
     };
   }, [debouncedSearchQuery, page, selectedCategory, params]);
+
+  const image = useMemo(() => {
+    let url = logo || "";
+    let banner = menuBanner || "";
+    setLoading(true);
+    Promise.all([
+      Formatter.displayImage(url, window.location.hostname).then(
+        (res) => (url = res),
+      ),
+      Formatter.displayImage(banner, window.location.hostname).then(
+        (res) => (banner = res),
+      ),
+    ]).finally(() => {
+      setLoading(false);
+    });
+    return { logo: url, banner: banner };
+  }, [logo, menuBanner]);
 
   const [triggerSearch, { data, isLoading }] = useLazyPublicProductList(filter);
   const [
@@ -216,8 +239,9 @@ export function ProductPublicLayout({
 
     setIsLoadingMore(true);
     setLoading(true);
+    start();
     setPage((prevPage) => prevPage + 1);
-  }, [isLoadingMore, hasMore, isLoading, loading]);
+  }, [isLoadingMore, hasMore, isLoading, loading, start]);
 
   // Products to display (either accumulated products or data from current request)
   const displayProducts =
@@ -229,6 +253,10 @@ export function ProductPublicLayout({
     // Handle product click - can be customized based on requirements
     console.log("Product clicked:", item);
   }, []);
+
+  if (!loading && !isLoading) {
+    stop();
+  }
 
   return (
     <div className="w-full flex flex-col relative">
@@ -244,7 +272,7 @@ export function ProductPublicLayout({
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={menuBanner}
+              src={image.banner}
               alt="Menu banner"
               className="w-full object-contain"
             />
@@ -267,7 +295,7 @@ export function ProductPublicLayout({
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={logo}
+                src={image.logo}
                 alt={warehouseName || "Store logo"}
                 className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl object-contain aspect-square flex-shrink-0 border border-gray-100 shadow-sm"
               />

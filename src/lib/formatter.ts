@@ -1,4 +1,5 @@
 import moment from "moment-timezone";
+
 export class Formatter {
   static trimPhoneNumber(str: string): string {
     let phone = str.trim();
@@ -207,5 +208,52 @@ export class Formatter {
         .format(value * rate)
         .replace("KHR", ""),
     };
+  }
+
+  static async displayImage(
+    urlString: string,
+    hostname?: string,
+  ): Promise<string> {
+    const host =
+      hostname ??
+      (typeof window !== "undefined" ? window.location.hostname : undefined);
+
+    if (!host) {
+      return urlString;
+    }
+
+    const ipv4Regex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
+    const ipv6Regex =
+      /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+
+    const isIPAddress = ipv4Regex.test(host) || ipv6Regex.test(host);
+
+    const url = new URL(urlString);
+
+    if (isIPAddress || host === "localhost" || host === "127.0.0.1") {
+      const uploadEndpoint =
+        typeof window !== "undefined"
+          ? process.env.NEXT_PUBLIC_UPLOAD_ENDPOINT
+          : process.env.UPLOAD_ENDPOINT;
+
+      if (!uploadEndpoint) {
+        return urlString;
+      }
+
+      const newUrlString = `${uploadEndpoint}${url.pathname}`;
+
+      try {
+        const res = await fetch(newUrlString, { method: "HEAD" });
+        if (res.ok) {
+          return newUrlString;
+        }
+      } catch {
+        // unreachable, fall through to original url
+      }
+
+      return urlString;
+    }
+
+    return urlString;
   }
 }

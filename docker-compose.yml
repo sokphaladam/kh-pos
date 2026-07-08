@@ -8,6 +8,7 @@ services:
       args:
         DB_MAIN: $DB_MAIN
         PORT: $PORT
+        NEXT_PUBLIC_UPLOAD_ENDPOINT: $NEXT_PUBLIC_UPLOAD_ENDPOINT
     ports:
       - "$PORT:$PORT" # host:container
     environment:
@@ -15,6 +16,7 @@ services:
       PORT: $PORT
       DB_MAIN: $DB_MAIN
       UPLOAD_ENDPOINT: $UPLOAD_ENDPOINT
+      NEXT_PUBLIC_UPLOAD_ENDPOINT: $NEXT_PUBLIC_UPLOAD_ENDPOINT
       MINIO_KEY: $MINIO_KEY
       MINIO_SECRET: $MINIO_SECRET
       PATH_UPLOAD: $PATH_UPLOAD

@@ -1,5 +1,6 @@
 import { table_product_images } from "@/generated/tables";
 import BaseRepository from "./base-repository";
+import { Formatter } from "@/lib/formatter";
 
 export interface ProductImage {
   id: string | undefined;
@@ -16,25 +17,28 @@ export default class ProductImageRepository extends BaseRepository<table_product
   protected idColumnName = "id";
 
   async findByProductIds(
-    productIds: readonly string[]
+    productIds: readonly string[],
   ): Promise<table_product_images[]> {
     return await this.tx(this.tableName).whereIn("product_id", productIds);
   }
 
   async findByVariantIds(
-    variantIds: readonly string[]
+    variantIds: readonly string[],
   ): Promise<table_product_images[]> {
     return await this.tx(this.tableName).whereIn(
       "product_variant_id",
-      variantIds
+      variantIds,
     );
   }
 
-  static map(row: table_product_images): ProductImage {
+  static async map(
+    row: table_product_images,
+    hostname?: string,
+  ): Promise<ProductImage> {
     return {
       id: row.id,
       productId: row.product_id,
-      url: row.image_url,
+      url: await Formatter.displayImage(row.image_url, hostname),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       imageOrder: row.image_order,

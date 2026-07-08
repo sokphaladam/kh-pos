@@ -9,7 +9,7 @@ import { useCurrencyFormat } from "@/hooks/use-currency-format";
 import { Formatter } from "@/lib/formatter";
 import { useAuthentication } from "contexts/authentication-context";
 import moment from "moment-timezone";
-import React from "react";
+import React, { useMemo } from "react";
 
 interface Props {
   order?: {
@@ -32,9 +32,10 @@ export function TemplateFunbeerking(props: Props) {
   const invoiceReceiptValue = props.defaultInvoice
     ? props.defaultInvoice
     : setting?.data?.result?.find((f) => f.option === "INVOICE_RECEIPT")?.value;
-  const invoiceReceipt = invoiceReceiptValue
-    ? invoiceReceiptValue.split(",")
-    : [];
+  const invoiceReceipt = useMemo(
+    () => (invoiceReceiptValue ? invoiceReceiptValue.split(",") : []),
+    [invoiceReceiptValue],
+  );
   const rtb = setting?.data?.result?.find((f) => f.option === "RTB")?.value;
   const servedType =
     props.order?.orderInfo.servedType === "food_delivery"
@@ -96,6 +97,15 @@ export function TemplateFunbeerking(props: Props) {
     displayTotalDiscountAmount = Math.ceil(Number(roundOneDecimal)) + "%";
   }
 
+  const imageLogo = useMemo(() => {
+    let url = invoiceReceipt.at(2) || "";
+    Formatter.displayImage(url, window.location.hostname).then(
+      (res) => (url = res),
+    );
+
+    return url;
+  }, [invoiceReceipt]);
+
   return (
     <>
       <link type="text/css" rel="stylesheet" href="/printing.css" />
@@ -118,7 +128,7 @@ export function TemplateFunbeerking(props: Props) {
         >
           {invoiceReceipt.at(2) && (
             <img
-              src={invoiceReceipt.at(2)}
+              src={imageLogo}
               alt=""
               style={{
                 width: 65,
