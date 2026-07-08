@@ -3,7 +3,7 @@ import { useGenericMutation, useGenericSWR } from "../use-generic";
 import {
   AccountBooking,
   TypeSchemaAccountBooking,
-} from "@/classes/accounting/account-booking";
+} from "@/classes/accounting/account-booking-schema";
 
 export function useQueryBooking({
   limit,

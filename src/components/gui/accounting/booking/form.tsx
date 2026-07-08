@@ -14,7 +14,7 @@ import { AccountCombobox } from "@/components/account-combobox";
 import {
   SchemaAccountBooking,
   TypeSchemaAccountBooking,
-} from "@/classes/accounting/account-booking";
+} from "@/classes/accounting/account-booking-schema";
 
 export const bookingForm = createSheet<
   unknown,
