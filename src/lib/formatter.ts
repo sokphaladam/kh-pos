@@ -230,11 +230,11 @@ export class Formatter {
 
     const url = new URL(urlString);
 
-    if (isIPAddress || host === "localhost" || host === "127.0.0.1") {
-      const uploadEndpoint =
-        typeof window !== "undefined"
-          ? process.env.NEXT_PUBLIC_UPLOAD_ENDPOINT
-          : process.env.UPLOAD_ENDPOINT;
+    const urlIsIPAddress =
+      ipv4Regex.test(url.hostname) || ipv6Regex.test(url.hostname);
+
+    if (isIPAddress) {
+      const uploadEndpoint = process.env.NEXT_PUBLIC_UPLOAD_ENDPOINT;
 
       if (!uploadEndpoint) {
         return urlString;
@@ -242,6 +242,25 @@ export class Formatter {
 
       const newUrlString = `${uploadEndpoint}${url.pathname}`;
 
+      try {
+        const res = await fetch(newUrlString, { method: "HEAD" });
+        if (res.ok) {
+          return newUrlString;
+        }
+      } catch {
+        // unreachable, fall through to original url
+      }
+
+      return urlString;
+    }
+
+    if (urlIsIPAddress) {
+      const uploadDomain = process.env.NEXT_PULBIC_UPLOAD_DOMAIN;
+      if (!uploadDomain) {
+        return urlString;
+      }
+
+      const newUrlString = `${uploadDomain}${url.pathname}`;
       try {
         const res = await fetch(newUrlString, { method: "HEAD" });
         if (res.ok) {
