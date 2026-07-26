@@ -2,6 +2,12 @@
 
 import { cn } from "@/lib/utils";
 
+interface ProductBadges {
+  topSale?: boolean;
+  isNew?: boolean;
+  mostOrder?: boolean;
+}
+
 interface ProductImageDisplayProps {
   images: { url: string }[];
   title: string;
@@ -11,6 +17,32 @@ interface ProductImageDisplayProps {
     isInStock: boolean;
   };
   price?: string;
+  badges?: ProductBadges;
+}
+
+function ProductBadgeList({ badges }: { badges?: ProductBadges }) {
+  if (!badges || (!badges.topSale && !badges.isNew && !badges.mostOrder)) {
+    return null;
+  }
+  return (
+    <div className="absolute top-2 left-2 flex flex-col items-start gap-1">
+      {badges.topSale && (
+        <span className="text-[10px] sm:text-xs font-semibold text-white bg-amber-500/90 px-1.5 py-0.5 rounded-md backdrop-blur-sm">
+          Top Sale
+        </span>
+      )}
+      {badges.isNew && (
+        <span className="text-[10px] sm:text-xs font-semibold text-white bg-emerald-500/90 px-1.5 py-0.5 rounded-md backdrop-blur-sm">
+          New
+        </span>
+      )}
+      {badges.mostOrder && (
+        <span className="text-[10px] sm:text-xs font-semibold text-white bg-blue-500/90 px-1.5 py-0.5 rounded-md backdrop-blur-sm">
+          Most Order
+        </span>
+      )}
+    </div>
+  );
 }
 
 export function ProductImageDisplay({
@@ -19,6 +51,7 @@ export function ProductImageDisplay({
   className = "",
   stockStatus,
   price,
+  badges,
 }: ProductImageDisplayProps) {
   if (!images || images.length === 0) {
     return (
@@ -30,6 +63,7 @@ export function ProductImageDisplay({
           )}
         >
           <span className="text-gray-400 text-xs sm:text-sm">No Image</span>
+          <ProductBadgeList badges={badges} />
           <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
             {price !== undefined && (
               <span className="text-xs sm:text-sm font-semibold text-white bg-black/60 px-2 py-1 rounded-md backdrop-blur-sm">
@@ -77,6 +111,8 @@ export function ProductImageDisplay({
             No Image
           </div>
         )}
+
+        <ProductBadgeList badges={badges} />
 
         <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
           {price !== undefined && (

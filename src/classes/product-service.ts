@@ -118,6 +118,37 @@ export class ProductService {
         "product_warehouse_visibility.product_variant_id",
         "product_variant.id",
       );
+      query.select(
+        this.trx.raw(
+          "COALESCE(product_warehouse_visibility.is_top_sale, product.is_top_sale) as is_top_sale",
+        ),
+        this.trx.raw(
+          "COALESCE(product_warehouse_visibility.is_new, product.is_new) as is_new",
+        ),
+        this.trx.raw(
+          "COALESCE(product_warehouse_visibility.is_most_order, product.is_most_order) as is_most_order",
+        ),
+      );
+      // Badged products (Top Sale / New / Most Order) float to the top of the menu
+      query.orderByRaw(
+        `(CASE WHEN COALESCE(product_warehouse_visibility.is_top_sale, product.is_top_sale) = 1
+              OR COALESCE(product_warehouse_visibility.is_new, product.is_new) = 1
+              OR COALESCE(product_warehouse_visibility.is_most_order, product.is_most_order) = 1
+          THEN 0 ELSE 1 END), product.created_at DESC`,
+      );
+    } else {
+      query.select(
+        "product.is_top_sale",
+        "product.is_new",
+        "product.is_most_order",
+      );
+      // Badged products (Top Sale / New / Most Order) float to the top of the menu
+      query.orderByRaw(
+        `(CASE WHEN product.is_top_sale = 1
+              OR product.is_new = 1
+              OR product.is_most_order = 1
+          THEN 0 ELSE 1 END), product.created_at DESC`,
+      );
     }
 
     const setting = await this.trx
@@ -232,6 +263,9 @@ export class ProductService {
           variants,
           modifiers,
           category,
+          isTopSale: r.is_top_sale === 1,
+          isNew: r.is_new === 1,
+          isMostOrder: r.is_most_order === 1,
         };
       }),
     );

@@ -38,6 +38,9 @@ export interface ProductV2 {
   useProduction?: boolean;
   trackStock?: boolean;
   isForSale?: boolean;
+  isTopSale?: boolean;
+  isNew?: boolean;
+  isMostOrder?: boolean;
   supplierId?: string | null;
   productImages: ProductImage[];
   productCategories: ProductCategory[];
@@ -62,10 +65,20 @@ export const inputProductBasicSchema = z.object({
   useProduction: z.boolean().optional(),
   trackStock: z.boolean().optional(),
   isForSale: z.boolean().optional(),
+  isTopSale: z.boolean().optional(),
+  isNew: z.boolean().optional(),
+  isMostOrder: z.boolean().optional(),
   supplierId: z.string().optional().nullable(),
 });
 
 export type ProductInput = z.infer<typeof inputProductBasicSchema>;
+
+function resolveBadge(
+  overrideVal: number | null | undefined,
+  mainVal: number | null | undefined,
+) {
+  return (overrideVal ?? mainVal) === 1;
+}
 
 export class ProductServiceV2 {
   constructor(
@@ -184,6 +197,9 @@ export class ProductServiceV2 {
       "product_variant_id",
       "is_visible",
       "is_for_sale",
+      "is_top_sale",
+      "is_new",
+      "is_most_order",
     );
 
     const data: ProductV2[] = await Promise.all(
@@ -207,6 +223,24 @@ export class ProductServiceV2 {
         isForSale: useMainBranchVisibility
           ? visibilityList.find((v) => v.product_id === p.id)?.is_for_sale === 1
           : p.is_for_sale === 1,
+        isTopSale: resolveBadge(
+          useMainBranchVisibility
+            ? visibilityList.find((v) => v.product_id === p.id)?.is_top_sale
+            : undefined,
+          p.is_top_sale,
+        ),
+        isNew: resolveBadge(
+          useMainBranchVisibility
+            ? visibilityList.find((v) => v.product_id === p.id)?.is_new
+            : undefined,
+          p.is_new,
+        ),
+        isMostOrder: resolveBadge(
+          useMainBranchVisibility
+            ? visibilityList.find((v) => v.product_id === p.id)?.is_most_order
+            : undefined,
+          p.is_most_order,
+        ),
         modifiers: p.id
           ? ((await modifierByProductLoader.load(p.id)).filter(
               (m) => m !== null,
@@ -258,6 +292,9 @@ export class ProductServiceV2 {
         useProduction: p.use_production === 1,
         trackStock: p.track_stock === 1,
         isForSale: p.is_for_sale === 1,
+        isTopSale: p.is_top_sale === 1,
+        isNew: p.is_new === 1,
+        isMostOrder: p.is_most_order === 1,
       })),
     );
 
@@ -294,6 +331,9 @@ export class ProductServiceV2 {
       use_production: input.useProduction ? 1 : 0,
       track_stock: input.trackStock ? 1 : 0,
       is_for_sale: input.isForSale ? 1 : 0,
+      is_top_sale: input.isTopSale ? 1 : 0,
+      is_new: input.isNew ? 1 : 0,
+      is_most_order: input.isMostOrder ? 1 : 0,
       supplier_id: input.supplierId ?? null,
       created_by: this.user.id,
     });
@@ -318,6 +358,9 @@ export class ProductServiceV2 {
         use_production: input.useProduction ? 1 : 0,
         track_stock: input.trackStock ? 1 : 0,
         is_for_sale: input.isForSale ? 1 : 0,
+        is_top_sale: input.isTopSale ? 1 : 0,
+        is_new: input.isNew ? 1 : 0,
+        is_most_order: input.isMostOrder ? 1 : 0,
         supplier_id: input.supplierId || null,
         updated_by: this.user.id,
       });
@@ -357,6 +400,9 @@ export class ProductServiceV2 {
       useProduction: product.use_production === 1,
       trackStock: product.track_stock === 1,
       isForSale: product.is_for_sale === 1,
+      isTopSale: product.is_top_sale === 1,
+      isNew: product.is_new === 1,
+      isMostOrder: product.is_most_order === 1,
       supplierId: product.supplier_id,
     };
   }

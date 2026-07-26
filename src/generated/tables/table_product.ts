@@ -13,6 +13,9 @@ export interface table_product {
   use_production?: number | null;
   track_stock?: number | null;
   is_for_sale?: number | null;
+  is_top_sale?: number | null;
+  is_new?: number | null;
+  is_most_order?: number | null;
   supplier_id: string | null;
   created_by: string | null;
   updated_by: string | null;

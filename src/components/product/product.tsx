@@ -1,6 +1,7 @@
 "use client";
 import { useDeleteProduct } from "@/app/hooks/use-query-product";
 import {
+  useMutationSetBadgesProductWarehouseVisibility,
   useMutationSetForSaleProductWarehouseVisibility,
   useMutationSetVisibilityProductWarehouseVisibility,
 } from "@/app/hooks/user-query-product-warehouse-visibility";
@@ -30,7 +31,10 @@ import {
   EyeOff,
   Package,
   ShoppingCart,
+  Sparkles,
+  Star,
   Tag,
+  TrendingUp,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -70,6 +74,7 @@ export function Product({
   const setForSaleMutation = useMutationSetForSaleProductWarehouseVisibility();
   const setVisibilityMutation =
     useMutationSetVisibilityProductWarehouseVisibility();
+  const setBadgesMutation = useMutationSetBadgesProductWarehouseVisibility();
 
   // Sub-warehouse with product groups assigned from main warehouse
   const isSubWarehouseWithGroups =
@@ -87,6 +92,13 @@ export function Product({
       product.productVariants?.map((v) => [v.id, v.visible]) ?? [],
     ),
   );
+
+  // Optimistic state for badge toggles (per warehouse, this branch's own copy)
+  const [badgeState, setBadgeState] = useState({
+    isTopSale: product.isTopSale ?? false,
+    isNew: product.isNew ?? false,
+    isMostOrder: product.isMostOrder ?? false,
+  });
 
   const onToggleForSale = useCallback(
     (newValue: boolean) => {
@@ -115,6 +127,39 @@ export function Product({
       });
     },
     [product.id, product.title, setForSaleMutation, onCompleted, showDialog],
+  );
+
+  const onToggleBadge = useCallback(
+    (
+      field: "isTopSale" | "isNew" | "isMostOrder",
+      label: string,
+      newValue: boolean,
+    ) => {
+      showDialog({
+        title: newValue ? `Enable ${label}` : `Disable ${label}`,
+        content: newValue
+          ? `Mark "${product.title}" as ${label} in this warehouse?`
+          : `Remove "${label}" from "${product.title}" in this warehouse?`,
+        actions: [
+          {
+            text: newValue ? "Enable" : "Disable",
+            onClick: async () => {
+              setBadgeState((prev) => ({ ...prev, [field]: newValue }));
+              const res = await setBadgesMutation.trigger({
+                productId: product.id,
+                [field]: newValue,
+              });
+              if (res?.success) {
+                onCompleted?.();
+              } else {
+                setBadgeState((prev) => ({ ...prev, [field]: !newValue }));
+              }
+            },
+          },
+        ],
+      });
+    },
+    [product.id, product.title, setBadgesMutation, onCompleted, showDialog],
   );
 
   const onToggleVariantVisibility = useCallback(
@@ -333,22 +378,85 @@ export function Product({
                 )}
               </div>
               {isSubWarehouseWithGroups && (
-                <div className="flex items-center gap-1.5">
-                  <Switch
-                    checked={isForSaleState}
-                    disabled={setForSaleMutation.isMutating}
-                    className="h-4 w-8 data-[state=checked]:bg-green-500"
-                    onCheckedChange={onToggleForSale}
-                  />
-                  <span
-                    className={cn(
-                      "text-xs font-medium flex items-center gap-0.5",
-                      isForSaleState ? "text-green-600" : "text-gray-400",
-                    )}
-                  >
-                    <ShoppingCart className="w-3 h-3" />
-                    {isForSaleState ? "For Sale" : "Not For Sale"}
-                  </span>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <Switch
+                      checked={isForSaleState}
+                      disabled={setForSaleMutation.isMutating}
+                      className="h-4 w-8 data-[state=checked]:bg-green-500"
+                      onCheckedChange={onToggleForSale}
+                    />
+                    <span
+                      className={cn(
+                        "text-xs font-medium flex items-center gap-0.5",
+                        isForSaleState ? "text-green-600" : "text-gray-400",
+                      )}
+                    >
+                      <ShoppingCart className="w-3 h-3" />
+                      {isForSaleState ? "For Sale" : "Not For Sale"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Switch
+                      checked={badgeState.isTopSale}
+                      disabled={setBadgesMutation.isMutating}
+                      className="h-4 w-8 data-[state=checked]:bg-amber-500"
+                      onCheckedChange={(val) =>
+                        onToggleBadge("isTopSale", "Top Sale", val)
+                      }
+                    />
+                    <span
+                      className={cn(
+                        "text-xs font-medium flex items-center gap-0.5",
+                        badgeState.isTopSale
+                          ? "text-amber-600"
+                          : "text-gray-400",
+                      )}
+                    >
+                      <Star className="w-3 h-3" />
+                      Top Sale
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Switch
+                      checked={badgeState.isNew}
+                      disabled={setBadgesMutation.isMutating}
+                      className="h-4 w-8 data-[state=checked]:bg-emerald-500"
+                      onCheckedChange={(val) =>
+                        onToggleBadge("isNew", "New", val)
+                      }
+                    />
+                    <span
+                      className={cn(
+                        "text-xs font-medium flex items-center gap-0.5",
+                        badgeState.isNew ? "text-emerald-600" : "text-gray-400",
+                      )}
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      New
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Switch
+                      checked={badgeState.isMostOrder}
+                      disabled={setBadgesMutation.isMutating}
+                      className="h-4 w-8 data-[state=checked]:bg-blue-500"
+                      onCheckedChange={(val) =>
+                        onToggleBadge("isMostOrder", "Most Order", val)
+                      }
+                    />
+                    <span
+                      className={cn(
+                        "text-xs font-medium flex items-center gap-0.5",
+                        badgeState.isMostOrder
+                          ? "text-blue-600"
+                          : "text-gray-400",
+                      )}
+                    >
+                      <TrendingUp className="w-3 h-3" />
+                      Most Order
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
@@ -510,38 +618,101 @@ export function Product({
             </Badge>
           )}
           {isSubWarehouseWithGroups && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div
-                    className="flex items-center gap-1.5 mt-1 w-fit"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Switch
-                      checked={isForSaleState}
-                      disabled={setForSaleMutation.isMutating}
-                      className="h-3.5 w-7 data-[state=checked]:bg-green-500"
-                      onCheckedChange={onToggleForSale}
-                    />
-                    <span
-                      className={cn(
-                        "text-xs font-medium",
-                        isForSaleState ? "text-green-600" : "text-gray-400",
-                      )}
+            <div className="flex flex-col gap-0.5">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="flex items-center gap-1.5 mt-1 w-fit"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {isForSaleState ? "For Sale" : "Not For Sale"}
-                    </span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>
-                    {isForSaleState
-                      ? "Click to disable for sale in this branch"
-                      : "Click to enable for sale in this branch"}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                      <Switch
+                        checked={isForSaleState}
+                        disabled={setForSaleMutation.isMutating}
+                        className="h-3.5 w-7 data-[state=checked]:bg-green-500"
+                        onCheckedChange={onToggleForSale}
+                      />
+                      <span
+                        className={cn(
+                          "text-xs font-medium",
+                          isForSaleState ? "text-green-600" : "text-gray-400",
+                        )}
+                      >
+                        {isForSaleState ? "For Sale" : "Not For Sale"}
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      {isForSaleState
+                        ? "Click to disable for sale in this branch"
+                        : "Click to enable for sale in this branch"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <div
+                className="flex items-center gap-1.5 w-fit"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Switch
+                  checked={badgeState.isTopSale}
+                  disabled={setBadgesMutation.isMutating}
+                  className="h-3.5 w-7 data-[state=checked]:bg-amber-500"
+                  onCheckedChange={(val) =>
+                    onToggleBadge("isTopSale", "Top Sale", val)
+                  }
+                />
+                <span
+                  className={cn(
+                    "text-xs font-medium",
+                    badgeState.isTopSale ? "text-amber-600" : "text-gray-400",
+                  )}
+                >
+                  Top Sale
+                </span>
+              </div>
+              <div
+                className="flex items-center gap-1.5 w-fit"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Switch
+                  checked={badgeState.isNew}
+                  disabled={setBadgesMutation.isMutating}
+                  className="h-3.5 w-7 data-[state=checked]:bg-emerald-500"
+                  onCheckedChange={(val) => onToggleBadge("isNew", "New", val)}
+                />
+                <span
+                  className={cn(
+                    "text-xs font-medium",
+                    badgeState.isNew ? "text-emerald-600" : "text-gray-400",
+                  )}
+                >
+                  New
+                </span>
+              </div>
+              <div
+                className="flex items-center gap-1.5 w-fit"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Switch
+                  checked={badgeState.isMostOrder}
+                  disabled={setBadgesMutation.isMutating}
+                  className="h-3.5 w-7 data-[state=checked]:bg-blue-500"
+                  onCheckedChange={(val) =>
+                    onToggleBadge("isMostOrder", "Most Order", val)
+                  }
+                />
+                <span
+                  className={cn(
+                    "text-xs font-medium",
+                    badgeState.isMostOrder ? "text-blue-600" : "text-gray-400",
+                  )}
+                >
+                  Most Order
+                </span>
+              </div>
+            </div>
           )}
         </div>
       </TableCell>

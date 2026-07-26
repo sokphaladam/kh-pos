@@ -99,4 +99,29 @@ export class ProductWarehouseVisibilityService {
 
     return true;
   }
+
+  async setBadgesProductWarehouseVisibility(
+    productId: string,
+    warehouseId: string,
+    badges: { isTopSale?: boolean; isNew?: boolean; isMostOrder?: boolean },
+  ) {
+    const update: Record<string, boolean> = {};
+    if (badges.isTopSale !== undefined) update.is_top_sale = badges.isTopSale;
+    if (badges.isNew !== undefined) update.is_new = badges.isNew;
+    if (badges.isMostOrder !== undefined)
+      update.is_most_order = badges.isMostOrder;
+
+    await this.knex
+      .table("product_warehouse_visibility")
+      .where({
+        warehouse_id: warehouseId,
+        product_id: productId,
+      })
+      .update({
+        ...update,
+        updated_at: Formatter.getNowDateTime(),
+      });
+
+    return true;
+  }
 }

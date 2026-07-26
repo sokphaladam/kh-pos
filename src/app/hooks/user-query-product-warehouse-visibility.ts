@@ -35,3 +35,15 @@ export function useMutationSetVisibilityProductWarehouseVisibility() {
     ResponseType<unknown>
   >(`PUT`, "/api/product-v2/warehouse-visibilty/product-variant");
 }
+
+export function useMutationSetBadgesProductWarehouseVisibility() {
+  return useGenericMutation<
+    {
+      productId: string;
+      isTopSale?: boolean;
+      isNew?: boolean;
+      isMostOrder?: boolean;
+    },
+    ResponseType<unknown>
+  >(`PUT`, "/api/product-v2/warehouse-visibilty/product-badges");
+}
