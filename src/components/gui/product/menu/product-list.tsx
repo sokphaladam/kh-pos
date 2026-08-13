@@ -252,11 +252,6 @@ export function ProductList() {
                         isInStock,
                       }}
                       price={price}
-                      badges={{
-                        topSale: item.isTopSale,
-                        isNew: item.isNew,
-                        mostOrder: item.isMostOrder,
-                      }}
                     />
                   </Card>
                 );

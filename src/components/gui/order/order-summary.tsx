@@ -2,13 +2,67 @@ import { useQueryOrderList } from "@/app/hooks/use-query-order";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle2, Clock, TrendingUp } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  ShoppingBag,
+  TrendingUp,
+  Truck,
+  User,
+  Utensils,
+} from "lucide-react";
 import { useMemo } from "react";
 
 interface Props {
   startDate: string;
   endDate: string;
 }
+
+const SERVED_TYPE_META: Record<
+  string,
+  { label: string; icon: React.ReactNode; gradientClass: string; iconColorClass: string; valueColorClass: string }
+> = {
+  dine_in: {
+    label: "Dine In",
+    icon: <Utensils className="h-4 w-4" />,
+    gradientClass:
+      "bg-gradient-to-br from-red-50 to-white dark:from-[#23272f] dark:to-[#18181b]",
+    iconColorClass: "text-red-500",
+    valueColorClass: "text-red-700 dark:text-red-300",
+  },
+  take_away: {
+    label: "Take Away",
+    icon: <ShoppingBag className="h-4 w-4" />,
+    gradientClass:
+      "bg-gradient-to-br from-orange-50 to-white dark:from-[#23272f] dark:to-[#18181b]",
+    iconColorClass: "text-orange-500",
+    valueColorClass: "text-orange-700 dark:text-orange-300",
+  },
+  food_delivery: {
+    label: "Delivery",
+    icon: <Truck className="h-4 w-4" />,
+    gradientClass:
+      "bg-gradient-to-br from-teal-50 to-white dark:from-[#23272f] dark:to-[#18181b]",
+    iconColorClass: "text-teal-500",
+    valueColorClass: "text-teal-700 dark:text-teal-300",
+  },
+  customer: {
+    label: "Customer",
+    icon: <User className="h-4 w-4" />,
+    gradientClass:
+      "bg-gradient-to-br from-purple-50 to-white dark:from-[#23272f] dark:to-[#18181b]",
+    iconColorClass: "text-purple-500",
+    valueColorClass: "text-purple-700 dark:text-purple-300",
+  },
+  unknown: {
+    label: "Unknown",
+    icon: <TrendingUp className="h-4 w-4" />,
+    gradientClass:
+      "bg-gradient-to-br from-gray-50 to-white dark:from-[#23272f] dark:to-[#18181b]",
+    iconColorClass: "text-gray-400",
+    valueColorClass: "text-gray-700 dark:text-gray-300",
+  },
+};
 
 interface SummaryCardProps {
   label: string;
@@ -99,6 +153,19 @@ export function OrderSummary(props: Props) {
       expectationTotal += amount;
     }
 
+    const servedTypeMap = new Map<string, { count: number; total: number }>();
+    for (const order of orders) {
+      const amount = parseFloat(order.totalAmount ?? "0") || 0;
+      const key = order.servedType ?? "unknown";
+      const entry = servedTypeMap.get(key) ?? { count: 0, total: 0 };
+      entry.count++;
+      entry.total += amount;
+      servedTypeMap.set(key, entry);
+    }
+    const byServedType = Array.from(servedTypeMap.entries())
+      .map(([servedType, value]) => ({ servedType, ...value }))
+      .sort((a, b) => b.total - a.total);
+
     return {
       completedCount,
       completedTotal,
@@ -106,6 +173,7 @@ export function OrderSummary(props: Props) {
       draftTotal,
       expectationCount,
       expectationTotal,
+      byServedType,
     };
   }, [data]);
 
@@ -147,6 +215,45 @@ export function OrderSummary(props: Props) {
         valueColorClass="text-blue-700 dark:text-blue-300"
         icon={<TrendingUp className="h-4 w-4" />}
       />
+      {(isLoading || summary.byServedType.length > 0) && (
+        <div className="sm:col-span-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <SummaryCard
+                  key={i}
+                  label="Loading"
+                  count={0}
+                  countLabel="orders"
+                  total={0}
+                  formatCurrency={formatForDisplay}
+                  isLoading
+                  gradientClass="bg-gradient-to-br from-gray-50 to-white dark:from-[#23272f] dark:to-[#18181b]"
+                  iconColorClass="text-gray-400"
+                  valueColorClass="text-gray-700 dark:text-gray-300"
+                  icon={<Clock className="h-4 w-4" />}
+                />
+              ))
+            : summary.byServedType.map(({ servedType, count, total }) => {
+                const meta =
+                  SERVED_TYPE_META[servedType] ?? SERVED_TYPE_META.unknown;
+                return (
+                  <SummaryCard
+                    key={servedType}
+                    label={meta.label}
+                    count={count}
+                    countLabel="orders"
+                    total={total}
+                    formatCurrency={formatForDisplay}
+                    isLoading={false}
+                    gradientClass={meta.gradientClass}
+                    iconColorClass={meta.iconColorClass}
+                    valueColorClass={meta.valueColorClass}
+                    icon={meta.icon}
+                  />
+                );
+              })}
+        </div>
+      )}
     </div>
   );
 }

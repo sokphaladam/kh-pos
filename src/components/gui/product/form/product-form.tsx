@@ -123,68 +123,7 @@ export function ProductForm() {
                   <div className="absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
                 </label>
               </div>
-              <div className="md:col-span-2 flex items-center gap-2">
-                Top Sale
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={product.productBasic.isTopSale || false}
-                    onChange={(e) =>
-                      setProduct(
-                        produce(product, (draft) => {
-                          draft.productBasic.isTopSale = e.target.checked;
-                        })
-                      )
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-7 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-blue-600 transition-all"></div>
-                  <div className="absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
-                </label>
-              </div>
-              <div className="md:col-span-2 flex items-center gap-2">
-                New
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={product.productBasic.isNew || false}
-                    onChange={(e) =>
-                      setProduct(
-                        produce(product, (draft) => {
-                          draft.productBasic.isNew = e.target.checked;
-                        })
-                      )
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-7 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-blue-600 transition-all"></div>
-                  <div className="absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
-                </label>
-              </div>
-              <div className="md:col-span-2 flex items-center gap-2">
-                Most Order
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={product.productBasic.isMostOrder || false}
-                    onChange={(e) =>
-                      setProduct(
-                        produce(product, (draft) => {
-                          draft.productBasic.isMostOrder = e.target.checked;
-                        })
-                      )
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-7 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-blue-600 transition-all"></div>
-                  <div className="absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
-                </label>
-              </div>
             </div>
-            <p className="md:col-span-2 text-xs text-muted-foreground -mt-2">
-              Top Sale / New / Most Order are the default for all branches —
-              each branch can override these on their own product list.
-            </p>
           </div>
         </CardContent>
       </Card>

@@ -265,9 +265,6 @@ function checkProductCanSave(product: ProductInput) {
         "width",
         "height",
         "supplierId",
-        "isTopSale",
-        "isNew",
-        "isMostOrder",
       ].includes(basic)
     ) {
       if (!product.productBasic[basic]) {
