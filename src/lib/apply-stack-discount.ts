@@ -9,7 +9,8 @@ export function applyStackDiscount(price: number, discounts: DiscountProps[]) {
 
   discounts.forEach((discount) => {
     if (discount.discountType === "PERCENTAGE") {
-      const discountPrice = Math.floor(finalPrice * discount.value) / 100;
+      const priceCents = Math.round(finalPrice * 100);
+      const discountPrice = Math.floor((priceCents * discount.value) / 100) / 100;
       stackDiscount.push({
         ...discount,
         discountAmount: discountPrice,

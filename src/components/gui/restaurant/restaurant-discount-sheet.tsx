@@ -111,7 +111,8 @@ export const restaurantDiscountSheet = createDialog<
 
         if (discountType === "PERCENTAGE") {
           // For percentage: apply % to each item
-          itemDiscount = Math.floor(item.subtotal * value) / 100;
+          const subtotalCents = Math.round(item.subtotal * 100);
+          itemDiscount = Math.floor((subtotalCents * value) / 100) / 100;
         } else {
           // For amount: distribute proportionally
           const proportion = item.subtotal / orderTotals.subtotal;

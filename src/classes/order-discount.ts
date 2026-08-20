@@ -152,7 +152,11 @@ export class OrderDiscountService {
 
         const subtotalAmount = Number(orderItem.price) * Number(orderItem.qty);
 
-        const discountAmount = Math.floor(subtotalAmount * amount) / 100;
+        const subtotalCents = Math.round(subtotalAmount * 100);
+        const discountAmount =
+          discountType === "PERCENTAGE"
+            ? Math.floor((subtotalCents * amount) / 100) / 100
+            : Math.floor(subtotalAmount * amount) / 100;
 
         if (!manualDiscount && amount > 0) {
           // add manual discount
@@ -309,8 +313,11 @@ export async function applyDiscountToOrderItem(
           totalDiscount += Number(discount.discount_amount || "0");
           orderItemAmount -= Number(discount.discount_amount || "0");
         } else {
+          const orderItemAmountCents = Math.round(orderItemAmount * 100);
           const discountValue =
-            Math.floor(orderItemAmount * Number(discount.value || "0")) / 100;
+            Math.floor(
+              (orderItemAmountCents * Number(discount.value || "0")) / 100,
+            ) / 100;
           totalDiscount += discountValue;
           orderItemAmount -= discountValue;
           // for percentage, we need to update discount.discount_amount
@@ -325,8 +332,11 @@ export async function applyDiscountToOrderItem(
         }
       } else {
         if (discount.discount_type === "PERCENTAGE") {
+          const orderItemAmountCents = Math.round(orderItemAmount * 100);
           const discountValue =
-            Math.floor(orderItemAmount * Number(discount.value || "0")) / 100;
+            Math.floor(
+              (orderItemAmountCents * Number(discount.value || "0")) / 100,
+            ) / 100;
           totalDiscount += discountValue;
           orderItemAmount -= discountValue;
           await updateDiscountLog(
