@@ -1,4 +1,5 @@
 import { getAdminCookies, getCustomerCookies } from "./cookies/cookies";
+import { getDeviceHeaders } from "./device-identity";
 
 export async function requestDatabase<ResponseType = unknown>(
   url: string,
@@ -13,6 +14,7 @@ export async function requestDatabase<ResponseType = unknown>(
     headers: {
       "Content-Type": method !== "GET" ? "application/json" : "",
       Authorization: `Bearer ${cookie ? cookie.token || "" : ""}`,
+      ...getDeviceHeaders(),
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -40,6 +42,7 @@ export function streamFetcher(
     headers: {
       "Content-Type": method !== "GET" ? "application/json" : "",
       Authorization: `Bearer ${cookie ? cookie.token || "" : ""}`,
+      ...getDeviceHeaders(),
     },
     body: method !== "GET" ? JSON.stringify(body || {}) : undefined,
     signal: abortController.signal,

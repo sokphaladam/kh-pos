@@ -8,6 +8,11 @@ import getAuthFromToken, {
   UserInfo,
 } from "./get-auth-from-token";
 import { Logger, LogLevel } from "../logger";
+import {
+  decodeDeviceLabel,
+  getClientIp,
+  resolveDeviceName,
+} from "./parse-user-agent";
 import withDatabaseApi from "./with-database-api";
 import { table_user } from "@/generated/tables/table_user";
 import { table_user_role } from "@/generated/tables";
@@ -110,7 +115,19 @@ export default function withAuthApi<
         );
       }
 
-      const logger = new Logger(db, user, [LogLevel.Log, LogLevel.Sever]);
+      const userAgent = headerList.get("user-agent");
+      const deviceLabel = decodeDeviceLabel(headerList.get("x-device-label"));
+      const logger = new Logger(
+        db,
+        user,
+        [LogLevel.Log, LogLevel.Sever],
+        {
+          device: resolveDeviceName(deviceLabel, userAgent),
+          device_id: headerList.get("x-device-id"),
+          ip_address: getClientIp(headerList),
+          user_agent: userAgent,
+        },
+      );
 
       if (req.method !== "GET") {
         const methodToAction: Record<string, "create" | "update" | "delete"> = {

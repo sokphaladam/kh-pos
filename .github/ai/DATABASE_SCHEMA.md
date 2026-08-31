@@ -923,6 +923,12 @@ L-POS is a comprehensive Point of Sale system supporting:
 | key        | varchar(255) |     | Activity group identifier            |
 | content    | json         |     | Before/after values                  |
 | timestamp  | datetime     |     | Action timestamp                     |
+| device     | varchar(255) |     | Device name: user-set label else UA  |
+| device_id  | varchar(64)  |     | Stable per-browser id (localStorage) |
+| ip_address | varchar(45)  |     | Client IP (best effort, proxy aware) |
+| user_agent | text         |     | Raw request user-agent               |
+
+**Indexes:** `(user_id, timestamp)`, `key`, `timestamp`, `device`, `device_id`
 
 ---
 

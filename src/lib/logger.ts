@@ -14,6 +14,17 @@ export interface UserLogActivityInput {
   content?: Metadata | null;
 }
 
+/**
+ * Request-scoped context attached to every activity log written by this logger
+ * instance, so we can track which device a user acted from.
+ */
+export interface LogRequestContext {
+  device?: string | null;
+  device_id?: string | null;
+  ip_address?: string | null;
+  user_agent?: string | null;
+}
+
 export enum LogLevel {
   Sever = "SERVER",
   Debug = "DEBUG",
@@ -28,6 +39,7 @@ export class Logger {
   private user: UserInfo | null = null;
   private level: LogLevel[] = [];
   private db?: Knex;
+  private context: LogRequestContext = {};
 
   constructor(
     db?: Knex,
@@ -38,11 +50,13 @@ export class Logger {
       LogLevel.Warn,
       LogLevel.Error,
       LogLevel.Log,
-    ]
+    ],
+    context: LogRequestContext = {}
   ) {
     this.db = db;
     this.user = user;
     this.level = level;
+    this.context = context;
   }
   /**
    * Logs server activity with the provided message and metadata.
@@ -112,6 +126,10 @@ export class Logger {
       content: log.content || null,
       user_id: this.user.id,
       timestamp: timestamp,
+      device: this.context.device || null,
+      device_id: this.context.device_id || null,
+      ip_address: this.context.ip_address || null,
+      user_agent: this.context.user_agent || null,
     };
     await this.db.table<table_user_activity_logs>(this.table).insert(logs);
     return logs;

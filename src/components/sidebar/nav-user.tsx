@@ -7,9 +7,11 @@ import {
   DoorOpen,
   LockOpen,
   LogOut,
+  MonitorSmartphone,
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useAuthentication } from "../../../contexts/authentication-context";
+import { deviceNameDialog } from "../gui/device/device-name-dialog";
 import { shiftDialog } from "../gui/shift/shift-dialog";
 import { userChangePassword } from "../gui/user/user-change-password";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -139,6 +141,15 @@ export function NavUser() {
             >
               <LockOpen />
               Change Password
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                onChangeOpen(false);
+                deviceNameDialog.show({});
+              }}
+            >
+              <MonitorSmartphone />
+              Name this device
             </DropdownMenuItem>
             <DropdownMenuItem onClick={logout}>
               <LogOut />

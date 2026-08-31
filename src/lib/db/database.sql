@@ -688,7 +688,16 @@ CREATE TABLE IF NOT EXISTS `user_activity_logs` (
   `timestamp` datetime DEFAULT NULL,
   `key` varchar(255) NOT NULL COMMENT 'This key will be used to group activities later',
   `content` json NOT NULL,
-  PRIMARY KEY (`log_id`)
+  `device` varchar(255) DEFAULT NULL COMMENT 'Human readable device name: user-set label, else parsed user-agent',
+  `device_id` varchar(64) DEFAULT NULL COMMENT 'Stable per-browser device id from the client',
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text,
+  PRIMARY KEY (`log_id`),
+  KEY `idx_ual_user_timestamp` (`user_id`,`timestamp`),
+  KEY `idx_ual_key` (`key`),
+  KEY `idx_ual_timestamp` (`timestamp`),
+  KEY `idx_ual_device` (`device`),
+  KEY `idx_ual_device_id` (`device_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='We need to log every user activities in this table';
 
 CREATE TABLE IF NOT EXISTS `user_role` (
