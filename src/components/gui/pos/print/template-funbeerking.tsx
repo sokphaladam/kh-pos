@@ -261,10 +261,15 @@ export function TemplateFunbeerking(props: Props) {
             <div>:</div>
             <div>
               POS
-              {props.order?.orderInfo.invoiceNo
-                .toString()
-                .substring(8, props.order.orderInfo.invoiceNo.toString().length)
-                .padStart(5, "0")}
+              {props.order?.orderInfo.invoiceNo != null
+                ? props.order.orderInfo.invoiceNo
+                    .toString()
+                    .substring(
+                      8,
+                      props.order.orderInfo.invoiceNo.toString().length,
+                    )
+                    .padStart(5, "0")
+                : ""}
             </div>
           </div>
 

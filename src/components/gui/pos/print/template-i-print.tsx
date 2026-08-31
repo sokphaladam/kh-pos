@@ -163,9 +163,11 @@ export function TemplateIPrint({
             >
               <div>
                 វិក្កយបត្រ:{" "}
-                {order?.orderInfo.invoiceNo
-                  .toString()
-                  .replace(moment().format("YYYYMMDD"), "")}
+                {order?.orderInfo.invoiceNo != null
+                  ? order.orderInfo.invoiceNo
+                      .toString()
+                      .replace(moment().format("YYYYMMDD"), "")
+                  : ""}
               </div>
               <div style={{ width: 110 }}>
                 {order?.orderInfo.paidAt

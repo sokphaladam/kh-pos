@@ -219,9 +219,11 @@ export function DefaultPrint({
             <div>:</div>
             <div>
               #
-              {order?.orderInfo.invoiceNo
-                .toString()
-                .substring(8, order.orderInfo.invoiceNo.toString().length)}
+              {order?.orderInfo.invoiceNo != null
+                ? order.orderInfo.invoiceNo
+                    .toString()
+                    .substring(8, order.orderInfo.invoiceNo.toString().length)
+                : ""}
             </div>
           </div>
           <div className="display">
