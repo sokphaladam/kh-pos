@@ -24,6 +24,9 @@ export async function getBrandIntegration(db: Knex, filter: filterSchemaType) {
   if (filter.endDate) {
     params.append("endDate", filter.endDate);
   }
+  // Prevent integrated brands from recursively calling their own integrations,
+  // which can fan out / cycle and hang the request until it times out.
+  params.append("skipIntegration", "1");
 
   if (brandIntegration.length === 0) {
     return [];
@@ -40,6 +43,8 @@ export async function getBrandIntegration(db: Knex, filter: filterSchemaType) {
           method: "GET",
           headers: myHeaders,
           redirect: "follow",
+          // Don't let a slow/hanging integration host block the whole report.
+          signal: AbortSignal.timeout(10000),
         };
 
         const res = await fetch(

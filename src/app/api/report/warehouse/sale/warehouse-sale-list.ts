@@ -10,6 +10,7 @@ const filterSchema = z.object({
   startDate: z.string(),
   endDate: z.string(),
   warehouseId: z.string().optional(),
+  skipIntegration: z.string().optional(),
 });
 
 type filterSchemaType = z.infer<typeof filterSchema>;
@@ -20,7 +21,8 @@ export const warehouseSaleListReport = withAuthApi<
   ResponseType<unknown>,
   filterSchemaType
 >(async ({ db, searchParams }) => {
-  const { startDate, endDate } = filterSchema.parse(searchParams);
+  const { startDate, endDate, skipIntegration } =
+    filterSchema.parse(searchParams);
 
   const warehouses = await db
     .table("warehouse")
@@ -55,10 +57,12 @@ export const warehouseSaleListReport = withAuthApi<
 
   const currentCurrencyCode = setting?.value || "USD";
 
-  const brandIntegrationResults = await getBrandIntegration(db, {
-    startDate,
-    endDate,
-  });
+  const brandIntegrationResults = skipIntegration
+    ? []
+    : await getBrandIntegration(db, {
+        startDate,
+        endDate,
+      });
 
   const result = await Promise.all(
     warehouses.map(async (warehouse) => {

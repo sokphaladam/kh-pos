@@ -48,7 +48,8 @@ export function HeadSidebar() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const intergrates: any[] = intergratesRaw ? JSON.parse(intergratesRaw) : [];
 
-   const hasMultipleWarehouses = [...bindUsers, ...intergrates].length > 1;
+  const hasMultipleWarehouses =
+    bindUsers.length > 1 || intergrates.length > 0;
 
   const onChangeOpen = useCallback((state: boolean) => {
     if (!state) {
