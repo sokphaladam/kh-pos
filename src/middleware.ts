@@ -257,6 +257,6 @@ export const config = {
      * - sitemap.xml
      * - robots.txt
      */
-    "/((?!api|_next/static|_next/image|_next/data|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!api|_next/static|_next/image|_next/data|favicon.ico|sitemap.xml|robots.txt|printing.css|.*\\.(?:css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|otf)$).*)",
   ],
 };

@@ -20,13 +20,27 @@ interface DirectPrintProps {
   receiptCountPerCheckout?: number;
 }
 
+const KNOWN_TEMPLATES = [
+  "default",
+  "template-i",
+  "template-ch",
+  "template-funbeerking",
+] as const;
+
 export function DirectPrint({
   orderId,
   onPrintComplete,
   autoprint = true,
-  type = "default",
+  type: typeInput = "default",
   receiptCountPerCheckout = 1,
 }: DirectPrintProps) {
+  // Fall back to the default template if the configured value is unknown,
+  // otherwise no branch renders and the receipt prints blank.
+  const type = KNOWN_TEMPLATES.includes(
+    typeInput as (typeof KNOWN_TEMPLATES)[number],
+  )
+    ? typeInput
+    : "default";
   const ref = useRef<HTMLDivElement>(null);
   const printFrameRef = useRef<HTMLIFrameElement>(null);
   const [doc, setDoc] = useState("");
@@ -157,19 +171,18 @@ export function DirectPrint({
         })}
       </div>
 
-      {/* Kept rendered (1x1) and outside any visibility:hidden wrapper so Chrome
-          allows window.print() from it. */}
+      {/* Real size (so % / mm widths in the receipt lay out correctly) but moved
+          fully off-screen. A 1x1 iframe makes Chrome print a 1px-wide page. */}
       <iframe
         ref={printFrameRef}
         onLoad={handleFrameLoad}
         style={{
           position: "fixed",
-          width: "1px",
-          height: "1px",
+          left: "-10000px",
+          top: 0,
+          width: "820px",
+          height: "1160px",
           border: "0",
-          right: 0,
-          bottom: 0,
-          opacity: 0,
           pointerEvents: "none",
         }}
         srcDoc={doc}

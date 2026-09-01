@@ -11,7 +11,7 @@ import moment from "moment-timezone";
 import React from "react";
 
 export function DefaultPrint({
-  order,
+  order: orderInput,
   defaultInvoice,
 }: {
   order?: {
@@ -21,6 +21,13 @@ export function DefaultPrint({
   };
   defaultInvoice?: string;
 }) {
+  // Normalise so a missing/partial payload never crashes the receipt render
+  // (a thrown render here would print a blank page).
+  const order = {
+    orderInfo: orderInput?.orderInfo ?? ({} as Order),
+    orderDetail: orderInput?.orderDetail ?? [],
+    payments: orderInput?.payments ?? [],
+  };
   const { user, setting, currency, currentWarehouse } = useAuthentication();
   const { formatForDisplay } = useCurrencyFormat();
   const exchangeRate = Number(

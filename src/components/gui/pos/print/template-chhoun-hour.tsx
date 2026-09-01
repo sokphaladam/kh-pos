@@ -6,7 +6,7 @@ import { useAuthentication } from "contexts/authentication-context";
 import moment from "moment-timezone";
 
 export function TemplateChhounHour({
-  order,
+  order: orderInput,
   defaultInvoice,
 }: {
   order?: {
@@ -16,6 +16,11 @@ export function TemplateChhounHour({
   };
   defaultInvoice?: string;
 }) {
+  const order = {
+    orderInfo: orderInput?.orderInfo ?? ({} as Order),
+    orderDetail: orderInput?.orderDetail ?? [],
+    payments: orderInput?.payments ?? [],
+  };
   const { user, setting } = useAuthentication();
   const exchangeRate = Number(
     !setting?.isLoading && setting?.data?.result

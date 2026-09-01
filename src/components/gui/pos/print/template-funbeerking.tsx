@@ -21,6 +21,11 @@ interface Props {
 }
 
 export function TemplateFunbeerking(props: Props) {
+  const order = {
+    orderInfo: props.order?.orderInfo ?? ({} as Order),
+    orderDetail: props.order?.orderDetail ?? [],
+    payments: props.order?.payments ?? [],
+  };
   const { setting, currentWarehouse, user, currency } = useAuthentication();
   const { formatForDisplay } = useCurrencyFormat();
 
@@ -38,16 +43,16 @@ export function TemplateFunbeerking(props: Props) {
   );
   const rtb = setting?.data?.result?.find((f) => f.option === "RTB")?.value;
   const servedType =
-    props.order?.orderInfo.servedType === "food_delivery"
+    order?.orderInfo.servedType === "food_delivery"
       ? "Delivery"
-      : props.order?.orderInfo.servedType === "take_away"
+      : order?.orderInfo.servedType === "take_away"
         ? "Take Away"
         : "";
-  const customer = props.order?.orderInfo.customerLoader?.customerName;
-  const customerCount = props.order?.orderInfo.customer || 1;
+  const customer = order?.orderInfo.customerLoader?.customerName;
+  const customerCount = order?.orderInfo.customer || 1;
 
   const receive =
-    props.order?.payments.reduce((a, b) => {
+    order?.payments.reduce((a, b) => {
       if (b.currency === "KHR" && currency === "$") {
         return a + Number(b.amount) / Number(b.exchangeRate);
       }
@@ -56,8 +61,8 @@ export function TemplateFunbeerking(props: Props) {
     }, 0) || 0;
 
   const total = Number(
-    props.order?.orderDetail.reduce((a, b) => {
-      if (!!props.order?.orderInfo.tableNumber) {
+    order?.orderDetail.reduce((a, b) => {
+      if (!!order?.orderInfo.tableNumber) {
         const qty =
           b.status?.reduce((qty, status) => qty + Number(status.qty), 0) || 0;
         a = a + Number(b.price) * qty + Number(b.modiferAmount);
@@ -73,7 +78,7 @@ export function TemplateFunbeerking(props: Props) {
       ? Formatter.formatCurrencyKH(total * exchangeRate)
       : `$${(total / exchangeRate).toFixed(2)}`;
 
-  const totalDiscount = props.order?.orderDetail.reduce(
+  const totalDiscount = order?.orderDetail.reduce(
     (sum, item) => sum + Number(item.discountAmount || 0),
     0,
   );
@@ -249,11 +254,11 @@ export function TemplateFunbeerking(props: Props) {
         </div>
         <br />
         <div style={{ fontSize: "9pt" }}>
-          {props.order?.orderInfo.tableName && (
+          {order?.orderInfo.tableName && (
             <div className="display">
               <div style={{ minWidth: 110 }}>Table</div>
               <div>:</div>
-              <div>{props.order?.orderInfo.tableName}</div>
+              <div>{order?.orderInfo.tableName}</div>
             </div>
           )}
           <div className="display">
@@ -261,12 +266,12 @@ export function TemplateFunbeerking(props: Props) {
             <div>:</div>
             <div>
               POS
-              {props.order?.orderInfo.invoiceNo != null
-                ? props.order.orderInfo.invoiceNo
+              {order?.orderInfo.invoiceNo != null
+                ? order.orderInfo.invoiceNo
                     .toString()
                     .substring(
                       8,
-                      props.order.orderInfo.invoiceNo.toString().length,
+                      order.orderInfo.invoiceNo.toString().length,
                     )
                     .padStart(5, "0")
                 : ""}
@@ -277,8 +282,8 @@ export function TemplateFunbeerking(props: Props) {
             <div style={{ minWidth: 110 }}>Time In</div>
             <div>:</div>
             <div>
-              {props.order?.orderInfo.createdAt
-                ? moment(props.order.orderInfo.createdAt).format(
+              {order?.orderInfo.createdAt
+                ? moment(order.orderInfo.createdAt).format(
                     "DD/MM/YYYY HH:mm:ss",
                   )
                 : moment(new Date()).format("DD/MM/YYYY HH:mm:ss")}
@@ -289,8 +294,8 @@ export function TemplateFunbeerking(props: Props) {
             <div style={{ minWidth: 110 }}>Time Out</div>
             <div>:</div>
             <div>
-              {props.order?.orderInfo.paidAt
-                ? moment(props.order.orderInfo.paidAt).format(
+              {order?.orderInfo.paidAt
+                ? moment(order.orderInfo.paidAt).format(
                     "DD/MM/YYYY HH:mm:ss",
                   )
                 : moment(new Date()).format("DD/MM/YYYY HH:mm:ss")}
@@ -300,8 +305,8 @@ export function TemplateFunbeerking(props: Props) {
             <div style={{ minWidth: 110 }}>Cashier</div>
             <div>:</div>
             <div>
-              {(props.order?.payments.length || 0) > 0
-                ? props.order?.payments.at(0)?.createdBy?.fullname
+              {(order?.payments.length || 0) > 0
+                ? order?.payments.at(0)?.createdBy?.fullname
                 : user?.fullname || ""}
             </div>
           </div>
@@ -335,14 +340,14 @@ export function TemplateFunbeerking(props: Props) {
               </tr>
             </thead>
             <tbody>
-              {props.order?.orderDetail.map((x, i) => {
+              {order?.orderDetail.map((x, i) => {
                 const qty = Number(
-                  props.order?.orderInfo.tableNumber
+                  order?.orderInfo.tableNumber
                     ? x.status?.reduce((a, b) => a + b.qty, 0)
                     : x?.qty,
                 );
 
-                const itemTotal = props.order?.orderInfo.tableNumber
+                const itemTotal = order?.orderInfo.tableNumber
                   ? Number(x.price) * qty
                   : x.totalAmount;
 
@@ -676,7 +681,7 @@ export function TemplateFunbeerking(props: Props) {
                   <div className="display_sub">
                     <div style={{ height: "1.5rem" }}>Received Total</div>
                     <div style={{ height: "1.5rem" }}>Discount Total</div>
-                    {props.order?.payments.map((payment) => {
+                    {order?.payments.map((payment) => {
                       return (
                         <div
                           style={{
@@ -712,7 +717,7 @@ export function TemplateFunbeerking(props: Props) {
                         : `$${(Number(totalDiscount || 0) / exchangeRate).toFixed(2)}`}
                     </div>
                     {/* Display payment list from customer pay*/}
-                    {props.order?.payments.map((payment) => {
+                    {order?.payments.map((payment) => {
                       const amount =
                         payment.currency === "KHR" && currency === "$"
                           ? Number(payment.amount) /
@@ -747,7 +752,7 @@ export function TemplateFunbeerking(props: Props) {
                         ? `${formatForDisplay(Number(totalDiscount))}`
                         : formatForDisplay(0)}
                     </div>
-                    {props.order?.payments.map((payment) => {
+                    {order?.payments.map((payment) => {
                       const amount =
                         payment.currency === "KHR" && currency === "$"
                           ? Number(payment.amount) /
@@ -784,7 +789,7 @@ export function TemplateFunbeerking(props: Props) {
               }}
             >
               Payment Method:{" "}
-              {props.order?.payments.map((x) => x.paymentMethod).join(", ")}
+              {order?.payments.map((x) => x.paymentMethod).join(", ")}
             </div>
           </div>
           <div
@@ -798,7 +803,7 @@ export function TemplateFunbeerking(props: Props) {
             Thanks, Please come again!
           </div>
 
-          {(props.order?.orderInfo.printCount || 0) > 1 && (
+          {(order?.orderInfo.printCount || 0) > 1 && (
             <div>
               <div
                 style={{

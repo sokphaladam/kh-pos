@@ -8,7 +8,7 @@ import moment from "moment-timezone";
 import { Fragment } from "react";
 
 export function TemplateIPrint({
-  order,
+  order: orderInput,
   defaultInvoice,
 }: {
   order?: {
@@ -18,6 +18,11 @@ export function TemplateIPrint({
   };
   defaultInvoice?: string;
 }) {
+  const order = {
+    orderInfo: orderInput?.orderInfo ?? ({} as Order),
+    orderDetail: orderInput?.orderDetail ?? [],
+    payments: orderInput?.payments ?? [],
+  };
   const { user, setting } = useAuthentication();
   const exchangeRate = Number(
     !setting?.isLoading && setting?.data?.result

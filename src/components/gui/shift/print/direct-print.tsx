@@ -449,12 +449,11 @@ export function ShiftDireactPrint({
         onLoad={handleFrameLoad}
         style={{
           position: "fixed",
-          width: "1px",
-          height: "1px",
+          left: "-10000px",
+          top: 0,
+          width: "820px",
+          height: "1160px",
           border: "0",
-          right: 0,
-          bottom: 0,
-          opacity: 0,
           pointerEvents: "none",
         }}
         srcDoc={doc}
