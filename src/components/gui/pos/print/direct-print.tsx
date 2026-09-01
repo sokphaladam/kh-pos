@@ -6,6 +6,11 @@ import { TemplateChhounHour } from "./template-chhoun-hour";
 import { TemplateIPrint } from "./template-i-print";
 import { Printer } from "lucide-react";
 import { TemplateFunbeerking } from "./template-funbeerking";
+import {
+  buildPrintDocument,
+  loadPrintingCss,
+  printLoadedIframe,
+} from "@/lib/print-frame";
 
 interface DirectPrintProps {
   orderId: string;
@@ -25,11 +30,23 @@ export function DirectPrint({
   const ref = useRef<HTMLDivElement>(null);
   const printFrameRef = useRef<HTMLIFrameElement>(null);
   const [doc, setDoc] = useState("");
+  const [css, setCss] = useState<string | null>(null);
   const printQueueRef = useRef<string[]>([]);
   const completeRef = useRef(onPrintComplete);
   completeRef.current = onPrintComplete;
   const advanceLockRef = useRef(false);
   const { data, error, isLoading, isValidating } = useQueryOrder(orderId);
+
+  // Load the print stylesheet once so it can be inlined (no async <link> race).
+  useEffect(() => {
+    let alive = true;
+    loadPrintingCss().then((text) => {
+      if (alive) setCss(text);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // Move to the next receipt in the queue, or finish.
   const advanceQueue = useCallback(() => {
@@ -53,11 +70,12 @@ export function DirectPrint({
   useEffect(() => {
     if (!autoprint) return;
     if (!ref.current) return;
+    if (css === null) return; // wait until CSS is ready to inline
     if (isLoading || isValidating) return;
 
     // The order failed to load — don't hang forever on "Preparing print...".
     if (error || !data?.result) {
-      // eslint-disable-next-line no-console
+
       console.warn("[DirectPrint] order not available, skipping print", {
         orderId,
         error,
@@ -70,15 +88,11 @@ export function DirectPrint({
       ref.current.querySelectorAll<HTMLElement>("[data-receipt]");
     const jobs: string[] = [];
     receiptElements.forEach((el) => {
-      jobs.push(
-        `<!DOCTYPE html><html><head><meta charset="utf-8"/><link rel="stylesheet" href="/printing.css"/><style>@page { margin: 0; }</style></head><body>` +
-          el.outerHTML +
-          `</body></html><!-- ${Math.random().toString()} -->`,
-      );
+      jobs.push(buildPrintDocument(el.outerHTML, css));
     });
 
     if (jobs.length === 0) {
-      // eslint-disable-next-line no-console
+
       console.warn("[DirectPrint] no receipt content rendered", { orderId });
       completeRef.current();
       return;
@@ -86,48 +100,23 @@ export function DirectPrint({
 
     printQueueRef.current = jobs;
     setDoc(jobs[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, error, autoprint, isLoading, isValidating, orderId]);
+
+  }, [data, error, autoprint, css, isLoading, isValidating, orderId]);
 
   // Fire the browser print dialog from the parent once the iframe has loaded.
   // Driving it here (instead of an inline <script> inside srcDoc) keeps it working
-  // under a strict Content-Security-Policy and avoids the iframe being treated as
-  // "not rendered" by Chrome.
+  // under a strict Content-Security-Policy and lets us wait for images/fonts.
   const handleFrameLoad = useCallback(() => {
     if (!doc) return; // ignore the initial empty srcDoc load
     const frame = printFrameRef.current;
-    const win = frame?.contentWindow;
-    if (!win) {
+    if (!frame) {
       advanceQueue();
       return;
     }
-
-    let done = false;
-    const finish = () => {
-      if (done) return;
-      done = true;
-      advanceQueue();
-    };
-
-    win.onafterprint = finish;
-    // Fallback: some environments never emit afterprint (or the user cancels
-    // without it firing) — advance anyway so the queue/tab is not stuck.
-    const fallback = setTimeout(finish, 60000);
-    const clearFallback = () => clearTimeout(fallback);
-    win.addEventListener("afterprint", clearFallback, { once: true });
-
-    try {
-      win.focus();
-      win.print();
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error("[DirectPrint] window.print() failed", e);
-      clearTimeout(fallback);
-      finish();
-    }
+    void printLoadedIframe(frame, advanceQueue);
   }, [doc, advanceQueue]);
 
-  if (autoprint && (isLoading || isValidating)) {
+  if (autoprint && (isLoading || isValidating || css === null)) {
     return (
       <div className="fixed top-0 bottom-0 left-0 right-0 bg-gray-500/80 text-white flex items-center justify-center z-50">
         <div className="flex flex-col items-center justify-center animate-bounce">

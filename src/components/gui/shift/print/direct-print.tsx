@@ -1,11 +1,16 @@
 /* eslint-disable @next/next/no-css-tags */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthentication } from "../../../../../contexts/authentication-context";
 import { useQueryShift } from "@/app/hooks/use-query-shift";
 import moment from "moment-timezone";
 import { table_shift } from "@/generated/tables";
 import { Formatter } from "@/lib/formatter";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
+import {
+  buildPrintDocument,
+  loadPrintingCss,
+  printLoadedIframe,
+} from "@/lib/print-frame";
 
 interface Props {
   shiftId: string;
@@ -53,45 +58,75 @@ export function ShiftDireactPrint({
   const { user } = useAuthentication();
   const { currencyCode, formatForDisplay } = useCurrencyFormat();
   const [doc, setDoc] = useState("");
+  const [css, setCss] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const printFrameRef = useRef<HTMLIFrameElement>(null);
+  const completeRef = useRef(onPrintComplete);
+  completeRef.current = onPrintComplete;
 
   const { data, isLoading } = useQueryShift(user?.id, 1, 0, shiftId);
 
   useEffect(() => {
-    if (ref.current && printFrameRef.current && data && !isLoading) {
-      setDoc(
-        `<div>` +
-          ref.current.innerHTML +
-          "</div><script>window.print(); /*" +
-          Math.random().toString() +
-          "*/</script>",
-      );
-    }
-  }, [data, isLoading]);
-
-  useEffect(() => {
-    if (autoprint && data && !isLoading) {
-      setTimeout(() => {
-        onPrintComplete();
-      }, 500);
-    }
-  }, [autoprint, onPrintComplete, data, isLoading]);
-
-  if (isLoading) return <div>Loading...</div>;
+    let alive = true;
+    loadPrintingCss().then((text) => {
+      if (alive) setCss(text);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const shift = data
     ? (data.result?.data as unknown as table_shift[])[0]
     : null;
   const receipt = shift?.receipt;
-  const method = receipt.amountByMethod;
+  const method = receipt?.amountByMethod;
+
+  useEffect(() => {
+    if (!autoprint) return;
+    if (css === null || isLoading || !data) return;
+    if (!receipt || !method) {
+
+      console.warn("[ShiftDireactPrint] shift receipt not available", {
+        shiftId,
+      });
+      completeRef.current();
+      return;
+    }
+    if (!ref.current) return;
+    setDoc(buildPrintDocument(ref.current.innerHTML, css));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoprint, css, data, isLoading, shiftId]);
+
+  const handleFrameLoad = useCallback(() => {
+    if (!doc) return;
+    const frame = printFrameRef.current;
+    if (!frame) {
+      completeRef.current();
+      return;
+    }
+    void printLoadedIframe(frame, () => completeRef.current());
+  }, [doc]);
+
+  if (isLoading || css === null) return <div>Loading...</div>;
+
+  if (!receipt || !method) return null;
   const bank = Object.keys(method)
     .filter((f) => f !== "CASH")
     .map((x) => method[x]);
 
   return (
     <>
-      <div ref={ref} style={{ color: "#000" }}>
+      <div
+        ref={ref}
+        style={{
+          color: "#000",
+          position: "absolute",
+          left: "-9999px",
+          top: "-9999px",
+        }}
+        aria-hidden
+      >
         <link type="text/css" rel="stylesheet" href="/printing.css" />
         <div className="noto-sans-khmer" style={{ width: "95%" }}>
           <div className="w-full flex flex-row justify-center">
@@ -416,7 +451,17 @@ export function ShiftDireactPrint({
       </div>
       <iframe
         ref={printFrameRef}
-        style={{ position: "absolute", width: "0", height: "0", border: "0" }}
+        onLoad={handleFrameLoad}
+        style={{
+          position: "fixed",
+          width: "1px",
+          height: "1px",
+          border: "0",
+          right: 0,
+          bottom: 0,
+          opacity: 0,
+          pointerEvents: "none",
+        }}
         srcDoc={doc}
         title="Print Frame"
       />
