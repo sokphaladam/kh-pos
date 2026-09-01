@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { cn } from "@/lib/utils";
+import { variantDiscountLabel } from "@/lib/variant-discount";
 import { Hash, Minus, Plus, ShoppingCart } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useCart } from "./context/cart-provider";
@@ -65,6 +66,15 @@ export function ProductDetailsSheet({
 
   const stock = variant?.stock || product.stock || 0;
   const price = variant?.price || product.price || 0;
+  const discountedPrice =
+    variant?.discountedPrice ?? product.discountedPrice ?? null;
+  const effectivePrice = discountedPrice ?? price;
+  const hasDiscount = discountedPrice != null && discountedPrice !== price;
+  const discountLabel =
+    variantDiscountLabel(
+      variant?.discountType ?? product.discountType,
+      variant?.discountValue ?? product.discountValue,
+    ) ?? undefined;
 
   const availableModifiers = useMemo(() => {
     if (!product.modifiers || product.modifiers.length === 0) {
@@ -87,7 +97,7 @@ export function ProductDetailsSheet({
 
   // Calculate total price including modifiers
   const totalPrice = useMemo(() => {
-    let total = price;
+    let total = effectivePrice;
 
     availableModifiers.forEach((modifier) => {
       const selectedOptions = selectedModifiers[modifier.id] || [];
@@ -102,7 +112,7 @@ export function ProductDetailsSheet({
     });
 
     return total * quantity;
-  }, [price, quantity, selectedModifiers, availableModifiers]);
+  }, [effectivePrice, quantity, selectedModifiers, availableModifiers]);
 
   const handleQuantityChange = useCallback(
     (newQuantity: number) => {
@@ -237,7 +247,11 @@ export function ProductDetailsSheet({
                   stock,
                   isInStock: true,
                 }}
-                price={formatForDisplay(price)}
+                price={formatForDisplay(effectivePrice)}
+                originalPrice={
+                  hasDiscount ? formatForDisplay(price) : undefined
+                }
+                discountLabel={hasDiscount ? discountLabel : undefined}
               />
             </div>
 
@@ -259,9 +273,19 @@ export function ProductDetailsSheet({
               </div>
 
               <div className="flex items-center gap-2">
+                {hasDiscount && (
+                  <span className="text-sm text-gray-400 line-through">
+                    {formatForDisplay(price)}
+                  </span>
+                )}
                 <span className="text-lg font-semibold text-green-600">
-                  {formatForDisplay(price)}
+                  {formatForDisplay(effectivePrice)}
                 </span>
+                {hasDiscount && discountLabel && (
+                  <Badge className="bg-red-500 text-white">
+                    {discountLabel}
+                  </Badge>
+                )}
               </div>
             </div>
           </div>

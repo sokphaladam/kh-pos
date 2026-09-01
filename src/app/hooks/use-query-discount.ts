@@ -49,10 +49,12 @@ export function useCreateAppliesDiscountProduct() {
 
 export function useQueryAppliesDiscountProduct(filter: {
   productId?: string;
+  variantId?: string;
   id?: string;
 }) {
   const param = new URLSearchParams({
     ...(filter.productId ? { productId: filter.productId } : {}),
+    ...(filter.variantId ? { variantId: filter.variantId } : {}),
     ...(filter.id ? { id: filter.id } : {}),
   });
   return useGenericSWR<ResponseType<any[]>>(`/api/discount/applies?${param}`);
@@ -60,10 +62,12 @@ export function useQueryAppliesDiscountProduct(filter: {
 
 export function useLazyQueryAppliesDiscountProduct(filter: {
   productId?: string;
+  variantId?: string;
   id?: string;
 }) {
   const param = new URLSearchParams({
     ...(filter.productId ? { productId: filter.productId } : {}),
+    ...(filter.variantId ? { variantId: filter.variantId } : {}),
     ...(filter.id ? { id: filter.id } : {}),
   });
 

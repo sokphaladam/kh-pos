@@ -36,6 +36,8 @@ const createDefaultProductData = () => {
     compositeVariants: [],
     optionValues: [defaultOptionValue],
     visible: true,
+    discountType: null,
+    discountValue: null,
   };
 
   return {
@@ -137,6 +139,8 @@ export function ProductFormContextProvider({
           idealStockQty: v.idealStockQty,
           isComposite: v.isComposite ?? false,
           compositeVariants: v.compositeVariants ?? [],
+          discountType: v.discountType ?? null,
+          discountValue: v.discountValue ?? null,
         };
       }),
       productImages: product.productImages.map((m, idx) => {
@@ -199,6 +203,9 @@ export function ProductFormContextProvider({
           lowStockQty: v.lowStockQty,
           idealStockQty: v.idealStockQty,
           visible: v.visible ?? true,
+          discountType: v.discountType ?? null,
+          discountValue:
+            v.discountValue != null ? Number(v.discountValue) : null,
         };
       }),
       productConversions: product.productConversions || [],

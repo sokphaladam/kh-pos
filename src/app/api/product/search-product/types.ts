@@ -28,6 +28,10 @@ export interface ProductSearchResult {
   warehouseId: string;
   productTitle: string;
   price?: number;
+  discountType?: "AMOUNT" | "PERCENTAGE" | null;
+  discountValue?: number | null;
+  /** Unit price after the variant menu discount, or null when there is none. */
+  discountedPrice?: number | null;
   stock?: number;
   sku?: string;
   barcode?: string;

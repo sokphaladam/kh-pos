@@ -38,7 +38,7 @@ export const POST = withAuthApi<unknown, unknown>(
     const tr = await db.transaction(async (trx) => {
       const orderService = new OrderService(trx);
 
-      const { order } = await orderService.create({
+      const { order, variantDiscountApplied } = await orderService.create({
         ...input,
         createdBy: userAuth.admin! || {
           ...userAuth.customer!,
@@ -47,10 +47,17 @@ export const POST = withAuthApi<unknown, unknown>(
         status: "DRAFT",
       });
 
-      return order.order_id;
+      return { orderId: order.order_id, variantDiscountApplied };
     });
 
-    return NextResponse.json({ success: true, result: tr }, { status: 200 });
+    return NextResponse.json(
+      {
+        success: true,
+        result: tr.orderId,
+        variantDiscountApplied: tr.variantDiscountApplied,
+      },
+      { status: 200 },
+    );
   },
   ["ADMIN", "CUSTOMER"]
 );

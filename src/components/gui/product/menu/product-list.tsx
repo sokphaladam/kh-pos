@@ -10,6 +10,7 @@ import { useDebouncedValue } from "@/components/use-debounce";
 import { useWindowSize } from "@/components/use-window-size";
 import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { cn } from "@/lib/utils";
+import { variantDiscountLabel } from "@/lib/variant-discount";
 import { ChevronDown, Loader2, Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -227,9 +228,19 @@ export function ProductList() {
 
                 const stock = variant?.stock || item.stock || 0;
                 const isInStock = stock > 0;
-                const price = formatForDisplay(
-                  variant?.price || item.price || 0,
-                );
+                const basePrice = variant?.price || item.price || 0;
+                const discountedPrice =
+                  variant?.discountedPrice ?? item.discountedPrice ?? null;
+                const price = formatForDisplay(discountedPrice ?? basePrice);
+                const originalPrice =
+                  discountedPrice != null
+                    ? formatForDisplay(basePrice)
+                    : undefined;
+                const discountLabel =
+                  variantDiscountLabel(
+                    variant?.discountType ?? item.discountType,
+                    variant?.discountValue ?? item.discountValue,
+                  ) ?? undefined;
 
                 return (
                   <Card
@@ -252,6 +263,8 @@ export function ProductList() {
                         isInStock,
                       }}
                       price={price}
+                      originalPrice={originalPrice}
+                      discountLabel={discountLabel}
                     />
                   </Card>
                 );

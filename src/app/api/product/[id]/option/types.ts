@@ -14,6 +14,8 @@ export interface ProductVariant {
   optionValues: ProductOptionValue[];
   purchasedCost: number;
   visible: boolean;
+  discountType?: "AMOUNT" | "PERCENTAGE" | null;
+  discountValue?: number | null;
 }
 
 export interface ProductVariantByWarehouse {
@@ -62,6 +64,8 @@ export const productVariantSchema = z
           })
         )
         .min(1, "optionValues must have at least one item"),
+      discountType: z.enum(["AMOUNT", "PERCENTAGE"]).nullable().optional(),
+      discountValue: z.number().nullable().optional(),
     })
   )
   .min(1, "variants must have at least one item");

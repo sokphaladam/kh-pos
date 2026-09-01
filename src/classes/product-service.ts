@@ -16,6 +16,7 @@ import {
   table_product_option_value,
 } from "@/generated/tables";
 import { Formatter } from "@/lib/formatter";
+import { computeVariantDiscount } from "@/lib/variant-discount";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import { ProductInput } from "@/lib/types/product-type";
 import { Knex } from "knex";
@@ -215,12 +216,23 @@ export class ProductService {
         const category = r.category_id
           ? await categoryLoader.load(r.category_id)
           : null;
+        const discountType = r.discount_type ?? null;
+        const discountValue =
+          r.discount_value != null ? Number(r.discount_value) : null;
+        const variantDiscount = computeVariantDiscount(
+          Number(r.price),
+          discountType,
+          discountValue,
+        );
         return {
           productId: r.product_id,
           variantId: r.id,
           warehouseId: r.warehouse_id,
           productTitle: `${r.title} (${r.name})`,
           price: r.price,
+          discountType,
+          discountValue,
+          discountedPrice: variantDiscount?.discountedUnitPrice ?? null,
           stock: variants.reduce((a, b) => a + Number(b.stock), 0),
           sku: r.sku,
           barcode: r.barcode,

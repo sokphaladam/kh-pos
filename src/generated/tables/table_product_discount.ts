@@ -1,1 +1,10 @@
-export interface table_product_discount {  product_id: string;  discount_id: string;  created_at: string | null;  created_by: string | null;  is_applied_all?: number | null;  category_id: string | null;  auto_id: number;}
+export interface table_product_discount {
+  product_id: string;
+  discount_id: string;
+  created_at: string | null;
+  created_by: string | null;
+  is_applied_all?: number | null;
+  category_id: string | null;
+  variant_id: string | null;
+  auto_id: number;
+}

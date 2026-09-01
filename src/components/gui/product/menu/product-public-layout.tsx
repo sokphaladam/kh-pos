@@ -11,6 +11,7 @@ import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
 import { Formatter } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
+import { variantDiscountLabel } from "@/lib/variant-discount";
 import { useProgress } from "@bprogress/next";
 import { ChevronDown, Loader2, Search, Store, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -23,6 +24,8 @@ function ProductImageDisplay({
   className = "",
   stockStatus,
   price,
+  originalPrice,
+  discountLabel,
 }: {
   images: { url: string }[];
   title: string;
@@ -32,7 +35,25 @@ function ProductImageDisplay({
     isInStock: boolean;
   };
   price?: string;
+  originalPrice?: string;
+  discountLabel?: string;
 }) {
+  const discounted = originalPrice !== undefined && originalPrice !== price;
+  const priceTag = price !== undefined && (
+    <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-white bg-black/60 px-2 py-1 rounded-md backdrop-blur-sm">
+      {discounted && (
+        <span className="line-through opacity-70 font-normal">
+          {originalPrice}
+        </span>
+      )}
+      <span className={cn(discounted && "text-emerald-300")}>{price}</span>
+    </span>
+  );
+  const discountBadge = discounted && discountLabel && (
+    <span className="absolute top-2 left-2 z-10 text-[10px] sm:text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-md shadow-sm">
+      {discountLabel}
+    </span>
+  );
   if (!images || images.length === 0) {
     return (
       <div className="flex flex-col h-full">
@@ -45,13 +66,10 @@ function ProductImageDisplay({
         >
           <span className="text-gray-400 text-xs sm:text-sm">No Image</span>
 
+          {discountBadge}
           {/* Price and Stock Status Overlay */}
           <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-            {price !== undefined && (
-              <span className="text-xs sm:text-sm font-semibold text-white bg-black/60 px-2 py-1 rounded-md backdrop-blur-sm">
-                {price}
-              </span>
-            )}
+            {priceTag}
             {stockStatus && (
               <div
                 className={cn(
@@ -96,13 +114,10 @@ function ProductImageDisplay({
           </div>
         )}
 
+        {discountBadge}
         {/* Price and Stock Status Overlay */}
         <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-          {price !== undefined && (
-            <span className="text-xs sm:text-sm font-semibold text-white bg-black/60 px-2 py-1 rounded-md backdrop-blur-sm">
-              {price}
-            </span>
-          )}
+          {priceTag}
         </div>
       </div>
 
@@ -419,9 +434,19 @@ export function ProductPublicLayout({
                       },
                     ];
 
-                const price = formatForDisplay(
-                  variant?.price || item.price || 0,
-                );
+                const basePrice = variant?.price || item.price || 0;
+                const discountedPrice =
+                  variant?.discountedPrice ?? item.discountedPrice ?? null;
+                const price = formatForDisplay(discountedPrice ?? basePrice);
+                const originalPrice =
+                  discountedPrice != null
+                    ? formatForDisplay(basePrice)
+                    : undefined;
+                const discountLabel =
+                  variantDiscountLabel(
+                    variant?.discountType ?? item.discountType,
+                    variant?.discountValue ?? item.discountValue,
+                  ) ?? undefined;
 
                 return (
                   <Card
@@ -443,6 +468,8 @@ export function ProductPublicLayout({
                         isInStock: (variant?.stock || item.stock || 0) > 0,
                       }}
                       price={price}
+                      originalPrice={originalPrice}
+                      discountLabel={discountLabel}
                     />
                   </Card>
                 );

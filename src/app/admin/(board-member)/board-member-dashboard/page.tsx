@@ -23,7 +23,7 @@ interface WarehouseData {
 
 interface IntegrationGroup {
   name: string;
-  data: WarehouseData[];
+  data: WarehouseData[] | null;
 }
 
 interface SaleByWarehouseResult {
@@ -127,11 +127,16 @@ export default function BoardMemberDashboardPage() {
 
   const localItems = useMemo<WarehouseData[]>(() => {
     const local =
-      result?.local.map((x) => ({ ...x, local: true, brandName: "" })) ?? [];
+      result?.local?.map((x) => ({ ...x, local: true, brandName: "" })) ?? [];
     const group =
-      result?.integration.map((x) => ({
+      result?.integration?.map((x) => ({
         ...x,
-        data: x.data.map((d) => ({ ...d, brandName: x.name, local: false })),
+        // `data` is null when an integrated brand's report call failed.
+        data: (x.data ?? []).map((d) => ({
+          ...d,
+          brandName: x.name,
+          local: false,
+        })),
       })) ?? [];
 
     return [...local, ...group.flatMap((g) => g.data)];

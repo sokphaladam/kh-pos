@@ -1,4 +1,5 @@
 import { table_product_variant } from "@/generated/tables";
+import { computeVariantDiscount } from "@/lib/variant-discount";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import DataLoader from "dataloader";
 import { Knex } from "knex";
@@ -36,6 +37,10 @@ export interface ProductVariantType {
   lowStockQty: number | null;
   idealStockQty: number | null;
   stock: number | null;
+  discountType?: "AMOUNT" | "PERCENTAGE" | null;
+  discountValue?: number | null;
+  /** Unit price after the variant menu discount, or null when there is none. */
+  discountedPrice?: number | null;
   createdAt: string;
   updatedAt: string;
   optionValues: {
@@ -142,17 +147,29 @@ export function createProductVariantLoader(
 
         const movie = x.id ? await movieLoader.load(x.id) : null;
 
+        const unitPrice = x.price ? Number(x.price) : null;
+        const discountType = x.discount_type ?? null;
+        const discountValue =
+          x.discount_value != null ? Number(x.discount_value) : null;
+        const variantDiscount =
+          unitPrice != null
+            ? computeVariantDiscount(unitPrice, discountType, discountValue)
+            : null;
+
         const variant: ProductVariantType = {
           id: x.id ?? "",
           productId: x.product_id ?? "",
           name: x.name ?? "",
           sku: x.sku ? x.sku.toString() : "",
           barcode: x.barcode ?? "",
-          price: x.price ? Number(x.price) : null,
+          price: unitPrice,
           purchasePrice: x.purchased_cost ? Number(x.purchased_cost) : null,
           lowStockQty: x.low_stock_qty ? Number(x.low_stock_qty) : null,
           idealStockQty: x.ideal_stock_qty ? Number(x.ideal_stock_qty) : null,
           stock: variantStock?.stock ?? 0,
+          discountType,
+          discountValue,
+          discountedPrice: variantDiscount?.discountedUnitPrice ?? null,
           createdAt: x.created_at ?? "",
           updatedAt: x.updated_at ?? "",
           optionValues,

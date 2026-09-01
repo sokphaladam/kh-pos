@@ -13,6 +13,9 @@ const AppliesDiscountInputSchema = z.array(
     action: z.enum(["delete", "insert"]),
     isAppliedAll: z.boolean().optional(),
     categoryId: z.string().optional(),
+    // When set, the discount targets only this variant of `productId`
+    // instead of the whole product.
+    variantId: z.string().optional(),
   })
 );
 
@@ -113,6 +116,67 @@ export const appliesDiscountToProduct = withAuthApi<
         );
       }
 
+      // is specific variant of a product
+      if (!!schema[0].variantId) {
+        for (const item of dataShouldInsert) {
+          // Switching a product to variant-specific: drop the "all variants" row.
+          await queryDelete
+            .clone()
+            .where({ product_id: item.productId })
+            .whereNull("variant_id")
+            .delete()
+            .transacting(trx);
+          await db
+            .table<table_product_discount>("product_discount")
+            .where({
+              discount_id: item.discountId,
+              product_id: item.productId,
+              variant_id: item.variantId,
+            })
+            .delete()
+            .transacting(trx);
+          await db
+            .table<table_product_discount>("product_discount")
+            .insert({
+              product_id: item.productId,
+              discount_id: item.discountId,
+              variant_id: item.variantId,
+              created_at: Formatter.getNowDateTime(),
+              created_by: user.id,
+            })
+            .transacting(trx);
+          logger.serverLog("appliesDiscountToProduct:POST", {
+            action: "create",
+            table_name: "product_discount",
+            key: item.discountId,
+            content: item as any,
+          });
+        }
+
+        for (const item of dataShouldDelete) {
+          await db
+            .table<table_product_discount>("product_discount")
+            .where({
+              discount_id: item.discountId,
+              product_id: item.productId,
+              variant_id: item.variantId,
+            })
+            .delete()
+            .transacting(trx);
+          logger.serverLog("appliesDiscountToProduct:POST", {
+            action: "delete",
+            table_name: "product_discount",
+            key: item.discountId,
+            content: item as any,
+          });
+        }
+
+        return NextResponse.json(
+          { success: true, result: schema },
+          { status: 200 }
+        );
+      }
+
       await queryDelete
         .clone()
         .whereRaw("(category_id IS NOT NULL OR is_applied_all = 1)")
@@ -121,6 +185,15 @@ export const appliesDiscountToProduct = withAuthApi<
 
       // is specific product
       if (dataShouldInsert.length > 0) {
+        // Re-selecting the whole product clears any variant-specific rows.
+        for (const item of dataShouldInsert) {
+          await queryDelete
+            .clone()
+            .where({ product_id: item.productId })
+            .whereNotNull("variant_id")
+            .delete()
+            .transacting(trx);
+        }
         await db
           .table<table_product_discount>("product_discount")
           .insert(

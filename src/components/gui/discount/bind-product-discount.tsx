@@ -19,6 +19,11 @@ export const BindProductDiscount = createSheet<
   ({ discount }) => {
     const [activeTab, setActiveTab] = useState("product");
     const [products, setProducts] = useState<ProductV2[]>([]);
+    // productId -> selected variant ids. Empty / missing = discount applies to
+    // every variant of that product.
+    const [variantSelection, setVariantSelection] = useState<
+      Record<string, string[]>
+    >({});
     const [selectedCategories, setSelectedCategories] = useState<Category[]>(
       []
     );
@@ -33,17 +38,33 @@ export const BindProductDiscount = createSheet<
         const isAppliedAll = (queryApplies.data?.result || []).some(
           (f) => !!f.isAppliedAll
         );
-        const mapProducts = (queryApplies.data?.result || [])
-          .filter((f) => !!f.productId)
-          .map((x) => ({
-            ...x.product,
-            productVariants: x.productVariants || [],
-            productImages: x.product.images || [],
-          }));
+        const productRows = (queryApplies.data?.result || []).filter(
+          (f) => !!f.productId
+        );
+        // Rows repeat a product once per selected variant; dedupe to one card
+        // and collect the variant ids that are bound.
+        const mapProducts: ProductV2[] = [];
+        const selection: Record<string, string[]> = {};
+        productRows.forEach((x) => {
+          if (!mapProducts.some((p) => p.id === x.product.id)) {
+            mapProducts.push({
+              ...x.product,
+              productVariants: x.productVariants || [],
+              productImages: x.product.images || [],
+            });
+          }
+          if (x.variantId) {
+            selection[x.product.id] = [
+              ...(selection[x.product.id] || []),
+              x.variantId,
+            ];
+          }
+        });
         const mapCategories = (queryApplies.data?.result || [])
           .filter((f) => !!f.category)
           .map((x) => x.category);
         setProducts(mapProducts);
+        setVariantSelection(selection);
         setSelectedCategories(mapCategories);
         if (!!isAppliedAll) {
           setActiveTab("all");
@@ -77,6 +98,7 @@ export const BindProductDiscount = createSheet<
             ],
           }).then(() => {
             setProducts([]);
+            setVariantSelection({});
             setSelectedCategories([]);
             queryApplies.mutate();
           });
@@ -99,6 +121,7 @@ export const BindProductDiscount = createSheet<
           ],
         }).then(() => {
           setProducts([...products, product]);
+          setVariantSelection((prev) => ({ ...prev, [product.id]: [] }));
           setSelectedCategories([]);
           queryApplies.mutate();
         });
@@ -118,11 +141,48 @@ export const BindProductDiscount = createSheet<
           ],
         }).then(() => {
           setProducts(products.filter((p) => p.id !== v));
+          setVariantSelection((prev) => {
+            const next = { ...prev };
+            delete next[v];
+            return next;
+          });
           setSelectedCategories([]);
           queryApplies.mutate();
         });
       },
       [triggerApplies, discount, products, queryApplies]
+    );
+
+    const handleToggleVariant = useCallback(
+      async (productId: string, variantId: string, checked: boolean) => {
+        const current = variantSelection[productId] || [];
+        const next = checked
+          ? [...current, variantId]
+          : current.filter((id) => id !== variantId);
+
+        await triggerApplies({
+          data: [
+            {
+              discountId: discount.id,
+              productId,
+              variantId,
+              action: checked ? "insert" : "delete",
+            },
+          ],
+        });
+        // Unchecking the last variant reverts the product to "all variants".
+        if (!checked && next.length === 0) {
+          await triggerApplies({
+            data: [
+              { discountId: discount.id, productId, action: "insert" },
+            ],
+          });
+        }
+
+        setVariantSelection((prev) => ({ ...prev, [productId]: next }));
+        queryApplies.mutate();
+      },
+      [triggerApplies, discount, variantSelection, queryApplies]
     );
 
     const handleAddCategory = useCallback(
@@ -185,9 +245,11 @@ export const BindProductDiscount = createSheet<
               <DiscountProductList
                 discountId={discount.id}
                 productApplied={products}
+                variantSelection={variantSelection}
                 loading={isMutatingApplies}
                 onAddProduct={handleAddProduct}
                 onRemoveProduct={handleRemoveProduct}
+                onToggleVariant={handleToggleVariant}
               />
             )}
           </TabsContent>

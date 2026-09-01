@@ -36,6 +36,7 @@ interface ManualDiscount {
 interface PromotionDiscount {
   discountId: string;
   productId: string;
+  variantId?: string | null;
   discount: {
     id: string;
     title: string;
@@ -121,6 +122,7 @@ export const POSDiscountSheet = createSheet<
     const { data: promotionsData, isLoading: isLoadingPromotions } =
       useQueryAppliesDiscountProduct({
         productId: cart.productId,
+        variantId: cart.variantId,
       });
 
     const calculateCurrentPrice = useCallback(

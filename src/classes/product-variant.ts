@@ -34,6 +34,8 @@ const inputProductVariantSchema = z
     lowStockQty: z.number().optional().nullable(),
     idealStockQty: z.number().optional().nullable(),
     purchasedCost: z.number().min(0),
+    discountType: z.enum(["AMOUNT", "PERCENTAGE"]).nullable().optional(),
+    discountValue: z.number().nullable().optional(),
     isComposite: z.boolean().optional().default(false),
     compositeVariants: z
       .array(inputVariantCompositeSchema)
@@ -142,6 +144,11 @@ export class ProductVariantService {
           purchased_cost: String(variant.purchasedCost),
           is_composite: variant.isComposite ? 1 : 0,
           visible: variant.visible ? 1 : 0,
+          discount_type: variant.discountType ?? null,
+          discount_value:
+            variant.discountValue != null && variant.discountValue > 0
+              ? String(variant.discountValue)
+              : null,
         });
 
       // Update composite variants if it is a composite variant
@@ -185,6 +192,11 @@ export class ProductVariantService {
         purchased_cost: String(variant.purchasedCost),
         is_composite: variant.isComposite ? 1 : 0,
         visible: variant.visible ? 1 : 0,
+        discount_type: variant.discountType ?? null,
+        discount_value:
+          variant.discountValue != null && variant.discountValue > 0
+            ? String(variant.discountValue)
+            : null,
       });
 
       // composite variants

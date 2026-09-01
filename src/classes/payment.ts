@@ -135,7 +135,9 @@ export class PaymentService {
 
   async getPayment(orderId: string): Promise<Payment[]> {
     const payments = await this.db<table_order_payment>("order_payment")
-      .innerJoin(
+      // leftJoin (not innerJoin) so a payment whose method row is missing/renamed
+      // still shows on the receipt instead of vanishing entirely.
+      .leftJoin(
         "payment_method",
         "order_payment.payment_method",
         "payment_method.method_id",
@@ -151,7 +153,7 @@ export class PaymentService {
         return {
           paymentId: payment.payment_id,
           orderId: payment.order_id,
-          paymentMethod: payment.method,
+          paymentMethod: payment.method ?? payment.payment_method ?? "",
           currency: payment.currency,
           amount: payment.amount,
           exchangeRate: payment.exchange_rate,

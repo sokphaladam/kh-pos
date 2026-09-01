@@ -100,6 +100,7 @@ export function ListDiscount(props: Props) {
                 (f) => !!f.is_applied_all
               );
               const mapProducts = item.applied?.filter((f) => !!f.product_id);
+              const mapVariants = item.applied?.filter((f) => !!f.variant_id);
               const mapCategories = item.applied?.filter(
                 (f) => !!f.category_id
               );
@@ -116,13 +117,19 @@ export function ListDiscount(props: Props) {
                   <TableCell className="text-nowrap text-xs">{`${
                     isAppliedAll
                       ? "All Products"
+                      : (mapVariants?.length || 0) > 0
+                      ? "Specific Variants"
                       : (mapProducts?.length || 0) > 0
                       ? "Specific Products"
                       : "Categories"
                   } ${
                     isAppliedAll
                       ? ""
-                      : `(${mapProducts?.length || mapCategories?.length})`
+                      : `(${
+                          mapVariants?.length ||
+                          mapProducts?.length ||
+                          mapCategories?.length
+                        })`
                   }`}</TableCell>
                   <TableCell className="text-nowrap text-xs">
                     {moment(item.createdAt).format("YYYY-MM-DD")}

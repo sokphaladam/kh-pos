@@ -491,9 +491,16 @@ export class OrderService {
         }
       }
 
+      const variantDiscountApplied = await applyVariantDiscountLogs(
+        items.map((i) => i.order_detail_id),
+        tx,
+        option.createdBy.id,
+      );
+
       return {
         order,
         items,
+        variantDiscountApplied: variantDiscountApplied > 0,
       };
     });
   }
@@ -770,7 +777,13 @@ export class OrderService {
 
       await updateOrderTotalAmount(id, trx);
 
-      return item;
+      const variantDiscountApplied = await applyVariantDiscountLogs(
+        [data.id],
+        trx,
+        user.id,
+      );
+
+      return { ...item, variantDiscountApplied: variantDiscountApplied > 0 };
     });
   }
 
@@ -941,4 +954,72 @@ export async function getOrderDetail(
     .table<table_customer_order_detail>("customer_order_detail")
     .where({ order_detail_id: orderDetailId })
     .first();
+}
+
+/**
+ * Auto-apply the product-variant "menu discount" to the given order lines by
+ * writing a `discount_log` sentinel row (`discount_id = "variant"`), then
+ * recalculating each line. Idempotent: a line that already has a variant
+ * discount row is skipped. Called from both order creation and add-item so POS
+ * and the public menu behave identically.
+ */
+export async function applyVariantDiscountLogs(
+  orderDetailIds: string[],
+  trx: Knex,
+  createdBy: string,
+): Promise<number> {
+  if (orderDetailIds.length === 0) return 0;
+  const now = Formatter.getNowDateTime();
+
+  const rows = await trx
+    .table("customer_order_detail")
+    .join(
+      "product_variant",
+      "customer_order_detail.variant_id",
+      "product_variant.id",
+    )
+    .whereIn("customer_order_detail.order_detail_id", orderDetailIds)
+    .select(
+      "customer_order_detail.order_detail_id as order_detail_id",
+      "product_variant.discount_type as discount_type",
+      "product_variant.discount_value as discount_value",
+    );
+
+  const existing: table_discount_log[] = await trx
+    .table<table_discount_log>("discount_log")
+    .whereIn("order_detail_id", orderDetailIds)
+    .where("discount_id", "variant");
+  const alreadyHas = new Set(existing.map((e) => e.order_detail_id));
+
+  const toInsert = rows
+    .filter(
+      (r: any) =>
+        r.discount_type &&
+        Number(r.discount_value) > 0 &&
+        !alreadyHas.has(r.order_detail_id),
+    )
+    .map((r: any) => ({
+      id: generateId(),
+      order_detail_id: r.order_detail_id as string,
+      discount_id: "variant",
+      discount_title: "Variant Discount",
+      discount_type: r.discount_type as "AMOUNT" | "PERCENTAGE",
+      value: String(r.discount_value),
+      is_manual_discount: 0,
+      created_at: now,
+      created_by: createdBy,
+    }));
+
+  if (toInsert.length === 0) return 0;
+
+  await trx.table<table_discount_log>("discount_log").insert(toInsert);
+
+  for (const row of toInsert) {
+    const orderItem = await getOrderDetail(row.order_detail_id, trx);
+    if (orderItem) {
+      await recalculateCustomerOrder(orderItem, trx);
+    }
+  }
+
+  return toInsert.length;
 }

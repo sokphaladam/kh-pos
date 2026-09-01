@@ -230,6 +230,15 @@ export function usePOSProvider(id?: string) {
             if (reservationData && reservationData.length > 0) {
               recall?.();
             }
+
+            // The server auto-applies a product-variant menu discount on add;
+            // refetch so the cart line reflects it.
+            if (
+              (res.result as { variantDiscountApplied?: boolean })
+                ?.variantDiscountApplied
+            ) {
+              recall?.();
+            }
           } else {
             toast.error("Cannot added new item");
           }

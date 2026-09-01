@@ -6,6 +6,7 @@ import {
 } from "@/generated/tables";
 import { Formatter } from "@/lib/formatter";
 import { generateId } from "@/lib/generate-id";
+import { computeVariantDiscount } from "@/lib/variant-discount";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import { Knex } from "knex";
 import { getOrderDetail, recalculateCustomerOrder } from "./order";
@@ -308,6 +309,31 @@ export async function applyDiscountToOrderItem(
 
   await knex.transaction(async (trx) => {
     for (const discount of existingDiscounts) {
+      // Auto-applied product-variant menu discount. Recomputed from the variant
+      // config on every recalc so it stays correct across qty changes, and is
+      // per-unit (unlike the generic promotion AMOUNT branch which is per-line).
+      if (discount.discount_id === "variant") {
+        const variantDiscount = computeVariantDiscount(
+          Number(orderItem.price || 0),
+          discount.discount_type,
+          Number(discount.value || 0),
+          Number(orderItem.qty || 0),
+        );
+        const discountValue = Math.min(
+          variantDiscount?.lineDiscountAmount ?? 0,
+          orderItemAmount,
+        );
+        totalDiscount += discountValue;
+        orderItemAmount -= discountValue;
+        await updateDiscountLog(
+          discount.id!,
+          discount.order_detail_id!,
+          { discount_amount: String(discountValue) },
+          trx,
+        );
+        continue;
+      }
+
       if (discount.is_manual_discount === 1) {
         if (discount.discount_type === "AMOUNT") {
           totalDiscount += Number(discount.discount_amount || "0");

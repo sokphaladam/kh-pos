@@ -202,6 +202,15 @@ export function useRestaurantActions() {
                 product,
               },
             });
+
+            // Server auto-applies a product-variant menu discount on the line;
+            // pull fresh order state so the cart shows it.
+            if (
+              (create as { variantDiscountApplied?: boolean })
+                .variantDiscountApplied
+            ) {
+              onRefetch?.();
+            }
           }
         }
       } else {
@@ -284,6 +293,13 @@ export function useRestaurantActions() {
                 id,
               },
             });
+
+            if (
+              (res.result as { variantDiscountApplied?: boolean })
+                ?.variantDiscountApplied
+            ) {
+              onRefetch?.();
+            }
           } else {
             toast.error("Failed to add product to order");
           }
@@ -299,6 +315,7 @@ export function useRestaurantActions() {
       triggerCreateOrderItem,
       triggerForceUpdateQtyByStatus,
       setIsRequest,
+      onRefetch,
     ],
   );
 

@@ -77,6 +77,7 @@ export function ProductVariantList() {
           <TableHead className="text-xs text-nowrap">
             Price({currency})
           </TableHead>
+          <TableHead className="text-xs text-nowrap">Discount</TableHead>
           <TableHead className="text-xs text-nowrap">Barcode</TableHead>
           <TableHead className="text-xs text-nowrap">Low Stock</TableHead>
           <TableHead className="text-xs text-nowrap">Ideal Stock</TableHead>
@@ -116,6 +117,56 @@ export function ProductVariantList() {
                       }}
                       min={0}
                       step={0.1}
+                    />
+                  </div>
+                </TableCell>
+                <TableCell className="text-xs w-[190px]">
+                  <div className="flex items-center gap-1">
+                    <select
+                      className="h-[30px] rounded-md border border-input bg-background px-1 text-xs"
+                      value={x.discountType ?? ""}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setProduct(
+                          produce(product, (draft) => {
+                            const variant = (draft.productVariants || [])[idx];
+                            variant.discountType =
+                              v === "AMOUNT" || v === "PERCENTAGE" ? v : null;
+                            if (!variant.discountType) {
+                              variant.discountValue = null;
+                            }
+                          })
+                        );
+                      }}
+                    >
+                      <option value="">—</option>
+                      <option value="AMOUNT">{currency}</option>
+                      <option value="PERCENTAGE">%</option>
+                    </select>
+                    <MaterialInput
+                      placeholder="0"
+                      label=""
+                      className="h-[30px] w-[70px]"
+                      type="number"
+                      min={0}
+                      step={x.discountType === "PERCENTAGE" ? 1 : 0.1}
+                      disabled={!x.discountType}
+                      value={
+                        x.discountValue != null
+                          ? x.discountValue.toString()
+                          : ""
+                      }
+                      onChange={(e) => {
+                        setProduct(
+                          produce(product, (draft) => {
+                            (draft.productVariants || [])[idx].discountValue =
+                              e.target.value === "" ||
+                              isNaN(Number(e.target.value))
+                                ? null
+                                : Number(e.target.value);
+                          })
+                        );
+                      }}
                     />
                   </div>
                 </TableCell>
@@ -242,7 +293,7 @@ export function ProductVariantList() {
               </TableRow>
               {showCompositeCard && (
                 <tr>
-                  <td colSpan={9} className="p-0">
+                  <td colSpan={10} className="p-0">
                     <CompositeCard
                       variant={x.compositeVariants?.map((cv) => ({
                         id: cv.id || undefined,

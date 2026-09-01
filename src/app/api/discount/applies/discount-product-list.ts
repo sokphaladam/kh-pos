@@ -14,6 +14,7 @@ export const discountProductList = withAuthApi<
   let data: table_product_discount[] = [];
   const param = req.nextUrl.searchParams;
   const productId = param.get("productId");
+  const variantId = param.get("variantId");
   const id = param.get("id");
   const query = db.table<table_product_discount>("product_discount");
 
@@ -35,6 +36,13 @@ export const discountProductList = withAuthApi<
       .where("product_categories.product_id", productId);
     data = [...data, ...category];
     query.where("product_id", productId);
+    // A variant-specific row only applies when the caller's cart line matches
+    // that variant. A NULL variant_id row still applies to every variant.
+    if (variantId) {
+      query.where((b) =>
+        b.whereNull("variant_id").orWhere("variant_id", variantId)
+      );
+    }
   }
 
   const items: table_product_discount[] = await query.clone().select();
@@ -52,6 +60,7 @@ export const discountProductList = withAuthApi<
     data.map(async (item) => {
       return {
         productId: item.product_id,
+        variantId: item.variant_id,
         discountId: item.discount_id,
         discount: item.discount_id
           ? await discountLoader.load(item.discount_id)

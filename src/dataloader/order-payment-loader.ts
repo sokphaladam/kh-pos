@@ -7,7 +7,9 @@ export function getOrderPaymentLoader(db: Knex): DataLoader<string, Payment[]> {
   return new DataLoader(async (keys: readonly string[]) => {
     const rows = await db
       .table("order_payment")
-      .innerJoin(
+      // leftJoin (not innerJoin) so a payment whose method row is missing/renamed
+      // still shows on the receipt instead of vanishing entirely.
+      .leftJoin(
         "payment_method",
         "order_payment.payment_method",
         "payment_method.method_id"
@@ -27,7 +29,7 @@ export function getOrderPaymentLoader(db: Knex): DataLoader<string, Payment[]> {
         paymentMap[payment.order_id].push({
           paymentId: payment.payment_id,
           orderId: payment.order_id,
-          paymentMethod: payment.method,
+          paymentMethod: payment.method ?? payment.payment_method ?? "",
           currency: payment.currency,
           amount: payment.amount,
           exchangeRate: payment.exchange_rate,

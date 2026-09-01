@@ -8,6 +8,7 @@ import { useWindowSize } from "@/components/use-window-size";
 import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { WithLayoutPermissionProps } from "@/hoc/with-layout-permission";
 import { cn } from "@/lib/utils";
+import { variantDiscountLabel } from "@/lib/variant-discount";
 import { useAuthentication } from "contexts/authentication-context";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
 import { ChevronDown, Loader2 } from "lucide-react";
@@ -27,6 +28,8 @@ function ProductImageSlideshow({
   className = "",
   stockStatus,
   price,
+  originalPrice,
+  discountLabel,
 }: {
   images: { url: string }[];
   title: string;
@@ -36,8 +39,29 @@ function ProductImageSlideshow({
     isInStock: boolean;
   };
   price?: number;
+  originalPrice?: number;
+  discountLabel?: string;
 }) {
   const { formatForDisplay } = useCurrencyFormat();
+  const discounted =
+    originalPrice !== undefined && originalPrice !== price;
+  const priceTag = price !== undefined && (
+    <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-white bg-black/60 px-2 py-1 rounded-md backdrop-blur-sm">
+      {discounted && (
+        <span className="line-through opacity-70 font-normal">
+          {formatForDisplay(originalPrice as number)}
+        </span>
+      )}
+      <span className={cn(discounted && "text-emerald-300")}>
+        {formatForDisplay(price)}
+      </span>
+    </span>
+  );
+  const discountBadge = discounted && discountLabel && (
+    <span className="absolute top-2 left-2 z-10 text-[10px] sm:text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-md shadow-sm">
+      {discountLabel}
+    </span>
+  );
   if (!images || images.length === 0) {
     return (
       <div className="flex flex-col h-full">
@@ -50,13 +74,10 @@ function ProductImageSlideshow({
         >
           <span className="text-gray-400 text-xs sm:text-sm">No Image</span>
 
+          {discountBadge}
           {/* Price and Stock Status Overlay */}
           <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-            {price !== undefined && (
-              <span className="text-xs sm:text-sm font-semibold text-white bg-black/60 px-2 py-1 rounded-md backdrop-blur-sm">
-                {formatForDisplay(price)}
-              </span>
-            )}
+            {priceTag}
             {stockStatus && (
               <div
                 className={cn(
@@ -101,13 +122,10 @@ function ProductImageSlideshow({
           </div>
         )}
 
+        {discountBadge}
         {/* Price and Stock Status Overlay */}
         <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-          {price !== undefined && (
-            <span className="text-xs sm:text-sm font-semibold text-white bg-black/60 px-2 py-1 rounded-md backdrop-blur-sm">
-              {formatForDisplay(price)}
-            </span>
-          )}
+          {priceTag}
           {stockStatus && (
             <div
               className={cn(
@@ -127,6 +145,21 @@ function ProductImageSlideshow({
       </div>
     </div>
   );
+}
+
+/** Price props for the menu card, accounting for a variant menu discount. */
+function variantPriceProps(variant?: ProductVariantType, item?: ProductSearchResult) {
+  const base = variant?.price ?? item?.price ?? 0;
+  const discounted = variant?.discountedPrice ?? item?.discountedPrice ?? null;
+  return {
+    price: discounted ?? base,
+    originalPrice: discounted != null ? base : undefined,
+    discountLabel:
+      variantDiscountLabel(
+        variant?.discountType ?? item?.discountType,
+        variant?.discountValue ?? item?.discountValue,
+      ) ?? undefined,
+  };
 }
 
 export function RestaurantMenu(props: WithLayoutPermissionProps) {
@@ -374,7 +407,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                             stock: variant?.stock || 0,
                             isInStock: (variant?.stock || 0) > 0,
                           }}
-                          price={variant?.price || 0}
+                          {...variantPriceProps(variant, item)}
                         />
                       </Card>
                     );
@@ -494,7 +527,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                           stock: variant?.stock || 0,
                           isInStock: (variant?.stock || 0) > 0,
                         }}
-                        price={variant?.price || 0}
+                        {...variantPriceProps(variant, item)}
                       />
                     </Card>
                   );
