@@ -6,8 +6,19 @@ import {
   type DefaultPrintAuthOverride,
 } from "@/components/gui/pos/print/default-print";
 import { formatCurrency, getCurrencySymbol } from "@/lib/currency";
+import moment from "moment-timezone";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+
+function formatDateTime(value?: string | null) {
+  if (!value) return "";
+  const m = moment(value, [
+    "YYYY-MM-DD HH:mm:ss",
+    "YYYY-MM-DD HH:mm",
+    moment.ISO_8601,
+  ]);
+  return m.isValid() ? m.format("DD/MM/YYYY HH:mm:ss") : "";
+}
 
 type State =
   | { status: "loading" }
@@ -96,7 +107,27 @@ export function PublicInvoice() {
     );
   }
 
-  const { orderInfo, orderDetail, payments } = state.data;
+  const { orderInfo, orderDetail, payments, timeIn, timeOut } = state.data;
+
+  const invoiceNoStr = String(orderInfo.invoiceNo ?? "");
+  const invoiceLabel = "POS" + (invoiceNoStr.length > 8 ? invoiceNoStr.slice(8) : invoiceNoStr);
+  const cashier =
+    payments[0]?.createdBy?.fullname || orderInfo.createdBy?.fullname || "";
+  const customerName = orderInfo.customerLoader?.customerName || "Walk In";
+  const customerCount = orderInfo.customer || 1;
+
+  const infoRows = [
+    ...(orderInfo.tableName
+      ? [{ label: "Table", value: orderInfo.tableName }]
+      : []),
+    { label: "Invoice No", value: invoiceLabel },
+    { label: "Time In", value: formatDateTime(timeIn || orderInfo.createdAt) },
+    ...(timeOut
+      ? [{ label: "Time Out", value: formatDateTime(timeOut) }]
+      : []),
+    { label: "Cashier", value: cashier },
+    { label: `Customer (${customerCount})`, value: customerName },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-200 py-6 px-4 flex justify-center">
@@ -106,6 +137,7 @@ export function PublicInvoice() {
             order={{ orderInfo, orderDetail, payments }}
             authOverride={authOverride ?? undefined}
             hidePaymentMethod
+            infoRows={infoRows}
           />
         </div>
       </div>

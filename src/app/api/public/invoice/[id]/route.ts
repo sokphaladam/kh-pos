@@ -1,6 +1,6 @@
 import { Order, OrderDetail, OrderService } from "@/classes/order";
 import { Payment } from "@/classes/payment";
-import { table_setting } from "@/generated/tables";
+import { table_customer_order, table_setting } from "@/generated/tables";
 import { table_warehouse } from "@/generated/tables/table_warehouse";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import withDatabaseApi from "@/lib/server-functions/with-database-api";
@@ -18,6 +18,9 @@ export type PublicInvoiceResult = {
     image: string | null;
   } | null;
   settings: table_setting[];
+  // Raw timestamps (with seconds) for the invoice header.
+  timeIn: string | null;
+  timeOut: string | null;
 };
 
 // Public, read-only endpoint. Performs SELECT queries only – it never mutates
@@ -41,6 +44,25 @@ export const GET = withDatabaseApi<
   const detail = await orderService.getOrderDetail(params.id, {
     currentWarehouseId: warehouseId,
   } as unknown as UserInfo);
+
+  // getOrderDetail hydrates full staff UserInfo (session token, username,
+  // phone). Never expose that on a public endpoint – keep only the display name.
+  const publicUser = (u: { fullname?: string | null } | null | undefined) =>
+    u ? { fullname: u.fullname ?? "" } : null;
+
+  detail.orderInfo.createdBy = publicUser(detail.orderInfo.createdBy) as never;
+  detail.orderInfo.transferBy = publicUser(detail.orderInfo.transferBy) as never;
+  detail.payments = detail.payments.map((p) => ({
+    ...p,
+    createdBy: publicUser(p.createdBy) as never,
+    updatedBy: publicUser(p.updatedBy) as never,
+    deletedBy: publicUser(p.deletedBy) as never,
+  }));
+
+  const orderRow = await db<table_customer_order>("customer_order")
+    .where("order_id", params.id)
+    .where("warehouse_id", warehouseId)
+    .first();
 
   const warehouse = await db<table_warehouse>("warehouse")
     .where("id", warehouseId)
@@ -77,6 +99,8 @@ export const GET = withDatabaseApi<
             }
           : null,
         settings,
+        timeIn: orderRow?.created_at ?? null,
+        timeOut: orderRow?.paid_at ?? null,
       },
     },
     { status: 200 },

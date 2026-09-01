@@ -31,6 +31,7 @@ export function DefaultPrint({
   defaultInvoice,
   authOverride,
   hidePaymentMethod,
+  infoRows,
 }: {
   order?: {
     orderInfo: Order;
@@ -40,6 +41,8 @@ export function DefaultPrint({
   defaultInvoice?: string;
   authOverride?: DefaultPrintAuthOverride;
   hidePaymentMethod?: boolean;
+  // When provided, replaces the default Table/Invoice/Cashier/… info block.
+  infoRows?: { label: string; value: string }[];
 }) {
   // Normalise so a missing/partial payload never crashes the receipt render
   // (a thrown render here would print a blank page).
@@ -240,6 +243,17 @@ export function DefaultPrint({
           </div>
         </div>
         <br />
+        {infoRows ? (
+          <div>
+            {infoRows.map((row) => (
+              <div className="display" key={row.label}>
+                <div>{row.label}</div>
+                <div>:</div>
+                <div>{row.value}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
         <div>
           {order?.orderInfo.tableName && (
             <div className="display">
@@ -299,6 +313,7 @@ export function DefaultPrint({
             </div>
           )}
         </div>
+        )}
         <div>
           <table className="print_table">
             <thead>
