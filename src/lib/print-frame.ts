@@ -1,20 +1,23 @@
 /**
  * Helpers for printing receipts through a hidden <iframe>.
  *
- * Why this exists: the old approach injected `<link rel="stylesheet" href="/printing.css">`
- * plus an inline `<script>window.print()</script>` into the iframe. That races the
- * stylesheet load, so the FIRST print (before /printing.css is cached) comes out
- * blank/unstyled, and the inline script is blocked outright under a strict CSP.
+ * The old approach injected an inline `<script>window.print()</script>` into the
+ * iframe's srcDoc. That fails two ways:
+ *   1. a strict Content-Security-Policy blocks the inline script outright, and
+ *   2. it races the `/printing.css` load, so the FIRST print (before the sheet is
+ *      cached) comes out blank / unstyled.
  *
- * Instead we:
- *   1. fetch /printing.css once and inline it as a <style> block (no async load), and
- *   2. drive window.print() from the parent after images + fonts have settled.
+ * Instead we drive `window.print()` from the parent, and only after the iframe's
+ * stylesheets, images and fonts have actually finished loading.
  */
 
 let cssPromise: Promise<string> | null = null;
 
-/** Fetch /printing.css once per page load and cache the result. */
-export function loadPrintingCss(): Promise<string> {
+/**
+ * Warm the browser HTTP cache for /printing.css once per page load, so the
+ * <link> inside the print iframe resolves quickly (ideally from cache).
+ */
+export function warmPrintingCss(): Promise<unknown> {
   if (!cssPromise) {
     cssPromise = fetch("/printing.css")
       .then((r) => (r.ok ? r.text() : ""))
@@ -23,17 +26,69 @@ export function loadPrintingCss(): Promise<string> {
   return cssPromise;
 }
 
-/** Wrap receipt body markup in a full HTML document with the print CSS inlined. */
-export function buildPrintDocument(bodyHtml: string, css: string): string {
+/** Wrap receipt body markup in a full HTML document for the print iframe. */
+export function buildPrintDocument(bodyHtml: string): string {
   return (
     `<!DOCTYPE html><html><head><meta charset="utf-8"/>` +
-    `<style>${css}\n@page { margin: 0; }</style></head>` +
+    `<link rel="stylesheet" href="/printing.css"/>` +
+    `<style>@page { margin: 0; }</style></head>` +
     `<body>${bodyHtml}</body></html><!-- ${Math.random().toString()} -->`
   );
 }
 
+function waitForStylesheets(docu: Document): Promise<unknown> {
+  const links = Array.from(
+    docu.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'),
+  );
+  return Promise.all(
+    links.map((link) => {
+      try {
+        // Accessing cssRules throws until the sheet is loaded (same-origin);
+        // if it succeeds the sheet is ready.
+        if (link.sheet && link.sheet.cssRules) return Promise.resolve();
+      } catch {
+        /* not ready yet */
+      }
+      return new Promise<void>((resolve) => {
+        link.addEventListener("load", () => resolve(), { once: true });
+        link.addEventListener("error", () => resolve(), { once: true });
+        setTimeout(resolve, 4000); // hard cap so we never hang
+      });
+    }),
+  );
+}
+
+function waitForImages(docu: Document): Promise<unknown> {
+  return Promise.all(
+    Array.from(docu.images).map((img) =>
+      img.complete
+        ? Promise.resolve()
+        : new Promise<void>((resolve) => {
+            img.addEventListener("load", () => resolve(), { once: true });
+            img.addEventListener("error", () => resolve(), { once: true });
+            setTimeout(resolve, 4000);
+          }),
+    ),
+  );
+}
+
+function waitForFonts(docu: Document): Promise<unknown> {
+  try {
+    const fonts = (docu as Document & { fonts?: FontFaceSet }).fonts;
+    if (fonts && fonts.status !== "loaded") {
+      return Promise.race([
+        fonts.ready,
+        new Promise((resolve) => setTimeout(resolve, 3000)),
+      ]);
+    }
+  } catch {
+    /* ignore */
+  }
+  return Promise.resolve();
+}
+
 /**
- * Print an already-loaded iframe. Waits for its images and fonts to be ready so
+ * Print an already-loaded iframe. Waits for its stylesheets, images and fonts so
  * the output is never blank, then calls `onComplete` after `afterprint`
  * (with a fallback timeout in case the browser never emits it).
  */
@@ -48,30 +103,8 @@ export async function printLoadedIframe(
     return;
   }
 
-  // Wait for every <img> to finish (loaded or errored).
-  await Promise.all(
-    Array.from(docu.images).map((img) =>
-      img.complete
-        ? Promise.resolve()
-        : new Promise<void>((resolve) => {
-            img.addEventListener("load", () => resolve(), { once: true });
-            img.addEventListener("error", () => resolve(), { once: true });
-          }),
-    ),
-  );
-
-  // Wait for web fonts (Khmer font) so glyphs are not missing on first print.
-  try {
-    const fonts = (docu as Document & { fonts?: FontFaceSet }).fonts;
-    if (fonts && fonts.status !== "loaded") {
-      await Promise.race([
-        fonts.ready,
-        new Promise((resolve) => setTimeout(resolve, 3000)),
-      ]);
-    }
-  } catch {
-    // ignore — printing without waiting is still better than hanging
-  }
+  await waitForStylesheets(docu);
+  await Promise.all([waitForImages(docu), waitForFonts(docu)]);
 
   let done = false;
   const finish = () => {
@@ -94,7 +127,6 @@ export async function printLoadedIframe(
         win.print();
       } catch (e) {
         clearTimeout(fallback);
-
         console.error("[print-frame] window.print() failed", e);
         finish();
       }

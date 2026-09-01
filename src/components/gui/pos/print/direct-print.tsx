@@ -8,8 +8,8 @@ import { Printer } from "lucide-react";
 import { TemplateFunbeerking } from "./template-funbeerking";
 import {
   buildPrintDocument,
-  loadPrintingCss,
   printLoadedIframe,
+  warmPrintingCss,
 } from "@/lib/print-frame";
 
 interface DirectPrintProps {
@@ -30,22 +30,15 @@ export function DirectPrint({
   const ref = useRef<HTMLDivElement>(null);
   const printFrameRef = useRef<HTMLIFrameElement>(null);
   const [doc, setDoc] = useState("");
-  const [css, setCss] = useState<string | null>(null);
   const printQueueRef = useRef<string[]>([]);
+  const startedRef = useRef(false);
   const completeRef = useRef(onPrintComplete);
   completeRef.current = onPrintComplete;
   const advanceLockRef = useRef(false);
   const { data, error, isLoading, isValidating } = useQueryOrder(orderId);
 
-  // Load the print stylesheet once so it can be inlined (no async <link> race).
   useEffect(() => {
-    let alive = true;
-    loadPrintingCss().then((text) => {
-      if (alive) setCss(text);
-    });
-    return () => {
-      alive = false;
-    };
+    warmPrintingCss();
   }, []);
 
   // Move to the next receipt in the queue, or finish.
@@ -69,13 +62,12 @@ export function DirectPrint({
 
   useEffect(() => {
     if (!autoprint) return;
-    if (!ref.current) return;
-    if (css === null) return; // wait until CSS is ready to inline
+    if (startedRef.current) return; // build the print queue only once
     if (isLoading || isValidating) return;
 
     // The order failed to load — don't hang forever on "Preparing print...".
     if (error || !data?.result) {
-
+      startedRef.current = true;
       console.warn("[DirectPrint] order not available, skipping print", {
         orderId,
         error,
@@ -84,28 +76,32 @@ export function DirectPrint({
       return;
     }
 
+    if (!ref.current) return;
     const receiptElements =
       ref.current.querySelectorAll<HTMLElement>("[data-receipt]");
     const jobs: string[] = [];
     receiptElements.forEach((el) => {
-      jobs.push(buildPrintDocument(el.outerHTML, css));
+      if (el.innerHTML.trim()) jobs.push(buildPrintDocument(el.outerHTML));
     });
 
     if (jobs.length === 0) {
-
-      console.warn("[DirectPrint] no receipt content rendered", { orderId });
+      startedRef.current = true;
+      console.warn("[DirectPrint] no receipt content rendered", {
+        orderId,
+        type,
+      });
       completeRef.current();
       return;
     }
 
+    startedRef.current = true;
     printQueueRef.current = jobs;
     setDoc(jobs[0]);
-
-  }, [data, error, autoprint, css, isLoading, isValidating, orderId]);
+  }, [data, error, autoprint, isLoading, isValidating, orderId, type]);
 
   // Fire the browser print dialog from the parent once the iframe has loaded.
   // Driving it here (instead of an inline <script> inside srcDoc) keeps it working
-  // under a strict Content-Security-Policy and lets us wait for images/fonts.
+  // under a strict Content-Security-Policy and lets us wait for styles/images/fonts.
   const handleFrameLoad = useCallback(() => {
     if (!doc) return; // ignore the initial empty srcDoc load
     const frame = printFrameRef.current;
@@ -116,22 +112,23 @@ export function DirectPrint({
     void printLoadedIframe(frame, advanceQueue);
   }, [doc, advanceQueue]);
 
-  if (autoprint && (isLoading || isValidating || css === null)) {
-    return (
-      <div className="fixed top-0 bottom-0 left-0 right-0 bg-gray-500/80 text-white flex items-center justify-center z-50">
-        <div className="flex flex-col items-center justify-center animate-bounce">
-          <Printer className="h-8 w-8 mb-4" />
-          <span className="text-lg">Preparing print...</span>
-        </div>
-      </div>
-    );
-  }
-
   const order = data?.result;
+  const showSpinner =
+    autoprint && (isLoading || isValidating) && !doc && !startedRef.current;
 
   return (
     <>
-      {/* Off-screen source used to serialise the receipt markup. */}
+      {showSpinner && (
+        <div className="fixed top-0 bottom-0 left-0 right-0 bg-gray-500/80 text-white flex items-center justify-center z-50">
+          <div className="flex flex-col items-center justify-center animate-bounce">
+            <Printer className="h-8 w-8 mb-4" />
+            <span className="text-lg">Preparing print...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Off-screen source used to serialise the receipt markup. Always mounted so
+          the ref is populated as soon as the order data arrives. */}
       <div
         ref={ref}
         style={{ position: "absolute", left: "-9999px", top: "-9999px" }}
@@ -159,6 +156,7 @@ export function DirectPrint({
           );
         })}
       </div>
+
       {/* Kept rendered (1x1) and outside any visibility:hidden wrapper so Chrome
           allows window.print() from it. */}
       <iframe

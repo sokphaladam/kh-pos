@@ -8,8 +8,8 @@ import { Formatter } from "@/lib/formatter";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
 import {
   buildPrintDocument,
-  loadPrintingCss,
   printLoadedIframe,
+  warmPrintingCss,
 } from "@/lib/print-frame";
 
 interface Props {
@@ -58,22 +58,16 @@ export function ShiftDireactPrint({
   const { user } = useAuthentication();
   const { currencyCode, formatForDisplay } = useCurrencyFormat();
   const [doc, setDoc] = useState("");
-  const [css, setCss] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const printFrameRef = useRef<HTMLIFrameElement>(null);
   const completeRef = useRef(onPrintComplete);
   completeRef.current = onPrintComplete;
+  const startedRef = useRef(false);
 
   const { data, isLoading } = useQueryShift(user?.id, 1, 0, shiftId);
 
   useEffect(() => {
-    let alive = true;
-    loadPrintingCss().then((text) => {
-      if (alive) setCss(text);
-    });
-    return () => {
-      alive = false;
-    };
+    warmPrintingCss();
   }, []);
 
   const shift = data
@@ -84,9 +78,9 @@ export function ShiftDireactPrint({
 
   useEffect(() => {
     if (!autoprint) return;
-    if (css === null || isLoading || !data) return;
+    if (startedRef.current || isLoading || !data) return;
     if (!receipt || !method) {
-
+      startedRef.current = true;
       console.warn("[ShiftDireactPrint] shift receipt not available", {
         shiftId,
       });
@@ -94,9 +88,10 @@ export function ShiftDireactPrint({
       return;
     }
     if (!ref.current) return;
-    setDoc(buildPrintDocument(ref.current.innerHTML, css));
+    startedRef.current = true;
+    setDoc(buildPrintDocument(ref.current.innerHTML));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoprint, css, data, isLoading, shiftId]);
+  }, [autoprint, data, isLoading, shiftId]);
 
   const handleFrameLoad = useCallback(() => {
     if (!doc) return;
@@ -108,7 +103,7 @@ export function ShiftDireactPrint({
     void printLoadedIframe(frame, () => completeRef.current());
   }, [doc]);
 
-  if (isLoading || css === null) return <div>Loading...</div>;
+  if (isLoading && !doc) return <div>Loading...</div>;
 
   if (!receipt || !method) return null;
   const bank = Object.keys(method)
