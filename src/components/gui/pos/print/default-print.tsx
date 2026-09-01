@@ -10,9 +10,27 @@ import { useAuthentication } from "contexts/authentication-context";
 import moment from "moment-timezone";
 import React from "react";
 
+// Lets a caller outside the authenticated app (e.g. the public invoice QR page)
+// feed the shop context that would normally come from `useAuthentication()`.
+export type DefaultPrintAuthOverride = {
+  user?: { fullname?: string } | null;
+  setting?: {
+    isLoading?: boolean;
+    isValidating?: boolean;
+    data?: {
+      result?: { option: string | null; value: string | null }[];
+    };
+  };
+  currency?: string;
+  currentWarehouse?: { address?: string | null } | null;
+  formatForDisplay?: (amount: number | string) => string;
+};
+
 export function DefaultPrint({
   order: orderInput,
   defaultInvoice,
+  authOverride,
+  hidePaymentMethod,
 }: {
   order?: {
     orderInfo: Order;
@@ -20,6 +38,8 @@ export function DefaultPrint({
     payments: Payment[];
   };
   defaultInvoice?: string;
+  authOverride?: DefaultPrintAuthOverride;
+  hidePaymentMethod?: boolean;
 }) {
   // Normalise so a missing/partial payload never crashes the receipt render
   // (a thrown render here would print a blank page).
@@ -28,8 +48,15 @@ export function DefaultPrint({
     orderDetail: orderInput?.orderDetail ?? [],
     payments: orderInput?.payments ?? [],
   };
-  const { user, setting, currency, currentWarehouse } = useAuthentication();
-  const { formatForDisplay } = useCurrencyFormat();
+  const auth = useAuthentication();
+  const currencyFormat = useCurrencyFormat();
+  const user = (authOverride?.user ?? auth.user) as typeof auth.user;
+  const setting = (authOverride?.setting ?? auth.setting) as typeof auth.setting;
+  const currency = authOverride?.currency ?? auth.currency;
+  const currentWarehouse = (authOverride?.currentWarehouse ??
+    auth.currentWarehouse) as typeof auth.currentWarehouse;
+  const formatForDisplay =
+    authOverride?.formatForDisplay ?? currencyFormat.formatForDisplay;
   const exchangeRate = Number(
     !setting?.isLoading && setting?.data?.result
       ? setting.data?.result?.find((f) => f.option === "EXCHANGE_RATE")?.value
@@ -700,20 +727,22 @@ export function DefaultPrint({
           >
             Thanks, Please come again!
           </div>
-          <div style={{ marginTop: 5 }}>
-            <div
-              style={{
-                fontWeight: "bold",
-                border: "dotted 1px #666",
-                textAlign: "center",
-                width: "100%",
-                fontSize: 12,
-              }}
-            >
-              Payment Method:{" "}
-              {order?.payments.map((x) => x.paymentMethod).join(", ")}
+          {!hidePaymentMethod && (
+            <div style={{ marginTop: 5 }}>
+              <div
+                style={{
+                  fontWeight: "bold",
+                  border: "dotted 1px #666",
+                  textAlign: "center",
+                  width: "100%",
+                  fontSize: 12,
+                }}
+              >
+                Payment Method:{" "}
+                {order?.payments.map((x) => x.paymentMethod).join(", ")}
+              </div>
             </div>
-          </div>
+          )}
           {(order?.orderInfo.printCount || 0) > 1 && (
             <div>
               <div

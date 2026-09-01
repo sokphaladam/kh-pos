@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { JSX, useMemo } from "react";
 import { transferTable } from "../transfer/transfer-table";
+import { invoiceQRCode } from "./invoice-qr-code";
 import { useRestaurant } from "../contexts/restaurant-context";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
 
@@ -223,6 +224,23 @@ export function TableFlowNode({ data, selected }: NodeProps) {
               onRefetch?.();
             }
           }
+        }
+      },
+    });
+
+    menuAction.push({
+      label: "Gen Invoice QR",
+      onClick: async () => {
+        const currentTable = state.activeTables.find(
+          (f) => f.tables?.id === tableData.id,
+        );
+        const orderId = currentTable?.orders?.orderId;
+        if (orderId) {
+          await invoiceQRCode.show({
+            orderId,
+            invoiceNo: currentTable?.orders?.invoiceNo,
+            tableName: tableData.table_name,
+          });
         }
       },
     });

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getNextAdminCookies } from "./lib/cookies/cookies-server";
 
 // Constants for frequently used paths
-const ALLOWED_PATHS = ["/login", "/storybook", "/menu"];
+const ALLOWED_PATHS = ["/login", "/storybook", "/menu", "/invoice"];
 const LOGIN_PATH = "/admin/login";
 const REGISTER_PATH = "/admin/register";
 const DASHBOARD_PATH = "/admin/dashboard";
