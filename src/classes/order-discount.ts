@@ -326,15 +326,18 @@ export async function applyDiscountToOrderItem(
     knex,
   );
 
-  // sort manual discount first, and the auto order-level slice last (it is a
-  // stored absolute amount that sits on top of every per-line discount).
+  // Apply order: auto/product discounts first (variant menu discount, applied
+  // promotions), then the manual cart discount on top of the already-reduced
+  // price, then the auto order-level slice last. This keeps a manual "% off"
+  // stacking on the discounted price and matches the client cart math
+  // (RestaurantaAction.calculateItemTotals).
   existingDiscounts.sort((a, b) => {
     const rank = (d: table_discount_log) =>
       d.discount_id === ORDER_LEVEL_DISCOUNT_ID
         ? 2
         : d.is_manual_discount === 1
-          ? 0
-          : 1;
+          ? 1
+          : 0;
     return rank(a) - rank(b);
   });
 

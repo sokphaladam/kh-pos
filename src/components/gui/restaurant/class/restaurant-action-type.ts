@@ -39,6 +39,12 @@ export type RestaurantAction =
           modifiers?: ProductModifierType[];
         };
         id?: string;
+        /**
+         * Force a new order line even when an identical one exists — set when
+         * the variant menu-discount cap is reached so the overflow unit shows at
+         * full price (see RestaurantaAction.resolveAddTarget).
+         */
+        forceNewLine?: boolean;
       };
     }
   | {

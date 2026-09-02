@@ -4,6 +4,7 @@ import { createSheet } from "@/components/create-sheet";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -48,6 +49,7 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
     const [transferItems, setTransferItems] = useState<TransferItem[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [transferDiscountOpt, setTransferDiscountOpt] = useState(true);
     const { trigger: triggerTransferOrder, isMutating: isTransferring } =
       useTransferOrderTable();
 
@@ -169,6 +171,7 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
               .filter((f) => f.quantity > 0),
           })),
           destinationTableId: selectedTable.id,
+          transferDiscount: transferDiscountOpt,
         };
 
         triggerTransferOrder(transferData).then((res) => {
@@ -412,6 +415,23 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
               </CardContent>
             </Card>
           )}
+
+          {/* Discount handling */}
+          <label className="flex items-start gap-2 rounded-lg border p-3 cursor-pointer">
+            <Checkbox
+              checked={transferDiscountOpt}
+              onCheckedChange={(v) => setTransferDiscountOpt(v === true)}
+              className="mt-0.5"
+            />
+            <span className="text-xs">
+              <span className="font-medium">Transfer discounts</span>
+              <span className="block text-muted-foreground">
+                Carry each moved item&apos;s current discount to the destination
+                as a fixed amount. Uncheck to move the items at full price. The
+                destination table keeps its own discounts either way.
+              </span>
+            </span>
+          </label>
         </div>
 
         <SheetFooter className="flex flex-col sm:flex-row gap-2 pt-3 border-t">

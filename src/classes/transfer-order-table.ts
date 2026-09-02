@@ -5,23 +5,44 @@ import {
   table_order_item_status,
   table_restaurant_tables,
 } from "@/generated/tables";
+import { Formatter } from "@/lib/formatter";
 import { generateId } from "@/lib/generate-id";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
+import { table_discount_log } from "@/generated/tables";
 import { Knex } from "knex";
 import { InvoiceNumberService } from "./invoice-number";
-import { OrderService } from "./order";
+import {
+  getOrderDetail,
+  OrderService,
+  recalculateCustomerOrder,
+} from "./order";
 import {
   getDiscountLogByOrderDetailId,
-  OrderDiscountService,
+  ORDER_LEVEL_DISCOUNT_ID,
 } from "./order-discount";
 import { getAppliedModifiers, OrderModifierService } from "./order-modifier";
 import { OrderStatusService } from "./order-status";
+
+/**
+ * `discount_log.discount_id` for a discount frozen by a table transfer. It is a
+ * plain stored AMOUNT — `applyDiscountToOrderItem` adds it verbatim and the
+ * order-level `maxQtyPerLine` pass never recomputes or caps it, so a merged
+ * line keeps exactly the discount it and the incoming units brought with them
+ * instead of being re-rationed against the destination order's other lines.
+ */
+const TRANSFER_DISCOUNT_ID = "transfer";
 
 export interface TransferProp {
   sourceTableId: string;
   orderId: string;
   orderItems: OrderItem[];
   destinationTableId: string;
+  /**
+   * Carry each moved line's current discount amount onto the destination as a
+   * frozen amount. Defaults to `true`; set `false` to move the items at full
+   * price. Discounts already on the destination's own lines are kept either way.
+   */
+  transferDiscount?: boolean;
 }
 
 interface OrderItem {
@@ -45,6 +66,7 @@ export class TransferOrderTableService {
     return await this.tx.transaction(async (trx) => {
       const { sourceTableId, orderId, orderItems, destinationTableId } =
         orderInfo;
+      const transferDiscount = orderInfo.transferDiscount ?? true;
 
       const order = await getOrder(orderId, trx);
       if (!order) throw new Error("Order not found");
@@ -75,6 +97,8 @@ export class TransferOrderTableService {
             sourceTableId,
             destinationTableId,
             trx,
+            this.user,
+            transferDiscount,
           );
         } else {
           // split: transfer partial items from one table to another empty table
@@ -96,6 +120,7 @@ export class TransferOrderTableService {
             destinationTableId,
             trx,
             this.user,
+            transferDiscount,
           );
         }
       } else if (tableInfo.status === "order_taken") {
@@ -128,10 +153,116 @@ export class TransferOrderTableService {
           sourceTableId,
           trx,
           this.user,
+          transferDiscount,
         );
       }
     });
   }
+}
+
+/**
+ * A line's item-level discount total (everything except the auto order-level
+ * slice, which the destination order recomputes for itself).
+ */
+async function getItemDiscountTotal(
+  orderDetailId: string,
+  trx: Knex,
+): Promise<number> {
+  const rows = await getDiscountLogByOrderDetailId(orderDetailId, trx);
+  return rows
+    .filter((d) => d.discount_id !== ORDER_LEVEL_DISCOUNT_ID)
+    .reduce((sum, d) => sum + Number(d.discount_amount || 0), 0);
+}
+
+/**
+ * Replace every discount on a destination line with a single frozen "transfer"
+ * discount of `amount`. `amount <= 0` just clears the line's discounts (used
+ * when the items move at full price). Call this before the line's final
+ * recalculation so the stored amount is what sticks.
+ */
+async function setTransferDiscount(
+  orderDetailId: string,
+  amount: number,
+  user: UserInfo,
+  trx: Knex,
+): Promise<void> {
+  await trx<table_discount_log>("discount_log")
+    .where("order_detail_id", orderDetailId)
+    .delete();
+
+  const frozen = Math.round(amount * 100) / 100;
+  if (frozen <= 0) return;
+
+  await trx<table_discount_log>("discount_log").insert({
+    id: generateId(),
+    order_detail_id: orderDetailId,
+    discount_id: TRANSFER_DISCOUNT_ID,
+    discount_title: "Transferred discount",
+    discount_type: "AMOUNT",
+    value: String(frozen),
+    discount_amount: String(frozen),
+    is_manual_discount: 0,
+    created_at: Formatter.getNowDateTime(),
+    created_by: user.id,
+  });
+}
+
+/** Recalculate a whole order's totals via any one of its lines. */
+async function recalcOrder(orderId: string, trx: Knex): Promise<void> {
+  const line = await trx<table_customer_order_detail>("customer_order_detail")
+    .where("order_id", orderId)
+    .first();
+  if (!line) return;
+  const detail = await getOrderDetail(line.order_detail_id, trx);
+  if (detail) await recalculateCustomerOrder(detail, trx);
+}
+
+/** A line's discount total and quantity, captured before a transfer runs. */
+interface LineSnapshot {
+  discount: number;
+  qty: number;
+}
+
+async function snapshotOrderLines(
+  orderId: string,
+  trx: Knex,
+): Promise<Map<string, LineSnapshot>> {
+  const snap = new Map<string, LineSnapshot>();
+  const lines = await trx<table_customer_order_detail>("customer_order_detail")
+    .where("order_id", orderId);
+  for (const line of lines) {
+    snap.set(line.order_detail_id, {
+      discount: await getItemDiscountTotal(line.order_detail_id, trx),
+      qty: Number(line.qty || 0),
+    });
+  }
+  return snap;
+}
+
+/**
+ * Freeze the lines still on a source order after a (partial) transfer: each
+ * keeps its pre-transfer discount scaled down to the quantity it has left, so
+ * removing units doesn't free budget that the order-level maxQty pass would then
+ * hand to the source table's other lines.
+ */
+async function freezeSourceLeftovers(
+  orderId: string,
+  snapshot: Map<string, LineSnapshot>,
+  user: UserInfo,
+  trx: Knex,
+): Promise<void> {
+  const lines = await trx<table_customer_order_detail>("customer_order_detail")
+    .where("order_id", orderId);
+  if (lines.length === 0) return;
+  for (const line of lines) {
+    const before = snapshot.get(line.order_detail_id);
+    const frozen =
+      before && before.qty > 0
+        ? (before.discount * Number(line.qty || 0)) / before.qty
+        : 0;
+    await setTransferDiscount(line.order_detail_id, frozen, user, trx);
+  }
+  await recalcOrder(orderId, trx);
 }
 
 async function splitTable(
@@ -145,10 +276,15 @@ async function splitTable(
   destinationTableId: string,
   tx: Knex,
   user: UserInfo,
+  transferDiscount: boolean,
 ): Promise<string> {
   return await tx.transaction(async (trx) => {
     const orderService = new OrderService(trx);
     const orderStatusService = new OrderStatusService(trx, user);
+
+    // Snapshot the source order's lines before any reduction re-rations them.
+    const sourceBefore = await snapshotOrderLines(order.order_id, trx);
+
     /* Create new order */
     // find invoice number
     const invoiceNumber = await new InvoiceNumberService(
@@ -170,6 +306,30 @@ async function splitTable(
         (i) => i.orderItemId === itemToTransfer.orderItemId,
       );
       if (!originalItem) continue;
+
+      // Modifiers must be read before the source line is (possibly) deleted.
+      const sourceModifiers = await getAppliedModifiers(
+        originalItem.orderItemId,
+        trx,
+      );
+
+      // How much of the source line is moving (this is a partial split), and its
+      // share of the source line's discount — from the up-front snapshot so an
+      // earlier iteration's recalc can't skew it.
+      const movedQty = itemToTransfer.orderItemStatuses.reduce(
+        (acc, s) => acc + s.quantity,
+        0,
+      );
+      const sourceItemDiscount =
+        sourceBefore.get(originalItem.orderItemId)?.discount ?? 0;
+      const sourceQty = Math.max(
+        movedQty,
+        sourceBefore.get(originalItem.orderItemId)?.qty ?? 0,
+        1,
+      );
+      const movedDiscount = transferDiscount
+        ? (sourceItemDiscount * movedQty) / sourceQty
+        : 0;
 
       for (const status of itemToTransfer.orderItemStatuses) {
         const originalStatus = originalItem.orderItemStatuses.find(
@@ -202,42 +362,15 @@ async function splitTable(
         "TRANSFER",
       );
 
-      // apply discount if any
-      if (Number(originalItem.discount_amount || 0) > 0) {
-        const discounts = await getDiscountLogByOrderDetailId(
-          originalItem.orderItemId,
-          trx,
-        );
-        const discountService = new OrderDiscountService(trx);
-        for (const discount of discounts) {
-          if (discount.is_manual_discount) {
-            await discountService.updateManualDiscount([
-              {
-                orderId: newOrder.order.order_id,
-                itemId: newItemId,
-                discountType: discount.discount_type,
-                amount: Number(discount.value || 0),
-                user,
-              },
-            ]);
-          } else {
-            await discountService.addPromotion({
-              orderId: newOrder.order.order_id,
-              itemId: newItemId,
-              discountId: discount.discount_id || "",
-              user,
-            });
-          }
-        }
-      }
-      // apply modifier if any
-      const modifiers = await getAppliedModifiers(
-        originalItem.orderItemId,
-        trx,
-      );
+      // Freeze the moved portion of the source discount onto the new line so the
+      // destination order's discount rules can't re-ration or cap it. Runs after
+      // addOrderItem (which may auto-add a "variant" row) and is superseded by
+      // the final status recalculation.
+      await setTransferDiscount(newItemId, movedDiscount, user, trx);
 
+      // apply modifier if any
       const modifierService = new OrderModifierService(trx, user);
-      for (const modifier of modifiers) {
+      for (const modifier of sourceModifiers) {
         await modifierService.addOrderModifier({
           orderDetailId: newItemId,
           modifierItemId: modifier.modifier_item_id || "notes",
@@ -255,6 +388,11 @@ async function splitTable(
         });
       }
     }
+
+    // Freeze what stayed on the source table so its remaining lines don't absorb
+    // the discount budget the moved units freed up.
+    await freezeSourceLeftovers(order.order_id, sourceBefore, user, trx);
+
     return newOrder.order.order_id;
   });
 }
@@ -271,19 +409,40 @@ async function mergeTable(
   sourceTableId: string,
   tx: Knex,
   user: UserInfo,
+  transferDiscount: boolean,
 ): Promise<string> {
   return await tx.transaction(async (trx) => {
     const orderService = new OrderService(trx);
     const orderStatusService = new OrderStatusService(trx, user);
 
+    // Snapshot both orders' line discounts up front: the per-item recalculations
+    // below rebuild every line, so a later read would already be re-rationed.
+    const destBefore = await snapshotOrderLines(destinationOrder.order_id!, trx);
+    const sourceBefore = await snapshotOrderLines(sourceOrder.order_id!, trx);
+
+    // Frozen discount to add onto each destination line (its own discount is
+    // kept from destBefore; this is the portion carried in from the source).
+    const movedIntoLine = new Map<string, number>();
+
     // Process each item that needs to be transferred
     for (const itemToTransfer of itemsToTransfer) {
-      let originalModifier: table_order_detail_modifier[] = [];
       // Find the corresponding original item with full details
       const originalItem = originalItems.find(
         (i) => i.orderItemId === itemToTransfer.orderItemId,
       );
       if (!originalItem) continue;
+
+      // Use the up-front snapshot for the source line's discount and quantity —
+      // an earlier iteration's source recalc may already have re-rationed it.
+      const sourceItemDiscount =
+        sourceBefore.get(originalItem.orderItemId)?.discount ?? 0;
+      const sourceQty = Math.max(
+        1,
+        sourceBefore.get(originalItem.orderItemId)?.qty ?? 0,
+      );
+      // Modifiers must be read before the source line is (possibly) deleted.
+      const originalModifier: table_order_detail_modifier[] =
+        await getAppliedModifiers(originalItem.orderItemId, trx);
 
       // Update source order quantities by reducing the transferred amounts
       for (const status of itemToTransfer.orderItemStatuses) {
@@ -310,7 +469,13 @@ async function mergeTable(
         0,
       );
 
-      // Check if the same product variant already exists in destination order
+      // Discount carried by the moved units (per-unit share of the source line).
+      const movedDiscount = transferDiscount
+        ? (sourceItemDiscount * totalTransferQty) / sourceQty
+        : 0;
+      const movedUnitsAreDiscounted = movedDiscount > 0;
+
+      // Destination lines that already hold this variant.
       const existingItemInDestination = await tx
         .table<table_customer_order_detail>("customer_order_detail")
         .where({
@@ -318,69 +483,47 @@ async function mergeTable(
           variant_id: itemToTransfer.variantId,
         });
 
-      let newItemId;
-      let orderStatus = itemToTransfer.orderItemStatuses;
-      let isSameModifier = false;
-
-      // Handle case where the same product variant exists in destination
-      if (existingItemInDestination.length > 0) {
-        for (const destItems of existingItemInDestination) {
-          // Get modifiers for both source and destination items to compare
-          const orderModifier: table_order_detail_modifier[] = await tx
+      // Pick the line to merge into: same modifiers AND the same discount state
+      // as the incoming units — a discounted unit joins a discounted line, a
+      // full-price unit joins a full-price line — so a line never ends up mixing
+      // discounted and full-price units. If nothing matches, start a new line.
+      let mergeInto: table_customer_order_detail | undefined;
+      for (const destItems of existingItemInDestination) {
+        const destModifier: table_order_detail_modifier[] = (
+          await tx
             .table<table_order_detail_modifier>("order_detail_modifier")
-            .whereIn("order_detail_id", [
-              destItems.order_detail_id,
-              originalItem.orderItemId,
-            ]);
-
-          // Separate and sort modifiers for comparison
-          originalModifier = orderModifier
-            .filter((mod) => mod.order_detail_id === originalItem.orderItemId)
-            .sort();
-          const existingModifier = orderModifier
-            .filter((mod) => mod.order_detail_id === destItems.order_detail_id)
-            .sort();
-
-          // Check if both items have identical modifiers
-          isSameModifier = isOrderItemModifierSame(
-            originalModifier,
-            existingModifier,
-          );
-
-          if (!isSameModifier) {
-            // Different modifiers: create new separate item in destination
-            newItemId = generateId();
-            await orderService.addOrderItem(
-              destinationOrder.order_id!,
-              {
-                id: newItemId,
-                variantId: itemToTransfer.variantId,
-                qty: totalTransferQty,
-                price: originalItem.price || "",
-              },
-              user,
-            );
-          } else {
-            // Same modifiers: merge with existing item by adding quantities
-            newItemId = destItems.order_detail_id;
-            const existingStatus = await tx.table("order_item_status").where({
-              order_item_id: destItems.order_detail_id,
-            });
-
-            // Combine existing quantities with transferred quantities
-            orderStatus = itemToTransfer.orderItemStatuses.map((s) => {
-              const qty = Number(
-                existingStatus.find((f) => f.status === s.status)?.qty ?? 0,
-              );
-              return {
-                ...s,
-                quantity: qty + s.quantity, // Add transferred qty to existing qty
-              };
-            });
-          }
+            .where("order_detail_id", destItems.order_detail_id)
+        ).sort();
+        if (
+          !isOrderItemModifierSame([...originalModifier].sort(), destModifier)
+        ) {
+          continue;
         }
+        const lineIsDiscounted =
+          (destBefore.get(destItems.order_detail_id)?.discount ?? 0) > 0;
+        if (lineIsDiscounted === movedUnitsAreDiscounted) {
+          mergeInto = destItems;
+          break;
+        }
+      }
+
+      let newItemId: string;
+      let orderStatus = itemToTransfer.orderItemStatuses;
+
+      if (mergeInto) {
+        // Add the transferred quantities on top of the matched line.
+        newItemId = mergeInto.order_detail_id;
+        const existingStatus = await tx
+          .table<table_order_item_status>("order_item_status")
+          .where({ order_item_id: newItemId });
+        orderStatus = itemToTransfer.orderItemStatuses.map((s) => {
+          const qty = Number(
+            existingStatus.find((f) => f.status === s.status)?.qty ?? 0,
+          );
+          return { ...s, quantity: qty + s.quantity };
+        });
       } else {
-        // No existing variant in destination: create new item
+        // Start a new destination line and carry the source modifiers onto it.
         newItemId = generateId();
         await orderService.addOrderItem(
           destinationOrder.order_id!,
@@ -393,53 +536,27 @@ async function mergeTable(
           user,
           "TRANSFER",
         );
-      }
-
-      // Transfer any discounts from the original item to the destination item
-      if (Number(originalItem.discount_amount || 0) > 0) {
-        const discounts = getDiscountLogByOrderDetailId(
-          originalItem.orderItemId,
-          trx,
-        );
-        const discountService = new OrderDiscountService(trx);
-        for (const discount of await discounts) {
-          if (discount.is_manual_discount) {
-            // Apply manual discount to destination item
-            await discountService.updateManualDiscount([
-              {
-                orderId: destinationOrder.order_id!,
-                itemId: newItemId,
-                discountType: discount.discount_type,
-                amount: Number(discount.value || 0),
-                user,
-              },
-            ]);
-          } else {
-            // Apply promotional discount to destination item
-            await discountService.addPromotion({
-              orderId: destinationOrder.order_id!,
-              itemId: newItemId,
-              discountId: discount.discount_id || "",
-              user,
+        if (originalModifier.length > 0) {
+          const modifierService = new OrderModifierService(trx, user);
+          for (const modifier of originalModifier) {
+            await modifierService.addOrderModifier({
+              orderDetailId: newItemId,
+              modifierItemId: modifier.modifier_item_id || "notes",
+              price: Number(modifier.price || 0),
+              notes: modifier.notes ?? undefined,
             });
           }
         }
       }
 
-      // Transfer any modifiers from the original item to the destination item
-      if (originalModifier?.length > 0 && isSameModifier === false) {
-        const modifierService = new OrderModifierService(trx, user);
-        for (const modifier of originalModifier) {
-          await modifierService.addOrderModifier({
-            orderDetailId: newItemId,
-            modifierItemId: modifier.modifier_item_id || "notes",
-            price: Number(modifier.price || 0),
-            notes: modifier.notes ?? undefined,
-          });
-        }
-      }
+      // Remember the carried-in discount for this line; frozen in one pass once
+      // every item is placed.
+      movedIntoLine.set(
+        newItemId,
+        (movedIntoLine.get(newItemId) ?? 0) + movedDiscount,
+      );
 
-      // Update the order item status for the destination item with final quantities
+      // Set the destination line's final quantities.
       for (const status of orderStatus) {
         await orderStatusService.forceUpdateOrderItemStatusQty({
           orderItemId: newItemId,
@@ -449,13 +566,27 @@ async function mergeTable(
       }
     }
 
+    // Freeze EVERY destination line's discount (its own pre-merge amount plus
+    // whatever moved in), then recalc once. This is what stops the destination
+    // order's maxQty pass from re-rationing discounts across lines after a merge
+    // — nothing that was discounted loses it, nothing full-price gains it.
+    const destLinesNow = await trx<table_customer_order_detail>(
+      "customer_order_detail",
+    ).where("order_id", destinationOrder.order_id!);
+    for (const line of destLinesNow) {
+      const frozen =
+        (destBefore.get(line.order_detail_id)?.discount ?? 0) +
+        (movedIntoLine.get(line.order_detail_id) ?? 0);
+      await setTransferDiscount(line.order_detail_id, frozen, user, trx);
+    }
+    await recalcOrder(destinationOrder.order_id!, trx);
+
     // Check if the source order has any remaining items after the transfer
     const remainingItems = await getOrderItems(sourceOrder.order_id!, trx);
     const hasRemainingItems = remainingItems?.some((item) =>
       item.status.some((status) => (status.qty || 0) > 0),
     );
 
-    // Clean up source if completely empty after transfer
     if (!hasRemainingItems) {
       // Delete the source order since all items have been transferred
       await orderService.delete(sourceOrder.order_id!);
@@ -464,6 +595,10 @@ async function mergeTable(
       await trx<table_restaurant_tables>("restaurant_tables")
         .where("id", sourceTableId)
         .update({ status: "cleaning" });
+    } else {
+      // Partial merge: freeze what stayed behind so the source table's other
+      // lines don't absorb the budget the moved units freed up.
+      await freezeSourceLeftovers(sourceOrder.order_id!, sourceBefore, user, trx);
     }
 
     return destinationOrder.order_id!;
@@ -488,6 +623,8 @@ async function transferTable(
   fromTableId: string,
   toTableId: string,
   tx: Knex,
+  user: UserInfo,
+  transferDiscount: boolean,
 ) {
   return await tx.transaction(async (trx) => {
     await trx<table_customer_order>("customer_order")
@@ -501,6 +638,26 @@ async function transferTable(
     await trx<table_restaurant_tables>("restaurant_tables")
       .where("id", fromTableId)
       .update({ status: "cleaning" });
+
+    // Whole-order move keeps every line and quantity, so discounts ride along
+    // unchanged. Only act when the user opted out: clear each line's discount.
+    if (!transferDiscount) {
+      const lines = await trx<table_customer_order_detail>(
+        "customer_order_detail",
+      ).where("order_id", orderId);
+      for (const line of lines) {
+        await setTransferDiscount(line.order_detail_id, 0, user, trx);
+      }
+      const first = lines[0];
+      if (first) {
+        const detail = await trx<table_customer_order_detail>(
+          "customer_order_detail",
+        )
+          .where("order_detail_id", first.order_detail_id)
+          .first();
+        if (detail) await recalculateCustomerOrder(detail, trx);
+      }
+    }
     return orderId;
   });
 }

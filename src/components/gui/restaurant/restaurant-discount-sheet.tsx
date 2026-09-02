@@ -1,6 +1,7 @@
 import { useUpdatePromotion } from "@/app/hooks/use-query-promotion";
 import { createDialog } from "@/components/create-dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DialogFooter,
   DialogHeader,
@@ -9,6 +10,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { MaterialInput } from "@/components/ui/material-input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { CustomerOrderDiscount } from "@/dataloader/discount-by-order-items-loader";
 import { useToast } from "@/hooks/use-toast";
 import { Percent, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -35,6 +37,8 @@ export const restaurantDiscountSheet = createDialog<
       useState<DiscountType>("PERCENTAGE");
     const [discountValue, setDiscountValue] = useState<string>("");
     const [loading, setLoading] = useState(true);
+    // Order lines the cart discount should NOT touch (unchecked by the user).
+    const [excluded, setExcluded] = useState<Set<string>>(new Set());
     const { setDiscount } = useRestaurantActions();
     const { formatForDisplay, getSymbol } = useCurrencyFormat();
 
@@ -77,82 +81,94 @@ export const restaurantDiscountSheet = createDialog<
       }
     }, [loading, table?.orders?.items]);
 
-    // Calculate totals from order items
-    const orderTotals = useMemo(() => {
-      if (!table?.orders?.items) {
-        return { subtotal: 0, items: [] };
-      }
-
-      const items = table.orders.items.map((item) => {
-        const itemSubtotal = Number(item.price) * Number(item.qty);
+    // Per-line figures. `netBase` is the price the cart discount stacks on:
+    // gross minus whatever non-manual discount (variant menu discount, applied
+    // promotions) the line already carries.
+    const lines = useMemo(() => {
+      return (table?.orders?.items ?? []).map((item) => {
+        const gross = Number(item.price || 0) * Number(item.qty || 0);
+        const existingNonManual = (item.discounts ?? [])
+          .filter((d) => !d.isManualDiscount)
+          .reduce((s, d) => s + Number(d.amount || 0), 0);
         return {
           orderDetailId: item.orderDetailId,
-          subtotal: itemSubtotal,
-          qty: item.qty,
-          price: Number(item.price),
+          title: item.title || "Item",
+          qty: Number(item.qty || 0),
+          gross,
+          existingNonManual,
+          netBase: Math.max(0, gross - existingNonManual),
+          hasManual: (item.discounts ?? []).some((d) => d.isManualDiscount),
         };
       });
-
-      const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
-
-      return { subtotal, items };
     }, [table?.orders?.items]);
 
-    // Calculate discount preview
-    const discountPreview = useMemo(() => {
-      const value = parseFloat(discountValue) || 0;
+    const includedLines = useMemo(
+      () => lines.filter((l) => !excluded.has(l.orderDetailId)),
+      [lines, excluded],
+    );
+    const includedNetBase = includedLines.reduce((s, l) => s + l.netBase, 0);
+    const grossTotal = lines.reduce((s, l) => s + l.gross, 0);
+    const existingTotal = lines.reduce((s, l) => s + l.existingNonManual, 0);
 
-      if (value <= 0) {
-        return null;
-      }
-
-      const itemsWithDiscount = orderTotals.items.map((item) => {
-        let itemDiscount = 0;
-
-        if (discountType === "PERCENTAGE") {
-          // For percentage: apply % to each item
-          const subtotalCents = Math.round(item.subtotal * 100);
-          itemDiscount = Math.floor((subtotalCents * value) / 100) / 100;
-        } else {
-          // For amount: distribute proportionally
-          const proportion = item.subtotal / orderTotals.subtotal;
-          itemDiscount = value * proportion;
-        }
-
-        return {
-          ...item,
-          discountAmount: itemDiscount,
-          finalAmount: item.subtotal - itemDiscount,
-        };
+    const toggleExcluded = (id: string) =>
+      setExcluded((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
       });
 
-      const totalDiscount = itemsWithDiscount.reduce(
-        (sum, item) => sum + item.discountAmount,
-        0,
-      );
+    // Per-line manual discount for the entered value (stacks on `netBase`).
+    const perLineDiscount = (netBase: number, value: number): number => {
+      if (value <= 0) return 0;
+      const raw =
+        discountType === "PERCENTAGE"
+          ? Math.floor(netBase * value) / 100
+          : includedNetBase > 0
+            ? value * (netBase / includedNetBase)
+            : 0;
+      return Math.min(raw, netBase);
+    };
 
-      return {
-        items: itemsWithDiscount,
-        totalDiscount,
-        finalTotal: orderTotals.subtotal - totalDiscount,
-      };
-    }, [discountValue, discountType, orderTotals]);
-
-    const handleApplyDiscount = async () => {
+    const discountPreview = useMemo(() => {
       const value = parseFloat(discountValue) || 0;
+      if (value <= 0) return null;
 
-      // validation when value is less than or equal to zero
-      if (value <= 0) {
-        toast({
-          title: "Invalid Discount",
-          description: "Please enter a valid discount value",
-          variant: "destructive",
-        });
-        return;
-      }
+      const rows = includedLines.map((l) => {
+        const manual = perLineDiscount(l.netBase, value);
+        return { ...l, manual, finalAmount: l.netBase - manual };
+      });
+      const totalManual = rows.reduce((s, r) => s + r.manual, 0);
+      return {
+        rows,
+        totalManual,
+        finalTotal: grossTotal - existingTotal - totalManual,
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [discountValue, discountType, includedLines, includedNetBase]);
 
-      //  validation when no order found
-      if (!orderId || !table?.orders?.items) {
+    const buildManualEntry = (
+      orderDetailId: string,
+      value: number,
+      amount: number,
+    ): CustomerOrderDiscount => ({
+      id: "manual",
+      discountId: "manual",
+      orderDetailId,
+      name: "Manual Discount",
+      discountType,
+      value,
+      isManualDiscount: true,
+      amount,
+    });
+
+    const applyToItems = async (
+      makeRow: (line: (typeof lines)[number]) => {
+        amount: number;
+        discountType: DiscountType;
+      },
+    ) => {
+      if (!orderId || !table?.orders?.items || !table.tables) {
         toast({
           title: "Error",
           description: "No order found",
@@ -161,110 +177,40 @@ export const restaurantDiscountSheet = createDialog<
         return;
       }
 
-      // validation for amount type exceeding subtotal
-      if (discountType === "AMOUNT" && value > orderTotals.subtotal) {
-        toast({
-          title: "Invalid Amount",
-          description: "Discount amount cannot exceed the order total",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // validation for percentage type exceeding 100%
-      if (discountType === "PERCENTAGE" && value > 100) {
-        toast({
-          title: "Invalid Percentage",
-          description: "Discount percentage cannot exceed 100%",
-          variant: "destructive",
-        });
-        return;
-      }
+      const data = lines.map((l) => ({
+        itemId: l.orderDetailId,
+        ...makeRow(l),
+      }));
 
       try {
-        const data = table.orders.items.map((item) => {
-          let itemDiscountValue = value;
-
-          if (discountType === "AMOUNT") {
-            // Calculate proportional discount for this item
-            const itemSubtotal = Number(item.price) * Number(item.qty);
-            const proportion = itemSubtotal / orderTotals.subtotal;
-            itemDiscountValue = value * proportion;
-          }
-
-          return {
-            itemId: item.orderDetailId,
-            amount: itemDiscountValue,
-            discountType: discountType,
-          };
-        });
-
         const result = await triggerUpdatePromotion(data);
-
         if (result.success) {
-          for (const log of table.orders.items) {
-            let itemDiscountValue = value;
-            let itemDiscountAmount = 0;
-
-            // Calculate the actual discount amount based on type
-            const itemSubtotal = Number(log.price) * Number(log.qty);
-
-            if (discountType === "AMOUNT") {
-              // For AMOUNT: distribute proportionally
-              const proportion = itemSubtotal / orderTotals.subtotal;
-              itemDiscountValue = value * proportion;
-              itemDiscountAmount = itemDiscountValue;
-            } else {
-              // For PERCENTAGE: apply percentage to item subtotal
-              itemDiscountAmount = (itemSubtotal * value) / 100;
-            }
-
-            // Find if there's an existing manual discount
-            const hasManualDiscount = log.discounts?.some(
-              (x) => x.isManualDiscount,
+          for (const l of lines) {
+            const orig = table.orders!.items.find(
+              (i) => i.orderDetailId === l.orderDetailId,
             );
-
-            const discounts = hasManualDiscount
-              ? log.discounts?.map((x) => {
-                  if (!!x.isManualDiscount) {
-                    return {
-                      ...x,
-                      amount: itemDiscountAmount,
-                      discountType: discountType,
-                      value: itemDiscountValue,
-                    };
-                  }
-                  return x;
-                })
-              : [
-                  ...(log.discounts || []),
-                  {
-                    id: "manual",
-                    discountId: "manual",
-                    orderDetailId: log.orderDetailId,
-                    name: "Manual Discount",
-                    discountType: discountType,
-                    value: itemDiscountValue,
-                    isManualDiscount: true,
-                    amount: itemDiscountAmount,
-                  },
-                ];
-
-            if (table.tables) {
-              setDiscount(table.tables, log.orderDetailId, discounts || []);
+            const keep = (orig?.discounts ?? []).filter(
+              (d) => !d.isManualDiscount,
+            );
+            const row = data.find((d) => d.itemId === l.orderDetailId);
+            if (!row || row.amount <= 0) {
+              setDiscount(table.tables!, l.orderDetailId, keep);
+            } else {
+              setDiscount(table.tables!, l.orderDetailId, [
+                ...keep,
+                buildManualEntry(l.orderDetailId, row.amount, row.amount),
+              ]);
             }
           }
+          router.refresh();
+          close(true);
+        } else {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to update discount",
+            variant: "destructive",
+          });
         }
-
-        toast({
-          title: "Success",
-          description: "Discount applied successfully to all items",
-        });
-
-        // Refresh the page to update the order data
-        router.refresh();
-
-        close(true);
       } catch (error) {
         console.error("Error applying discount:", error);
         toast({
@@ -277,6 +223,59 @@ export const restaurantDiscountSheet = createDialog<
         setLoading(true);
       }
     };
+
+    const handleApplyDiscount = async () => {
+      const value = parseFloat(discountValue) || 0;
+      if (value <= 0) {
+        toast({
+          title: "Invalid Discount",
+          description: "Please enter a valid discount value",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (discountType === "PERCENTAGE" && value > 100) {
+        toast({
+          title: "Invalid Percentage",
+          description: "Discount percentage cannot exceed 100%",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (discountType === "AMOUNT" && value > includedNetBase) {
+        toast({
+          title: "Invalid Amount",
+          description: "Discount amount cannot exceed the selected items' total",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (includedLines.length === 0) {
+        toast({
+          title: "No items selected",
+          description: "Select at least one item to discount",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await applyToItems((line) => {
+        if (excluded.has(line.orderDetailId)) {
+          return { amount: 0, discountType }; // remove manual discount here
+        }
+        if (discountType === "PERCENTAGE") {
+          return { amount: value, discountType };
+        }
+        const proportion =
+          includedNetBase > 0 ? line.netBase / includedNetBase : 0;
+        return { amount: value * proportion, discountType };
+      });
+    };
+
+    const handleRemoveAll = () =>
+      applyToItems(() => ({ amount: 0, discountType }));
+
+    const anyManual = lines.some((l) => l.hasManual);
 
     return (
       <>
@@ -340,21 +339,78 @@ export const restaurantDiscountSheet = createDialog<
             />
           </div>
 
+          {/* Per-item selection */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              Apply to items
+              <span className="ml-1 text-xs font-normal text-muted-foreground">
+                (uncheck to skip / remove the cart discount on a line)
+              </span>
+            </Label>
+            <div className="rounded-lg border divide-y">
+              {lines.map((l) => {
+                const included = !excluded.has(l.orderDetailId);
+                const value = parseFloat(discountValue) || 0;
+                const manual = included ? perLineDiscount(l.netBase, value) : 0;
+                return (
+                  <label
+                    key={l.orderDetailId}
+                    className="flex items-center gap-3 p-2 cursor-pointer text-sm"
+                  >
+                    <Checkbox
+                      checked={included}
+                      onCheckedChange={() => toggleExcluded(l.orderDetailId)}
+                    />
+                    <span className="flex-1 truncate">
+                      {l.title}
+                      <span className="text-muted-foreground"> ×{l.qty}</span>
+                    </span>
+                    <span className="text-right tabular-nums">
+                      {l.existingNonManual > 0 && (
+                        <span className="block text-[11px] text-muted-foreground">
+                          -{formatForDisplay(l.existingNonManual)} already
+                        </span>
+                      )}
+                      <span
+                        className={
+                          manual > 0 ? "text-red-600" : "text-muted-foreground"
+                        }
+                      >
+                        {manual > 0
+                          ? `-${formatForDisplay(manual)}`
+                          : formatForDisplay(l.netBase)}
+                      </span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Order Summary */}
           <div className="rounded-lg border p-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal:</span>
               <span className="font-medium">
-                {formatForDisplay(orderTotals.subtotal)}
+                {formatForDisplay(grossTotal)}
               </span>
             </div>
-
+            {existingTotal > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Existing discounts:
+                </span>
+                <span className="font-medium text-red-600">
+                  -{formatForDisplay(existingTotal)}
+                </span>
+              </div>
+            )}
             {discountPreview && (
               <>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Discount:</span>
+                  <span className="text-muted-foreground">Cart discount:</span>
                   <span className="font-medium text-red-600">
-                    -{formatForDisplay(discountPreview.totalDiscount)}
+                    -{formatForDisplay(discountPreview.totalManual)}
                   </span>
                 </div>
                 <div className="border-t pt-2 flex justify-between">
@@ -366,28 +422,9 @@ export const restaurantDiscountSheet = createDialog<
               </>
             )}
           </div>
-
-          {/* Discount Distribution Preview */}
-          {discountPreview && discountType === "AMOUNT" && (
-            <div className="rounded-lg border p-4 space-y-2">
-              <Label className="text-sm font-medium">
-                Discount Distribution:
-              </Label>
-              <div className="space-y-1 text-xs text-muted-foreground">
-                {discountPreview.items.map((item, idx) => (
-                  <div key={idx} className="flex justify-between">
-                    <span>
-                      Item {idx + 1} ({formatForDisplay(item.subtotal)}):
-                    </span>
-                    <span>-{formatForDisplay(item.discountAmount)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button
             variant="outline"
             onClick={() => close(false)}
@@ -395,6 +432,15 @@ export const restaurantDiscountSheet = createDialog<
           >
             Cancel
           </Button>
+          {anyManual && (
+            <Button
+              variant="outline"
+              onClick={handleRemoveAll}
+              disabled={loading || isUpdatingPromotion}
+            >
+              Remove discount
+            </Button>
+          )}
           <Button
             onClick={handleApplyDiscount}
             disabled={

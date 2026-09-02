@@ -214,22 +214,29 @@ export function useRestaurantActions() {
           }
         }
       } else {
-        // if order already exists, add product to order
-        const existingItem = state.activeTables[
-          activeTableIndex
-        ].orders.items.filter((item) =>
-          RestaurantaAction.areProductsIdentical(item, product),
+        // if order already exists, add product to order. resolveAddTarget picks
+        // the line to increment, or returns null to start a new line (identical
+        // variant, but the menu-discount cap is used up so the overflow unit
+        // must sit on its own full-price line).
+        const currentOrder = state.activeTables[activeTableIndex].orders;
+        const targetId = RestaurantaAction.resolveAddTarget(
+          currentOrder,
+          product,
+          state.orderDiscountRules,
         );
-        // If product already exists in order, update quantity
-        if (existingItem !== undefined && existingItem.length > 0) {
+        const targetItem = targetId
+          ? currentOrder.items.find((item) => item.orderDetailId === targetId)
+          : undefined;
+
+        // If we have a target line, bump its quantity
+        if (targetItem) {
           const qtyPending =
             Number(
-              existingItem[0].status?.find((f) => f.status === "pending")
-                ?.qty || 0,
+              targetItem.status?.find((f) => f.status === "pending")?.qty || 0,
             ) + 1;
 
           const res = await triggerForceUpdateQtyByStatus({
-            orderDetailId: existingItem[0].orderDetailId || "",
+            orderDetailId: targetItem.orderDetailId || "",
             qty: qtyPending,
             status: "pending",
           });
@@ -242,7 +249,7 @@ export function useRestaurantActions() {
                   quantity: qtyPending,
                 },
                 table,
-                id: existingItem[0].orderDetailId,
+                id: targetItem.orderDetailId,
               },
             });
           } else {
@@ -291,6 +298,8 @@ export function useRestaurantActions() {
                 product: productAfterExtraPrice,
                 table,
                 id,
+                // may be an overflow line for a variant already on the order
+                forceNewLine: true,
               },
             });
 
@@ -701,8 +710,11 @@ export function useRestaurantActions() {
         },
       });
       setIsRequest(false);
+      // The server freezes transferred/merged discounts as fixed amounts; the
+      // optimistic reducer can't reproduce that, so pull fresh order state.
+      onRefetch?.();
     },
-    [dispatch, setIsRequest],
+    [dispatch, setIsRequest, onRefetch],
   );
 
   const setCustomerCount = useCallback(

@@ -246,6 +246,90 @@ export class RestaurantaAction {
     );
   }
 
+  /** The (primary) category id of a variant, matching calculateOrderTotal. */
+  private static variantCategoryId(v?: ProductVariantType): string | null {
+    const c = v?.basicProduct?.category;
+    return c?.categoryId ?? c?.id ?? null;
+  }
+
+  /**
+   * Decide where a freshly tapped `product` unit goes on the order: the
+   * `orderDetailId` of an existing line to increment, or `null` to start a new
+   * line.
+   *
+   * Same-variant units (no modifiers / notes) normally stack onto one line.
+   * But once the product-variant menu-discount cap for that unit's budget is
+   * used up — per line for `countBy: "VARIANT"`, shared across the product or
+   * category otherwise — the extra unit is split onto its own line so it shows
+   * at full price while the units already on the order keep their discount.
+   * Repeated overflow taps stack onto that full-price line instead of spawning
+   * a new line each time.
+   */
+  public static resolveAddTarget(
+    order: RestaurantOrder,
+    product: ProductVariantType & {
+      quantity: number;
+      notes?: OrderModifierType;
+      modifiers?: ProductModifierType[];
+    },
+    rules?: OrderDiscountRules,
+  ): string | null {
+    const identical = order.items.filter((it) =>
+      RestaurantaAction.areProductsIdentical(it, product),
+    );
+    if (identical.length === 0) return null;
+
+    const legacyTarget = identical[0].orderDetailId;
+
+    if (!rules?.maxQtyPerLine?.enabled || !(rules.maxQtyPerLine.value > 0)) {
+      return legacyTarget;
+    }
+
+    // The cap only bites for a variant that actually carries a menu discount.
+    const productHasVariantDiscount = !!computeVariantDiscount(
+      Number(product.price ?? 0),
+      product.discountType,
+      Number(product.discountValue ?? 0),
+      1,
+      0,
+    );
+    if (!productHasVariantDiscount) return legacyTarget;
+
+    // Simulate adding the unit as its own new line and let the shared resolver
+    // say whether that unit would land inside the discount budget.
+    const capByLine = resolveVariantUnitCapByLine(rules, [
+      ...order.items.map((it) => ({
+        orderDetailId: it.orderDetailId,
+        qty: RestaurantaAction.itemQty(it),
+        hasVariantDiscount: RestaurantaAction.itemHasVariantDiscount(it),
+        productId: it.productVariant?.productId,
+        categoryId: RestaurantaAction.variantCategoryId(it.productVariant),
+      })),
+      {
+        orderDetailId: "__incoming__",
+        qty: 1,
+        hasVariantDiscount: true,
+        productId: product.productId,
+        categoryId: RestaurantaAction.variantCategoryId(product),
+      },
+    ]);
+    const incomingCap = capByLine.get("__incoming__");
+
+    // Budget still available -> stack normally, the unit gets discounted.
+    if (incomingCap === undefined || incomingCap > 0) return legacyTarget;
+
+    // Budget used up -> keep the unit off the discounted line. Reuse an existing
+    // full-price line for this variant (one that carries the variant discount
+    // but has it resolved to 0 by the cap); otherwise start a new line. Never
+    // fall back to a line whose discount state is still unknown — a new line is
+    // always safe, a wrong merge produces the mixed line we are avoiding.
+    const fullPriceLine = [...identical].reverse().find((it) => {
+      const vd = (it.discounts ?? []).find((d) => d.discountId === "variant");
+      return !!vd && Number(vd.amount ?? 0) === 0;
+    });
+    return fullPriceLine ? fullPriceLine.orderDetailId : null;
+  }
+
   public static createNewOrder(): RestaurantOrder {
     return {
       invoiceNo: 0,
@@ -364,6 +448,7 @@ export class RestaurantaAction {
         modifiers?: ProductModifierType[];
       };
       id?: string;
+      forceNewLine?: boolean;
     },
   ): void {
     const activeTableIndex = draft.activeTables.findIndex(
@@ -378,9 +463,18 @@ export class RestaurantaAction {
     }
 
     const order = draft.activeTables[activeTableIndex].orders!;
-    const existingItemIndex = order.items?.findIndex((item) =>
-      RestaurantaAction.areProductsIdentical(item, payload.product),
-    );
+
+    // The caller (selectProduct) has already decided merge-vs-new-line via
+    // RestaurantaAction.resolveAddTarget: `forceNewLine` means start a line even
+    // if an identical one exists; otherwise `payload.id` names the exact line to
+    // increment. Fall back to the identical-line search only when neither is set.
+    const existingItemIndex = payload.forceNewLine
+      ? -1
+      : payload.id
+        ? order.items?.findIndex((item) => item.orderDetailId === payload.id)
+        : order.items?.findIndex((item) =>
+            RestaurantaAction.areProductsIdentical(item, payload.product),
+          );
 
     if (existingItemIndex !== undefined && existingItemIndex !== -1) {
       // Increase quantity of existing item

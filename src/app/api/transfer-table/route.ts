@@ -29,6 +29,7 @@ const transferSchema = z.object({
     })
   ),
   destinationTableId: z.string().min(1),
+  transferDiscount: z.boolean().optional(),
 });
 
 export const POST = withAuthApi<unknown, TransferProp, ResponseType<string>>(
