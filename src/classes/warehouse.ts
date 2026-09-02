@@ -257,6 +257,25 @@ export class WarehouseService {
         },
         {
           warehouse: warehouseId,
+          option: "ORDER_DISCOUNT_RULES",
+          value: JSON.stringify({
+            amountRule: {
+              enabled: false,
+              minAmount: 100,
+              discountType: "PERCENTAGE",
+              value: 0,
+            },
+            qtyRule: {
+              enabled: false,
+              minQty: 50,
+              discountType: "PERCENTAGE",
+              value: 0,
+            },
+            maxQtyPerLine: { enabled: true, value: 3 },
+          }),
+        },
+        {
+          warehouse: warehouseId,
           option: "PRINT_SOCKET",
           value: JSON.stringify({
             url: "ws://localhost:6005",

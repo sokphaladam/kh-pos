@@ -7,6 +7,10 @@ import {
 } from "@/dataloader/product-variant-loader";
 import { table_restaurant_tables } from "@/generated/tables";
 import { applyStackDiscount } from "@/lib/apply-stack-discount";
+import {
+  VARIANT_DISCOUNT_MAX_QTY,
+  computeVariantDiscount,
+} from "@/lib/variant-discount";
 import { Formatter } from "@/lib/formatter";
 import { generateId } from "@/lib/generate-id";
 import { Draft } from "immer";
@@ -49,6 +53,7 @@ export class RestaurantaAction {
 
   public static calculateItemTotals(
     item: RestaurantOrderItem,
+    maxQtyPerLine: number = VARIANT_DISCOUNT_MAX_QTY,
   ): RestaurantOrderItem {
     const notesCharge = Number(item.notes?.price || 0);
     const totalModifier =
@@ -71,26 +76,61 @@ export class RestaurantaAction {
       createdAt: d.createdAt || "",
     }));
 
-    const afterDiscount = applyStackDiscount(
-      subtotal,
-      discountsArray,
-    ).finalPrice;
+    // The product-variant menu discount ("variant") is per-unit and only
+    // covers the first `maxQtyPerLine` units — mirror the server here instead
+    // of letting applyStackDiscount subtract it once per line. The auto
+    // order-level slice ("order") is already resolved per line by the server;
+    // trust its stored amount. Everything else stacks per line.
+    let running = subtotal;
+    const resolvedAmounts = new Map<string, number>();
+
+    for (const d of discountsArray) {
+      if (d.discountId === "variant") {
+        const vd = computeVariantDiscount(
+          priceAfterModifier,
+          d.discountType,
+          Number(d.value || 0),
+          qty,
+          maxQtyPerLine,
+        );
+        const amt = Math.min(vd?.lineDiscountAmount ?? 0, running);
+        resolvedAmounts.set(d.id, amt);
+        running -= amt;
+      } else if (d.discountId === "order") {
+        const amt = Math.min(Number(d.amount || 0), running);
+        resolvedAmounts.set(d.id, amt);
+        running -= amt;
+      }
+    }
+
+    const stackables = discountsArray.filter(
+      (d) => d.discountId !== "variant" && d.discountId !== "order",
+    );
+    const { stackDiscount, finalPrice } = applyStackDiscount(running, stackables);
+    for (const s of stackDiscount) {
+      resolvedAmounts.set(s.id, s.discountAmount);
+    }
 
     return {
       ...item,
       modiferAmount: String(totalModifier),
-      discountAmount: String(subtotal - afterDiscount),
+      discountAmount: String(subtotal - finalPrice),
       discounts: discountsArray.map((d) => ({
         ...d,
-        amount: Number(d.amount),
+        amount: resolvedAmounts.get(d.id) ?? Number(d.amount),
       })),
-      totalAmount: String(afterDiscount),
+      totalAmount: String(finalPrice),
       price: String(item.price),
     };
   }
 
-  public static calculateOrderTotal(order: RestaurantOrder): RestaurantOrder {
-    const items = order.items.map(RestaurantaAction.calculateItemTotals);
+  public static calculateOrderTotal(
+    order: RestaurantOrder,
+    maxQtyPerLine: number = VARIANT_DISCOUNT_MAX_QTY,
+  ): RestaurantOrder {
+    const items = order.items.map((it) =>
+      RestaurantaAction.calculateItemTotals(it, maxQtyPerLine),
+    );
 
     const totalAmount = items.reduce((acc, item) => {
       return acc + (Number(item.totalAmount) || 0);
@@ -319,7 +359,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order);
+      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
   }
 
   public static handleUpdateProductQty(
@@ -386,7 +426,7 @@ export class RestaurantaAction {
       }
 
       draft.activeTables[activeTableIndex].orders =
-        RestaurantaAction.calculateOrderTotal(order);
+        RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
     }
   }
 
@@ -418,7 +458,7 @@ export class RestaurantaAction {
     if (itemIndex >= 0) {
       order.items.splice(itemIndex, 1);
       draft.activeTables[activeTableIndex].orders =
-        RestaurantaAction.calculateOrderTotal(order);
+        RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
     }
   }
   public static handleSendToKitchen(
@@ -538,7 +578,7 @@ export class RestaurantaAction {
     });
 
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order);
+      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
   }
 
   public static handleCheckout(
@@ -602,7 +642,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order);
+      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
     draft.tables.forEach((f) => {
       if (f.id === payload.table.id) {
         f.order = draft.activeTables[activeTableIndex].orders!;
@@ -649,7 +689,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order);
+      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
   }
 
   public static handleRemoveModifier(
@@ -684,7 +724,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order);
+      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
   }
 
   public static handleSetNotes(
@@ -713,7 +753,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order);
+      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
   }
 
   public static handleRemoveOrder(
@@ -806,10 +846,13 @@ export class RestaurantaAction {
       // Create new active table with transferred items
       draft.activeTables.push({
         tables: { ...payload.destinationTable, status: "order_taken" },
-        orders: this.calculateOrderTotal({
-          ...payload.originalOrder!,
-          items: payload.orderItems,
-        }),
+        orders: this.calculateOrderTotal(
+          {
+            ...payload.originalOrder!,
+            items: payload.orderItems,
+          },
+          draft.variantMaxQtyPerLine,
+        ),
       });
 
       // Update destination table status
@@ -818,10 +861,13 @@ export class RestaurantaAction {
       );
       if (destinationTableIndex !== -1) {
         draft.tables[destinationTableIndex].status = "order_taken";
-        draft.tables[destinationTableIndex].order = this.calculateOrderTotal({
-          ...payload.originalOrder!,
-          items: payload.orderItems,
-        });
+        draft.tables[destinationTableIndex].order = this.calculateOrderTotal(
+          {
+            ...payload.originalOrder!,
+            items: payload.orderItems,
+          },
+          draft.variantMaxQtyPerLine,
+        );
       }
     } else {
       // Merge with existing destination table orders
@@ -833,7 +879,10 @@ export class RestaurantaAction {
 
         // Recalculate destination order totals
         draft.activeTables[destinationActiveTableIndex].orders =
-          this.calculateOrderTotal(destinationOrder);
+          this.calculateOrderTotal(
+            destinationOrder,
+            draft.variantMaxQtyPerLine,
+          );
       }
     }
 
@@ -852,10 +901,13 @@ export class RestaurantaAction {
       }
     } else {
       // Keep source table with remaining items only
-      draft.activeTables[activeTableIndex].orders = this.calculateOrderTotal({
-        ...payload.originalOrder!,
-        items: remainingItems,
-      });
+      draft.activeTables[activeTableIndex].orders = this.calculateOrderTotal(
+        {
+          ...payload.originalOrder!,
+          items: remainingItems,
+        },
+        draft.variantMaxQtyPerLine,
+      );
     }
   }
 

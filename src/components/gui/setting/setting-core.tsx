@@ -33,6 +33,7 @@ import { JsonInput } from "./json-input";
 import { PrintLabel } from "./print-label";
 import { PrintServerInput } from "./print-server-input";
 import { ProductMenuRuleInput } from "./product-menu-rule-input";
+import { OrderDiscountRuleInput } from "./order-discount-rule-input";
 import { QrCodeInput } from "./qr-code-input";
 import { TypePos } from "./type-pos";
 import { PrintSocketInput } from "./print-socket-input";
@@ -59,6 +60,7 @@ export interface SettingConfig {
     | "label-print"
     | "accessibility"
     | "product-menu"
+    | "order-discount"
     | "currency"
     | "print-socket"
     | "accounting"
@@ -105,6 +107,13 @@ export const SETTING_CONFIGS: Record<string, SettingConfig> = {
     label: "Invoice Receipt",
     description: "Template configuration for invoice and receipt printing",
     type: "invoice",
+  },
+  ORDER_DISCOUNT_RULES: {
+    icon: <Tag className="h-4 w-4" />,
+    label: "Order Discount Rules",
+    description:
+      "Automatic whole-order discounts (order over an amount, or over an item count) and the max quantity a per-line variant discount applies to",
+    type: "order-discount",
   },
   EXPIRY_SETTING: {
     icon: <Clock className="h-4 w-4" />,
@@ -333,6 +342,10 @@ export const SettingEditorFactory: React.FC<SettingEditorFactoryProps> = ({
       case "product-menu":
         return (
           <ProductMenuRuleInput value={value} onChangeValue={handleChange} />
+        );
+      case "order-discount":
+        return (
+          <OrderDiscountRuleInput value={value} onChangeValue={handleChange} />
         );
       case "currency":
         return <CurrencyInput value={value} onChange={handleChange} />;

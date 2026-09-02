@@ -7,6 +7,10 @@ import { DialogProvider } from "@/components/create-dialog";
 import { SheetProvider } from "@/components/create-sheet";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { WithLayoutPermissionProps } from "@/hoc/with-layout-permission";
+import {
+  parseOrderDiscountRules,
+  variantMaxQtyFromRules,
+} from "@/lib/order-discount-rules";
 import { cn } from "@/lib/utils";
 import { useAuthentication } from "contexts/authentication-context";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -114,7 +118,7 @@ export function RestaurantContent(
 }
 
 export function RestaurantLayout(props: WithLayoutPermissionProps) {
-  const { currentWarehouse } = useAuthentication();
+  const { currentWarehouse, setting } = useAuthentication();
   const [autoRefresh, setAutoRefresh] = useState(true);
   const queryTable = useQueryTable(autoRefresh);
   const queryCategory = useQueryCategory(100, 0, undefined, undefined, true);
@@ -139,6 +143,13 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
     (f) => !!f.order || f.status === "order_taken",
   );
 
+  const settingList = setting?.data?.result || [];
+  const variantMaxQtyPerLine = variantMaxQtyFromRules(
+    parseOrderDiscountRules(
+      settingList.find((s) => s.option === "ORDER_DISCOUNT_RULES")?.value,
+    ),
+  );
+
   const data = {
     tables: tables || [],
     categories: categories || [],
@@ -147,10 +158,12 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
       posSlotId: "",
     },
     currentWarehouse: currentWarehouse || undefined,
+    variantMaxQtyPerLine,
     activeTables:
       activeTables && activeTables.length > 0
         ? activeTables.map((x) => {
-            const orders = RestaurantaAction.calculateOrderTotal({
+            const orders = RestaurantaAction.calculateOrderTotal(
+              {
               ...x.order,
               customerLoader: x.order?.customerLoader,
               customer: x.order?.customer,
@@ -195,7 +208,9 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
               }),
               payments: [],
               printCount: x.order?.printCount || 0,
-            });
+              },
+              variantMaxQtyPerLine,
+            );
             return {
               tables: x,
               orders,

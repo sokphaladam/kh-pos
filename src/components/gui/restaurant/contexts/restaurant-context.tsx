@@ -40,6 +40,12 @@ export interface RestaurantState {
   categories: Category[];
   posInfo?: InfoResponse;
   currentWarehouse?: Warehouse;
+  /**
+   * Units a per-line product-variant menu discount may cover, from the
+   * ORDER_DISCOUNT_RULES setting (0 = no cap). Used to keep the local cart math
+   * in step with the server. Undefined falls back to the default cap.
+   */
+  variantMaxQtyPerLine?: number;
 }
 
 // Context

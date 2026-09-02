@@ -16,7 +16,11 @@ import { generateId, generateShortId } from "@/lib/generate-id";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import { Knex } from "knex";
 import { z } from "zod";
-import { applyDiscountToOrderItem } from "./order-discount";
+import {
+  applyDiscountToOrderItem,
+  recalculateOrderLevelDiscount,
+} from "./order-discount";
+import { getOrderDiscountRules } from "@/lib/order-discount-rules";
 import { applyModifierToOrderItem } from "./order-modifier";
 import { OrderReturn } from "./order-return";
 import { Payment, PaymentService } from "./payment";
@@ -885,9 +889,20 @@ export async function recalculateCustomerOrder(
 
   try {
     return await knex.transaction(async (trx) => {
+      // Order-level discount rules are per-warehouse; the line row has no
+      // warehouse, so resolve it from the parent order.
+      const orderRow = await trx
+        .table<table_customer_order>("customer_order")
+        .where({ order_id: orderItem.order_id })
+        .first();
+      const rules = await getOrderDiscountRules(
+        trx,
+        orderRow?.warehouse_id ?? null,
+      );
+
       await applyModifierToOrderItem(orderItem, trx);
 
-      await applyDiscountToOrderItem(orderItem, trx);
+      await applyDiscountToOrderItem(orderItem, trx, rules);
 
       await updateOrderDetail(
         orderItem.order_detail_id!,
@@ -901,6 +916,25 @@ export async function recalculateCustomerOrder(
 
       // recalculate total amount of order
       await updateOrderTotalAmount(orderItem.order_id!, trx);
+
+      // Re-evaluate the whole-order threshold discount now that every line is
+      // settled, then re-sum. Idempotent — safe to run once per line in a batch.
+      await recalculateOrderLevelDiscount(
+        orderItem.order_id!,
+        trx,
+        rules,
+        orderItem.created_by ?? null,
+      );
+
+      // The order-level pass may have written an "order" discount slice onto
+      // this line — reflect it in the mutated orderItem / return value.
+      const refreshed = await getOrderDetail(orderItem.order_detail_id!, trx);
+      if (refreshed) {
+        orderItem.discount_amount =
+          refreshed.discount_amount ?? orderItem.discount_amount;
+        orderItem.total_amount =
+          refreshed.total_amount ?? orderItem.total_amount;
+      }
 
       return {
         totalDiscount: Number(orderItem.discount_amount),
@@ -920,7 +954,7 @@ export async function recalculateCustomerOrder(
   }
 }
 
-async function updateOrderTotalAmount(orderId: string, trx: Knex) {
+export async function updateOrderTotalAmount(orderId: string, trx: Knex) {
   // Two-step: compute the sum first, then update — avoids self-referential
   // subquery lock contention that leads to deadlocks under concurrent writes.
   const [rows] = await trx.raw<[{ total: string }[]]>(

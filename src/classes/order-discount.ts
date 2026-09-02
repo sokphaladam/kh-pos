@@ -7,9 +7,25 @@ import {
 import { Formatter } from "@/lib/formatter";
 import { generateId } from "@/lib/generate-id";
 import { computeVariantDiscount } from "@/lib/variant-discount";
+import {
+  OrderDiscountRules,
+  allocateDiscount,
+  computeOrderLevelDiscount,
+  variantMaxQtyFromRules,
+} from "@/lib/order-discount-rules";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import { Knex } from "knex";
-import { getOrderDetail, recalculateCustomerOrder } from "./order";
+import {
+  getOrderDetail,
+  recalculateCustomerOrder,
+  updateOrderDetail,
+  updateOrderTotalAmount,
+} from "./order";
+import { applyModifierToOrderItem } from "./order-modifier";
+
+/** Sentinel `discount_log.discount_id` for the auto order-level discount. */
+export const ORDER_LEVEL_DISCOUNT_ID = "order";
+const ORDER_LEVEL_DISCOUNT_TITLE = "Order discount";
 
 export class OrderDiscountService {
   constructor(protected tx: Knex) {}
@@ -287,6 +303,7 @@ async function updateDiscountLog(
 export async function applyDiscountToOrderItem(
   orderItem: table_customer_order_detail,
   knex: Knex,
+  rules?: OrderDiscountRules,
 ) {
   // order item amount
   let orderItemAmount = Number(orderItem.total_amount || 0);
@@ -300,24 +317,43 @@ export async function applyDiscountToOrderItem(
     knex,
   );
 
-  // sort manual discount first
+  // sort manual discount first, and the auto order-level slice last (it is a
+  // stored absolute amount that sits on top of every per-line discount).
   existingDiscounts.sort((a, b) => {
-    if (a.is_manual_discount === b.is_manual_discount) return 0;
-    if (a.is_manual_discount === 1) return -1;
-    return 1;
+    const rank = (d: table_discount_log) =>
+      d.discount_id === ORDER_LEVEL_DISCOUNT_ID
+        ? 2
+        : d.is_manual_discount === 1
+          ? 0
+          : 1;
+    return rank(a) - rank(b);
   });
+
+  const variantMaxQty = rules ? variantMaxQtyFromRules(rules) : undefined;
 
   await knex.transaction(async (trx) => {
     for (const discount of existingDiscounts) {
+      // Auto order-level threshold discount. Owned entirely by
+      // recalculateOrderLevelDiscount, which rebuilds each line from gross and
+      // then writes the allocated slice onto discount_amount / total_amount.
+      // Skip it here so this per-line pass always yields the line net *before*
+      // the order-level slice.
+      if (discount.discount_id === ORDER_LEVEL_DISCOUNT_ID) {
+        continue;
+      }
+
       // Auto-applied product-variant menu discount. Recomputed from the variant
       // config on every recalc so it stays correct across qty changes, and is
       // per-unit (unlike the generic promotion AMOUNT branch which is per-line).
+      // computeVariantDiscount caps the discounted units at the configured
+      // max-qty-per-line, so units beyond that on the line pay full price.
       if (discount.discount_id === "variant") {
         const variantDiscount = computeVariantDiscount(
           Number(orderItem.price || 0),
           discount.discount_type,
           Number(discount.value || 0),
           Number(orderItem.qty || 0),
+          variantMaxQty,
         );
         const discountValue = Math.min(
           variantDiscount?.lineDiscountAmount ?? 0,
@@ -384,4 +420,115 @@ export async function applyDiscountToOrderItem(
   if (orderItemAmount < 0) orderItemAmount = 0;
   orderItem.discount_amount = totalDiscount.toString();
   orderItem.total_amount = orderItemAmount.toString();
+}
+
+/**
+ * Re-evaluate the whole-order threshold discount (rules 1 & 2 of
+ * ORDER_DISCOUNT_RULES) for one order and persist it as a per-line
+ * `discount_log` slice (`discount_id = "order"`), proportional to each line's
+ * value. When both threshold rules qualify the larger discount wins (see
+ * computeOrderLevelDiscount); the discount never stacks.
+ *
+ * Idempotent: it rebuilds every line from gross on each call, so it converges
+ * no matter how stale the existing "order" rows are. Runs after every per-line
+ * recalc, inside the same transaction.
+ */
+export async function recalculateOrderLevelDiscount(
+  orderId: string,
+  trx: Knex,
+  rules: OrderDiscountRules,
+  createdBy: string | null,
+): Promise<void> {
+  const lines = await trx
+    .table<table_customer_order_detail>("customer_order_detail")
+    .where({ order_id: orderId });
+  if (lines.length === 0) return;
+
+  const existingOrderLogs = await trx
+    .table<table_discount_log>("discount_log")
+    .whereIn(
+      "order_detail_id",
+      lines.map((l) => l.order_detail_id!),
+    )
+    .where("discount_id", ORDER_LEVEL_DISCOUNT_ID);
+  const existingByLine = new Map(
+    existingOrderLogs.map((l) => [l.order_detail_id!, l] as const),
+  );
+
+  // Rebuild each line from gross (modifiers + line discounts, but NOT the
+  // order-level slice — applyDiscountToOrderItem skips it) so we get a clean
+  // "net before order discount" and the line-discount total for every line,
+  // regardless of how other discount types store their amounts.
+  const netBeforeOrder: number[] = [];
+  const lineDiscountOnly: number[] = [];
+  let totalQty = 0;
+  for (const line of lines) {
+    line.total_amount = String(
+      Number(line.price || 0) * Number(line.qty || 0),
+    );
+    line.discount_amount = "0";
+    line.modifer_amount = "0";
+    await applyModifierToOrderItem(line, trx);
+    await applyDiscountToOrderItem(line, trx, rules);
+    netBeforeOrder.push(Math.max(0, Number(line.total_amount || 0)));
+    lineDiscountOnly.push(Number(line.discount_amount || 0));
+    totalQty += Number(line.qty || 0);
+  }
+
+  const subtotal = netBeforeOrder.reduce((a, b) => a + b, 0);
+  const orderDiscount = computeOrderLevelDiscount({ subtotal, totalQty, rules });
+  const shares =
+    orderDiscount && orderDiscount.amount > 0
+      ? allocateDiscount(orderDiscount.amount, netBeforeOrder)
+      : lines.map(() => 0);
+
+  const now = Formatter.getNowDateTime();
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const share = shares[i] ?? 0;
+    const existing = existingByLine.get(line.order_detail_id!);
+
+    if (share > 0 && orderDiscount) {
+      const row = {
+        discount_amount: String(share),
+        discount_title: ORDER_LEVEL_DISCOUNT_TITLE,
+        discount_type: orderDiscount.discountType,
+        value: String(orderDiscount.value),
+        is_manual_discount: 0,
+      };
+      if (existing) {
+        await trx
+          .table<table_discount_log>("discount_log")
+          .where("id", existing.id)
+          .update(row);
+      } else {
+        await trx.table<table_discount_log>("discount_log").insert({
+          ...row,
+          id: generateId(),
+          order_detail_id: line.order_detail_id!,
+          discount_id: ORDER_LEVEL_DISCOUNT_ID,
+          created_at: now,
+          created_by: createdBy,
+        });
+      }
+    } else if (existing) {
+      await trx
+        .table<table_discount_log>("discount_log")
+        .where("id", existing.id)
+        .delete();
+    }
+
+    await updateOrderDetail(
+      line.order_detail_id!,
+      {
+        discount_amount: String(lineDiscountOnly[i] + share),
+        total_amount: String(Math.max(0, netBeforeOrder[i] - share)),
+        modifer_amount: line.modifer_amount,
+      },
+      trx,
+    );
+  }
+
+  await updateOrderTotalAmount(orderId, trx);
 }
