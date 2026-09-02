@@ -12,10 +12,31 @@ export interface OrderThresholdRule {
   value: number;
 }
 
+/** What a `MaxQtyOverride` targets. */
+export type MaxQtyOverrideScope = "PRODUCT" | "CATEGORY" | "VARIANT";
+
+/**
+ * A per-target override of the variant discount unit cap. When an order line's
+ * variant matches an override, its `value` replaces `MaxQtyPerLineRule.value`
+ * for that line. Resolution order (most specific wins):
+ * `VARIANT` -> `PRODUCT` -> `CATEGORY` -> the rule default.
+ */
+export interface MaxQtyOverride {
+  scope: MaxQtyOverrideScope;
+  /** product id / category id / product-variant id, matching `scope`. */
+  id: string;
+  /** Human-readable label captured when the override was added (UI only). */
+  label?: string;
+  /** Discounted units per line for this target (0 / negative = no cap). */
+  value: number;
+}
+
 export interface MaxQtyPerLineRule {
   enabled: boolean;
-  /** Number of units on a line that a variant menu discount may cover. */
+  /** Default number of units on a line that a variant menu discount may cover. */
   value: number;
+  /** Per product / category / variant caps that override `value`. */
+  overrides: MaxQtyOverride[];
 }
 
 export interface OrderDiscountRules {
@@ -32,7 +53,7 @@ export const ORDER_DISCOUNT_RULES_OPTION = "ORDER_DISCOUNT_RULES";
 export const DEFAULT_ORDER_DISCOUNT_RULES: OrderDiscountRules = {
   amountRule: { enabled: false, min: 100, discountType: "PERCENTAGE", value: 0 },
   qtyRule: { enabled: false, min: 50, discountType: "PERCENTAGE", value: 0 },
-  maxQtyPerLine: { enabled: true, value: 3 },
+  maxQtyPerLine: { enabled: true, value: 3, overrides: [] },
 };
 
 function toNumber(v: unknown, fallback: number): number {
@@ -65,6 +86,35 @@ function parseThresholdRule(
     discountType,
     value: toNumber(r.value, fallback.value),
   };
+}
+
+const MAX_QTY_OVERRIDE_SCOPES: MaxQtyOverrideScope[] = [
+  "PRODUCT",
+  "CATEGORY",
+  "VARIANT",
+];
+
+/** Parse the stored `maxQtyPerLine.overrides` array, dropping malformed rows. */
+function parseMaxQtyOverrides(raw: unknown): MaxQtyOverride[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  const out: MaxQtyOverride[] = [];
+  for (const entry of raw) {
+    const r = (entry ?? {}) as Record<string, unknown>;
+    const scope = r.scope as MaxQtyOverrideScope;
+    const id = typeof r.id === "string" ? r.id.trim() : "";
+    if (!id || !MAX_QTY_OVERRIDE_SCOPES.includes(scope)) continue;
+    const key = `${scope}:${id}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({
+      scope,
+      id,
+      label: typeof r.label === "string" ? r.label : undefined,
+      value: toNumber(r.value, DEFAULT_ORDER_DISCOUNT_RULES.maxQtyPerLine.value),
+    });
+  }
+  return out;
 }
 
 /** Safe JSON parse of a stored `ORDER_DISCOUNT_RULES` value, filling defaults. */
@@ -102,15 +152,60 @@ export function parseOrderDiscountRules(
         maxRaw.value,
         DEFAULT_ORDER_DISCOUNT_RULES.maxQtyPerLine.value,
       ),
+      overrides: parseMaxQtyOverrides(maxRaw.overrides),
     },
   };
 }
 
-/** The unit cap to pass to `computeVariantDiscount` (0 = no cap). */
+/** The default unit cap to pass to `computeVariantDiscount` (0 = no cap). */
 export function variantMaxQtyFromRules(rules: OrderDiscountRules): number {
   return rules.maxQtyPerLine.enabled && rules.maxQtyPerLine.value > 0
     ? rules.maxQtyPerLine.value
     : 0;
+}
+
+/** A single order line, described enough to match a `MaxQtyOverride`. */
+export interface VariantMaxQtyTarget {
+  variantId?: string | null;
+  productId?: string | null;
+  /** The line's category id(s). A product may belong to more than one. */
+  categoryId?: string | (string | null | undefined)[] | null;
+}
+
+/**
+ * The unit cap to pass to `computeVariantDiscount` for one order line, taking
+ * per product / category / variant overrides into account. Resolution order,
+ * most specific first: variant override -> product override -> category
+ * override -> the rule default. Returns 0 when the rule is disabled or the
+ * resolved value is non-positive (both mean "no cap").
+ */
+export function resolveVariantMaxQty(
+  rules: OrderDiscountRules,
+  target: VariantMaxQtyTarget,
+): number {
+  const rule = rules.maxQtyPerLine;
+  if (!rule.enabled) return 0;
+
+  const overrides = rule.overrides ?? [];
+  const pick = (scope: MaxQtyOverrideScope, id?: string | null) =>
+    id ? overrides.find((o) => o.scope === scope && o.id === id) : undefined;
+
+  const categoryIds = Array.isArray(target.categoryId)
+    ? target.categoryId
+    : [target.categoryId];
+  const categoryMatch = categoryIds
+    .map((id) => pick("CATEGORY", id ?? undefined))
+    .filter((o): o is MaxQtyOverride => !!o)
+    // Most restrictive category cap wins when a product has several categories.
+    .sort((a, b) => a.value - b.value)[0];
+
+  const match =
+    pick("VARIANT", target.variantId) ??
+    pick("PRODUCT", target.productId) ??
+    categoryMatch;
+
+  const value = match ? match.value : rule.value;
+  return Number.isFinite(value) && value > 0 ? value : 0;
 }
 
 function applyRule(rule: OrderThresholdRule, subtotal: number): number {

@@ -271,7 +271,7 @@ export class WarehouseService {
               discountType: "PERCENTAGE",
               value: 0,
             },
-            maxQtyPerLine: { enabled: true, value: 3 },
+            maxQtyPerLine: { enabled: true, value: 3, overrides: [] },
           }),
         },
         {

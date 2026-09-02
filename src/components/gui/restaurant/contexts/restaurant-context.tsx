@@ -5,6 +5,7 @@ import { OrderModifierType } from "@/dataloader/order-modifier-loader";
 import { Warehouse } from "@/dataloader/warehouse-loader";
 import { table_restaurant_tables } from "@/generated/tables";
 import { Category } from "@/lib/server-functions/category/create-category";
+import { OrderDiscountRules } from "@/lib/order-discount-rules";
 import {
   createContext,
   ReactNode,
@@ -41,11 +42,11 @@ export interface RestaurantState {
   posInfo?: InfoResponse;
   currentWarehouse?: Warehouse;
   /**
-   * Units a per-line product-variant menu discount may cover, from the
-   * ORDER_DISCOUNT_RULES setting (0 = no cap). Used to keep the local cart math
-   * in step with the server. Undefined falls back to the default cap.
+   * The parsed ORDER_DISCOUNT_RULES setting. Used to keep the local cart math
+   * (variant menu discount unit cap, including per product / category / variant
+   * overrides) in step with the server. Undefined falls back to the default cap.
    */
-  variantMaxQtyPerLine?: number;
+  orderDiscountRules?: OrderDiscountRules;
 }
 
 // Context

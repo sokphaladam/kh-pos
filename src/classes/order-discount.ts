@@ -11,6 +11,7 @@ import {
   OrderDiscountRules,
   allocateDiscount,
   computeOrderLevelDiscount,
+  resolveVariantMaxQty,
   variantMaxQtyFromRules,
 } from "@/lib/order-discount-rules";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
@@ -329,7 +330,34 @@ export async function applyDiscountToOrderItem(
     return rank(a) - rank(b);
   });
 
-  const variantMaxQty = rules ? variantMaxQtyFromRules(rules) : undefined;
+  // Unit cap for the per-line variant menu discount. Starts at the rule
+  // default, then swaps in a per product / category / variant override when
+  // one is configured for this line's variant.
+  let variantMaxQty = rules ? variantMaxQtyFromRules(rules) : undefined;
+  if (
+    rules &&
+    rules.maxQtyPerLine.overrides.length > 0 &&
+    orderItem.variant_id
+  ) {
+    const variantRow = await knex
+      .table<{ product_id: string }>("product_variant")
+      .where("id", orderItem.variant_id)
+      .select("product_id")
+      .first();
+    const categoryIds = variantRow?.product_id
+      ? (
+          await knex
+            .table<{ category_id: string }>("product_categories")
+            .where("product_id", variantRow.product_id)
+            .select("category_id")
+        ).map((r) => r.category_id)
+      : [];
+    variantMaxQty = resolveVariantMaxQty(rules, {
+      variantId: orderItem.variant_id,
+      productId: variantRow?.product_id,
+      categoryId: categoryIds,
+    });
+  }
 
   await knex.transaction(async (trx) => {
     for (const discount of existingDiscounts) {

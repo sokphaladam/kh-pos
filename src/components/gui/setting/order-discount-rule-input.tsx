@@ -13,12 +13,18 @@ import {
 } from "@/components/ui/select";
 import {
   DEFAULT_ORDER_DISCOUNT_RULES,
+  MaxQtyOverride,
+  MaxQtyOverrideScope,
   OrderDiscountRules,
   OrderDiscountValueType,
   parseOrderDiscountRules,
 } from "@/lib/order-discount-rules";
-import { Hash, Percent, ShoppingBag } from "lucide-react";
-import { useCallback } from "react";
+import { Hash, Percent, ShoppingBag, Trash2 } from "lucide-react";
+import { useCallback, useState } from "react";
+import SearchProductPicker from "@/components/search-product-picker";
+import { useQueryCategory } from "@/app/hooks/use-query-category";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface Props {
   value: string;
@@ -43,6 +49,12 @@ function serialize(rules: OrderDiscountRules): string {
     maxQtyPerLine: {
       enabled: rules.maxQtyPerLine.enabled,
       value: rules.maxQtyPerLine.value,
+      overrides: rules.maxQtyPerLine.overrides.map((o) => ({
+        scope: o.scope,
+        id: o.id,
+        label: o.label,
+        value: o.value,
+      })),
     },
   });
 }
@@ -66,6 +78,35 @@ export function OrderDiscountRuleInput(props: Props) {
     emit({ ...rules, qtyRule: { ...rules.qtyRule, ...patch } });
   const setMaxQty = (patch: Partial<OrderDiscountRules["maxQtyPerLine"]>) =>
     emit({ ...rules, maxQtyPerLine: { ...rules.maxQtyPerLine, ...patch } });
+
+  const setOverrides = (overrides: MaxQtyOverride[]) =>
+    setMaxQty({ overrides });
+
+  const addOverride = (o: MaxQtyOverride) => {
+    const exists = rules.maxQtyPerLine.overrides.some(
+      (x) => x.scope === o.scope && x.id === o.id,
+    );
+    if (exists) return;
+    setOverrides([...rules.maxQtyPerLine.overrides, o]);
+  };
+
+  const updateOverride = (
+    scope: MaxQtyOverrideScope,
+    id: string,
+    patch: Partial<MaxQtyOverride>,
+  ) =>
+    setOverrides(
+      rules.maxQtyPerLine.overrides.map((x) =>
+        x.scope === scope && x.id === id ? { ...x, ...patch } : x,
+      ),
+    );
+
+  const removeOverride = (scope: MaxQtyOverrideScope, id: string) =>
+    setOverrides(
+      rules.maxQtyPerLine.overrides.filter(
+        (x) => !(x.scope === scope && x.id === id),
+      ),
+    );
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -257,7 +298,7 @@ export function OrderDiscountRuleInput(props: Props) {
           </label>
           <div className="pl-7 max-w-[200px] space-y-1.5">
             <Label className="text-xs text-muted-foreground">
-              Discounted units per line
+              Default discounted units per line
             </Label>
             <Input
               type="number"
@@ -275,8 +316,185 @@ export function OrderDiscountRuleInput(props: Props) {
               }
             />
           </div>
+
+          <div className="pl-7 space-y-3 border-t border-border/50 pt-4">
+            <div className="space-y-0.5">
+              <Label className="text-xs font-semibold">
+                Per-item overrides
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Give a specific product, category, or variant its own cap. The
+                most specific match wins: variant → product → category →
+                default.
+              </p>
+            </div>
+            <MaxQtyOverridesEditor
+              overrides={rules.maxQtyPerLine.overrides}
+              disabled={!rules.maxQtyPerLine.enabled}
+              onAdd={addOverride}
+              onUpdate={updateOverride}
+              onRemove={removeOverride}
+            />
+          </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+const SCOPE_LABEL: Record<MaxQtyOverrideScope, string> = {
+  VARIANT: "Variant",
+  PRODUCT: "Product",
+  CATEGORY: "Category",
+};
+
+interface OverridesEditorProps {
+  overrides: MaxQtyOverride[];
+  disabled?: boolean;
+  onAdd: (o: MaxQtyOverride) => void;
+  onUpdate: (
+    scope: MaxQtyOverrideScope,
+    id: string,
+    patch: Partial<MaxQtyOverride>,
+  ) => void;
+  onRemove: (scope: MaxQtyOverrideScope, id: string) => void;
+}
+
+function MaxQtyOverridesEditor({
+  overrides,
+  disabled,
+  onAdd,
+  onUpdate,
+  onRemove,
+}: OverridesEditorProps) {
+  const [scope, setScope] = useState<MaxQtyOverrideScope>("PRODUCT");
+  const [pickerKey, setPickerKey] = useState(0);
+  const { categories } = useQueryCategory(1000, 0);
+
+  const resetPicker = () => setPickerKey((k) => k + 1);
+
+  return (
+    <div className="space-y-3">
+      {overrides.length > 0 && (
+        <div className="space-y-2">
+          {overrides.map((o) => (
+            <div
+              key={`${o.scope}:${o.id}`}
+              className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/30 px-2.5 py-2"
+            >
+              <Badge variant="secondary" className="shrink-0 text-[10px]">
+                {SCOPE_LABEL[o.scope]}
+              </Badge>
+              <span className="flex-1 truncate text-sm" title={o.label || o.id}>
+                {o.label || o.id}
+              </span>
+              <Input
+                type="number"
+                min={1}
+                step={1}
+                aria-label="Discounted units per line"
+                className="h-8 w-20 font-mono text-sm"
+                value={String(o.value)}
+                disabled={disabled}
+                onChange={(e) =>
+                  onUpdate(o.scope, o.id, {
+                    value: numberOr(
+                      e.target.value,
+                      DEFAULT_ORDER_DISCOUNT_RULES.maxQtyPerLine.value,
+                    ),
+                  })
+                }
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                onClick={() => onRemove(o.scope, o.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <Select
+          value={scope}
+          onValueChange={(v) => {
+            setScope(v as MaxQtyOverrideScope);
+            resetPicker();
+          }}
+        >
+          <SelectTrigger className="w-full sm:w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="PRODUCT">Product</SelectItem>
+            <SelectItem value="CATEGORY">Category</SelectItem>
+            <SelectItem value="VARIANT">Variant</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <div className="flex-1">
+          {scope === "CATEGORY" ? (
+            <Select
+              key={pickerKey}
+              disabled={disabled}
+              onValueChange={(id) => {
+                const cat = (categories?.data ?? []).find((c) => c.id === id);
+                if (!cat?.id) return;
+                onAdd({
+                  scope: "CATEGORY",
+                  id: cat.id,
+                  label: cat.title,
+                  value: DEFAULT_ORDER_DISCOUNT_RULES.maxQtyPerLine.value,
+                });
+                resetPicker();
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select category…" />
+              </SelectTrigger>
+              <SelectContent>
+                {(categories?.data ?? []).map((c) => (
+                  <SelectItem key={c.id} value={c.id ?? ""}>
+                    {c.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <SearchProductPicker
+              key={pickerKey}
+              clearInput
+              disabled={disabled}
+              label={
+                scope === "VARIANT" ? "Search variant…" : "Search product…"
+              }
+              onChange={(item) => {
+                if (scope === "VARIANT") {
+                  onAdd({
+                    scope: "VARIANT",
+                    id: item.variantId,
+                    label: item.productTitle,
+                    value: DEFAULT_ORDER_DISCOUNT_RULES.maxQtyPerLine.value,
+                  });
+                } else {
+                  onAdd({
+                    scope: "PRODUCT",
+                    id: item.productId,
+                    label: item.productTitle.replace(/\s*\([^)]*\)\s*$/, ""),
+                    value: DEFAULT_ORDER_DISCOUNT_RULES.maxQtyPerLine.value,
+                  });
+                }
+                resetPicker();
+              }}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }

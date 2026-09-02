@@ -11,6 +11,10 @@ import {
   VARIANT_DISCOUNT_MAX_QTY,
   computeVariantDiscount,
 } from "@/lib/variant-discount";
+import {
+  OrderDiscountRules,
+  resolveVariantMaxQty,
+} from "@/lib/order-discount-rules";
 import { Formatter } from "@/lib/formatter";
 import { generateId } from "@/lib/generate-id";
 import { Draft } from "immer";
@@ -51,10 +55,30 @@ export class RestaurantaAction {
     return Array.from(map.values());
   }
 
+  /**
+   * Resolve the variant-discount unit cap for one line: the ORDER_DISCOUNT_RULES
+   * default, or a per product / category / variant override when configured.
+   * Falls back to `VARIANT_DISCOUNT_MAX_QTY` when the rules are not loaded.
+   */
+  private static resolveMaxQtyPerLine(
+    item: RestaurantOrderItem,
+    rules?: OrderDiscountRules,
+  ): number {
+    if (!rules) return VARIANT_DISCOUNT_MAX_QTY;
+    const variant = item.productVariant;
+    const category = variant?.basicProduct?.category;
+    return resolveVariantMaxQty(rules, {
+      variantId: variant?.id,
+      productId: variant?.productId,
+      categoryId: category?.categoryId ?? category?.id,
+    });
+  }
+
   public static calculateItemTotals(
     item: RestaurantOrderItem,
-    maxQtyPerLine: number = VARIANT_DISCOUNT_MAX_QTY,
+    rules?: OrderDiscountRules,
   ): RestaurantOrderItem {
+    const maxQtyPerLine = RestaurantaAction.resolveMaxQtyPerLine(item, rules);
     const notesCharge = Number(item.notes?.price || 0);
     const totalModifier =
       RestaurantaAction.calculateModifierTotal(item.orderModifiers) +
@@ -126,10 +150,10 @@ export class RestaurantaAction {
 
   public static calculateOrderTotal(
     order: RestaurantOrder,
-    maxQtyPerLine: number = VARIANT_DISCOUNT_MAX_QTY,
+    rules?: OrderDiscountRules,
   ): RestaurantOrder {
     const items = order.items.map((it) =>
-      RestaurantaAction.calculateItemTotals(it, maxQtyPerLine),
+      RestaurantaAction.calculateItemTotals(it, rules),
     );
 
     const totalAmount = items.reduce((acc, item) => {
@@ -359,7 +383,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
   }
 
   public static handleUpdateProductQty(
@@ -426,7 +450,7 @@ export class RestaurantaAction {
       }
 
       draft.activeTables[activeTableIndex].orders =
-        RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
+        RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
     }
   }
 
@@ -458,7 +482,7 @@ export class RestaurantaAction {
     if (itemIndex >= 0) {
       order.items.splice(itemIndex, 1);
       draft.activeTables[activeTableIndex].orders =
-        RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
+        RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
     }
   }
   public static handleSendToKitchen(
@@ -578,7 +602,7 @@ export class RestaurantaAction {
     });
 
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
   }
 
   public static handleCheckout(
@@ -642,7 +666,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
     draft.tables.forEach((f) => {
       if (f.id === payload.table.id) {
         f.order = draft.activeTables[activeTableIndex].orders!;
@@ -689,7 +713,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
   }
 
   public static handleRemoveModifier(
@@ -724,7 +748,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
   }
 
   public static handleSetNotes(
@@ -753,7 +777,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.variantMaxQtyPerLine);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
   }
 
   public static handleRemoveOrder(
@@ -851,7 +875,7 @@ export class RestaurantaAction {
             ...payload.originalOrder!,
             items: payload.orderItems,
           },
-          draft.variantMaxQtyPerLine,
+          draft.orderDiscountRules,
         ),
       });
 
@@ -866,7 +890,7 @@ export class RestaurantaAction {
             ...payload.originalOrder!,
             items: payload.orderItems,
           },
-          draft.variantMaxQtyPerLine,
+          draft.orderDiscountRules,
         );
       }
     } else {
@@ -881,7 +905,7 @@ export class RestaurantaAction {
         draft.activeTables[destinationActiveTableIndex].orders =
           this.calculateOrderTotal(
             destinationOrder,
-            draft.variantMaxQtyPerLine,
+            draft.orderDiscountRules,
           );
       }
     }
@@ -906,7 +930,7 @@ export class RestaurantaAction {
           ...payload.originalOrder!,
           items: remainingItems,
         },
-        draft.variantMaxQtyPerLine,
+        draft.orderDiscountRules,
       );
     }
   }
