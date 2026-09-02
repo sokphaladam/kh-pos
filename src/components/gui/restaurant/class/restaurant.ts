@@ -13,7 +13,7 @@ import {
 } from "@/lib/variant-discount";
 import {
   OrderDiscountRules,
-  resolveVariantMaxQty,
+  resolveVariantUnitCapByLine,
 } from "@/lib/order-discount-rules";
 import { Formatter } from "@/lib/formatter";
 import { generateId } from "@/lib/generate-id";
@@ -55,36 +55,43 @@ export class RestaurantaAction {
     return Array.from(map.values());
   }
 
-  /**
-   * Resolve the variant-discount unit cap for one line: the ORDER_DISCOUNT_RULES
-   * default, or a per product / category / variant override when configured.
-   * Falls back to `VARIANT_DISCOUNT_MAX_QTY` when the rules are not loaded.
-   */
-  private static resolveMaxQtyPerLine(
-    item: RestaurantOrderItem,
-    rules?: OrderDiscountRules,
-  ): number {
-    if (!rules) return VARIANT_DISCOUNT_MAX_QTY;
-    const variant = item.productVariant;
-    const category = variant?.basicProduct?.category;
-    return resolveVariantMaxQty(rules, {
-      variantId: variant?.id,
-      productId: variant?.productId,
-      categoryId: category?.categoryId ?? category?.id,
-    });
+  /** Units on a restaurant order line (sum of the per-status quantities). */
+  private static itemQty(item: RestaurantOrderItem): number {
+    return item.status?.reduce((a, b) => a + b.qty, 0) || 0;
+  }
+
+  /** Whether a line actually carries a product-variant menu discount. */
+  private static itemHasVariantDiscount(item: RestaurantOrderItem): boolean {
+    return (item.discounts ?? []).some(
+      (d) => d.discountId === "variant" && Number(d.value || 0) > 0,
+    );
   }
 
   public static calculateItemTotals(
     item: RestaurantOrderItem,
     rules?: OrderDiscountRules,
+    /**
+     * Pre-resolved unit cap for this line, from `resolveVariantUnitCapByLine`
+     * (needed for `countBy: "PRODUCT" | "CATEGORY"`). `undefined` with `rules`
+     * set = no cap; `0` = discount nothing; `> 0` = that many units. Ignored
+     * when `rules` is not loaded (falls back to the built-in default).
+     */
+    variantUnitCap?: number,
   ): RestaurantOrderItem {
-    const maxQtyPerLine = RestaurantaAction.resolveMaxQtyPerLine(item, rules);
+    // Cap passed to computeVariantDiscount (0 there means "no cap").
+    const maxQtyPerLine = !rules
+      ? VARIANT_DISCOUNT_MAX_QTY
+      : variantUnitCap === undefined
+        ? 0
+        : variantUnitCap;
+    // Explicit 0 (only possible with rules loaded) = budget used up.
+    const skipVariantDiscount = !!rules && variantUnitCap === 0;
     const notesCharge = Number(item.notes?.price || 0);
     const totalModifier =
       RestaurantaAction.calculateModifierTotal(item.orderModifiers) +
       notesCharge;
     const priceAfterModifier = Number(item.price || 0) + totalModifier;
-    const qty = item.status?.reduce((a, b) => a + b.qty, 0) || 0;
+    const qty = RestaurantaAction.itemQty(item);
     const subtotal = priceAfterModifier * Number(qty || 0);
 
     const discountsArray = (item.discounts ?? []).map((d) => ({
@@ -110,13 +117,15 @@ export class RestaurantaAction {
 
     for (const d of discountsArray) {
       if (d.discountId === "variant") {
-        const vd = computeVariantDiscount(
-          priceAfterModifier,
-          d.discountType,
-          Number(d.value || 0),
-          qty,
-          maxQtyPerLine,
-        );
+        const vd = skipVariantDiscount
+          ? null
+          : computeVariantDiscount(
+              priceAfterModifier,
+              d.discountType,
+              Number(d.value || 0),
+              qty,
+              maxQtyPerLine,
+            );
         const amt = Math.min(vd?.lineDiscountAmount ?? 0, running);
         resolvedAmounts.set(d.id, amt);
         running -= amt;
@@ -152,8 +161,31 @@ export class RestaurantaAction {
     order: RestaurantOrder,
     rules?: OrderDiscountRules,
   ): RestaurantOrder {
+    // Resolve the variant-discount unit cap for every line up front so the
+    // `countBy: "PRODUCT" | "CATEGORY"` budget can be shared across lines.
+    const unitCapByLine = rules
+      ? resolveVariantUnitCapByLine(
+          rules,
+          order.items.map((it) => {
+            const category = it.productVariant?.basicProduct?.category;
+            return {
+              orderDetailId: it.orderDetailId,
+              qty: RestaurantaAction.itemQty(it),
+              hasVariantDiscount:
+                RestaurantaAction.itemHasVariantDiscount(it),
+              productId: it.productVariant?.productId,
+              categoryId: category?.categoryId ?? category?.id,
+            };
+          }),
+        )
+      : undefined;
+
     const items = order.items.map((it) =>
-      RestaurantaAction.calculateItemTotals(it, rules),
+      RestaurantaAction.calculateItemTotals(
+        it,
+        rules,
+        unitCapByLine?.get(it.orderDetailId),
+      ),
     );
 
     const totalAmount = items.reduce((acc, item) => {

@@ -11,7 +11,7 @@ import {
   OrderDiscountRules,
   allocateDiscount,
   computeOrderLevelDiscount,
-  resolveVariantMaxQty,
+  resolveVariantUnitCapByLine,
   variantMaxQtyFromRules,
 } from "@/lib/order-discount-rules";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
@@ -305,6 +305,14 @@ export async function applyDiscountToOrderItem(
   orderItem: table_customer_order_detail,
   knex: Knex,
   rules?: OrderDiscountRules,
+  /**
+   * Pre-resolved unit cap for this line's variant menu discount, from
+   * `resolveVariantUnitCapByLine` (needed for `countBy: "PRODUCT" | "CATEGORY"`,
+   * where the cap depends on sibling lines). `undefined` = caller has no
+   * cross-line context, fall back to the flat rule cap; `0` = discount nothing;
+   * `> 0` = discount that many units.
+   */
+  variantUnitCap?: number,
 ) {
   // order item amount
   let orderItemAmount = Number(orderItem.total_amount || 0);
@@ -330,34 +338,15 @@ export async function applyDiscountToOrderItem(
     return rank(a) - rank(b);
   });
 
-  // Unit cap for the per-line variant menu discount. Starts at the rule
-  // default, then swaps in a per product / category / variant override when
-  // one is configured for this line's variant.
-  let variantMaxQty = rules ? variantMaxQtyFromRules(rules) : undefined;
-  if (
-    rules &&
-    rules.maxQtyPerLine.overrides.length > 0 &&
-    orderItem.variant_id
-  ) {
-    const variantRow = await knex
-      .table<{ product_id: string }>("product_variant")
-      .where("id", orderItem.variant_id)
-      .select("product_id")
-      .first();
-    const categoryIds = variantRow?.product_id
-      ? (
-          await knex
-            .table<{ category_id: string }>("product_categories")
-            .where("product_id", variantRow.product_id)
-            .select("category_id")
-        ).map((r) => r.category_id)
-      : [];
-    variantMaxQty = resolveVariantMaxQty(rules, {
-      variantId: orderItem.variant_id,
-      productId: variantRow?.product_id,
-      categoryId: categoryIds,
-    });
-  }
+  // Unit cap for the per-line variant menu discount. Prefer the pre-resolved
+  // per-line cap (it accounts for the `countBy` scope across sibling lines);
+  // otherwise fall back to the flat rule cap.
+  const variantMaxQty =
+    variantUnitCap !== undefined
+      ? variantUnitCap
+      : rules
+        ? variantMaxQtyFromRules(rules)
+        : undefined;
 
   await knex.transaction(async (trx) => {
     for (const discount of existingDiscounts) {
@@ -376,13 +365,18 @@ export async function applyDiscountToOrderItem(
       // computeVariantDiscount caps the discounted units at the configured
       // max-qty-per-line, so units beyond that on the line pay full price.
       if (discount.discount_id === "variant") {
-        const variantDiscount = computeVariantDiscount(
-          Number(orderItem.price || 0),
-          discount.discount_type,
-          Number(discount.value || 0),
-          Number(orderItem.qty || 0),
-          variantMaxQty,
-        );
+        // A pre-resolved cap of 0 means this line's share of the `countBy`
+        // budget is used up — charge every unit full price.
+        const variantDiscount =
+          variantUnitCap === 0
+            ? null
+            : computeVariantDiscount(
+                Number(orderItem.price || 0),
+                discount.discount_type,
+                Number(discount.value || 0),
+                Number(orderItem.qty || 0),
+                variantMaxQty,
+              );
         const discountValue = Math.min(
           variantDiscount?.lineDiscountAmount ?? 0,
           orderItemAmount,
@@ -483,6 +477,81 @@ export async function recalculateOrderLevelDiscount(
     existingOrderLogs.map((l) => [l.order_detail_id!, l] as const),
   );
 
+  // Per-line unit cap for the variant menu discount. For countBy PRODUCT /
+  // CATEGORY the `value` budget is shared across sibling lines, so it has to be
+  // resolved here where every line is visible, consumed oldest-first.
+  const variantLogLines = new Set(
+    (
+      await trx
+        .table<table_discount_log>("discount_log")
+        .whereIn(
+          "order_detail_id",
+          lines.map((l) => l.order_detail_id!),
+        )
+        .where("discount_id", "variant")
+        .select("order_detail_id")
+    ).map((r) => r.order_detail_id!),
+  );
+
+  const orderedLines = [...lines].sort(
+    (a, b) =>
+      String(a.created_at ?? "").localeCompare(String(b.created_at ?? "")) ||
+      String(a.order_detail_id).localeCompare(String(b.order_detail_id)),
+  );
+
+  let productByVariant = new Map<string, string>();
+  const categoryByProduct = new Map<string, string>();
+  if (rules.maxQtyPerLine.countBy !== "VARIANT") {
+    const variantIds = [
+      ...new Set(
+        orderedLines.map((l) => l.variant_id).filter((v): v is string => !!v),
+      ),
+    ];
+    if (variantIds.length > 0) {
+      const pv = await trx
+        .table<{ id: string; product_id: string }>("product_variant")
+        .whereIn("id", variantIds)
+        .select("id", "product_id");
+      productByVariant = new Map(pv.map((r) => [r.id, r.product_id]));
+      const productIds = [
+        ...new Set(
+          pv.map((r) => r.product_id).filter((v): v is string => !!v),
+        ),
+      ];
+      if (productIds.length > 0 && rules.maxQtyPerLine.countBy === "CATEGORY") {
+        const pc = await trx
+          .table<{ product_id: string; category_id: string }>(
+            "product_categories",
+          )
+          .whereIn("product_id", productIds)
+          .select("product_id", "category_id");
+        for (const r of pc) {
+          if (!categoryByProduct.has(r.product_id)) {
+            categoryByProduct.set(r.product_id, r.category_id);
+          }
+        }
+      }
+    }
+  }
+
+  const unitCapByLine = resolveVariantUnitCapByLine(
+    rules,
+    orderedLines.map((l) => {
+      const productId = l.variant_id
+        ? (productByVariant.get(l.variant_id) ?? null)
+        : null;
+      return {
+        orderDetailId: l.order_detail_id!,
+        qty: Number(l.qty || 0),
+        hasVariantDiscount: variantLogLines.has(l.order_detail_id!),
+        productId,
+        categoryId: productId
+          ? (categoryByProduct.get(productId) ?? null)
+          : null,
+      };
+    }),
+  );
+
   // Rebuild each line from gross (modifiers + line discounts, but NOT the
   // order-level slice — applyDiscountToOrderItem skips it) so we get a clean
   // "net before order discount" and the line-discount total for every line,
@@ -497,7 +566,12 @@ export async function recalculateOrderLevelDiscount(
     line.discount_amount = "0";
     line.modifer_amount = "0";
     await applyModifierToOrderItem(line, trx);
-    await applyDiscountToOrderItem(line, trx, rules);
+    await applyDiscountToOrderItem(
+      line,
+      trx,
+      rules,
+      unitCapByLine.get(line.order_detail_id!),
+    );
     netBeforeOrder.push(Math.max(0, Number(line.total_amount || 0)));
     lineDiscountOnly.push(Number(line.discount_amount || 0));
     totalQty += Number(line.qty || 0);

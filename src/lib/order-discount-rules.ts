@@ -12,31 +12,22 @@ export interface OrderThresholdRule {
   value: number;
 }
 
-/** What a `MaxQtyOverride` targets. */
-export type MaxQtyOverrideScope = "PRODUCT" | "CATEGORY" | "VARIANT";
-
 /**
- * A per-target override of the variant discount unit cap. When an order line's
- * variant matches an override, its `value` replaces `MaxQtyPerLineRule.value`
- * for that line. Resolution order (most specific wins):
- * `VARIANT` -> `PRODUCT` -> `CATEGORY` -> the rule default.
+ * How the variant discount unit cap is counted:
+ * - `VARIANT` (default): per order line — the first `value` units of each line.
+ * - `PRODUCT`: the first `value` discounted units of a product, shared across
+ *   every line of that product in the order.
+ * - `CATEGORY`: the first `value` discounted units within a category, shared
+ *   across every line in that category.
  */
-export interface MaxQtyOverride {
-  scope: MaxQtyOverrideScope;
-  /** product id / category id / product-variant id, matching `scope`. */
-  id: string;
-  /** Human-readable label captured when the override was added (UI only). */
-  label?: string;
-  /** Discounted units per line for this target (0 / negative = no cap). */
-  value: number;
-}
+export type MaxQtyCountBy = "VARIANT" | "PRODUCT" | "CATEGORY";
 
 export interface MaxQtyPerLineRule {
   enabled: boolean;
-  /** Default number of units on a line that a variant menu discount may cover. */
+  /** Number of units a variant menu discount may cover. */
   value: number;
-  /** Per product / category / variant caps that override `value`. */
-  overrides: MaxQtyOverride[];
+  /** Scope the `value` budget is counted over. */
+  countBy: MaxQtyCountBy;
 }
 
 export interface OrderDiscountRules {
@@ -53,7 +44,7 @@ export const ORDER_DISCOUNT_RULES_OPTION = "ORDER_DISCOUNT_RULES";
 export const DEFAULT_ORDER_DISCOUNT_RULES: OrderDiscountRules = {
   amountRule: { enabled: false, min: 100, discountType: "PERCENTAGE", value: 0 },
   qtyRule: { enabled: false, min: 50, discountType: "PERCENTAGE", value: 0 },
-  maxQtyPerLine: { enabled: true, value: 3, overrides: [] },
+  maxQtyPerLine: { enabled: true, value: 3, countBy: "VARIANT" },
 };
 
 function toNumber(v: unknown, fallback: number): number {
@@ -88,34 +79,7 @@ function parseThresholdRule(
   };
 }
 
-const MAX_QTY_OVERRIDE_SCOPES: MaxQtyOverrideScope[] = [
-  "PRODUCT",
-  "CATEGORY",
-  "VARIANT",
-];
-
-/** Parse the stored `maxQtyPerLine.overrides` array, dropping malformed rows. */
-function parseMaxQtyOverrides(raw: unknown): MaxQtyOverride[] {
-  if (!Array.isArray(raw)) return [];
-  const seen = new Set<string>();
-  const out: MaxQtyOverride[] = [];
-  for (const entry of raw) {
-    const r = (entry ?? {}) as Record<string, unknown>;
-    const scope = r.scope as MaxQtyOverrideScope;
-    const id = typeof r.id === "string" ? r.id.trim() : "";
-    if (!id || !MAX_QTY_OVERRIDE_SCOPES.includes(scope)) continue;
-    const key = `${scope}:${id}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push({
-      scope,
-      id,
-      label: typeof r.label === "string" ? r.label : undefined,
-      value: toNumber(r.value, DEFAULT_ORDER_DISCOUNT_RULES.maxQtyPerLine.value),
-    });
-  }
-  return out;
-}
+const MAX_QTY_COUNT_BY: MaxQtyCountBy[] = ["VARIANT", "PRODUCT", "CATEGORY"];
 
 /** Safe JSON parse of a stored `ORDER_DISCOUNT_RULES` value, filling defaults. */
 export function parseOrderDiscountRules(
@@ -152,7 +116,9 @@ export function parseOrderDiscountRules(
         maxRaw.value,
         DEFAULT_ORDER_DISCOUNT_RULES.maxQtyPerLine.value,
       ),
-      overrides: parseMaxQtyOverrides(maxRaw.overrides),
+      countBy: MAX_QTY_COUNT_BY.includes(maxRaw.countBy as MaxQtyCountBy)
+        ? (maxRaw.countBy as MaxQtyCountBy)
+        : DEFAULT_ORDER_DISCOUNT_RULES.maxQtyPerLine.countBy,
     },
   };
 }
@@ -164,48 +130,65 @@ export function variantMaxQtyFromRules(rules: OrderDiscountRules): number {
     : 0;
 }
 
-/** A single order line, described enough to match a `MaxQtyOverride`. */
-export interface VariantMaxQtyTarget {
-  variantId?: string | null;
+/** One order line, described enough to resolve its variant-discount unit cap. */
+export interface VariantDiscountLine {
+  orderDetailId: string;
+  /** Units on the line. */
+  qty: number;
+  /** Whether this line actually carries a variant menu discount. */
+  hasVariantDiscount: boolean;
   productId?: string | null;
-  /** The line's category id(s). A product may belong to more than one. */
-  categoryId?: string | (string | null | undefined)[] | null;
+  /** The line's (primary) category id — used only by `countBy: "CATEGORY"`. */
+  categoryId?: string | null;
 }
 
 /**
- * The unit cap to pass to `computeVariantDiscount` for one order line, taking
- * per product / category / variant overrides into account. Resolution order,
- * most specific first: variant override -> product override -> category
- * override -> the rule default. Returns 0 when the rule is disabled or the
- * resolved value is non-positive (both mean "no cap").
+ * Resolve the per-line unit cap to pass to `computeVariantDiscount` for a whole
+ * order, honoring `maxQtyPerLine.countBy`:
+ *
+ * - `VARIANT`: every line gets the flat `value` cap.
+ * - `PRODUCT` / `CATEGORY`: the `value` budget is shared across all lines of the
+ *   same group and consumed in `lines` order (pass them oldest-first). A line
+ *   that exhausts the remaining budget gets `0` (discount nothing).
+ *
+ * Returns a map keyed by `orderDetailId`. A line **absent** from the map has no
+ * cap (rule disabled, `value <= 0`, or not groupable) — treat that as "discount
+ * every unit". A present value `>= 0` is an exact cap (`0` = discount nothing).
  */
-export function resolveVariantMaxQty(
+export function resolveVariantUnitCapByLine(
   rules: OrderDiscountRules,
-  target: VariantMaxQtyTarget,
-): number {
+  lines: VariantDiscountLine[],
+): Map<string, number> {
   const rule = rules.maxQtyPerLine;
-  if (!rule.enabled) return 0;
+  const out = new Map<string, number>();
+  const cap = rule.value;
+  if (!rule.enabled || !Number.isFinite(cap) || cap <= 0) return out;
 
-  const overrides = rule.overrides ?? [];
-  const pick = (scope: MaxQtyOverrideScope, id?: string | null) =>
-    id ? overrides.find((o) => o.scope === scope && o.id === id) : undefined;
+  if (rule.countBy === "VARIANT") {
+    for (const l of lines) out.set(l.orderDetailId, cap);
+    return out;
+  }
 
-  const categoryIds = Array.isArray(target.categoryId)
-    ? target.categoryId
-    : [target.categoryId];
-  const categoryMatch = categoryIds
-    .map((id) => pick("CATEGORY", id ?? undefined))
-    .filter((o): o is MaxQtyOverride => !!o)
-    // Most restrictive category cap wins when a product has several categories.
-    .sort((a, b) => a.value - b.value)[0];
-
-  const match =
-    pick("VARIANT", target.variantId) ??
-    pick("PRODUCT", target.productId) ??
-    categoryMatch;
-
-  const value = match ? match.value : rule.value;
-  return Number.isFinite(value) && value > 0 ? value : 0;
+  const consumed = new Map<string, number>();
+  for (const l of lines) {
+    const key =
+      rule.countBy === "PRODUCT"
+        ? (l.productId ?? "")
+        : (l.categoryId ?? "");
+    if (!key) {
+      // Can't place the line in a group — fall back to the flat per-line cap.
+      out.set(l.orderDetailId, cap);
+      continue;
+    }
+    const used = consumed.get(key) ?? 0;
+    const remaining = Math.max(0, cap - used);
+    out.set(l.orderDetailId, remaining);
+    if (l.hasVariantDiscount) {
+      const qty = Number.isFinite(l.qty) && l.qty > 0 ? l.qty : 0;
+      consumed.set(key, used + Math.min(qty, remaining));
+    }
+  }
+  return out;
 }
 
 function applyRule(rule: OrderThresholdRule, subtotal: number): number {
