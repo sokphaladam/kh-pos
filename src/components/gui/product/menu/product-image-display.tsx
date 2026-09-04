@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { VariantBadge } from "@/lib/variant-badges";
 
 interface ProductImageDisplayProps {
   images: { url: string }[];
@@ -15,6 +16,8 @@ interface ProductImageDisplayProps {
   originalPrice?: string;
   /** Short badge text, e.g. "-10%". */
   discountLabel?: string;
+  /** Admin-set menu badges (popular / new / most-order). */
+  badges?: VariantBadge[];
 }
 
 function PriceTag({
@@ -46,15 +49,31 @@ export function ProductImageDisplay({
   price,
   originalPrice,
   discountLabel,
+  badges,
 }: ProductImageDisplayProps) {
   const discounted = originalPrice !== undefined && originalPrice !== price;
 
   const overlay = (
     <>
-      {discounted && discountLabel && (
-        <span className="absolute top-2 left-2 z-10 text-[10px] sm:text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-md shadow-sm">
-          {discountLabel}
-        </span>
+      {((discounted && discountLabel) || (badges && badges.length > 0)) && (
+        <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
+          {discounted && discountLabel && (
+            <span className="text-[10px] sm:text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-md shadow-sm">
+              {discountLabel}
+            </span>
+          )}
+          {badges?.map((badge) => (
+            <span
+              key={badge.key}
+              className={cn(
+                "text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-md shadow-sm",
+                badge.className
+              )}
+            >
+              {badge.label}
+            </span>
+          ))}
+        </div>
       )}
       <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
         <PriceTag price={price} originalPrice={originalPrice} />

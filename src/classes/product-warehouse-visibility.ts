@@ -99,4 +99,38 @@ export class ProductWarehouseVisibilityService {
 
     return true;
   }
+
+  /**
+   * Set a sub-warehouse's own override of the popular/new/most-order menu
+   * badges for a variant. `null` clears the override so the branch goes
+   * back to inheriting the main warehouse's flag.
+   */
+  async setBadgesProductWarehouseVisibility(
+    productVariantId: string,
+    warehouseId: string,
+    badges: {
+      isPopular?: boolean | null;
+      isNew?: boolean | null;
+      isMostOrder?: boolean | null;
+    },
+  ) {
+    const update: Record<string, boolean | null> = {};
+    if (badges.isPopular !== undefined) update.is_popular = badges.isPopular;
+    if (badges.isNew !== undefined) update.is_new = badges.isNew;
+    if (badges.isMostOrder !== undefined)
+      update.is_most_order = badges.isMostOrder;
+
+    await this.knex
+      .table("product_warehouse_visibility")
+      .where({
+        warehouse_id: warehouseId,
+        product_variant_id: productVariantId,
+      })
+      .update({
+        ...update,
+        updated_at: Formatter.getNowDateTime(),
+      });
+
+    return true;
+  }
 }

@@ -42,6 +42,9 @@ export interface ProductSearchResult {
   modifiers?: ProductModifierType[] | null;
   discounts?: DiscountByProduct[] | null;
   category?: ProductCategory | null;
+  isPopular?: boolean;
+  isNew?: boolean;
+  isMostOrder?: boolean;
 }
 
 export const productSearchFilterSchema = z.object({

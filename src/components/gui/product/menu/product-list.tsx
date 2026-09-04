@@ -11,6 +11,7 @@ import { useWindowSize } from "@/components/use-window-size";
 import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { cn } from "@/lib/utils";
 import { variantDiscountLabel } from "@/lib/variant-discount";
+import { getVariantBadges } from "@/lib/variant-badges";
 import { ChevronDown, Loader2, Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -241,6 +242,11 @@ export function ProductList() {
                     variant?.discountType ?? item.discountType,
                     variant?.discountValue ?? item.discountValue,
                   ) ?? undefined;
+                const badges = getVariantBadges({
+                  isPopular: variant?.isPopular ?? item.isPopular,
+                  isNew: variant?.isNew ?? item.isNew,
+                  isMostOrder: variant?.isMostOrder ?? item.isMostOrder,
+                });
 
                 return (
                   <Card
@@ -265,6 +271,7 @@ export function ProductList() {
                       price={price}
                       originalPrice={originalPrice}
                       discountLabel={discountLabel}
+                      badges={badges}
                     />
                   </Card>
                 );

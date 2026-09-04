@@ -86,6 +86,9 @@ export function ProductVariantList() {
           </TableHead>
           <TableHead className="text-xs whitespace-nowrap">Composite</TableHead>
           <TableHead className="text-xs whitespace-nowrap">Visible</TableHead>
+          <TableHead className="text-xs whitespace-nowrap">
+            Menu Tags
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -278,6 +281,55 @@ export function ProductVariantList() {
                     </label>
                   </div>
                 </TableCell>
+                <TableCell className="text-xs w-[180px]">
+                  <div className="flex flex-col gap-1">
+                    <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={x.isPopular || false}
+                        onChange={(e) =>
+                          setProduct(
+                            produce(product, (draft) => {
+                              (draft.productVariants || [])[idx].isPopular =
+                                e.target.checked;
+                            })
+                          )
+                        }
+                      />
+                      Popular
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={x.isNew || false}
+                        onChange={(e) =>
+                          setProduct(
+                            produce(product, (draft) => {
+                              (draft.productVariants || [])[idx].isNew =
+                                e.target.checked;
+                            })
+                          )
+                        }
+                      />
+                      New
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={x.isMostOrder || false}
+                        onChange={(e) =>
+                          setProduct(
+                            produce(product, (draft) => {
+                              (draft.productVariants || [])[idx].isMostOrder =
+                                e.target.checked;
+                            })
+                          )
+                        }
+                      />
+                      Most Order
+                    </label>
+                  </div>
+                </TableCell>
                 <TableCell className="text-right">
                   <BasicMenuAction
                     value={x}
@@ -293,7 +345,7 @@ export function ProductVariantList() {
               </TableRow>
               {showCompositeCard && (
                 <tr>
-                  <td colSpan={10} className="p-0">
+                  <td colSpan={11} className="p-0">
                     <CompositeCard
                       variant={x.compositeVariants?.map((cv) => ({
                         id: cv.id || undefined,

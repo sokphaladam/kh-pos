@@ -1,6 +1,7 @@
 "use client";
 import { useDeleteProduct } from "@/app/hooks/use-query-product";
 import {
+  useMutationSetBadgesProductWarehouseVisibility,
   useMutationSetForSaleProductWarehouseVisibility,
   useMutationSetVisibilityProductWarehouseVisibility,
 } from "@/app/hooks/user-query-product-warehouse-visibility";
@@ -48,6 +49,57 @@ import { useWindowSize } from "../use-window-size";
 import { productDialog } from "./dialog-product";
 import { printLabel } from "./print-label";
 
+type VariantBadgeKey = "isPopular" | "isNew" | "isMostOrder";
+
+const VARIANT_BADGE_CHIPS: {
+  key: VariantBadgeKey;
+  label: string;
+  activeClass: string;
+}[] = [
+  { key: "isPopular", label: "Popular", activeClass: "bg-amber-500 text-white border-amber-500" },
+  { key: "isNew", label: "New", activeClass: "bg-emerald-500 text-white border-emerald-500" },
+  {
+    key: "isMostOrder",
+    label: "Best Seller",
+    activeClass: "bg-purple-500 text-white border-purple-500",
+  },
+];
+
+/** Per-branch override toggles for the popular/new/most-order menu badges. */
+function VariantBadgeToggles({
+  state,
+  disabled,
+  onToggle,
+}: {
+  state: { isPopular: boolean; isNew: boolean; isMostOrder: boolean };
+  disabled?: boolean;
+  onToggle: (key: VariantBadgeKey, value: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1 flex-wrap">
+      {VARIANT_BADGE_CHIPS.map((chip) => (
+        <button
+          key={chip.key}
+          type="button"
+          disabled={disabled}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle(chip.key, !state[chip.key]);
+          }}
+          className={cn(
+            "text-[10px] font-medium px-1.5 py-0.5 rounded-full border transition-colors",
+            state[chip.key]
+              ? chip.activeClass
+              : "bg-white text-gray-400 border-gray-200",
+          )}
+        >
+          {chip.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function Product({
   product,
   onDelete,
@@ -70,6 +122,7 @@ export function Product({
   const setForSaleMutation = useMutationSetForSaleProductWarehouseVisibility();
   const setVisibilityMutation =
     useMutationSetVisibilityProductWarehouseVisibility();
+  const setBadgesMutation = useMutationSetBadgesProductWarehouseVisibility();
 
   // Sub-warehouse with product groups assigned from main warehouse
   const isSubWarehouseWithGroups =
@@ -85,6 +138,24 @@ export function Product({
   >(() =>
     Object.fromEntries(
       product.productVariants?.map((v) => [v.id, v.visible]) ?? [],
+    ),
+  );
+  // Optimistic state for this branch's own popular/new/most-order override (per variant)
+  const [variantBadgeState, setVariantBadgeState] = useState<
+    Record<
+      string,
+      { isPopular: boolean; isNew: boolean; isMostOrder: boolean }
+    >
+  >(() =>
+    Object.fromEntries(
+      product.productVariants?.map((v) => [
+        v.id,
+        {
+          isPopular: v.isPopular ?? false,
+          isNew: v.isNew ?? false,
+          isMostOrder: v.isMostOrder ?? false,
+        },
+      ]) ?? [],
     ),
   );
 
@@ -150,6 +221,34 @@ export function Product({
       });
     },
     [setVisibilityMutation, onCompleted, showDialog],
+  );
+
+  const onToggleVariantBadge = useCallback(
+    (variantId: string, key: VariantBadgeKey, newValue: boolean) => {
+      const previous = variantBadgeState[variantId];
+      setVariantBadgeState((prev) => ({
+        ...prev,
+        [variantId]: { ...prev[variantId], [key]: newValue },
+      }));
+      const payload: {
+        productVariantId: string;
+        isPopular?: boolean;
+        isNew?: boolean;
+        isMostOrder?: boolean;
+      } = { productVariantId: variantId };
+      payload[key] = newValue;
+      setBadgesMutation.trigger(payload).then((res) => {
+        if (res?.success) {
+          onCompleted?.();
+        } else if (previous) {
+          setVariantBadgeState((prev) => ({
+            ...prev,
+            [variantId]: previous,
+          }));
+        }
+      });
+    },
+    [variantBadgeState, setBadgesMutation, onCompleted],
   );
 
   // Check if we're in barcode search mode and auto-expand variants
@@ -749,6 +848,23 @@ export function Product({
                         )}
                       </div>
                     )}
+                    {isSubWarehouseWithGroups && (
+                      <div className="col-span-2 pt-1">
+                        <VariantBadgeToggles
+                          state={
+                            variantBadgeState[variant.id] ?? {
+                              isPopular: variant.isPopular ?? false,
+                              isNew: variant.isNew ?? false,
+                              isMostOrder: variant.isMostOrder ?? false,
+                            }
+                          }
+                          disabled={setBadgesMutation.isMutating}
+                          onToggle={(key, value) =>
+                            onToggleVariantBadge(variant.id, key, value)
+                          }
+                        />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -851,6 +967,23 @@ export function Product({
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
+                    )}
+                    {isSubWarehouseWithGroups && (
+                      <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+                        <VariantBadgeToggles
+                          state={
+                            variantBadgeState[variant.id] ?? {
+                              isPopular: variant.isPopular ?? false,
+                              isNew: variant.isNew ?? false,
+                              isMostOrder: variant.isMostOrder ?? false,
+                            }
+                          }
+                          disabled={setBadgesMutation.isMutating}
+                          onToggle={(key, value) =>
+                            onToggleVariantBadge(variant.id, key, value)
+                          }
+                        />
+                      </div>
                     )}
                   </div>
                 </TableCell>

@@ -9,6 +9,7 @@ import { useDebouncedValue } from "@/components/use-debounce";
 import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { cn } from "@/lib/utils";
 import { variantDiscountLabel } from "@/lib/variant-discount";
+import { getVariantBadges } from "@/lib/variant-badges";
 import { ChevronDown, Loader2, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductImageDisplay } from "../product/menu/product-image-display";
@@ -412,6 +413,11 @@ export function ProductGrid({
                           variant?.discountType ?? item.discountType,
                           variant?.discountValue ?? item.discountValue,
                         ) ?? undefined;
+                      const badges = getVariantBadges({
+                        isPopular: variant?.isPopular ?? item.isPopular,
+                        isNew: variant?.isNew ?? item.isNew,
+                        isMostOrder: variant?.isMostOrder ?? item.isMostOrder,
+                      });
 
                       const cartQty =
                         cartItemsMap.get(item.variantId || "") || 0;
@@ -444,6 +450,7 @@ export function ProductGrid({
                             price={price}
                             originalPrice={originalPrice}
                             discountLabel={discountLabel}
+                            badges={badges}
                           />
                         </Card>
                       );

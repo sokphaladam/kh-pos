@@ -9,6 +9,7 @@ import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { WithLayoutPermissionProps } from "@/hoc/with-layout-permission";
 import { cn } from "@/lib/utils";
 import { variantDiscountLabel } from "@/lib/variant-discount";
+import { getVariantBadges, VariantBadge } from "@/lib/variant-badges";
 import { useAuthentication } from "contexts/authentication-context";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
 import { ChevronDown, Loader2 } from "lucide-react";
@@ -30,6 +31,7 @@ function ProductImageSlideshow({
   price,
   originalPrice,
   discountLabel,
+  badges,
 }: {
   images: { url: string }[];
   title: string;
@@ -41,6 +43,7 @@ function ProductImageSlideshow({
   price?: number;
   originalPrice?: number;
   discountLabel?: string;
+  badges?: VariantBadge[];
 }) {
   const { formatForDisplay } = useCurrencyFormat();
   const discounted =
@@ -57,10 +60,26 @@ function ProductImageSlideshow({
       </span>
     </span>
   );
-  const discountBadge = discounted && discountLabel && (
-    <span className="absolute top-2 left-2 z-10 text-[10px] sm:text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-md shadow-sm">
-      {discountLabel}
-    </span>
+  const topBadges = ((discounted && discountLabel) ||
+    (badges && badges.length > 0)) && (
+    <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
+      {discounted && discountLabel && (
+        <span className="text-[10px] sm:text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-md shadow-sm">
+          {discountLabel}
+        </span>
+      )}
+      {badges?.map((badge) => (
+        <span
+          key={badge.key}
+          className={cn(
+            "text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-md shadow-sm",
+            badge.className,
+          )}
+        >
+          {badge.label}
+        </span>
+      ))}
+    </div>
   );
   if (!images || images.length === 0) {
     return (
@@ -74,7 +93,7 @@ function ProductImageSlideshow({
         >
           <span className="text-gray-400 text-xs sm:text-sm">No Image</span>
 
-          {discountBadge}
+          {topBadges}
           {/* Price and Stock Status Overlay */}
           <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
             {priceTag}
@@ -122,7 +141,7 @@ function ProductImageSlideshow({
           </div>
         )}
 
-        {discountBadge}
+        {topBadges}
         {/* Price and Stock Status Overlay */}
         <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
           {priceTag}
@@ -159,6 +178,11 @@ function variantPriceProps(variant?: ProductVariantType, item?: ProductSearchRes
         variant?.discountType ?? item?.discountType,
         variant?.discountValue ?? item?.discountValue,
       ) ?? undefined,
+    badges: getVariantBadges({
+      isPopular: variant?.isPopular ?? item?.isPopular,
+      isNew: variant?.isNew ?? item?.isNew,
+      isMostOrder: variant?.isMostOrder ?? item?.isMostOrder,
+    }),
   };
 }
 

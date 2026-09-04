@@ -78,6 +78,9 @@ export function ProductVariant() {
           draft.productVariants = variants.map((variant) => ({
             isComposite: false,
             compositeVariants: [],
+            isPopular: false,
+            isNew: false,
+            isMostOrder: false,
             ...variant,
           }));
         }),

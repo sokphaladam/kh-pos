@@ -50,6 +50,10 @@ export interface ProductVariantType {
   basicProduct?: BasicProductType | null;
   isComposite?: boolean;
   visible: boolean;
+  /** Admin-set menu badges; tagged variants sort to the top of their category. */
+  isPopular?: boolean;
+  isNew?: boolean;
+  isMostOrder?: boolean;
   compositeVariants?: CompositeVariant[];
   slotStock?: {
     slotId: string;
@@ -119,6 +123,9 @@ export function createProductVariantLoader(
       "product_variant_id",
       "is_visible",
       "is_for_sale",
+      "is_popular",
+      "is_new",
+      "is_most_order",
     );
 
     const variantStockLoader = LoaderFactory.variantStockLoader(
@@ -146,6 +153,10 @@ export function createProductVariantLoader(
           .map(({ id, value }) => ({ id, value }));
 
         const movie = x.id ? await movieLoader.load(x.id) : null;
+
+        const branchVisibility = useMainBranchVisibility
+          ? visibilityList.find((v) => v.product_variant_id === x.id)
+          : undefined;
 
         const unitPrice = x.price ? Number(x.price) : null;
         const discountType = x.discount_type ?? null;
@@ -187,6 +198,12 @@ export function createProductVariantLoader(
               )
             : undefined,
           movie,
+          isPopular: resolveBadge(branchVisibility?.is_popular, x.is_popular),
+          isNew: resolveBadge(branchVisibility?.is_new, x.is_new),
+          isMostOrder: resolveBadge(
+            branchVisibility?.is_most_order,
+            x.is_most_order,
+          ),
         };
 
         productVariantMap[x.product_id] = productVariantMap[x.product_id] || [];
@@ -208,6 +225,17 @@ export function createProductVariantLoader(
 
     return await Promise.all(keys.map((key) => productVariantMap[key] || []));
   });
+}
+
+/**
+ * Resolve a menu badge flag: an explicit per-branch override (0 or 1) wins,
+ * otherwise fall back to the main warehouse's flag on `product_variant`.
+ */
+function resolveBadge(
+  overrideVal: number | null | undefined,
+  mainVal: number | null | undefined,
+): boolean {
+  return (overrideVal ?? mainVal ?? 0) === 1;
 }
 
 export async function getVariantOptionValue(

@@ -42,6 +42,9 @@ const inputProductVariantSchema = z
       .optional()
       .default([]),
     visible: z.boolean().optional().default(true),
+    isPopular: z.boolean().optional().default(false),
+    isNew: z.boolean().optional().default(false),
+    isMostOrder: z.boolean().optional().default(false),
   })
   .refine(
     (data) => {
@@ -149,6 +152,9 @@ export class ProductVariantService {
             variant.discountValue != null && variant.discountValue > 0
               ? String(variant.discountValue)
               : null,
+          is_popular: variant.isPopular ? 1 : 0,
+          is_new: variant.isNew ? 1 : 0,
+          is_most_order: variant.isMostOrder ? 1 : 0,
         });
 
       // Update composite variants if it is a composite variant
@@ -197,6 +203,9 @@ export class ProductVariantService {
           variant.discountValue != null && variant.discountValue > 0
             ? String(variant.discountValue)
             : null,
+        is_popular: variant.isPopular ? 1 : 0,
+        is_new: variant.isNew ? 1 : 0,
+        is_most_order: variant.isMostOrder ? 1 : 0,
       });
 
       // composite variants
