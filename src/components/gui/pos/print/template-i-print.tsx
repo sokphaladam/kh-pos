@@ -50,7 +50,15 @@ export function TemplateIPrint({
   const totalAfterDiscount = total - (totalDiscount || 0);
   const receive =
     order?.payments.reduce((a, b) => (a = a + Number(b.amountUsd)), 0) || 0;
-  const change = receive <= 0 ? 0 : receive - totalAfterDiscount;
+  // Math.max(0, ...) also normalizes away the "-0.00"/"-៛0" that floating
+  // point rounding can leave when payment exactly covers the total (e.g.
+  // receive - totalAfterDiscount landing on -1e-13 instead of 0).
+  const change = Math.max(
+    0,
+    Math.round(
+      (receive <= 0 ? 0 : receive - totalAfterDiscount) * 100,
+    ) / 100,
+  );
   const invoiceReceiptValue = defaultInvoice
     ? defaultInvoice
     : setting?.data?.result?.find((f) => f.option === "INVOICE_RECEIPT")?.value;

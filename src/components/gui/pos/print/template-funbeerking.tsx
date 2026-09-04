@@ -50,6 +50,10 @@ export function TemplateFunbeerking(props: Props) {
         : "";
   const customer = order?.orderInfo.customerLoader?.customerName;
   const customerCount = order?.orderInfo.customer || 1;
+  // No `order_payment` rows yet means this order hasn't actually been
+  // checked out (e.g. printed from the pre-checkout "print bill" button) —
+  // Received Total/Change/Payment Method would all be misleadingly $0.00.
+  const isPaid = (order?.payments.length || 0) > 0;
 
   const receive =
     order?.payments.reduce((a, b) => {
@@ -85,7 +89,15 @@ export function TemplateFunbeerking(props: Props) {
 
   const totalAfterDiscount = total - (totalDiscount || 0);
 
-  const change = receive <= 0 ? 0 : receive - totalAfterDiscount;
+  // Math.max(0, ...) also normalizes away the "-0.00"/"-៛0" that floating
+  // point rounding can leave when payment exactly covers the total (e.g.
+  // receive - totalAfterDiscount landing on -1e-13 instead of 0).
+  const change = Math.max(
+    0,
+    Math.round(
+      (receive <= 0 ? 0 : receive - totalAfterDiscount) * 100,
+    ) / 100,
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const displayTotalDiscount =
@@ -298,7 +310,7 @@ export function TemplateFunbeerking(props: Props) {
                 ? moment(order.orderInfo.paidAt).format(
                     "DD/MM/YYYY HH:mm:ss",
                   )
-                : moment(new Date()).format("DD/MM/YYYY HH:mm:ss")}
+                : "—"}
             </div>
           </div>
           <div className="display">
@@ -673,6 +685,19 @@ export function TemplateFunbeerking(props: Props) {
                   </div>
                 </td>
               </tr>
+              {!isPaid && (
+                <tr className="border_dot_t">
+                  <td colSpan={4} style={{ textAlign: "center", padding: 0 }}>
+                    <div
+                      className="display_sub"
+                      style={{ height: "1.5rem", fontWeight: "bold" }}
+                    >
+                      Not Paid
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {isPaid && (
               <tr className="border_dot_t">
                 <td
                   colSpan={2}
@@ -774,6 +799,7 @@ export function TemplateFunbeerking(props: Props) {
                   </div>
                 </td>
               </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -789,7 +815,9 @@ export function TemplateFunbeerking(props: Props) {
               }}
             >
               Payment Method:{" "}
-              {order?.payments.map((x) => x.paymentMethod).join(", ")}
+              {isPaid
+                ? order?.payments.map((x) => x.paymentMethod).join(", ")
+                : "Not Paid"}
             </div>
           </div>
           <div

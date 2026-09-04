@@ -89,6 +89,10 @@ export function DefaultPrint({
   );
 
   const totalAfterDiscount = total - (totalDiscount || 0);
+  // No `order_payment` rows yet means this order hasn't actually been
+  // checked out (e.g. printed from a pre-checkout "print bill" button) —
+  // Received Total/Change/Payment Method would all be misleadingly $0.00.
+  const isPaid = (order?.payments.length || 0) > 0;
   const receive =
     order?.payments.reduce((a, b) => {
       if (b.currency === "KHR" && currency === "$") {
@@ -97,7 +101,15 @@ export function DefaultPrint({
 
       return a + Number(b.amountUsd);
     }, 0) || 0;
-  const change = receive <= 0 ? 0 : receive - totalAfterDiscount;
+  // Math.max(0, ...) also normalizes away the "-0.00"/"-៛0" that floating
+  // point rounding can leave when payment exactly covers the total (e.g.
+  // receive - totalAfterDiscount landing on -1e-13 instead of 0).
+  const change = Math.max(
+    0,
+    Math.round(
+      (receive <= 0 ? 0 : receive - totalAfterDiscount) * 100,
+    ) / 100,
+  );
   const invoiceReceiptValue = defaultInvoice
     ? defaultInvoice
     : setting?.data?.result?.find((f) => f.option === "INVOICE_RECEIPT")?.value;
@@ -289,7 +301,7 @@ export function DefaultPrint({
             <div>
               {order?.orderInfo.paidAt
                 ? moment(order.orderInfo.paidAt).format("MMM DD YYYY HH:mm")
-                : moment(new Date()).format("MMM DD YYYY HH:mm")}
+                : "—"}
             </div>
           </div>
           {order?.orderInfo.createdBy && (
@@ -639,6 +651,19 @@ export function DefaultPrint({
                   </div>
                 </td>
               </tr>
+              {!isPaid && (
+                <tr className="border_dot_t">
+                  <td colSpan={4} style={{ textAlign: "center", padding: 0 }}>
+                    <div
+                      className="display_sub"
+                      style={{ height: "1.5rem", fontWeight: "bold" }}
+                    >
+                      Not Paid
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {isPaid && (
               <tr className="border_dot_t">
                 <td
                   colSpan={2}
@@ -728,6 +753,7 @@ export function DefaultPrint({
                   </div>
                 </td>
               </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -754,7 +780,9 @@ export function DefaultPrint({
                 }}
               >
                 Payment Method:{" "}
-                {order?.payments.map((x) => x.paymentMethod).join(", ")}
+                {isPaid
+                  ? order?.payments.map((x) => x.paymentMethod).join(", ")
+                  : "Not Paid"}
               </div>
             </div>
           )}
