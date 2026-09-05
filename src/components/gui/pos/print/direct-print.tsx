@@ -49,7 +49,27 @@ export function DirectPrint({
   const completeRef = useRef(onPrintComplete);
   completeRef.current = onPrintComplete;
   const advanceLockRef = useRef(false);
-  const { data, error, isLoading, isValidating } = useQueryOrder(orderId);
+  const { data, error, isLoading, isValidating, mutate } =
+    useQueryOrder(orderId);
+
+  // This component is mounted right after checkout, but SWR may still hold a
+  // pre-checkout cache entry for the same order (e.g. from the "Print Bill"
+  // button) whose `payments` array is empty. Building the receipt from that
+  // stale entry makes it print "Not Paid" with no payment method / change.
+  // Force one fresh fetch on mount and don't build the print job until it lands.
+  const [refreshed, setRefreshed] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    setRefreshed(false);
+    mutate()
+      .catch(() => undefined)
+      .finally(() => {
+        if (!cancelled) setRefreshed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [orderId, mutate]);
 
   useEffect(() => {
     warmPrintingCss();
@@ -77,6 +97,7 @@ export function DirectPrint({
   useEffect(() => {
     if (!autoprint) return;
     if (startedRef.current) return; // build the print queue only once
+    if (!refreshed) return; // wait for the post-checkout revalidation
     if (isLoading || isValidating) return;
 
     // The order failed to load — don't hang forever on "Preparing print...".
@@ -111,7 +132,7 @@ export function DirectPrint({
     startedRef.current = true;
     printQueueRef.current = jobs;
     setDoc(jobs[0]);
-  }, [data, error, autoprint, isLoading, isValidating, orderId, type]);
+  }, [data, error, autoprint, isLoading, isValidating, orderId, type, refreshed]);
 
   // Fire the browser print dialog from the parent once the iframe has loaded.
   // Driving it here (instead of an inline <script> inside srcDoc) keeps it working
@@ -128,7 +149,10 @@ export function DirectPrint({
 
   const order = data?.result;
   const showSpinner =
-    autoprint && (isLoading || isValidating) && !doc && !startedRef.current;
+    autoprint &&
+    (isLoading || isValidating || !refreshed) &&
+    !doc &&
+    !startedRef.current;
 
   return (
     <>
