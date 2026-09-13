@@ -11,6 +11,15 @@ import {
 } from "./order";
 import { PrintToKitchenService } from "./print-to-kitchen";
 
+// Same "push straight to this device's print-socket instead of waiting for
+// the print_queue poller" ticket shape used by the /api/print-queue route -
+// see PrintToKitchenResponse there.
+export interface KitchenPrintItem {
+  id: number | string;
+  content: unknown;
+  printer_info: unknown;
+}
+
 export class OrderStatusService {
   constructor(
     protected tx: Knex,
@@ -49,7 +58,7 @@ export class OrderStatusService {
     if (fromStatus === "pending" && toStatus === "served")
       throw new Error("Cannot change directly from pending to served");
 
-    return this.tx.transaction(async (trx) => {
+    return this.tx.transaction<KitchenPrintItem | undefined>(async (trx) => {
       // check if there is available order item with status fromStatus
       const exists = await trx
         .table<table_order_item_status>("order_item_status")
@@ -93,8 +102,19 @@ export class OrderStatusService {
       await updateOrderItemQty(orderDetailId, trx);
 
       if (fromStatus === "pending" && toStatus === "cooking") {
-        await printKitchenService.printOrderToKitchen(orderDetailId, qty);
+        const printed = await printKitchenService.printOrderToKitchen(
+          orderDetailId,
+          qty,
+        );
+        if (printed) {
+          return {
+            id: printed.queueId,
+            content: printed.content,
+            printer_info: printed.printerInfo,
+          };
+        }
       }
+      return undefined;
     });
   }
 }

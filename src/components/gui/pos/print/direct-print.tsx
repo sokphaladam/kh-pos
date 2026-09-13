@@ -11,6 +11,12 @@ import {
   printLoadedIframe,
   warmPrintingCss,
 } from "@/lib/print-frame";
+import {
+  getReceiptPrintMethod,
+  getReceiptPrinterName,
+} from "@/lib/receipt-print-method";
+import { sendHtmlReceiptToPrintServer } from "@/lib/receipt-print-bridge";
+import { toast } from "sonner";
 
 interface DirectPrintProps {
   orderId: string;
@@ -114,12 +120,11 @@ export function DirectPrint({
     if (!ref.current) return;
     const receiptElements =
       ref.current.querySelectorAll<HTMLElement>("[data-receipt]");
-    const jobs: string[] = [];
-    receiptElements.forEach((el) => {
-      if (el.innerHTML.trim()) jobs.push(buildPrintDocument(el.outerHTML));
-    });
+    const receiptElementList = Array.from(receiptElements).filter((el) =>
+      el.innerHTML.trim(),
+    );
 
-    if (jobs.length === 0) {
+    if (receiptElementList.length === 0) {
       startedRef.current = true;
       console.warn("[DirectPrint] no receipt content rendered", {
         orderId,
@@ -130,6 +135,36 @@ export function DirectPrint({
     }
 
     startedRef.current = true;
+
+    if (getReceiptPrintMethod() === "print_server") {
+      const printerName = getReceiptPrinterName();
+      if (!printerName) {
+        toast.error(
+          "No print-server printer set in Settings - printing in browser instead",
+        );
+      } else {
+        (async () => {
+          try {
+            for (const el of receiptElementList) {
+              await sendHtmlReceiptToPrintServer({
+                innerHtml: el.innerHTML,
+                printerName,
+              });
+            }
+            toast.success(`Receipt sent to ${printerName}`);
+          } catch {
+            toast.error("Failed to send the receipt to the print server");
+          } finally {
+            completeRef.current();
+          }
+        })();
+        return;
+      }
+    }
+
+    const jobs = receiptElementList.map((el) =>
+      buildPrintDocument(el.outerHTML),
+    );
     printQueueRef.current = jobs;
     setDoc(jobs[0]);
   }, [data, error, autoprint, isLoading, isValidating, orderId, type, refreshed]);

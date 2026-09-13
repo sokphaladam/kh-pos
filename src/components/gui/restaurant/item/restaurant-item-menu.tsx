@@ -4,7 +4,10 @@ import { table_restaurant_tables } from "@/generated/tables";
 import { WithLayoutPermissionProps } from "@/hoc/with-layout-permission";
 import { cn } from "@/lib/utils";
 import { RestaurantOrderItem } from "../contexts/restaurant-context";
-import { useRestaurantActions } from "../hooks/use-restaurant-actions";
+import {
+  pushKitchenTicketsDirectToPrinter,
+  useRestaurantActions,
+} from "../hooks/use-restaurant-actions";
 import { useMutationPrintToKitchen } from "@/app/hooks/use-query-order-update-status-item";
 import { toast } from "sonner";
 import { useCommonDialog } from "@/components/common-dialog";
@@ -76,6 +79,7 @@ export function RestaurantItemMenu({
     })
       .then((res) => {
         if (res.success) {
+          pushKitchenTicketsDirectToPrinter(res.kitchenPrintItems);
           toast.success("Item sent to kitchen");
         } else {
           toast.error("Failed to send item to kitchen");

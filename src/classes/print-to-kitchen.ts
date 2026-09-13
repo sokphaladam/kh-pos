@@ -406,7 +406,11 @@ export class PrintToKitchenService {
     // Get the inserted record ID
     const queueId = Array.isArray(result) ? result[0] : result;
 
-    return queueId;
+    // Returning the content/printer alongside the id lets callers push the
+    // ticket straight to this device's print-socket bridge (see
+    // pushKitchenTicketsDirectToPrinter) without a round trip back through
+    // the DB's JSON columns.
+    return { queueId, content: contentToPrint, printerInfo: printer };
   }
 }
 

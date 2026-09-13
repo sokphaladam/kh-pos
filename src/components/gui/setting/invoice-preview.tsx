@@ -18,6 +18,12 @@ import { Label } from "@/components/ui/label";
 import { TemplateChhounHour } from "../pos/print/template-chhoun-hour";
 import { CustomPrint } from "../pos/print/custom-print";
 import { TemplateFunbeerking } from "../pos/print/template-funbeerking";
+import {
+  getReceiptPrintMethod,
+  getReceiptPrinterName,
+} from "@/lib/receipt-print-method";
+import { sendHtmlReceiptToPrintServer } from "@/lib/receipt-print-bridge";
+import { toast } from "sonner";
 
 interface Props {
   value: string;
@@ -153,6 +159,31 @@ export function InvoicePreview({ value, onChangeValue }: Props) {
     if (ref.current) {
       const receiptElements =
         ref.current.querySelectorAll<HTMLElement>("[data-receipt]");
+
+      if (getReceiptPrintMethod() === "print_server") {
+        const printerName = getReceiptPrinterName();
+        if (!printerName) {
+          toast.error(
+            "No print-server printer set in Settings - printing in browser instead",
+          );
+        } else {
+          (async () => {
+            try {
+              for (const el of Array.from(receiptElements)) {
+                await sendHtmlReceiptToPrintServer({
+                  innerHtml: el.innerHTML,
+                  printerName,
+                });
+              }
+              toast.success(`Receipt sent to ${printerName}`);
+            } catch {
+              toast.error("Failed to send the receipt to the print server");
+            }
+          })();
+          return;
+        }
+      }
+
       const jobs: string[] = [];
       receiptElements.forEach((el) => {
         jobs.push(

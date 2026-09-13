@@ -11,6 +11,12 @@ import {
   printLoadedIframe,
   warmPrintingCss,
 } from "@/lib/print-frame";
+import {
+  getReceiptPrintMethod,
+  getReceiptPrinterName,
+} from "@/lib/receipt-print-method";
+import { sendHtmlReceiptToPrintServer } from "@/lib/receipt-print-bridge";
+import { toast } from "sonner";
 
 interface Props {
   shiftId: string;
@@ -89,6 +95,25 @@ export function ShiftDireactPrint({
     }
     if (!ref.current) return;
     startedRef.current = true;
+
+    if (getReceiptPrintMethod() === "print_server") {
+      const printerName = getReceiptPrinterName();
+      if (!printerName) {
+        toast.error(
+          "No print-server printer set in Settings - printing in browser instead",
+        );
+      } else {
+        const innerHtml = ref.current.innerHTML;
+        sendHtmlReceiptToPrintServer({ innerHtml, printerName })
+          .then(() => toast.success(`Receipt sent to ${printerName}`))
+          .catch(() =>
+            toast.error("Failed to send the receipt to the print server"),
+          )
+          .finally(() => completeRef.current());
+        return;
+      }
+    }
+
     setDoc(buildPrintDocument(ref.current.innerHTML));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoprint, data, isLoading, shiftId]);

@@ -26,6 +26,8 @@ import {
 import { table_restaurant_tables } from "@/generated/tables";
 import { generateId } from "@/lib/generate-id";
 import { ResponseType } from "@/lib/types";
+import { Printing } from "@/classes/cinema/printing";
+import { KitchenPrintItem } from "@/classes/order-status";
 import { useAuthentication } from "contexts/authentication-context";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
@@ -38,6 +40,41 @@ import {
   useRestaurant,
 } from "../contexts/restaurant-context";
 import { Customer } from "@/classes/customer";
+
+// Best-effort speed-up for kitchen tickets: push each freshly-queued ticket
+// straight to this device's configured print-socket bridge instead of
+// waiting on the print_queue poller. print_queue is left completely
+// untouched here - if the bridge isn't reachable (or this device never
+// configured a print-socket URL), the row simply stays queued and the
+// poller prints it exactly as it does today.
+export function pushKitchenTicketsDirectToPrinter(
+  items: KitchenPrintItem[] | undefined,
+) {
+  if (!items?.length) return;
+  for (const item of items) {
+    try {
+      new Printing().send(
+        JSON.stringify({
+          // The bridge treats top-level `content` as a list of independent
+          // documents (one array entry printed as one job) - a kitchen
+          // ticket is a single document, so it must be wrapped in a
+          // one-element array, not spread as if each draw instruction
+          // inside it were its own document.
+          content: [item.content],
+          printer_info: { ...(item.printer_info as object), type: "kitchen_ticket" },
+          jobId:
+            typeof crypto !== "undefined" && crypto.randomUUID
+              ? crypto.randomUUID()
+              : String(Date.now()),
+          queueId: item.id,
+        }),
+      );
+    } catch (err) {
+      // Fall through to the print_queue poller for this item.
+      console.error("Failed to push kitchen ticket over the print-socket:", err);
+    }
+  }
+}
 
 export function useRestaurantActions() {
   const params = useSearchParams();
@@ -439,6 +476,7 @@ export function useRestaurantActions() {
               });
             }
           }
+          pushKitchenTicketsDirectToPrinter(res.kitchenPrintItems);
         } else {
           toast.error("Failed to send items to kitchen");
         }

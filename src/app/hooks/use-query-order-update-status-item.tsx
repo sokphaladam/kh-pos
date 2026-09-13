@@ -1,7 +1,11 @@
 import { ResponseType } from "@/lib/types";
-import { UpdateOrderItemStatusSchemaAPIInput } from "../api/pos/order/[id]/update-item-status/update-order-item-status";
+import {
+  UpdateOrderItemStatusSchemaAPIInput,
+  UpdateOrderItemStatusResponse,
+} from "../api/pos/order/[id]/update-item-status/update-order-item-status";
 import { useGenericMutation } from "./use-generic";
 import { UpdateOrderItemStatusSchemaInput } from "../api/pos/order/[id]/update-item-status/force-update-qty";
+import { PrintToKitchenResponse } from "../api/print-queue/route";
 
 export function useMutationForceUpdateQtyByStatus(orderId: string) {
   return useGenericMutation<
@@ -13,13 +17,13 @@ export function useMutationForceUpdateQtyByStatus(orderId: string) {
 export function useMutationUpdateOrderItemStatusAPI(orderId: string) {
   return useGenericMutation<
     UpdateOrderItemStatusSchemaAPIInput,
-    ResponseType<unknown>
+    UpdateOrderItemStatusResponse
   >("POST", `/api/pos/order/${orderId}/update-item-status`);
 }
 
 export function useMutationPrintToKitchen() {
   return useGenericMutation<
-    { orderDetailId: string; qty: number; reprint?: boolean },
-    ResponseType<unknown>
+    { orderDetailId: string; qty: number; reprint?: boolean; testing?: boolean },
+    PrintToKitchenResponse
   >("POST", `/api/print-queue`);
 }

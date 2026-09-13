@@ -8,10 +8,12 @@ import {
   LockOpen,
   LogOut,
   MonitorSmartphone,
+  Printer,
 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useAuthentication } from "../../../contexts/authentication-context";
 import { deviceNameDialog } from "../gui/device/device-name-dialog";
+import { devicePrintSettingsDialog } from "../gui/setting/device-print-settings-dialog";
 import { shiftDialog } from "../gui/shift/shift-dialog";
 import { userChangePassword } from "../gui/user/user-change-password";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -150,6 +152,15 @@ export function NavUser() {
             >
               <MonitorSmartphone />
               Name this device
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={async () => {
+                onChangeOpen(false);
+                await devicePrintSettingsDialog.show({});
+              }}
+            >
+              <Printer />
+              Print &amp; Device Settings
             </DropdownMenuItem>
             <DropdownMenuItem onClick={logout}>
               <LogOut />
