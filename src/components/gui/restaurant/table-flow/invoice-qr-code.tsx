@@ -15,11 +15,12 @@ export const invoiceQRCode = createDialog<{
   tableName?: string | null;
 }>(
   ({ orderId, invoiceNo, tableName }) => {
-    const { currentWarehouse } = useAuthentication();
+    const { currentWarehouse, user } = useAuthentication();
     const [copied, setCopied] = useState(false);
     const { toast } = useToast();
+    const isServiceRole = user?.role?.role?.toLowerCase() === "service";
     const baseUrl = (
-      process.env.NEXT_PUBLIC_INVOICE_BASE_URL ||
+      (isServiceRole && process.env.NEXT_PUBLIC_INVOICE_BASE_URL) ||
       `${location.protocol}//${location.host}`
     ).replace(/\/$/, "");
     const link = `${baseUrl}/invoice?warehouse=${currentWarehouse?.id}&order=${orderId}`;
