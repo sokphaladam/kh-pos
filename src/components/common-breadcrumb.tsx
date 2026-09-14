@@ -71,7 +71,6 @@ export function CommonBreadcrumb() {
       .map((subpath, idx) => {
         const href = "/" + asPathNestedRoutes.slice(0, idx + 1).join("/");
         const navKey = segmentToNavKey[subpath];
-        // @ts-expect-error -- runtime-checked key, not statically known
         const title = navKey ? t(navKey) : subpath.split("-").join(" ");
         return { href, text: title };
       })
