@@ -144,10 +144,11 @@ export function DefaultPrint({
       <div
         className="noto-sans-khmer"
         style={{
-          width: "95%",
+          width: "100%",
+          boxSizing: "border-box",
           position: "relative",
           overflow: "hidden",
-          margin: invoiceReceipt.at(3)?.split(" ").join("mm ") + "mm" || 0,
+          padding: invoiceReceipt.at(3)?.split(" ").join("mm ") + "mm" || 0,
         }}
       >
         <div
@@ -392,15 +393,16 @@ export function DefaultPrint({
                       <td
                         style={{
                           textAlign: "start",
-                          display: "flex",
-                          flexDirection: "row",
                           maxWidth: "20mm",
                         }}
                         // className="text-start flex flex-row !border-y-0"
                       >
                         <div
-                          style={
-                            invoiceReceipt.at(4) === "1"
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                            ...(invoiceReceipt.at(4) === "1"
                               ? {
                                   overflow: "hidden",
                                   textOverflow: "ellipsis",
@@ -410,8 +412,8 @@ export function DefaultPrint({
                                   ),
                                   WebkitBoxOrient: "vertical",
                                 }
-                              : {}
-                          }
+                              : {}),
+                          }}
                         >
                           {`${x?.title} `}
                           {booking
@@ -505,14 +507,16 @@ export function DefaultPrint({
                               <td
                                 style={{
                                   textAlign: "start",
-                                  display: "flex",
-                                  flexDirection: "row",
                                   width: "65px",
                                 }}
                               >
                                 <div
-                                  style={
-                                    invoiceReceipt.at(4) === "1"
+                                  style={{
+                                    whiteSpace: "normal",
+                                    wordBreak: "break-word",
+                                    overflowWrap: "anywhere",
+                                    paddingLeft: 10,
+                                    ...(invoiceReceipt.at(4) === "1"
                                       ? {
                                           overflow: "hidden",
                                           textOverflow: "ellipsis",
@@ -521,10 +525,9 @@ export function DefaultPrint({
                                             invoiceReceipt.at(5) || 1,
                                           ),
                                           WebkitBoxOrient: "vertical",
-                                          paddingLeft: 10,
                                         }
-                                      : {}
-                                  }
+                                      : {}),
+                                  }}
                                 >
                                   {mod.notes ? mod.notes : modifier?.name}
                                 </div>

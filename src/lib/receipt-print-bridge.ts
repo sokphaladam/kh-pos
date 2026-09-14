@@ -15,12 +15,12 @@ function loadPrintingCss(): Promise<string> {
 }
 
 /**
- * Sends a receipt to the local print-server bridge as self-contained HTML
- * over the per-device print-socket WebSocket, instead of opening the
- * browser's print dialog. The bridge renders it in a hidden window and
- * prints silently to the named printer - same HTML/CSS as the browser-print
- * path, so layout, Khmer fonts and QR codes come out identical, with no PDF
- * conversion step in between.
+ * Sends a receipt to the local print-server bridge (l-print-electron) as
+ * self-contained HTML over the per-device print-socket WebSocket, instead of
+ * opening the browser's print dialog. The bridge renders it in a hidden
+ * window and prints silently to the named printer - same HTML/CSS as the
+ * browser-print path, so layout, Khmer fonts and QR codes come out
+ * identical, with no PDF conversion step in between.
  */
 export async function sendHtmlReceiptToPrintServer(params: {
   innerHtml: string;

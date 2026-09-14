@@ -10,6 +10,7 @@ import {
   MonitorSmartphone,
   Printer,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import { useAuthentication } from "../../../contexts/authentication-context";
 import { deviceNameDialog } from "../gui/device/device-name-dialog";
@@ -38,6 +39,7 @@ export function NavUser() {
   const [open, setOpen] = useState(false);
   const hasShiftPermission = usePermission("shift");
   const canCreate = hasShiftPermission.includes("create");
+  const t = useTranslations("nav");
 
   const onChangeOpen = useCallback((state: boolean) => {
     if (!state) {
@@ -47,8 +49,8 @@ export function NavUser() {
   }, []);
 
   const role = useMemo(() => {
-    return user?.role ? user.role.role : "No Role";
-  }, [user?.role]);
+    return user?.role ? user.role.role : t("noRole");
+  }, [user?.role, t]);
 
   return (
     <SidebarMenu>
@@ -111,7 +113,7 @@ export function NavUser() {
                 }}
               >
                 <DoorOpen />
-                Open Shift
+                {t("openShift")}
               </DropdownMenuItem>
             )}
             {currentShift && canCreate && (
@@ -129,7 +131,7 @@ export function NavUser() {
                 }}
               >
                 <DoorClosed />
-                Close Shift
+                {t("closeShift")}
               </DropdownMenuItem>
             )}
             <DropdownMenuItem
@@ -142,7 +144,7 @@ export function NavUser() {
               }}
             >
               <LockOpen />
-              Change Password
+              {t("changePassword")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -151,7 +153,7 @@ export function NavUser() {
               }}
             >
               <MonitorSmartphone />
-              Name this device
+              {t("nameThisDevice")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={async () => {
@@ -160,11 +162,11 @@ export function NavUser() {
               }}
             >
               <Printer />
-              Print &amp; Device Settings
+              {t("printAndDeviceSettings")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={logout}>
               <LogOut />
-              Log out
+              {t("logOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

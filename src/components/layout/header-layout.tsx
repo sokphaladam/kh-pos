@@ -9,6 +9,7 @@ import { shiftDialog } from "../gui/shift/shift-dialog";
 import { cn } from "@/lib/utils";
 import { ShiftDireactPrint } from "../gui/shift/print/direct-print";
 import { ShiftStatus } from "../shift-status";
+import { LanguageSwitcher } from "../language-switcher";
 
 export function HeaderLayout() {
   const { currentShift, mutate } = useAuthentication();
@@ -51,15 +52,18 @@ export function HeaderLayout() {
           )}
           <CommonBreadcrumb />
         </div>
-        <div
-          className={cn(
-            "flex gap-4",
-            ![...allowPath, "restaurant"].includes(path[path.length - 1])
-              ? "invisible"
-              : "visible"
-          )}
-        >
-          <ShiftStatus onClose={onCloseShift} onOpen={onOpenShift} />
+        <div className="flex items-center gap-2">
+          <div
+            className={cn(
+              "flex gap-4",
+              ![...allowPath, "restaurant"].includes(path[path.length - 1])
+                ? "invisible"
+                : "visible"
+            )}
+          >
+            <ShiftStatus onClose={onCloseShift} onOpen={onOpenShift} />
+          </div>
+          <LanguageSwitcher />
         </div>
       </div>
       {printShift && (

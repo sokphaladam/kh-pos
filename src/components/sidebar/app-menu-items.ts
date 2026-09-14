@@ -30,17 +30,20 @@ import {
 import { useRestaurant } from "../gui/restaurant/contexts/restaurant-context";
 import { useAuthentication } from "contexts/authentication-context";
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { MenuProp } from "./app-menu-root";
 
 export function useAppMenuRestaurant() {
   const { state } = useRestaurant();
+  const t = useTranslations("nav");
 
   const restaurants: MenuProp[] = [
     {
-      title: "Application",
+      key: "application",
+      title: t("application"),
       items: [
         {
-          title: "Tables",
+          title: t("tables"),
           icon: LifeBuoy,
           url: "/admin/restaurant",
         },
@@ -50,7 +53,8 @@ export function useAppMenuRestaurant() {
 
   if (state.activeTables.length > 0) {
     restaurants.push({
-      title: "Active Tables",
+      key: "activeTables",
+      title: t("activeTables"),
       items: state.activeTables?.map((table) => ({
         title: table.tables?.table_name || "",
         icon: HandPlatter,
@@ -64,6 +68,7 @@ export function useAppMenuRestaurant() {
 
 export function useMenuItems() {
   const { user, setting } = useAuthentication();
+  const t = useTranslations("nav");
 
   const actions = useMemo<Record<string, string>>(() => {
     return (user?.role?.permissions || {}) as Record<string, string>;
@@ -105,10 +110,11 @@ export function useMenuItems() {
   const allItems: MenuProp[] = [];
 
   allItems.push({
-    title: "Dashboard",
+    key: "dashboard",
+    title: t("dashboard"),
     items: [
       {
-        title: "Dashboard",
+        title: t("dashboard"),
         icon: LayoutDashboard,
         url: !actions["board-member-dashboard"]
           ? "/admin/dashboard"
@@ -119,54 +125,55 @@ export function useMenuItems() {
   });
 
   allItems.push({
-    title: "Inventory",
+    key: "inventory",
+    title: t("inventory"),
     items: [
       {
-        title: "Products",
+        title: t("products"),
         icon: PackageSearch,
         url: "/admin/product",
       },
       {
-        title: "Category",
+        title: t("category"),
         icon: Boxes,
         url: "/admin/category",
       },
       {
-        title: "Discount",
+        title: t("discount"),
         url: "/admin/discount",
         icon: CirclePercent,
       },
       {
-        title: "Modifier",
+        title: t("modifier"),
         icon: Puzzle,
         url: "/admin/modifier",
       },
       {
-        title: "Production",
+        title: t("production"),
         icon: Component,
         url: "/admin/production",
       },
       {
-        title: "Warehouse",
+        title: t("warehouse"),
         icon: Warehouse,
         url: "/admin/warehouse",
         subitems: [],
         onlyMain: true,
       },
       {
-        title: "Slot",
+        title: t("slot"),
         icon: Boxes,
         url: "/admin/slot",
         subitems: [],
       },
       {
-        title: "Transactions",
+        title: t("transactions"),
         icon: FileClock,
         url: "/admin/transaction",
         subitems: [],
       },
       {
-        title: "Product Group",
+        title: t("productGroup"),
         icon: Users,
         url: "/admin/product/product-group",
         subitems: [],
@@ -176,42 +183,43 @@ export function useMenuItems() {
 
   if (type_pos === "CINEMA") {
     allItems.push({
-      title: "Cinema",
+      key: "cinema",
+      title: t("cinema"),
       items: [
         {
-          title: "Showtimes",
+          title: t("showtimes"),
           icon: LifeBuoy,
           url: "/admin/cinema/showtime",
         },
         {
-          title: "Halls & Seats",
+          title: t("hallsAndSeats"),
           icon: Clapperboard,
           url: "/admin/cinema/hall-seat",
         },
         {
-          title: "Pricing Template",
+          title: t("pricingTemplate"),
           icon: Receipt,
           url: "/admin/cinema/pricing-template",
         },
         {
-          title: "Reservations Ticket",
+          title: t("reservationsTicket"),
           icon: Ticket,
           url: "/admin/cinema/ticket",
         },
         {
-          title: "Find Ticket",
+          title: t("findTicket"),
           icon: Ticket,
           url: "/admin/cinema/ticket/digital",
         },
         {
-          title: "Settlement",
+          title: t("settlement"),
           icon: Banknote,
           url: "/admin/cinema/settlement",
         },
         ...(!!user?.isDev
           ? [
               {
-                title: "Manual Ticket Order",
+                title: t("manualTicketOrder"),
                 icon: ShoppingCart,
                 url: "/admin/cinema/ticket/order",
               },
@@ -223,34 +231,35 @@ export function useMenuItems() {
 
   // Order Management
   allItems.push({
-    title: "Order Management",
+    key: "orderManagement",
+    title: t("orderManagement"),
     items: [
       {
-        title: "Customer Order",
+        title: t("customerOrder"),
         icon: ShoppingCart,
         url: "/admin/order",
         subitems: [],
       },
       {
-        title: "Finding and Transfer",
+        title: t("findingAndTransfer"),
         icon: PackageSearch,
         url: "/admin/a/transfer",
         subitems: [],
       },
       {
-        title: "Order Return",
+        title: t("orderReturn"),
         icon: Combine,
         url: "/admin/return",
         subitems: [],
       },
       {
-        title: "Back Log",
+        title: t("backLog"),
         icon: ClockAlert,
         url: "/admin/backlog",
         subitems: [],
       },
       {
-        title: "Shift",
+        title: t("shift"),
         icon: DoorOpen,
         url: "/admin/shift",
         subitems: [],
@@ -260,27 +269,28 @@ export function useMenuItems() {
 
   //Supply
   allItems.push({
-    title: "Supply",
+    key: "supply",
+    title: t("supply"),
     items: [
       {
-        title: "Suppliers",
+        title: t("suppliers"),
         icon: Users,
         url: "/admin/supplier",
       },
       {
-        title: "Purchase Order",
+        title: t("purchaseOrder"),
         icon: ShoppingBag,
         url: "/admin/purchase-order",
         subitems: [],
       },
       {
-        title: "Replenishment",
+        title: t("replenishment"),
         icon: Grid,
         url: "/admin/replenishment",
         subitems: [],
       },
       {
-        title: "Supplier Product Price",
+        title: t("supplierProductPrice"),
         icon: BadgeDollarSign,
         url: "/admin/supplier/product-price",
         subitems: [],
@@ -290,15 +300,16 @@ export function useMenuItems() {
 
   if (!!enableAccounting) {
     allItems.push({
-      title: "Accounting",
+      key: "accounting",
+      title: t("accounting"),
       items: [
         {
-          title: "Booking",
+          title: t("booking"),
           icon: Banknote,
           url: "/admin/accounting/booking",
         },
         {
-          title: "Chart of Account",
+          title: t("chartOfAccount"),
           icon: FileClock,
           url: "/admin/accounting/chart-of-account",
         },
@@ -307,46 +318,47 @@ export function useMenuItems() {
   }
 
   allItems.push({
-    title: "Report",
+    key: "report",
+    title: t("report"),
     items: [
       {
-        title: "Sale Report",
+        title: t("saleReport"),
         icon: LayoutDashboard,
         url: "/admin/reports/sale-report",
         subitems: [],
       },
       {
-        title: "End of Day Report",
+        title: t("endOfDayReport"),
         icon: Receipt,
         url: "/admin/reports/end-of-day",
         subitems: [],
       },
       {
-        title: "Sale Item Summary Report",
+        title: t("saleItemSummaryReport"),
         icon: ShoppingCart,
         url: "/admin/reports/sale-item-report",
         subitems: [],
       },
       {
-        title: "Void Order Report",
+        title: t("voidOrderReport"),
         icon: AlertTriangle,
         url: "/admin/reports/void-order",
         subitems: [],
       },
       {
-        title: "Guest Number Report",
+        title: t("guestNumberReport"),
         icon: UsersRound,
         url: "/admin/reports/guest-number",
         subitems: [],
       },
       {
-        title: "Expiry Report",
+        title: t("expiryReport"),
         icon: Timer,
         url: "/admin/reports/expiry",
         subitems: [],
       },
       {
-        title: "Stock Report",
+        title: t("stockReport"),
         icon: Warehouse,
         url: "/admin/reports/stock-report",
         subitems: [],
@@ -354,7 +366,7 @@ export function useMenuItems() {
       ...(type_pos === "CINEMA"
         ? [
             {
-              title: "Showtime Sale Report",
+              title: t("showtimeSaleReport"),
               icon: Clapperboard,
               url: "/admin/reports/cinema-showtime-sale",
               subitems: [],
@@ -365,17 +377,18 @@ export function useMenuItems() {
   });
 
   allItems.push({
-    title: "Setting",
+    key: "setting",
+    title: t("setting"),
     items: [
       {
-        title: "Setting",
+        title: t("setting"),
         icon: MonitorCog,
         url: "/admin/setting",
         subitems: [],
         // onlyMain: true,
       },
       {
-        title: "Users",
+        title: t("users"),
         icon: UsersRound,
         url: "/admin/users",
         subitems: [],
@@ -383,7 +396,7 @@ export function useMenuItems() {
       ...(type_pos === "RESTAURANT"
         ? [
             {
-              title: "Delivery",
+              title: t("delivery"),
               icon: Monitor,
               url: "/admin/delivery",
               subitems: [],
@@ -391,7 +404,7 @@ export function useMenuItems() {
           ]
         : []),
       {
-        title: "Payment Method",
+        title: t("paymentMethod"),
         icon: Banknote,
         url: "/admin/setting/payment",
         subitems: [],

@@ -36,22 +36,21 @@ import { ItemMenuProp } from "./app-menu-root";
 import { usePathname } from "next/navigation";
 
 // Function to get section icons
-function getSectionIcon(title: string) {
+function getSectionIcon(key: string) {
   const iconMap: Record<string, React.ElementType> = {
-    Dashboard: LayoutDashboard,
-    Inventory: Package,
-    Supply: Truck,
-    "Order Management": ShoppingCart,
-    Report: FileBarChart,
-    Setting: Settings,
-    Application: Utensils,
-    "Active Tables": Utensils,
-    POS: LayoutDashboard, // fallback
-    Cinema: Clapperboard,
-    Accounting: BookUser,
+    dashboard: LayoutDashboard,
+    inventory: Package,
+    supply: Truck,
+    orderManagement: ShoppingCart,
+    report: FileBarChart,
+    setting: Settings,
+    application: Utensils,
+    activeTables: Utensils,
+    cinema: Clapperboard,
+    accounting: BookUser,
   };
 
-  return iconMap[title] || LayoutDashboard; // default fallback
+  return iconMap[key] || LayoutDashboard; // default fallback
 }
 
 // Helper function to check if an item is active
@@ -156,7 +155,7 @@ export function NavSidebar() {
 
   return menus.map((menu, index) => {
     // Special handling for Dashboard - make it standalone since it only has one item
-    if (menu.title === "Dashboard" && menu.items.length === 1) {
+    if (menu.key === "dashboard" && menu.items.length === 1) {
       const dashboardItem = menu.items[0];
       const isActive = pathname.startsWith(dashboardItem.url);
 
@@ -211,7 +210,7 @@ export function NavSidebar() {
         <SidebarGroup>
           <CollapsibleTrigger asChild>
             <SidebarGroupLabel className="cursor-pointer hover:bg-gray-200 bg-transparent shadow-none rounded-md px-2 py-1 flex items-center gap-2">
-              {React.createElement(getSectionIcon(menu.title), { size: 16 })}
+              {React.createElement(getSectionIcon(menu.key), { size: 16 })}
               {menu.title}
               <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
             </SidebarGroupLabel>

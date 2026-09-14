@@ -13,6 +13,8 @@ export interface ItemMenuProp {
 }
 
 export interface MenuProp {
+  /** Stable, untranslated identifier for icon lookup / special-casing. */
+  key: string;
   title: string;
   items: ItemMenuProp[];
 }

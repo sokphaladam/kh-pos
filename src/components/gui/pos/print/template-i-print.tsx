@@ -73,8 +73,9 @@ export function TemplateIPrint({
         className="noto-sans-khmer"
         style={{
           position: "relative",
-          width: "95%",
-          margin: invoiceReceipt.at(3)?.split(" ").join("mm ") + "mm" || 0,
+          width: "100%",
+          boxSizing: "border-box",
+          padding: invoiceReceipt.at(3)?.split(" ").join("mm ") + "mm" || 0,
         }}
       >
         <div
@@ -248,16 +249,16 @@ export function TemplateIPrint({
                       <td
                         style={{
                           textAlign: "start",
-                          display: "flex",
-                          flexDirection: "row",
-                          textWrap: "wrap",
                           maxWidth: 150,
                         }}
                         // className="text-start flex flex-row !border-y-0"
                       >
                         <div
-                          style={
-                            invoiceReceipt.at(4) === "1"
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                            ...(invoiceReceipt.at(4) === "1"
                               ? {
                                   overflow: "hidden",
                                   textOverflow: "ellipsis",
@@ -267,8 +268,8 @@ export function TemplateIPrint({
                                   ),
                                   WebkitBoxOrient: "vertical",
                                 }
-                              : {}
-                          }
+                              : {}),
+                          }}
                         >
                           {`${x?.title}`}
                         </div>
@@ -320,8 +321,6 @@ export function TemplateIPrint({
                               <td
                                 style={{
                                   textAlign: "start",
-                                  display: "flex",
-                                  flexDirection: "row",
                                   textWrap: "nowrap",
                                 }}
                               >

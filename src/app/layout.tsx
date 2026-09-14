@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Kantumruy_Pro } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 import getKnex from "@/lib/knex";
 import { LooadingProviders } from "../components/provider";
@@ -54,13 +56,16 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <meta
           name="viewport"
@@ -71,7 +76,9 @@ export default function RootLayout({
         className={`${khmer.variable} ${latin.variable} ${mono.variable} antialiased flex-1`}
         suppressHydrationWarning
       >
-        <LooadingProviders>{children}</LooadingProviders>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <LooadingProviders>{children}</LooadingProviders>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

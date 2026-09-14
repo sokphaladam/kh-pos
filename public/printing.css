@@ -53,25 +53,24 @@
 }
 
 .display > div:nth-child(1) {
-  width: 150px;
+  flex: 0 0 auto;
+  max-width: 45%;
   text-align: left;
   text-wrap: nowrap;
 }
 
 .display > div:nth-child(2) {
+  flex: 0 0 auto;
   margin-left: 0.25rem;
   margin-right: 0.25rem;
-  width: 75px;
-  text-wrap: nowrap;
 }
 
 .display > div:nth-child(3) {
   text-align: end;
-  width: 100%;
-  text-wrap: nowrap;
-  /* overflow: hidden;
-  text-wrap: nowrap;
-  text-overflow: ellipsis; */
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .display-right {

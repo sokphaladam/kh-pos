@@ -53,8 +53,9 @@ export function TemplateChhounHour({
         className="noto-sans-khmer"
         style={{
           position: "relative",
-          width: "95%",
-          margin: invoiceReceipt.at(3)?.split(" ").join("mm ") + "mm" || 0,
+          width: "100%",
+          boxSizing: "border-box",
+          padding: invoiceReceipt.at(3)?.split(" ").join("mm ") + "mm" || 0,
         }}
       >
         <div
@@ -225,19 +226,19 @@ export function TemplateChhounHour({
                     <td
                       style={{
                         textAlign: "start",
-                        display: "flex",
-                        flexDirection: "row",
                         borderRightStyle: "solid",
                         borderRightWidth: 1,
                         borderRightColor: "black",
-                        textWrap: "wrap",
                         maxWidth: 150,
                       }}
                       // className="text-start flex flex-row !border-y-0"
                     >
                       <div
-                        style={
-                          invoiceReceipt.at(4) === "1"
+                        style={{
+                          whiteSpace: "normal",
+                          wordBreak: "break-word",
+                          overflowWrap: "anywhere",
+                          ...(invoiceReceipt.at(4) === "1"
                             ? {
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
@@ -247,8 +248,8 @@ export function TemplateChhounHour({
                                 ),
                                 WebkitBoxOrient: "vertical",
                               }
-                            : {}
-                        }
+                            : {}),
+                        }}
                       >
                         {`${x?.title}`}
                       </div>
