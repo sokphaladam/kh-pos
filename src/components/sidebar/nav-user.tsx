@@ -9,12 +9,14 @@ import {
   LogOut,
   MonitorSmartphone,
   Printer,
+  Settings,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import { useAuthentication } from "../../../contexts/authentication-context";
 import { deviceNameDialog } from "../gui/device/device-name-dialog";
 import { devicePrintSettingsDialog } from "../gui/setting/device-print-settings-dialog";
+import { settingDialog, useSettingHubTiles } from "../gui/setting/setting-dialog";
 import { shiftDialog } from "../gui/shift/shift-dialog";
 import { userChangePassword } from "../gui/user/user-change-password";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -39,6 +41,7 @@ export function NavUser() {
   const [open, setOpen] = useState(false);
   const hasShiftPermission = usePermission("shift");
   const canCreate = hasShiftPermission.includes("create");
+  const settingTiles = useSettingHubTiles();
   const t = useTranslations("nav");
 
   const onChangeOpen = useCallback((state: boolean) => {
@@ -101,39 +104,46 @@ export function NavUser() {
                 </div>
               </div>
             </DropdownMenuLabel>
+            {(canCreate || currentShift) && (
+              <>
+                <DropdownMenuSeparator />
+                {!currentShift && canCreate && (
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      onChangeOpen(false);
+                      const res = await shiftDialog.show({ status: "OPEN" });
+                      if (typeof res === "string") {
+                        mutate();
+                      }
+                    }}
+                  >
+                    <DoorOpen />
+                    {t("openShift")}
+                  </DropdownMenuItem>
+                )}
+                {currentShift && canCreate && (
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      onChangeOpen(false);
+                      const id = currentShift.shift_id;
+                      const res = await shiftDialog.show({
+                        status: "CLOSE",
+                        id: id || undefined,
+                      });
+                      if (res === "CLOSE") {
+                        mutate();
+                      }
+                    }}
+                  >
+                    <DoorClosed />
+                    {t("closeShift")}
+                  </DropdownMenuItem>
+                )}
+              </>
+            )}
+
+            {/* Account */}
             <DropdownMenuSeparator />
-            {!currentShift && canCreate && (
-              <DropdownMenuItem
-                onClick={async () => {
-                  onChangeOpen(false);
-                  const res = await shiftDialog.show({ status: "OPEN" });
-                  if (typeof res === "string") {
-                    mutate();
-                  }
-                }}
-              >
-                <DoorOpen />
-                {t("openShift")}
-              </DropdownMenuItem>
-            )}
-            {currentShift && canCreate && (
-              <DropdownMenuItem
-                onClick={async () => {
-                  onChangeOpen(false);
-                  const id = currentShift.shift_id;
-                  const res = await shiftDialog.show({
-                    status: "CLOSE",
-                    id: id || undefined,
-                  });
-                  if (res === "CLOSE") {
-                    mutate();
-                  }
-                }}
-              >
-                <DoorClosed />
-                {t("closeShift")}
-              </DropdownMenuItem>
-            )}
             <DropdownMenuItem
               onClick={async () => {
                 onChangeOpen(false);
@@ -146,6 +156,9 @@ export function NavUser() {
               <LockOpen />
               {t("changePassword")}
             </DropdownMenuItem>
+
+            {/* This device */}
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
                 onChangeOpen(false);
@@ -164,6 +177,29 @@ export function NavUser() {
               <Printer />
               {t("printAndDeviceSettings")}
             </DropdownMenuItem>
+
+            {/* Application settings */}
+            {settingTiles.length > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={async () => {
+                    onChangeOpen(false);
+                    await settingDialog.show({});
+                    // Settings can change app-wide data (currency, POS type,
+                    // permissions, ...) — reload so every view picks it up
+                    // fresh.
+                    window.location.reload();
+                  }}
+                >
+                  <Settings />
+                  {t("setting")}
+                </DropdownMenuItem>
+              </>
+            )}
+
+            {/* Session */}
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout}>
               <LogOut />
               {t("logOut")}

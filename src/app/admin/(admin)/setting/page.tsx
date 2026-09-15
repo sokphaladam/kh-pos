@@ -6,7 +6,7 @@ import { TopToolbar } from "@/components/top-toolbar";
 export default function SettingPage() {
   return (
     <LayoutPermission permission={["ROOT"]}>
-      <div className="w-full">
+      <div className="w-full h-screen">
         <TopToolbar data={null} text="Setting" />
         <SettingList />
       </div>

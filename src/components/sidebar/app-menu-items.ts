@@ -14,8 +14,6 @@ import {
   HandPlatter,
   LayoutDashboard,
   LifeBuoy,
-  Monitor,
-  MonitorCog,
   PackageSearch,
   Puzzle,
   Receipt,
@@ -373,43 +371,6 @@ export function useMenuItems() {
             },
           ]
         : []),
-    ],
-  });
-
-  allItems.push({
-    key: "setting",
-    title: t("setting"),
-    items: [
-      {
-        title: t("setting"),
-        icon: MonitorCog,
-        url: "/admin/setting",
-        subitems: [],
-        // onlyMain: true,
-      },
-      {
-        title: t("users"),
-        icon: UsersRound,
-        url: "/admin/users",
-        subitems: [],
-      },
-      ...(type_pos === "RESTAURANT"
-        ? [
-            {
-              title: t("delivery"),
-              icon: Monitor,
-              url: "/admin/delivery",
-              subitems: [],
-            },
-          ]
-        : []),
-      {
-        title: t("paymentMethod"),
-        icon: Banknote,
-        url: "/admin/setting/payment",
-        subitems: [],
-        onlyMain: true,
-      },
     ],
   });
 

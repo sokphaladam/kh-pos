@@ -16,24 +16,43 @@ interface SettingCategorySidebarProps {
   categories: SettingCategory[];
   selectedCategory: string;
   setSelectedCategory: (id: string) => void;
+  /**
+   * When provided, the back control calls this instead of navigating to
+   * /admin/dashboard (used when the settings list is embedded as a layer
+   * inside the Settings dialog, so "back" should return to the dialog hub).
+   */
+  onBack?: () => void;
 }
 
 export const SettingCategorySidebar: React.FC<SettingCategorySidebarProps> = ({
   categories,
   selectedCategory,
   setSelectedCategory,
+  onBack,
 }) => (
   <div className="w-64 bg-gray-50 border-r border-gray-200">
-    <Link href="/admin/dashboard" className="block mb-3">
+    {onBack ? (
       <Button
         variant="ghost"
         size="sm"
-        className="w-full justify-start text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+        className="w-full justify-start text-gray-600 hover:text-gray-800 hover:bg-gray-100 mb-3"
+        onClick={onBack}
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Dashboard
+        Back
       </Button>
-    </Link>
+    ) : (
+      <Link href="/admin/dashboard" className="block mb-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Dashboard
+        </Button>
+      </Link>
+    )}
     <ScrollArea className="flex-1 px-2">
       <div className="space-y-1">
         {categories

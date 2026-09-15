@@ -20,6 +20,7 @@ export const SettingItem: React.FC<SettingItemProps> = ({
   onSave,
   isMutating,
   setEditingValue,
+  showEditButton = true,
 }) => (
   <div className="space-y-3">
     <div className="flex items-start justify-between group">
@@ -34,7 +35,7 @@ export const SettingItem: React.FC<SettingItemProps> = ({
             />
           </div>
         </div>
-        {editing && (
+        {editing && showEditButton && (
           <div className="flex items-center gap-2 mt-2">
             <Button onClick={onSave} disabled={isMutating} className="h-7 px-3">
               Save

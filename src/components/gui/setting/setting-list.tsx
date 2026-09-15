@@ -8,6 +8,7 @@ import React, {
 import { Settings } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 import { useAuthentication } from "../../../../contexts/authentication-context";
@@ -31,7 +32,16 @@ import {
   useDeleteCategory,
 } from "@/app/hooks/use-query-category";
 
-export function SettingList() {
+interface SettingListProps {
+  /**
+   * When provided, the category sidebar's back control calls this instead of
+   * navigating to /admin/dashboard (used when SettingList is embedded as a
+   * layer inside the Settings dialog).
+   */
+  onBack?: () => void;
+}
+
+export function SettingList({ onBack }: SettingListProps = {}) {
   const { setting, currentWarehouse, user } = useAuthentication();
   const [selectedCategory, setSelectedCategory] = useState("");
   const [editingValue, setEditingValue] = useState<string>("");
@@ -122,13 +132,25 @@ export function SettingList() {
     [editingValue, trigger, setting, createCategory, deleteCategory],
   );
 
+  // Only render a single Save action in the footer when the category maps to
+  // exactly one setting row (the overwhelming common case). Categories with
+  // more than one row (e.g. a global + per-warehouse override) fall back to
+  // the per-item inline Save button, since they can't share one editingValue.
+  const singleSetting =
+    filteredSettings.length === 1 ? filteredSettings[0] : null;
+  const canEditSingleSetting = singleSetting
+    ? SettingPermissionUtils.canEdit(singleSetting, currentWarehouse)
+    : false;
+  const savingSingleSetting =
+    isMutating || createCategory.isMutating || deleteCategory.isMutating;
+
   if (setting?.isLoading) {
     return <SkeletonTableList />;
   }
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col h-screen bg-white text-gray-900">
+      <div className="flex flex-col h-full bg-white text-gray-900">
         {/* Mobile Header */}
         <MobileSettingHeader
           categories={categories}
@@ -175,6 +197,7 @@ export function SettingList() {
                     setSelectedCategory(id);
                     setSidebarOpen(false);
                   }}
+                  onBack={onBack}
                 />
               </div>
 
@@ -237,13 +260,25 @@ export function SettingList() {
                           deleteCategory.isMutating
                         }
                         setEditingValue={setEditingValue}
-                        showEditButton={false}
+                        showEditButton={!singleSetting}
                       />
                     );
                   })
                 )}
               </div>
             </ScrollArea>
+
+            {singleSetting && (
+              <div className="border-t border-gray-200 bg-white px-4 py-3 md:px-6 flex justify-end">
+                <Button
+                  onClick={() => handleSaveSetting(singleSetting)}
+                  disabled={!canEditSingleSetting || savingSingleSetting}
+                  className="h-8 px-4"
+                >
+                  {savingSingleSetting ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
