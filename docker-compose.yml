@@ -10,6 +10,7 @@ services:
         PORT: $PORT
         NEXT_PUBLIC_UPLOAD_ENDPOINT: $NEXT_PUBLIC_UPLOAD_ENDPOINT
         NEXT_PULBIC_UPLOAD_DOMAIN: $NEXT_PULBIC_UPLOAD_DOMAIN
+        NEXT_PUBLIC_BASE_URL: $NEXT_PUBLIC_BASE_URL
     ports:
       - "$PORT:$PORT" # host:container
     environment:
@@ -24,6 +25,7 @@ services:
       PATH_UPLOAD: $PATH_UPLOAD
       MAIL_SERVER: $MAIL_SERVER
       SKIP_EMAIL: $SKIP_EMAIL
+      NEXT_PUBLIC_BASE_URL: $NEXT_PUBLIC_BASE_URL
       TZ: $TZ
     restart: always
     # Removed command override — lets Dockerfile CMD (start.sh) run the standalone server

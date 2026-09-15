@@ -1,6 +1,7 @@
 "use client";
 
 import type { PublicInvoiceResult } from "@/app/api/public/invoice/[id]/route";
+import { useQueryPublicInvoice } from "@/app/hooks/use-query-public-invoice";
 import { formatCurrency, getCurrencySymbol } from "@/lib/currency";
 import { Formatter } from "@/lib/formatter";
 import { Printer } from "lucide-react";
@@ -19,11 +20,6 @@ function formatDateTime(value?: string | null) {
   ]);
   return m.isValid() ? m.format("DD MMM YYYY · HH:mm") : "";
 }
-
-type State =
-  | { status: "loading" }
-  | { status: "error"; message: string }
-  | { status: "ready"; data: PublicInvoiceResult };
 
 /* ── layout atoms ─────────────────────────────────────────────── */
 
@@ -57,68 +53,62 @@ export function PublicInvoice() {
   const params = useSearchParams();
   const orderId = params.get("order") || "";
   const warehouse = params.get("warehouse") || "";
-  const [state, setState] = useState<State>({ status: "loading" });
 
-  useEffect(() => {
-    if (!orderId || !warehouse) {
-      setState({ status: "error", message: "This invoice link is incomplete." });
-      return;
-    }
-    let cancelled = false;
-    fetch(
-      `/api/public/invoice/${encodeURIComponent(orderId)}?warehouse=${encodeURIComponent(
-        warehouse,
-      )}`,
-    )
-      .then(async (res) => {
-        const json = await res.json();
-        if (cancelled) return;
-        if (!res.ok || !json?.success || !json?.result) {
-          setState({
-            status: "error",
-            message: json?.message || "We couldn't find this invoice.",
-          });
-          return;
-        }
-        setState({ status: "ready", data: json.result as PublicInvoiceResult });
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setState({
-            status: "error",
-            message: "Something went wrong loading this invoice.",
-          });
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [orderId, warehouse]);
+  const linkIncomplete = !orderId || !warehouse;
+  const { data, error, isLoading } = useQueryPublicInvoice(orderId, warehouse);
+
+  const errorMessage = linkIncomplete
+    ? "This invoice link is incomplete."
+    : error
+      ? "Something went wrong loading this invoice."
+      : !isLoading && data && (!data.success || !data.result)
+        ? data.message || "We couldn't find this invoice."
+        : "";
 
   const model = useMemo(() => {
-    if (state.status !== "ready") return null;
-    return buildInvoiceModel(state.data);
-  }, [state]);
+    if (!data?.result) return null;
+    return buildInvoiceModel(data.result);
+  }, [data]);
+
+  const [closeCountdown, setCloseCountdown] = useState(5);
+
+  useEffect(() => {
+    if (!errorMessage) return;
+    setCloseCountdown(5);
+    const interval = setInterval(() => {
+      setCloseCountdown((n) => Math.max(0, n - 1));
+    }, 1000);
+    const timeout = setTimeout(() => {
+      window.close();
+    }, 5000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [errorMessage]);
 
   return (
     <div className="inv-page">
       <Styles />
 
-      {state.status === "loading" && (
+      {!linkIncomplete && isLoading && (
         <div className="inv-card inv-status">
           <div className="inv-spinner" aria-hidden />
           <p>Loading your invoice…</p>
         </div>
       )}
 
-      {state.status === "error" && (
+      {errorMessage && (
         <div className="inv-card inv-status">
           <p className="inv-status-title">Invoice unavailable</p>
-          <p className="inv-status-msg">{state.message}</p>
+          <p className="inv-status-msg">{errorMessage}</p>
+          <p className="inv-status-msg is-muted">
+            This tab will close automatically in {closeCountdown}s…
+          </p>
         </div>
       )}
 
-      {state.status === "ready" && model && (
+      {!errorMessage && !isLoading && model && (
         <>
           <article className="inv-card">
             {/* Letterhead */}
@@ -832,6 +822,11 @@ function Styles() {
       }
       .inv-status-msg {
         margin: 0;
+      }
+      .inv-status-msg.is-muted {
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--muted);
       }
       .inv-spinner {
         width: 22px;

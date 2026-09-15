@@ -3,10 +3,9 @@
 import { createDialog } from "@/components/create-dialog";
 import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
 import { useAuthentication } from "contexts/authentication-context";
-import { CheckCircle, Copy } from "lucide-react";
-import { useCallback, useState } from "react";
+import { ExternalLink } from "lucide-react";
+import { useCallback } from "react";
 import QRCode from "react-qr-code";
 
 export const invoiceQRCode = createDialog<{
@@ -16,31 +15,15 @@ export const invoiceQRCode = createDialog<{
 }>(
   ({ orderId, invoiceNo, tableName }) => {
     const { currentWarehouse } = useAuthentication();
-    const [copied, setCopied] = useState(false);
-    const { toast } = useToast();
     const baseUrl = (
-      process.env.NEXT_PUBLIC_INVOICE_BASE_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
       `${location.protocol}//${location.host}`
     ).replace(/\/$/, "");
     const link = `${baseUrl}/invoice?warehouse=${currentWarehouse?.id}&order=${orderId}`;
 
-    const handleCopyLink = useCallback(async () => {
-      try {
-        await navigator.clipboard.writeText(link);
-        setCopied(true);
-        toast({
-          title: "Link Copied",
-          description: "Invoice link has been copied to clipboard",
-        });
-        setTimeout(() => setCopied(false), 2000);
-      } catch {
-        toast({
-          title: "Copy Failed",
-          description: "Failed to copy link to clipboard",
-          variant: "destructive",
-        });
-      }
-    }, [link, toast]);
+    const handleOpenLink = useCallback(() => {
+      window.open(link, "_blank", "noopener,noreferrer");
+    }, [link]);
 
     return (
       <>
@@ -62,22 +45,13 @@ export const invoiceQRCode = createDialog<{
             <div className="text-lg font-semibold">Table {tableName}</div>
           ) : null}
           <Button
-            onClick={handleCopyLink}
+            onClick={handleOpenLink}
             variant="outline"
             size="sm"
             className="w-full md:w-auto"
           >
-            {copied ? (
-              <>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="h-4 w-4 mr-2" />
-                Copy Link
-              </>
-            )}
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Open Link
           </Button>
         </div>
       </>
