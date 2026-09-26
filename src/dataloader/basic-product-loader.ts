@@ -44,11 +44,13 @@ export function createBasicProductLoader(db: Knex) {
           return null;
         }
 
-        const modifiers: ProductModifierType[] = row.id
-          ? await modifierByProductLoader.load(row.id)
-          : [];
-
-        const category = row.id ? await categoryLoader.load(row.id) : null;
+        const [modifiers, category, images] = await Promise.all([
+          row.id
+            ? modifierByProductLoader.load(row.id)
+            : ([] as ProductModifierType[]),
+          row.id ? categoryLoader.load(row.id) : null,
+          productImageLoader.load(row.id!),
+        ]);
 
         return {
           id: row.id,
@@ -65,7 +67,7 @@ export function createBasicProductLoader(db: Knex) {
           useProduction: row.use_production,
           trackStock: row.track_stock === 1,
           isForSale: row.is_for_sale === 1,
-          images: await productImageLoader.load(row.id!),
+          images,
           modifiers,
           category: category ? category.at(0) : null,
         } as BasicProductType;

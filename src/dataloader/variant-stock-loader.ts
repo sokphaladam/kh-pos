@@ -18,22 +18,27 @@ export function createVariantStockLoader(
   forReplenishment?: boolean
 ) {
   return new DataLoader(async (keys: readonly string[]) => {
-    const query = db
-      .table("inventory")
-      .innerJoin("warehouse_slot", "inventory.slot_id", "warehouse_slot.id")
-      .where("warehouse_slot.warehouse_id", warehouseId)
-      .whereIn("inventory.variant_id", keys)
-      .select(
-        db.raw(
-          "variant_id, inventory.slot_id, slot_name, pos_slot , SUM(qty) as stock"
-        )
-      )
-      .groupBy("variant_id")
-      .groupBy("inventory.slot_id");
+    const slotQuery = db
+      .table("warehouse_slot")
+      .where("warehouse_id", warehouseId);
+    if (forReplenishment) slotQuery.where("for_replenishment", 1);
 
-    if (forReplenishment) query.where("warehouse_slot.for_replenishment", 1);
+    const [slots, stockRows] = await Promise.all([
+      slotQuery.clone().select("id", "slot_name", "pos_slot"),
+      db
+        .table("inventory")
+        .whereIn("variant_id", keys)
+        .whereIn("slot_id", slotQuery.clone().select("id"))
+        .select("variant_id", "slot_id", db.raw("SUM(qty) as stock"))
+        .groupBy("variant_id", "slot_id"),
+    ]);
 
-    const rows = await query;
+    const slotById = new Map(slots.map((s) => [s.id, s]));
+    const rows = stockRows.map((row) => ({
+      ...row,
+      slot_name: slotById.get(row.slot_id)?.slot_name,
+      pos_slot: slotById.get(row.slot_id)?.pos_slot,
+    }));
 
     return keys.map((key) => {
       const x = rows.filter((u) => u.variant_id === key);

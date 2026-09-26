@@ -34,22 +34,31 @@ export function createDiscountByProductLoader(
   warehouseId: string
 ): DataLoader<string, DiscountByProduct[]> {
   return new DataLoader(async (keys: readonly string[]) => {
-    const specific = await db
-      .table("product_discount")
-      .whereIn("product_id", keys);
-    const all = await db.table("product_discount").where("is_applied_all", 1);
-    const category = await db
-      .table("product_discount")
-      .distinct(
-        "product_discount.*",
-        "product_categories.product_id as product_c_id"
-      )
-      .innerJoin(
-        "product_categories",
-        "product_discount.category_id",
-        "product_categories.category_id"
-      )
-      .whereIn("product_categories.product_id", keys);
+    const [specific, all, productCategories] = await Promise.all([
+      db.table("product_discount").whereIn("product_id", keys),
+      db.table("product_discount").where("is_applied_all", 1),
+      db
+        .table("product_categories")
+        .whereIn("product_id", keys)
+        .distinct("product_id", "category_id"),
+    ]);
+
+    const categoryIds = [
+      ...new Set(productCategories.map((pc) => pc.category_id)),
+    ];
+    const categoryDiscounts =
+      categoryIds.length > 0
+        ? await db.table("product_discount").whereIn("category_id", categoryIds)
+        : [];
+
+    // Discounts reached through each product's categories. product_categories
+    // pairs are distinct, so each discount row appears once per product, same
+    // as the previous DISTINCT over the join.
+    const category = productCategories.flatMap((pc) =>
+      categoryDiscounts
+        .filter((d) => d.category_id === pc.category_id)
+        .map((d) => ({ ...d, product_c_id: pc.product_id })),
+    );
 
     const productLoader = LoaderFactory.basicProductLoader(db);
     const productVariantLoader = LoaderFactory.productVariantLoader(
@@ -67,18 +76,21 @@ export function createDiscountByProductLoader(
 
         return Promise.all(
           result.map(async (item) => {
+            const [discount, product, productVariants, category] =
+              await Promise.all([
+                item.discount_id ? discountLoader.load(item.discount_id) : null,
+                productLoader.load(item.product_id),
+                productVariantLoader.load(item.product_id),
+                item.category_id ? categoryLoader.load(item.category_id) : null,
+              ]);
             return {
               productId: item.product_id,
               discountId: item.discount_id,
-              discount: item.discount_id
-                ? await discountLoader.load(item.discount_id)
-                : null,
-              product: await productLoader.load(item.product_id),
-              productVariants: await productVariantLoader.load(item.product_id),
+              discount,
+              product,
+              productVariants,
               isAppliedAll: item.is_applied_all === 1,
-              category: item.category_id
-                ? await categoryLoader.load(item.category_id)
-                : null,
+              category,
             };
           })
         );

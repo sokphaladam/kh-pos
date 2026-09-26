@@ -23,6 +23,21 @@ export function createProductOptionValueLoader(db: Knex) {
   });
 }
 
+// Keyed by product_option_value.id
+export function createProductOptionValueByIdLoader(db: Knex) {
+  return new Dataloader(async (keys: readonly string[]) => {
+    const rows: table_product_option_value[] = await db
+      .table("product_option_value")
+      .whereIn("id", keys);
+
+    const rowById = new Map(rows.map((r) => [r.id, r]));
+    return keys.map((key) => {
+      const row = rowById.get(key);
+      return row ? mapProductOptionValue(row) : null;
+    });
+  });
+}
+
 function mapProductOptionValue(
   row: table_product_option_value
 ): ProductOptionValue {

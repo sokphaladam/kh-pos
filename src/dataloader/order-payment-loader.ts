@@ -7,48 +7,49 @@ export function getOrderPaymentLoader(db: Knex): DataLoader<string, Payment[]> {
   return new DataLoader(async (keys: readonly string[]) => {
     const rows = await db
       .table("order_payment")
-      // leftJoin (not innerJoin) so a payment whose method row is missing/renamed
-      // still shows on the receipt instead of vanishing entirely.
-      .leftJoin(
-        "payment_method",
-        "order_payment.payment_method",
-        "payment_method.method_id"
-      )
-      .select("order_payment.*", "payment_method.method")
-      .whereNull("order_payment.deleted_at")
+      .whereNull("deleted_at")
       .whereIn("order_id", keys);
 
     const paymentMap: Record<string, Payment[]> = {};
     const userLoader = LoaderFactory.userLoader(db);
+    const paymentMethodLoader = LoaderFactory.paymentMethodLoader(db);
 
-    await Promise.all(
+    const payments: Payment[] = await Promise.all(
       rows.map(async (payment) => {
-        if (!paymentMap[payment.order_id]) {
-          paymentMap[payment.order_id] = [];
-        }
-        paymentMap[payment.order_id].push({
+        const [method, createdBy, updatedBy, deletedBy] = await Promise.all([
+          payment.payment_method
+            ? paymentMethodLoader.load(payment.payment_method)
+            : null,
+          payment.created_by ? userLoader.load(payment.created_by) : null,
+          payment.updated_by ? userLoader.load(payment.updated_by) : null,
+          payment.deleted_by ? userLoader.load(payment.deleted_by) : null,
+        ]);
+        return {
           paymentId: payment.payment_id,
           orderId: payment.order_id,
-          paymentMethod: payment.method ?? payment.payment_method ?? "",
+          // A payment whose method row is missing/renamed still shows on the
+          // receipt with its raw method id instead of vanishing.
+          paymentMethod: method?.method ?? payment.payment_method ?? "",
           currency: payment.currency,
           amount: payment.amount,
           exchangeRate: payment.exchange_rate,
           amountUsd: payment.amount_usd,
           createdAt: payment.created_at,
-          createdBy: payment.created_by
-            ? await userLoader.load(payment.created_by)
-            : null,
+          createdBy,
           updatedAt: payment.updated_at,
-          updatedBy: payment.updated_by
-            ? await userLoader.load(payment.updated_by)
-            : null,
+          updatedBy,
           deletedAt: payment.deleted_at,
-          deletedBy: payment.deleted_by
-            ? await userLoader.load(payment.deleted_by)
-            : null,
-        });
+          deletedBy,
+        };
       })
     );
+
+    payments.forEach((payment) => {
+      if (!paymentMap[payment.orderId]) {
+        paymentMap[payment.orderId] = [];
+      }
+      paymentMap[payment.orderId].push(payment);
+    });
 
     return keys.map((key) => paymentMap[key] || []);
   });

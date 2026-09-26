@@ -33,9 +33,15 @@ export const listTable = withAuthApi<
 
   const orderLoader = LoaderFactory.orderLoader(db);
 
+  // Keep the first match per table, same as the previous orders.find()
+  const orderByTable = new Map<string, (typeof orders)[number]>();
+  for (const o of orders) {
+    if (!orderByTable.has(o.table_number)) orderByTable.set(o.table_number, o);
+  }
+
   const rows = await Promise.all(
     items.map(async (x) => {
-      const order = orders.find((o) => o.table_number === x.id);
+      const order = orderByTable.get(x.id);
       return {
         ...x,
         order: order ? await orderLoader.load(order.order_id) : null,

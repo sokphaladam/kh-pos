@@ -17,12 +17,14 @@ export function createVariantSlotStockLoader(
     const slotIds = keys.map((key) => key.split("_")[1]);
     const query = db
       .table("inventory")
-      .innerJoin("warehouse_slot", "inventory.slot_id", "warehouse_slot.id")
-      .where("warehouse_slot.warehouse_id", warehouseId)
-      .whereIn("inventory.variant_id", variantIds)
-      .whereIn("inventory.slot_id", slotIds)
-      .select(db.raw("inventory.variant_id, inventory.slot_id, SUM(qty) as stock"))
-      .groupBy("inventory.variant_id").groupBy("inventory.slot_id");
+      .whereIn("variant_id", variantIds)
+      .whereIn("slot_id", slotIds)
+      .whereIn(
+        "slot_id",
+        db.table("warehouse_slot").where("warehouse_id", warehouseId).select("id"),
+      )
+      .select("variant_id", "slot_id", db.raw("SUM(qty) as stock"))
+      .groupBy("variant_id", "slot_id");
 
 
     const rows = await query;

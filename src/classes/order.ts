@@ -292,12 +292,22 @@ export class OrderService {
         .groupBy("customer_order_detail.order_id");
     }
 
-    const totalRows = (await orderQuery
-      .clone()
-      .countDistinct("customer_order.order_id", { as: "total" })) as number;
+    // Only the payment (shift) and ticket joins can return an order more than
+    // once; without them skip DISTINCT so MySQL can read straight from the index.
+    const hasDuplicatingJoin = !!filter.shiftId || !!filter.ticketCode;
 
-    const query = orderQuery
-      .distinct("customer_order.*")
+    const countQuery = orderQuery.clone().clearOrder();
+    const totalRows = (await (hasDuplicatingJoin
+      ? countQuery.countDistinct("customer_order.order_id", { as: "total" })
+      : countQuery.count("customer_order.order_id", {
+          as: "total",
+        }))) as unknown as number;
+
+    const query = (
+      hasDuplicatingJoin
+        ? orderQuery.distinct("customer_order.*")
+        : orderQuery.select("customer_order.*")
+    )
       .limit(filter.limit ?? 10)
       .offset(filter.offset ?? 0);
 

@@ -7,6 +7,7 @@ import {
   Connection,
   Controls,
   MiniMap,
+  Node,
   NodeTypes,
   Panel,
   ReactFlow,
@@ -40,6 +41,20 @@ const GRID_SIZE = 20;
 const TABLE_WIDTH = 200;
 const TABLE_HEIGHT = 120;
 const TABLE_SPACING = 40;
+const OVERDUE_COOKING_MINUTES = 5;
+
+const minimapNodeColor = (node: Node) => {
+  switch (node.data?.status) {
+    case "available":
+      return "#10b981";
+    case "order_taken":
+      return "#3b82f6";
+    case "cleaning":
+      return "#f59e0b";
+    default:
+      return "#6b7280";
+  }
+};
 
 function TableFlowLayoutContent(
   props: WithLayoutPermissionProps & {
@@ -48,7 +63,7 @@ function TableFlowLayoutContent(
   },
 ) {
   const { showDialog } = useCommonDialog();
-  const { state, isRequest } = useRestaurant();
+  const { state } = useRestaurant();
   const router = useRouter();
   const pathname = usePathname();
   const { selectTable, removeTable, resetTableToAvailable, onRemoveOrder } =
@@ -57,6 +72,11 @@ function TableFlowLayoutContent(
     useTablePositions();
   const [showMinimap, setShowMinimap] = useState(true);
   const [editMode, setEditMode] = useState(false);
+  const { allowUpdate, allowDelete, allowCreate, allowViewOnly } = props;
+  const permission = useMemo(
+    () => ({ allowUpdate, allowDelete, allowCreate, allowViewOnly }),
+    [allowUpdate, allowDelete, allowCreate, allowViewOnly],
+  );
 
   // For debugging purposes, create some sample tables if none exist and we're in development
   const debugTables = useMemo(() => {
@@ -204,6 +224,11 @@ function TableFlowLayoutContent(
       return [];
     }
 
+    const activeTableById = new Map(
+      state.activeTables.map((at) => [at.tables?.id, at]),
+    );
+    const now = Date.now();
+
     return tablesToUse.map((table, index) => {
       // Calculate grid position if no saved position
       const row = Math.floor(index / 4);
@@ -212,9 +237,7 @@ function TableFlowLayoutContent(
       const defaultY = row * (TABLE_HEIGHT + TABLE_SPACING) + 50;
 
       // Get order info for the table
-      const activeTable = state.activeTables.find(
-        (at) => at.tables?.id === table.id,
-      );
+      const activeTable = activeTableById.get(table.id);
       const orderCount = activeTable?.orders?.items?.length || 0;
       const createdAt = activeTable?.orders?.createdAt
         ? activeTable?.orders?.createdAt
@@ -245,7 +268,6 @@ function TableFlowLayoutContent(
 
       // Check if any item has been sent to kitchen (has kitchenLogs) and is still
       // cooking for more than 5 minutes
-      const OVERDUE_COOKING_MINUTES = 5;
       const hasOverdueCooking =
         activeTable?.orders?.items?.some((item) => {
           const logs = item.kitchenLogs;
@@ -259,7 +281,7 @@ function TableFlowLayoutContent(
           );
           if (!latestLog.printedAt) return false;
           const minutesSince =
-            (Date.now() - new Date(latestLog.printedAt).getTime()) / 1000 / 60;
+            (now - new Date(latestLog.printedAt).getTime()) / 1000 / 60;
           return minutesSince > OVERDUE_COOKING_MINUTES;
         }) || false;
 
@@ -277,12 +299,7 @@ function TableFlowLayoutContent(
         onTableDelete: handleTableDelete,
         onTableReset: handleTableReset,
         onTableQRCode: handleTableQRCode,
-        permission: {
-          allowUpdate: props.allowUpdate,
-          allowDelete: props.allowDelete,
-          allowCreate: props.allowCreate,
-          allowViewOnly: props.allowViewOnly,
-        },
+        permission,
         // serviceChargeAmount: String(
         //   activeTable?.orders?.serviceChargeAmount ?? "0",
         // ),
@@ -309,7 +326,7 @@ function TableFlowLayoutContent(
     handleTableReset,
     loadPositions,
     editMode,
-    props,
+    permission,
     handleTableQRCode,
   ]);
 
@@ -509,10 +526,11 @@ function TableFlowLayoutContent(
         minZoom={0.2}
         maxZoom={1}
         proOptions={{ hideAttribution: true }}
+        onlyRenderVisibleElements
         nodesDraggable={editMode}
         nodesConnectable={editMode}
         elementsSelectable={true}
-        panOnDrag={isRequest ? false : true}
+        panOnDrag
         zoomOnScroll={true}
         panOnScroll={false}
         preventScrolling={true}
@@ -521,18 +539,7 @@ function TableFlowLayoutContent(
         <Controls showInteractive={false} />
         {showMinimap && (
           <MiniMap
-            nodeColor={(node) => {
-              switch (node.data?.status) {
-                case "available":
-                  return "#10b981";
-                case "order_taken":
-                  return "#3b82f6";
-                case "cleaning":
-                  return "#f59e0b";
-                default:
-                  return "#6b7280";
-              }
-            }}
+            nodeColor={minimapNodeColor}
             pannable
             zoomable
           />

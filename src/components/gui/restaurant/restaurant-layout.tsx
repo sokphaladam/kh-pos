@@ -121,6 +121,95 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
   const queryCategory = useQueryCategory(100, 0, undefined, undefined, true);
   const queryPOSInfo = useQueryPOSInfo(currentWarehouse?.id || "");
 
+  // Rebuild (and recalculate every order total) only when fetched data changes,
+  // not on every render of the layout.
+  const tableResult = queryTable.data?.result;
+  const categoryResult = queryCategory.categories?.data;
+  const posInfoResult = queryPOSInfo.data?.result;
+  const settingResult = setting?.data?.result;
+  const data = useMemo(() => {
+    const tables = tableResult || [];
+    const categories = categoryResult || [];
+    const posInfo = posInfoResult;
+    const activeTables = tables?.filter(
+      (f) => !!f.order || f.status === "order_taken",
+    );
+
+    const settingList = settingResult || [];
+    const orderDiscountRules = parseOrderDiscountRules(
+      settingList.find((s) => s.option === "ORDER_DISCOUNT_RULES")?.value,
+    );
+
+    return {
+      tables: tables || [],
+      categories: categories || [],
+      posInfo: posInfo || {
+        posCustomerId: "",
+        posSlotId: "",
+      },
+      currentWarehouse: currentWarehouse || undefined,
+      orderDiscountRules,
+      activeTables:
+        activeTables && activeTables.length > 0
+          ? activeTables.map((x) => {
+              const orders = RestaurantaAction.calculateOrderTotal(
+                {
+                ...x.order,
+                customerLoader: x.order?.customerLoader,
+                customer: x.order?.customer,
+                orderId: x.order?.orderId ?? "",
+                invoiceNo: Number(x.order?.invoiceNo ?? 0),
+                customerId: x.order?.customerId ?? "",
+                orderStatus: x.order?.orderStatus ?? "DRAFT",
+                createdAt: x.order?.createdAt ?? null,
+                createdBy: x.order?.createdBy ?? null,
+                totalAmount: String(x.order?.totalAmount ?? 0),
+                items: (x.order?.items || []).map((item) => {
+                  return {
+                    ...item,
+                    status: ["pending", "cooking", "served"].map(
+                      (statusType, i) => {
+                        if (item.status?.[i]) {
+                          return item.status[i];
+                        } else {
+                          return {
+                            qty: 0,
+                            orderItemId: item.orderDetailId,
+                            status: statusType as
+                              | "pending"
+                              | "cooking"
+                              | "served"
+                              | "ready"
+                              | "cancelled",
+                            createdAt: item.status?.[i]?.createdAt || null,
+                            createdBy: item.status?.[i]?.createdBy || null,
+                          };
+                        }
+                      },
+                    ),
+                    orderModifiers: item.orderModifiers?.filter(
+                      (f) => f.modifierItemId !== "notes",
+                    ),
+                    notes: item.orderModifiers?.find(
+                      (f) => f.modifierItemId === "notes",
+                    ),
+                    discounts: item.discounts?.filter((d) => d.id !== ""),
+                  };
+                }),
+                payments: [],
+                printCount: x.order?.printCount || 0,
+                },
+                orderDiscountRules,
+              );
+              return {
+                tables: x,
+                orders,
+              };
+            })
+          : [],
+    };
+  }, [tableResult, categoryResult, posInfoResult, settingResult, currentWarehouse]);
+
   if (
     queryTable.isLoading ||
     queryCategory.isLoading ||
@@ -133,86 +222,6 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
     );
   }
 
-  const tables = queryTable.data?.result || [];
-  const categories = queryCategory.categories?.data || [];
-  const posInfo = queryPOSInfo.data?.result;
-  const activeTables = tables?.filter(
-    (f) => !!f.order || f.status === "order_taken",
-  );
-
-  const settingList = setting?.data?.result || [];
-  const orderDiscountRules = parseOrderDiscountRules(
-    settingList.find((s) => s.option === "ORDER_DISCOUNT_RULES")?.value,
-  );
-
-  const data = {
-    tables: tables || [],
-    categories: categories || [],
-    posInfo: posInfo || {
-      posCustomerId: "",
-      posSlotId: "",
-    },
-    currentWarehouse: currentWarehouse || undefined,
-    orderDiscountRules,
-    activeTables:
-      activeTables && activeTables.length > 0
-        ? activeTables.map((x) => {
-            const orders = RestaurantaAction.calculateOrderTotal(
-              {
-              ...x.order,
-              customerLoader: x.order?.customerLoader,
-              customer: x.order?.customer,
-              orderId: x.order?.orderId ?? "",
-              invoiceNo: Number(x.order?.invoiceNo ?? 0),
-              customerId: x.order?.customerId ?? "",
-              orderStatus: x.order?.orderStatus ?? "DRAFT",
-              createdAt: x.order?.createdAt ?? null,
-              createdBy: x.order?.createdBy ?? null,
-              totalAmount: String(x.order?.totalAmount ?? 0),
-              items: (x.order?.items || []).map((item) => {
-                return {
-                  ...item,
-                  status: ["pending", "cooking", "served"].map(
-                    (statusType, i) => {
-                      if (item.status?.[i]) {
-                        return item.status[i];
-                      } else {
-                        return {
-                          qty: 0,
-                          orderItemId: item.orderDetailId,
-                          status: statusType as
-                            | "pending"
-                            | "cooking"
-                            | "served"
-                            | "ready"
-                            | "cancelled",
-                          createdAt: item.status?.[i]?.createdAt || null,
-                          createdBy: item.status?.[i]?.createdBy || null,
-                        };
-                      }
-                    },
-                  ),
-                  orderModifiers: item.orderModifiers?.filter(
-                    (f) => f.modifierItemId !== "notes",
-                  ),
-                  notes: item.orderModifiers?.find(
-                    (f) => f.modifierItemId === "notes",
-                  ),
-                  discounts: item.discounts?.filter((d) => d.id !== ""),
-                };
-              }),
-              payments: [],
-              printCount: x.order?.printCount || 0,
-              },
-              orderDiscountRules,
-            );
-            return {
-              tables: x,
-              orders,
-            };
-          })
-        : [],
-  };
   return (
     <TooltipProvider>
       <RestaurantProvider

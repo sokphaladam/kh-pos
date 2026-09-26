@@ -13,19 +13,21 @@ export function createOrderLoader(db: Knex) {
     const orderDetailLoader = LoaderFactory.orderDetailLoader(db, "");
     const customerLoader = LoaderFactory.customerLoader(db);
 
+    const rowById = new Map(rows.map((r) => [r.order_id, r]));
+
     return await Promise.all(
       keys.map(async (key) => {
-        const row = rows.find((f) => f.order_id === key);
+        const row = rowById.get(key);
         if (!row) return null;
+        const [customerLoaderResult, items] = await Promise.all([
+          row.customer_id ? customerLoader.load(row.customer_id) : null,
+          row.order_id ? orderDetailLoader.load(row.order_id) : null,
+        ]);
         return {
           ...row,
           customer: row.customer,
-          customerLoader: row.customer_id
-            ? await customerLoader.load(row.customer_id)
-            : null,
-          items: row.order_id
-            ? await orderDetailLoader.load(row.order_id)
-            : null,
+          customerLoader: customerLoaderResult,
+          items,
         };
       }),
     );

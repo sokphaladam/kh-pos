@@ -12,6 +12,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
   useRef,
   useState,
@@ -116,22 +117,26 @@ export function RestaurantProvider({
     prevProcessingRef.current = processing;
   }, [syncInitialState, processing]);
 
+  // Stable value so consumers only re-render when something they read changes
+  const value = useMemo(
+    () => ({
+      state,
+      dispatch,
+      loading,
+      setLoading,
+      printingOrder,
+      setPrintingOrder,
+      isRequest: isRequest || processing || false,
+      setIsRequest,
+      onRefetch,
+      useSetting,
+      setUseSetting,
+    }),
+    [state, loading, printingOrder, isRequest, processing, onRefetch, useSetting],
+  );
+
   return (
-    <RestaurantContext.Provider
-      value={{
-        state,
-        dispatch,
-        loading,
-        setLoading,
-        printingOrder,
-        setPrintingOrder,
-        isRequest: isRequest || processing || false,
-        setIsRequest,
-        onRefetch,
-        useSetting,
-        setUseSetting,
-      }}
-    >
+    <RestaurantContext.Provider value={value}>
       {children}
     </RestaurantContext.Provider>
   );

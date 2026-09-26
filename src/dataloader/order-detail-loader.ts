@@ -1,4 +1,5 @@
 import { OrderDetail } from "@/classes/order";
+import { table_customer_order_detail } from "@/generated/tables";
 import DataLoader from "dataloader";
 import { Knex } from "knex";
 import { LoaderFactory } from "./loader-factory";
@@ -8,23 +9,10 @@ export function createOrderDetailLoader(
   currentWarehouseId?: string,
 ): DataLoader<string, OrderDetail[]> {
   return new DataLoader(async (keys: readonly string[]) => {
-    const rows = await db
-      .table("customer_order_detail")
-      .innerJoin(
-        "product_variant",
-        "customer_order_detail.variant_id",
-        "product_variant.id",
-      )
-      .innerJoin("product", "product.id", "product_variant.product_id")
-      .select(
-        "customer_order_detail.*",
-        "product.title as title",
-        "product_variant.name as option",
-        "product_variant.sku",
-        "product_variant.barcode",
-      )
+    const rows: table_customer_order_detail[] = await db
+      .table<table_customer_order_detail>("customer_order_detail")
       .whereIn("order_id", keys)
-      .orderBy("customer_order_detail.created_at");
+      .orderBy("created_at");
 
     const orderDetailMap: Record<string, OrderDetail[]> = {};
 
@@ -44,32 +32,59 @@ export function createOrderDetailLoader(
     const reservationLoader =
       LoaderFactory.cinemaReservationByOrderDetailLoader(db);
 
-    await Promise.all(
+    // Load all relations in parallel so each loader batches into a single
+    // query round, instead of waiting on them one after another.
+    const details: (OrderDetail | null)[] = await Promise.all(
       rows.map(async (x) => {
-        if (!orderDetailMap[x.order_id!]) {
-          orderDetailMap[x.order_id!] = [];
-        }
-        orderDetailMap[x.order_id!].push({
+        const [
+          productVariant,
+          discounts,
+          status,
+          orderModifiers,
+          reservation,
+          kitchenLogs,
+        ] = await Promise.all([
+          variantLoader.load(x.variant_id!),
+          discountLoader.load(x.order_detail_id!),
+          orderStatusItemLoader.load(x.order_detail_id!),
+          orderModifierLoader.load(x.order_detail_id!),
+          reservationLoader.load(x.order_detail_id!),
+          kitchenLogLoader.load(x.order_detail_id!),
+        ]);
+        // Same as the previous inner join on product_variant / product:
+        // skip items whose variant or product no longer exists.
+        if (!productVariant || !productVariant.basicProduct) return null;
+        const detail: OrderDetail = {
           orderDetailId: x.order_detail_id || "",
           variantId: x.variant_id || "",
-          title: `${x.title} (${x.option})`,
-          sku: x.sku,
-          barcode: x.barcode,
+          title: `${productVariant.basicProduct.title} (${productVariant.name})`,
+          sku: String(productVariant.sku ?? ""),
+          barcode: productVariant.barcode,
           qty: x.qty || 0,
           price: x.price || "0",
           discountAmount: x.discount_amount || "0",
           modiferAmount: x.modifer_amount || "0",
           totalAmount: x.total_amount || "0",
-          productVariant: (await variantLoader.load(x.variant_id)) ?? undefined,
-          discounts: await discountLoader.load(x.order_detail_id!),
-          status: await orderStatusItemLoader.load(x.order_detail_id!),
-          orderModifiers: await orderModifierLoader.load(x.order_detail_id!),
-          reservation:
-            (await reservationLoader.load(x.order_detail_id!)) || undefined,
-          kitchenLogs: await kitchenLogLoader.load(x.order_detail_id!),
-        });
+          productVariant,
+          discounts,
+          status,
+          orderModifiers,
+          reservation: reservation || undefined,
+          kitchenLogs,
+        };
+        return detail;
       }),
     );
+
+    // Group after loading so items keep their created_at order
+    rows.forEach((x, i) => {
+      const detail = details[i];
+      if (!detail) return;
+      if (!orderDetailMap[x.order_id!]) {
+        orderDetailMap[x.order_id!] = [];
+      }
+      orderDetailMap[x.order_id!].push(detail);
+    });
 
     return keys.map((key) => orderDetailMap[key] || []);
   });

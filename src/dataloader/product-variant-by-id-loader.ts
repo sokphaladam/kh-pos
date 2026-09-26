@@ -32,10 +32,11 @@ export function createProductVariantByIdLoader(db: Knex, warehouseId?: string) {
 
     const productVariants: ProductVariantType[] = await Promise.all(
       rows.map(async (x) => {
-        const variantStock =
-          x.id && variantStockLoader
-            ? await variantStockLoader.load(x.id)
-            : null;
+        const [variantStock, basicProduct, movie] = await Promise.all([
+          x.id && variantStockLoader ? variantStockLoader.load(x.id) : null,
+          basicProductLoader.load(x.product_id),
+          x.id ? movieLoader.load(x.id) : null,
+        ]);
 
         const optionValues = variantValue
           .filter((v) => v.product_variant_id === x.id)
@@ -44,8 +45,6 @@ export function createProductVariantByIdLoader(db: Knex, warehouseId?: string) {
             value: val.value,
           }));
 
-        const basicProduct = await basicProductLoader.load(x.product_id);
-        const movie = x.id ? await movieLoader.load(x.id) : null;
         return {
           id: x.id || "",
           productId: x.product_id || "",
@@ -68,10 +67,8 @@ export function createProductVariantByIdLoader(db: Knex, warehouseId?: string) {
       }),
     );
 
-    return keys.map((key) => {
-      const productVariant = productVariants.find((v) => v.id === key);
-      return productVariant || null;
-    });
+    const variantById = new Map(productVariants.map((v) => [v.id, v]));
+    return keys.map((key) => variantById.get(key) || null);
   });
 }
 

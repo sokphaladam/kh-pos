@@ -28,7 +28,10 @@ import { createOrderStatusItemLoader } from "./order-status-item.loader";
 import { createProductCategoryLoader } from "./product-category-loader";
 import { createProductImageLoader } from "./product-image-loader";
 import { createProductLot } from "./product-lot";
-import { createProductOptionValueLoader } from "./product-option-value-loader";
+import {
+  createProductOptionValueByIdLoader,
+  createProductOptionValueLoader,
+} from "./product-option-value-loader";
 import { createProductVariantByIdLoader } from "./product-variant-by-id-loader";
 import { createProductVariantConversionLoader } from "./product-variant-conversion-loader";
 import { createProductVariantLoader } from "./product-variant-loader";
@@ -63,6 +66,7 @@ import { createChartOfAccountsLoader } from "./chart-of-accounts-loader";
 import { createWarehouseGroupByGroupIdLoader } from "./warehouse-group-loader";
 import { createGroupProductByGroupIdLoader } from "./group-product-loader";
 import { createKitchenLogByOrderDetailLoader } from "./kitchen-log-loader";
+import { createPaymentMethodLoader } from "./payment-method-loader";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 
 export class LoaderFactory {
@@ -80,6 +84,14 @@ export class LoaderFactory {
 
   static productOptionValueLoader(db: Knex) {
     return createProductOptionValueLoader(db);
+  }
+
+  static productOptionValueByIdLoader(db: Knex) {
+    return createProductOptionValueByIdLoader(db);
+  }
+
+  static paymentMethodLoader(db: Knex) {
+    return createPaymentMethodLoader(db);
   }
 
   static userLoader(db: Knex) {

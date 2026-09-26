@@ -85,27 +85,27 @@ export function createProductVariantLoader(
       });
 
     if (useMainBranchVisibility) {
-      query
-        .join(
-          "group_products",
-          "group_products.product_variant_id",
-          "product_variant.id",
-        )
-        .join(
-          "product_groups",
-          "product_groups.group_id",
-          "group_products.group_id",
-        )
-        .join(
-          "warehouse_groups",
-          "warehouse_groups.group_id",
-          "group_products.group_id",
-        )
-        .where({
-          "warehouse_groups.warehouse_id": user?.currentWarehouseId || "",
-          "product_groups.deleted_at": null,
-        })
-        .groupBy("product_variant.id");
+      // Only variants in a (non-deleted) product group assigned to this branch
+      query.whereIn(
+        "product_variant.id",
+        db
+          .table("group_products")
+          .select("product_variant_id")
+          .whereIn(
+            "group_id",
+            db
+              .table("warehouse_groups")
+              .select("group_id")
+              .where("warehouse_id", user?.currentWarehouseId || ""),
+          )
+          .whereIn(
+            "group_id",
+            db
+              .table("product_groups")
+              .select("group_id")
+              .whereNull("deleted_at"),
+          ),
+      );
     }
 
     const rows: table_product_variant[] =
@@ -134,6 +134,10 @@ export function createProductVariantLoader(
     );
 
     const basicProductLoader = LoaderFactory.basicProductLoader(db);
+    const compositeVariantLoader = LoaderFactory.compositeVariantLoader(
+      db,
+      warehouseId,
+    );
 
     const variantValue = await getVariantOptionValue(
       db,
@@ -146,13 +150,17 @@ export function createProductVariantLoader(
 
     await Promise.all(
       rows.map(async (x) => {
-        const variantStock = x.id ? await variantStockLoader.load(x.id) : null;
+        const [variantStock, movie, basicProduct, compositeVariants] =
+          await Promise.all([
+            x.id ? variantStockLoader.load(x.id) : null,
+            x.id ? movieLoader.load(x.id) : null,
+            basicProductLoader.load(x.product_id),
+            x.is_composite ? compositeVariantLoader.load(x.id ?? "") : undefined,
+          ]);
 
         const optionValues = variantValue
           .filter((v) => v.product_variant_id === x.id)
           .map(({ id, value }) => ({ id, value }));
-
-        const movie = x.id ? await movieLoader.load(x.id) : null;
 
         const branchVisibility = useMainBranchVisibility
           ? visibilityList.find((v) => v.product_variant_id === x.id)
@@ -184,7 +192,7 @@ export function createProductVariantLoader(
           createdAt: x.created_at ?? "",
           updatedAt: x.updated_at ?? "",
           optionValues,
-          basicProduct: await basicProductLoader.load(x.product_id),
+          basicProduct,
           isComposite: x.is_composite ? Boolean(x.is_composite) : false,
           visible: useMainBranchVisibility
             ? visibilityList.find((v) => v.product_variant_id === x.id)
@@ -192,11 +200,7 @@ export function createProductVariantLoader(
             : x.visible
               ? Boolean(x.visible)
               : false,
-          compositeVariants: x.is_composite
-            ? await LoaderFactory.compositeVariantLoader(db, warehouseId).load(
-                x.id ?? "",
-              )
-            : undefined,
+          compositeVariants,
           movie,
           isPopular: resolveBadge(branchVisibility?.is_popular, x.is_popular),
           isNew: resolveBadge(branchVisibility?.is_new, x.is_new),
@@ -242,17 +246,32 @@ export async function getVariantOptionValue(
   tx: Knex,
   variantIds: string[],
 ): Promise<{ product_variant_id: string; id: string; value: string }[]> {
-  return await tx
+  if (variantIds.length === 0) return [];
+
+  const variantOptions: {
+    product_variant_id: string;
+    option_value_id: string;
+  }[] = await tx
     .table("product_variant_options")
-    .innerJoin(
-      "product_option_value",
-      "product_variant_options.option_value_id",
-      "product_option_value.id",
-    )
     .whereIn("product_variant_id", variantIds)
-    .select(
-      "product_variant_options.product_variant_id",
-      "product_option_value.id",
-      "product_option_value.value",
-    );
+    .select("product_variant_id", "option_value_id");
+
+  const optionValueLoader = LoaderFactory.productOptionValueByIdLoader(tx);
+  const optionValues = await Promise.all(
+    variantOptions.map((vo) => optionValueLoader.load(vo.option_value_id)),
+  );
+
+  // Drop options whose value row is missing, like the previous inner join
+  return variantOptions.flatMap((vo, i) => {
+    const optionValue = optionValues[i];
+    return optionValue
+      ? [
+          {
+            product_variant_id: vo.product_variant_id,
+            id: optionValue.id,
+            value: optionValue.value as string,
+          },
+        ]
+      : [];
+  });
 }
