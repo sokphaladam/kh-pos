@@ -84,10 +84,10 @@ export function HallSeatConfiguration({
   return (
     <div className="space-y-6">
       {/* Seat Type Configuration */}
-      <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+      <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-xl">
-            <PlusIcon className="h-5 w-5 text-green-500" />
+            <PlusIcon className="h-5 w-5 text-success" />
             Seat Configuration
           </CardTitle>
           <CardDescription>
@@ -98,7 +98,7 @@ export function HallSeatConfiguration({
           <div className="space-y-2">
             <Label
               htmlFor="seatType"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground/80"
             >
               Select Seat Type to Apply
             </Label>
@@ -108,7 +108,7 @@ export function HallSeatConfiguration({
                 setSelectedSeatTypeAction(value)
               }
             >
-              <SelectTrigger className="w-full max-w-xs transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 border-slate-200">
+              <SelectTrigger className="w-full max-w-xs transition-all duration-200 focus:ring-2 focus:ring-info/20 border-border">
                 <SelectValue placeholder="Choose seat type" />
               </SelectTrigger>
               <SelectContent>
@@ -124,7 +124,7 @@ export function HallSeatConfiguration({
                           <span className="font-medium text-left">
                             {type.label}
                           </span>
-                          <span className="text-xs text-slate-500">
+                          <span className="text-xs text-muted-foreground">
                             {type.description}
                           </span>
                         </div>
@@ -133,9 +133,9 @@ export function HallSeatConfiguration({
                   ))}
               </SelectContent>
             </Select>
-            <Alert className="border-blue-200 bg-blue-50/50">
-              <InfoIcon className="h-4 w-4 text-blue-500" />
-              <AlertDescription className="text-blue-700">
+            <Alert className="border-info/20 bg-info/50">
+              <InfoIcon className="h-4 w-4 text-info" />
+              <AlertDescription className="text-info">
                 💡 Click on any seat in the layout below to apply the selected
                 type. You can change seat types anytime before saving.
               </AlertDescription>
@@ -145,7 +145,7 @@ export function HallSeatConfiguration({
       </Card>
 
       {/* Parts Configuration */}
-      <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+      <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-xl">
             <SpaceIcon className="h-5 w-5 text-purple-500" />
@@ -158,7 +158,7 @@ export function HallSeatConfiguration({
         <CardContent className="space-y-4">
           {/* Add New Part */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium text-slate-700">
+            <Label className="text-sm font-medium text-foreground/80">
               Add New Part
             </Label>
             <div className="flex flex-col sm:flex-row gap-2">
@@ -201,7 +201,7 @@ export function HallSeatConfiguration({
           {/* Current Parts List */}
           {parts.length > 0 && (
             <div className="space-y-3">
-              <Label className="text-sm font-medium text-slate-700">
+              <Label className="text-sm font-medium text-foreground/80">
                 Current Parts ({parts.length})
               </Label>
               <div className="space-y-2">
@@ -216,7 +216,7 @@ export function HallSeatConfiguration({
                           {part.range}
                         </span>
                         {part.description && (
-                          <span className="text-sm text-slate-600">
+                          <span className="text-sm text-muted-foreground">
                             - {part.description}
                           </span>
                         )}
@@ -226,7 +226,7 @@ export function HallSeatConfiguration({
                       variant="ghost"
                       size="sm"
                       onClick={() => removePart(part.id)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <XIcon className="h-4 w-4" />
                     </Button>
@@ -237,8 +237,8 @@ export function HallSeatConfiguration({
           )}
 
           {parts.length === 0 && (
-            <div className="text-center py-8 text-slate-500">
-              <SpaceIcon className="h-12 w-12 mx-auto mb-3 text-slate-400" />
+            <div className="text-center py-8 text-muted-foreground">
+              <SpaceIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground/70" />
               <p>No parts configured yet</p>
               <p className="text-sm">
                 Add parts to organize your cinema layout

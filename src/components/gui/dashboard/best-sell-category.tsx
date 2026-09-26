@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/state";
+import { LatticeLoader } from "@/components/ui/lattice-loader";
 import { useQueryReportSaleBreakdownByCategory } from "@/app/hooks/report/use-query-sale-breakdown-bycategory-report";
 import { useAuthentication } from "contexts/authentication-context";
 import moment from "moment-timezone";
@@ -126,23 +128,23 @@ export function BestSellCategory(props: Props) {
     if (active && payload && payload.length) {
       const data = payload[0].payload as ChartDataItem;
       return (
-        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-          <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+        <div className="bg-card p-3 rounded-lg shadow-lg border border-border">
+          <p className="font-semibold text-foreground mb-2">
             {data.name}
           </p>
           {/* Highlight selected metric */}
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+          <p className="text-sm text-muted-foreground mb-1">
             <span className="capitalize font-semibold">
               {selectedMetric === "revenue" ? "Revenue" : "Total Qty"}:
             </span>{" "}
-            <span className="font-medium text-cyan-600 text-base">
+            <span className="font-medium text-info text-base">
               {selectedMetric === "revenue"
                 ? formatWithSymbol(data.revenue)
                 : data.totalQty.toLocaleString()}
             </span>
           </p>
           {/* Show other metric as secondary */}
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <p className="text-xs text-muted-foreground mb-1">
             {selectedMetric === "revenue" ? "Total Qty" : "Revenue"}:{" "}
             <span className="font-medium">
               {selectedMetric === "revenue"
@@ -150,7 +152,7 @@ export function BestSellCategory(props: Props) {
                 : formatWithSymbol(data.revenue)}
             </span>
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+          <p className="text-sm text-muted-foreground">
             Share:{" "}
             <span className="font-medium">{data.percentage.toFixed(1)}%</span>
           </p>
@@ -164,14 +166,16 @@ export function BestSellCategory(props: Props) {
     return (
       <div className="h-[300px] sm:h-[340px] lg:h-[380px] xl:h-[400px] min-h-[280px] max-h-[450px] flex flex-col w-full">
         <div className="mb-4">
-          <span className="font-semibold text-cyan-700 dark:text-cyan-300 text-base sm:text-lg">
+          <span className="font-semibold text-foreground text-base sm:text-lg">
             Best Selling Categories
           </span>
         </div>
-        <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">
-          <div className="animate-pulse text-gray-500 dark:text-gray-400 text-sm">
-            {isLoading ? "Loading category data..." : "No date range selected"}
-          </div>
+        <div className="flex-1 flex items-center justify-center rounded-lg bg-muted/40">
+          {isLoading ? (
+            <LatticeLoader label="Loading categories" />
+          ) : (
+            <EmptyState title="No date range selected" />
+          )}
         </div>
       </div>
     );
@@ -181,20 +185,20 @@ export function BestSellCategory(props: Props) {
     return (
       <div className="h-[300px] sm:h-[340px] lg:h-[380px] xl:h-[400px] min-h-[280px] max-h-[450px] flex flex-col w-full">
         <div className="mb-4">
-          <span className="font-semibold text-cyan-700 dark:text-cyan-300 text-base sm:text-lg">
+          <span className="font-semibold text-foreground text-base sm:text-lg">
             Best Selling Categories
           </span>
-          <span className="ml-2 text-gray-500 dark:text-gray-400 text-xs">
+          <span className="ml-2 text-muted-foreground text-xs">
             No sales data available
           </span>
         </div>
-        <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">
+        <div className="flex-1 flex items-center justify-center bg-muted rounded">
           <div className="text-center">
-            <Package className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-2" />
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
+            <Package className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground/70 mx-auto mb-2" />
+            <p className="text-muted-foreground text-sm">
               No category sales found
             </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground/70 mt-1">
               Try adjusting your date range
             </p>
           </div>
@@ -209,39 +213,39 @@ export function BestSellCategory(props: Props) {
       <div className="mb-2 sm:mb-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="min-w-0 flex-1">
-            <span className="font-semibold text-cyan-700 dark:text-cyan-300 text-base sm:text-lg">
+            <span className="font-semibold text-foreground text-base sm:text-lg">
               Best Selling Categories
             </span>
-            <span className="ml-1 sm:ml-2 text-gray-500 dark:text-gray-400 text-xs block sm:inline">
+            <span className="ml-1 sm:ml-2 text-muted-foreground text-xs block sm:inline">
               Top {chartData.length} categories by{" "}
               {selectedMetric === "revenue" ? "Revenue" : "Quantity"}
             </span>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Metric Selector */}
-            <div className="flex bg-gray-100 dark:bg-gray-800 rounded p-1">
+            <div className="flex bg-muted rounded p-1">
               <button
                 onClick={() => setSelectedMetric("revenue")}
                 className={`px-2 py-1 text-xs rounded transition-colors ${
-                  selectedMetric === "revenue"
-                    ? "bg-cyan-600 text-white"
-                    : "text-gray-600 dark:text-gray-400 hover:text-cyan-600"
-                }`}
+ selectedMetric === "revenue"
+ ? "bg-info text-white"
+ : "text-muted-foreground hover:text-info"
+ }`}
               >
                 Revenue
               </button>
               <button
                 onClick={() => setSelectedMetric("totalQty")}
                 className={`px-2 py-1 text-xs rounded transition-colors ${
-                  selectedMetric === "totalQty"
-                    ? "bg-cyan-600 text-white"
-                    : "text-gray-600 dark:text-gray-400 hover:text-cyan-600"
-                }`}
+ selectedMetric === "totalQty"
+ ? "bg-info text-white"
+ : "text-muted-foreground hover:text-info"
+ }`}
               >
                 Quantity
               </button>
             </div>
-            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-600" />
+            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-info" />
           </div>
         </div>
       </div>
@@ -282,10 +286,10 @@ export function BestSellCategory(props: Props) {
                   style={{ backgroundColor: item.color }}
                 />
                 <div className="truncate min-w-0">
-                  <p className="font-medium text-gray-800 dark:text-gray-200 truncate text-xs sm:text-xs">
+                  <p className="font-medium text-foreground truncate text-xs sm:text-xs">
                     {item.name.split(":")[1]?.trim() || item.name}
                   </p>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs">
+                  <p className="text-muted-foreground text-xs">
                     {item.percentage.toFixed(1)}%
                   </p>
                 </div>

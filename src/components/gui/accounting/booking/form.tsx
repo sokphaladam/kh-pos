@@ -68,7 +68,7 @@ export const bookingForm = createSheet<
               <div className="space-y-2">
                 <Label
                   htmlFor="bookingName"
-                  className="text-sm font-medium text-slate-700"
+                  className="text-sm font-medium text-foreground/80"
                 >
                   Description *
                 </Label>
@@ -76,10 +76,10 @@ export const bookingForm = createSheet<
                   id="bookingName"
                   {...register("bookingName")}
                   placeholder="e.g., Payment for services, Sales revenue, etc."
-                  className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 border-slate-200"
+                  className="transition-all duration-200 focus:ring-2 focus:ring-info/20 border-border"
                 />
                 {errors.bookingName && (
-                  <p className="text-sm text-red-500 flex items-center gap-1">
+                  <p className="text-sm text-destructive flex items-center gap-1">
                     {errors.bookingName?.message}
                   </p>
                 )}
@@ -88,7 +88,7 @@ export const bookingForm = createSheet<
               <div className="space-y-2">
                 <Label
                   htmlFor="amount"
-                  className="text-sm font-medium text-slate-700"
+                  className="text-sm font-medium text-foreground/80"
                 >
                   Amount *
                 </Label>
@@ -98,10 +98,10 @@ export const bookingForm = createSheet<
                   step="0.01"
                   {...register("amount", { valueAsNumber: true })}
                   placeholder="0.00"
-                  className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 border-slate-200"
+                  className="transition-all duration-200 focus:ring-2 focus:ring-info/20 border-border"
                 />
                 {errors.amount && (
-                  <p className="text-sm text-red-500 flex items-center gap-1">
+                  <p className="text-sm text-destructive flex items-center gap-1">
                     {errors.amount?.message}
                   </p>
                 )}
@@ -110,7 +110,7 @@ export const bookingForm = createSheet<
               <div className="space-y-2">
                 <Label
                   htmlFor="accountId"
-                  className="text-sm font-medium text-slate-700"
+                  className="text-sm font-medium text-foreground/80"
                 >
                   Account *
                 </Label>
@@ -126,7 +126,7 @@ export const bookingForm = createSheet<
                   )}
                 />
                 {errors.accountId && (
-                  <p className="text-sm text-red-500 flex items-center gap-1">
+                  <p className="text-sm text-destructive flex items-center gap-1">
                     {errors.accountId?.message}
                   </p>
                 )}

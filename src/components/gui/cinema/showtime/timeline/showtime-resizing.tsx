@@ -16,7 +16,7 @@ export function ShowtimeResizing(props: Props) {
 
   return (
     <div
-      className="absolute h-[85%] rounded-xl border-2 border-orange-500 bg-gradient-to-br from-orange-500/20 via-orange-400/10 to-orange-500/20 z-50 pointer-events-none shadow-xl backdrop-blur-sm"
+      className="absolute h-[85%] rounded-xl border-2 border-warning bg-warning/15 z-50 pointer-events-none shadow-xl backdrop-blur-sm"
       style={{
         left: `${
           (parse(
@@ -37,8 +37,8 @@ export function ShowtimeResizing(props: Props) {
         }px`,
       }}
     >
-      <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-orange-800">
-        <div className="bg-orange-500/90 text-white px-2 py-1 rounded-md text-[10px] font-bold shadow-sm">
+      <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-warning">
+        <div className="bg-warning/90 text-white px-2 py-1 rounded-md text-[10px] font-bold shadow-sm">
           {props.resizingShowtime.currentDuration}m
           {props.resizingShowtime.currentDuration ===
             props.resizingShowtime.originalDuration && (
@@ -48,7 +48,7 @@ export function ShowtimeResizing(props: Props) {
       </div>
       {/* Show original duration marker with animated pulse */}
       <div
-        className="absolute top-1 bottom-1 border-l-2 border-dashed border-orange-600/80 animate-pulse"
+        className="absolute top-1 bottom-1 border-l-2 border-dashed border-warning/80 animate-pulse"
         style={{
           left: `${
             props.resizingShowtime.originalDuration * props.PIXELS_PER_MINUTE -
@@ -56,7 +56,7 @@ export function ShowtimeResizing(props: Props) {
           }px`,
         }}
       >
-        <div className="absolute -top-1 left-0 w-2 h-2 bg-orange-600 rounded-full transform -translate-x-1/2"></div>
+        <div className="absolute -top-1 left-0 w-2 h-2 bg-warning rounded-full transform -translate-x-1/2"></div>
       </div>
     </div>
   );

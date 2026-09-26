@@ -79,11 +79,11 @@ export const undoOrderDialog = createDialog<
           Are you sure you want to reverse order <strong>#{invoiceNo}</strong>{" "}
           back to draft status?
         </p>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-          <p className="text-sm text-yellow-800">
+        <div className="bg-warning/10 border border-warning/20 rounded-md p-3">
+          <p className="text-sm text-warning">
             <strong>Warning:</strong> This action will:
           </p>
-          <ul className="text-sm text-yellow-700 mt-2 ml-4 list-disc">
+          <ul className="text-sm text-warning mt-2 ml-4 list-disc">
             <li>Change order status from COMPLETED to DRAFT</li>
             <li>Remove all payments associated with this order</li>
             <li>Return inventory back to stock</li>

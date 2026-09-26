@@ -49,14 +49,14 @@ function ProductImageDisplay({
           {originalPrice}
         </span>
       )}
-      <span className={cn(discounted && "text-emerald-300")}>{price}</span>
+      <span className={cn(discounted && "text-success/80")}>{price}</span>
     </span>
   );
   const topBadges = ((discounted && discountLabel) ||
     (badges && badges.length > 0)) && (
     <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
       {discounted && discountLabel && (
-        <span className="text-[10px] sm:text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-md shadow-sm">
+        <span className="text-[10px] sm:text-xs font-bold text-white bg-destructive px-1.5 py-0.5 rounded-md shadow-sm">
           {discountLabel}
         </span>
       )}
@@ -79,11 +79,11 @@ function ProductImageDisplay({
         {/* Image Container with Portrait Ratio */}
         <div
           className={cn(
-            "bg-gray-100 flex items-center justify-center rounded-t-xl aspect-[5/5] w-full relative",
+            "bg-muted flex items-center justify-center rounded-t-xl aspect-[5/5] w-full relative",
             className,
           )}
         >
-          <span className="text-gray-400 text-xs sm:text-sm">No Image</span>
+          <span className="text-muted-foreground/70 text-xs sm:text-sm">No Image</span>
 
           {topBadges}
           {/* Price and Stock Status Overlay */}
@@ -92,8 +92,8 @@ function ProductImageDisplay({
             {stockStatus && (
               <div
                 className={cn(
-                  "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-white shadow-sm",
-                  stockStatus.isInStock ? "bg-green-500" : "bg-red-500",
+                  "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-card shadow-sm",
+                  stockStatus.isInStock ? "bg-success" : "bg-destructive",
                 )}
               />
             )}
@@ -101,7 +101,7 @@ function ProductImageDisplay({
         </div>
         {/* Product Info */}
         <div className="flex-1 p-1.5 sm:p-2 flex flex-col justify-center">
-          <h3 className="text-xs sm:text-sm font-medium text-gray-800 leading-tight line-clamp-2 text-center">
+          <h3 className="text-xs sm:text-sm font-medium text-foreground leading-tight line-clamp-2 text-center">
             {title}
           </h3>
         </div>
@@ -128,7 +128,7 @@ function ProductImageDisplay({
             />
           </div>
         ) : (
-          <div className="h-full w-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs sm:text-sm">
+          <div className="h-full w-full flex items-center justify-center bg-muted text-muted-foreground/70 text-xs sm:text-sm">
             No Image
           </div>
         )}
@@ -142,7 +142,7 @@ function ProductImageDisplay({
 
       {/* Product Info */}
       <div className="flex-1 p-1.5 sm:p-2 flex flex-col justify-center">
-        <h3 className="text-xs sm:text-sm font-medium text-gray-800 leading-tight line-clamp-2 text-center">
+        <h3 className="text-xs sm:text-sm font-medium text-foreground leading-tight line-clamp-2 text-center">
           {title}
         </h3>
       </div>
@@ -322,16 +322,16 @@ export function ProductPublicLayout({
       )}
 
       {/* Sticky header group — must be outside any overflow container */}
-      <div className="sticky top-0 z-20 bg-white shadow-sm">
+      <div className="sticky top-0 z-20 bg-card shadow-sm">
         {/* Store Header */}
-        <div className="border-b border-gray-100 px-4 py-4 sm:py-5">
+        <div className="border-b border-border px-4 py-4 sm:py-5">
           <div className="flex items-center gap-3 sm:gap-4 max-w-5xl mx-auto">
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={image.logo}
                 alt={warehouseName || "Store logo"}
-                className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl object-contain aspect-square flex-shrink-0 border border-gray-100 shadow-sm"
+                className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl object-contain aspect-square flex-shrink-0 border border-border shadow-sm"
               />
             ) : (
               <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
@@ -339,10 +339,10 @@ export function ProductPublicLayout({
               </div>
             )}
             <div className="min-w-0">
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+              <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">
                 {warehouseName || "Our Menu"}
               </h1>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-muted-foreground mt-0.5">
                 {address ||
                   "Welcome to our store! Browse our delicious offerings."}
               </p>
@@ -351,21 +351,21 @@ export function ProductPublicLayout({
         </div>
 
         {/* Search Header */}
-        <div className="border-b border-gray-200 p-4">
+        <div className="border-b border-border p-4">
           <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/70 h-4 w-4" />
             <Input
               type="text"
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border-gray-300 focus:border-primary focus:ring-primary rounded-lg"
+              className="pl-10 pr-4 py-2 w-full border-border focus:border-primary focus:ring-primary rounded-lg"
             />
           </div>
         </div>
 
         {/* Category Tabs */}
-        <div className="border-b border-gray-200 px-4 py-3">
+        <div className="border-b border-border px-4 py-3">
           <div className="relative">
             <div className="overflow-x-auto scrollbar-hide">
               <div className="flex gap-2 min-w-fit scroll-smooth snap-x snap-mandatory pb-1">
@@ -378,7 +378,7 @@ export function ProductPublicLayout({
                     "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base",
                     selectedCategory === "All"
                       ? "bg-primary text-primary-foreground shadow-sm"
-                      : "hover:bg-gray-50 border-gray-300",
+                      : "hover:bg-muted/40 border-border",
                   )}
                 >
                   All Categories
@@ -387,7 +387,7 @@ export function ProductPublicLayout({
                   ? Array.from({ length: 5 }).map((_, index) => (
                       <div
                         key={`skeleton-${index}`}
-                        className="h-8 w-20 bg-gray-200 animate-pulse rounded-md flex-shrink-0"
+                        className="h-8 w-20 bg-muted animate-pulse rounded-md flex-shrink-0"
                       />
                     ))
                   : categoryData?.result?.data?.map((category) => (
@@ -404,7 +404,7 @@ export function ProductPublicLayout({
                           "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base",
                           selectedCategory === category.id
                             ? "bg-primary text-primary-foreground shadow-sm"
-                            : "hover:bg-gray-50 border-gray-300",
+                            : "hover:bg-muted/40 border-border",
                         )}
                       >
                         {category.title}
@@ -429,7 +429,7 @@ export function ProductPublicLayout({
               Array.from({ length: 12 }).map((_, index) => (
                 <Card
                   key={`skeleton-${index}`}
-                  className="overflow-hidden border-0 shadow-sm bg-white rounded-xl h-full"
+                  className="overflow-hidden border-0 shadow-sm bg-card rounded-xl h-full"
                 >
                   <div className="aspect-[5/5] w-full bg-muted animate-pulse rounded-t-xl" />
                   <div className="p-1.5 sm:p-2 flex justify-center">
@@ -476,7 +476,7 @@ export function ProductPublicLayout({
                   <Card
                     key={`${item.variantId}-${index}`}
                     className={cn(
-                      "group overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 bg-white rounded-xl hover:border-gray-300 h-full flex flex-col relative",
+                      "group overflow-hidden border border-border shadow-sm hover:shadow-lg transition-all duration-300 bg-card rounded-xl hover:border-border h-full flex flex-col relative",
                       loading
                         ? "cursor-not-allowed opacity-60"
                         : "cursor-pointer hover:-translate-y-1 active:scale-95",
@@ -529,13 +529,13 @@ export function ProductPublicLayout({
         {/* Empty State */}
         {!loading && !isLoading && displayProducts.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 px-4">
-            <div className="text-gray-400 mb-4">
+            <div className="text-muted-foreground/70 mb-4">
               <Search className="h-16 w-16 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-foreground mb-2">
               No products found
             </h3>
-            <p className="text-gray-500 text-center max-w-md">
+            <p className="text-muted-foreground text-center max-w-md">
               {searchQuery
                 ? `No products match "${searchQuery}". Try adjusting your search terms.`
                 : "No products are available at the moment."}

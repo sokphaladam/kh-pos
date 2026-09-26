@@ -50,7 +50,7 @@ function DrawerCheckout({
     <Drawer>
       <DrawerTrigger asChild>
         <Button
-          className="w-full md:hidden text-base font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+          className="w-full md:hidden text-base font-semibold shadow-sm"
           disabled={disabledCheckout}
           size="lg"
         >
@@ -61,26 +61,26 @@ function DrawerCheckout({
       <DrawerContent>
         <div className="mx-auto w-full max-w-md">
           <DrawerHeader className="text-center pb-4">
-            <DrawerTitle className="text-xl font-bold text-gray-800">
+            <DrawerTitle className="text-xl font-bold text-foreground">
               Order Summary
             </DrawerTitle>
-            <DrawerDescription className="text-gray-600">
+            <DrawerDescription className="text-muted-foreground">
               Review your order before payment
             </DrawerDescription>
           </DrawerHeader>
 
           <div className="px-6 pb-6">
-            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+            <div className="bg-muted/40 rounded-lg p-4 space-y-3">
               {by && (
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Cashier:</span>
-                  <span className="font-medium text-gray-800">{by}</span>
+                  <span className="text-muted-foreground text-sm">Cashier:</span>
+                  <span className="font-medium text-foreground">{by}</span>
                 </div>
               )}
 
               <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">Exchange Rate:</span>
-                <span className="font-medium text-gray-800">
+                <span className="text-muted-foreground text-sm">Exchange Rate:</span>
+                <span className="font-medium text-foreground">
                   {formatForDisplay(1)} ={" "}
                   {Formatter.formatCurrencyKH(exchangeRate)}
                 </span>
@@ -90,22 +90,22 @@ function DrawerCheckout({
 
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal:</span>
+                  <span className="text-muted-foreground">Subtotal:</span>
                   <div className="text-right">
                     <div className="font-medium">{formatForDisplay(total)}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-muted-foreground">
                       {Formatter.formatCurrencyKH(totalKHR)}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tax ({tax}%):</span>
-                  <span className="text-gray-600 text-sm">Included</span>
+                  <span className="text-muted-foreground">Tax ({tax}%):</span>
+                  <span className="text-muted-foreground text-sm">Included</span>
                 </div>
 
                 {totalDiscount > 0 && (
-                  <div className="flex justify-between text-green-600">
+                  <div className="flex justify-between text-success">
                     <span>Discount:</span>
                     <div className="text-right">
                       <div className="font-medium">
@@ -125,12 +125,12 @@ function DrawerCheckout({
               <Separator className="my-3" />
 
               <div className="flex justify-between items-center">
-                <span className="text-lg font-bold text-gray-800">Total:</span>
+                <span className="text-lg font-bold text-foreground">Total:</span>
                 <div className="text-right">
-                  <div className="text-xl font-bold text-blue-600">
+                  <div className="text-xl font-bold text-info">
                     {formatForDisplay(totalAfterDiscount)}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-muted-foreground">
                     {Formatter.formatCurrencyKH(
                       totalAfterDiscount * (exchangeRate || 0),
                     )}
@@ -143,7 +143,7 @@ function DrawerCheckout({
           <DrawerFooter className="px-6 pb-6">
             <DrawerClose asChild>
               <Button
-                className="w-full text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+                className="w-full text-lg font-semibold shadow-sm"
                 size="lg"
                 disabled={disabledCheckout}
                 onClick={handleCheckout}
@@ -294,7 +294,7 @@ export function RestaurantCheckout() {
   return (
     <>
       <Button
-        className="hidden md:flex w-full text-base font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+        className="hidden md:flex w-full text-base font-semibold shadow-sm"
         size="sm"
         disabled={!allowCheckout || checkingOut}
         onClick={handleCheckout}

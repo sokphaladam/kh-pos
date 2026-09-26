@@ -59,7 +59,7 @@ ReportFiltersSidebarProps) {
       variant="sidebar"
       className="w-auto max-w-[260px] overflow-hidden"
     >
-      <SidebarHeader className="border-b border-gray-200">
+      <SidebarHeader className="border-b border-border">
         {/* Back to Dashboard */}
         <Link
           href={
@@ -72,7 +72,7 @@ ReportFiltersSidebarProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+            className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-muted"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
@@ -80,7 +80,7 @@ ReportFiltersSidebarProps) {
         </Link>
 
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-base font-semibold text-gray-900">
+          <h2 className="text-base font-semibold text-foreground">
             Report Filters
           </h2>
           {activeFiltersCount > 0 && (
@@ -94,7 +94,7 @@ ReportFiltersSidebarProps) {
             variant="ghost"
             size="sm"
             onClick={onClearFiltersAction}
-            className="w-full text-gray-600 hover:text-gray-800"
+            className="w-full text-muted-foreground hover:text-foreground"
           >
             <X className="w-4 h-4 mr-2" />
             Clear All Filters
@@ -203,7 +203,7 @@ ReportFiltersSidebarProps) {
         {viewMode === "graph" && (
           <SidebarGroup>
             <SidebarGroupLabel className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-gray-500" />
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
               Chart Value
             </SidebarGroupLabel>
             <SidebarGroupContent>

@@ -126,7 +126,7 @@ export const sheetDiscount = createSheet<
                   );
                 }}
               />
-              <small className="text-slate-500">
+              <small className="text-muted-foreground">
                 Enter{" "}
                 {discountInput.discountType === "AMOUNT"
                   ? "dollar amount"

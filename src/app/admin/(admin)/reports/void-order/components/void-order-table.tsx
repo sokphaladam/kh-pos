@@ -35,7 +35,7 @@ export function VoidOrderTable({ data }: VoidOrderTableProps) {
   if (!data || data.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="w-16 h-16 mx-auto mb-4 text-gray-300">
+        <div className="w-16 h-16 mx-auto mb-4 text-muted-foreground/70">
           <svg
             fill="none"
             stroke="currentColor"
@@ -50,10 +50,10 @@ export function VoidOrderTable({ data }: VoidOrderTableProps) {
             />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+        <h3 className="text-lg font-medium text-foreground mb-2">
           No Data Found
         </h3>
-        <p className="text-gray-500">
+        <p className="text-muted-foreground">
           No void orders found for the selected date range.
         </p>
       </div>
@@ -94,11 +94,11 @@ export function VoidOrderTable({ data }: VoidOrderTableProps) {
         return (
           <div
             key={orderId}
-            className="border-x-0 border-y-[0.5px] border-gray-200 overflow-hidden transition-shadow duration-200 hover:shadow-md"
+            className="border-x-0 border-y-[0.5px] border-border overflow-hidden transition-shadow duration-200 hover:shadow-md"
           >
             {/* Group Header */}
             <div
-              className="bg-gray-50 px-4 py-3 cursor-pointer hover:bg-gray-100 transition-all duration-200 ease-in-out hover:shadow-sm"
+              className="bg-muted/40 px-4 py-3 cursor-pointer hover:bg-muted transition-all duration-200 ease-in-out hover:shadow-sm"
               onClick={() => toggleGroup(orderId)}
             >
               <div className="flex items-center justify-between">
@@ -106,20 +106,20 @@ export function VoidOrderTable({ data }: VoidOrderTableProps) {
                   <div className="flex items-center space-x-2">
                     <div className="transition-transform duration-200 ease-in-out">
                       {isExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
                       ) : (
-                        <ChevronRight className="h-4 w-4 text-gray-500" />
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
                     </div>
-                    <Package className="h-4 w-4 text-gray-500" />
+                    <Package className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-foreground">
                       {firstItem.invoice
                         ? `Invoice #${firstItem.invoice}`
                         : `Order`}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-muted-foreground">
                       {totalItems} item{totalItems !== 1 ? "s" : ""} •
                       {firstItem.printedAt
                         ? ` Printed: ${moment(firstItem.printedAt).format(
@@ -131,11 +131,11 @@ export function VoidOrderTable({ data }: VoidOrderTableProps) {
                 </div>
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-foreground">
                       Total: {formatForDisplay(totalActualAmount)}
                     </div>
                     {totalDiscrepancy > 0 && (
-                      <div className="text-sm text-red-600 font-medium">
+                      <div className="text-sm text-destructive font-medium">
                         Discrepancy: {formatForDisplay(totalDiscrepancy)}
                       </div>
                     )}
@@ -148,8 +148,8 @@ export function VoidOrderTable({ data }: VoidOrderTableProps) {
                     }
                     className={
                       firstItem.status === "VOIDED"
-                        ? "bg-red-100 text-red-800 hover:bg-red-200"
-                        : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                        ? "bg-destructive/15 text-destructive hover:bg-destructive/25"
+                        : "bg-warning/15 text-warning hover:bg-warning/25"
                     }
                   >
                     {firstItem.status}
@@ -164,10 +164,10 @@ export function VoidOrderTable({ data }: VoidOrderTableProps) {
                 isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
               }`}
             >
-              <div className="bg-white">
+              <div className="bg-card">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-25">
+                    <TableRow className="bg-muted/40">
                       <TableHead>Product Details</TableHead>
                       <TableHead>
                         {firstItem.status === "VOIDED"
@@ -191,16 +191,16 @@ export function VoidOrderTable({ data }: VoidOrderTableProps) {
                           style={{ animationDelay: `${index * 50}ms` }}
                         >
                           <TableCell>
-                            <div className="text-sm text-gray-900">
+                            <div className="text-sm text-foreground">
                               {item.content.at(6)?.value || "N/A"}
                             </div>
                           </TableCell>
                           {item.status === "VOIDED" ? (
-                            <TableCell className="text-sm text-gray-900">
+                            <TableCell className="text-sm text-foreground">
                               {item.content.at(3).value || "N/A"}
                             </TableCell>
                           ) : (
-                            <TableCell className="text-sm text-gray-900">
+                            <TableCell className="text-sm text-foreground">
                               {item.payments && item.payments.length > 0
                                 ? item.payments.at(0)?.createdBy?.fullname
                                 : "N/A"}
@@ -209,22 +209,22 @@ export function VoidOrderTable({ data }: VoidOrderTableProps) {
                           <TableCell>
                             <div className="flex flex-col space-y-1">
                               <div className="text-sm">
-                                <span className="text-gray-500">
+                                <span className="text-muted-foreground">
                                   Print Log:
                                 </span>
-                                <span className="ml-1 font-medium text-gray-900">
+                                <span className="ml-1 font-medium text-foreground">
                                   {item.qtyFromPrintLog ?? "N/A"}
                                 </span>
                               </div>
                               <div className="text-sm">
-                                <span className="text-gray-500">Actual:</span>
-                                <span className="ml-1 font-medium text-gray-900">
+                                <span className="text-muted-foreground">Actual:</span>
+                                <span className="ml-1 font-medium text-foreground">
                                   {item.actualQty}
                                 </span>
                               </div>
                               {item.qtyFromPrintLog !== null &&
                                 item.qtyFromPrintLog !== item.actualQty && (
-                                  <div className="text-sm text-red-600 font-medium">
+                                  <div className="text-sm text-destructive font-medium">
                                     Diff:{" "}
                                     {Math.abs(
                                       (item.qtyFromPrintLog || 0) -
@@ -237,21 +237,21 @@ export function VoidOrderTable({ data }: VoidOrderTableProps) {
                           <TableCell>
                             <div className="flex flex-col space-y-1">
                               <div className="text-sm">
-                                <span className="text-gray-500">
+                                <span className="text-muted-foreground">
                                   Print Log:
                                 </span>
-                                <span className="ml-1 font-medium text-gray-900">
+                                <span className="ml-1 font-medium text-foreground">
                                   {formatForDisplay(amountFromPrintLog)}
                                 </span>
                               </div>
                               <div className="text-sm">
-                                <span className="text-gray-500">Actual:</span>
-                                <span className="ml-1 font-medium text-gray-900">
+                                <span className="text-muted-foreground">Actual:</span>
+                                <span className="ml-1 font-medium text-foreground">
                                   {formatForDisplay(actualAmount)}
                                 </span>
                               </div>
                               {amountFromPrintLog !== actualAmount && (
-                                <div className="text-sm text-red-600 font-medium">
+                                <div className="text-sm text-destructive font-medium">
                                   Diff:
                                   {formatForDisplay(
                                     Math.abs(amountFromPrintLog - actualAmount)

@@ -81,7 +81,8 @@ export function ReportExportToExcel({
   return (
     <Button
       onClick={handleExportToExcel}
-      className="gap-2 bg-green-600 hover:bg-green-700"
+      variant="outline"
+      className="gap-2"
       disabled={!reportData || reportData.length === 0}
       size={"sm"}
     >

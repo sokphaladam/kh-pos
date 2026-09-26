@@ -84,7 +84,7 @@ export function ProductMenuLayout(props: ProductMenuLayoutProps) {
         processing={isValidating || isLoadingTable}
       >
         <SheetProvider slot="default" />
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-muted/40">
           <OrderHeader inZone={props.inZone} />
           <ProductList />
         </div>

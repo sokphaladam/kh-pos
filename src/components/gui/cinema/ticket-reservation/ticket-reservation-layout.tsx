@@ -109,10 +109,10 @@ export function TicketReservationLayout(props: Props) {
       <div className="max-w-6xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center space-y-2">
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Select Your Showtime & Seats
           </h1>
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             Choose your preferred date, showtime, and seats for the best
             experience
           </p>

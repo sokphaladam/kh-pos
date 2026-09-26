@@ -35,10 +35,10 @@ export function HallInformation({ form }: Props) {
   const statusValue = watch("status");
 
   return (
-    <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+    <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-xl">
-          <InfoIcon className="h-5 w-5 text-blue-500" />
+          <InfoIcon className="h-5 w-5 text-info" />
           Hall Information
         </CardTitle>
         <CardDescription>
@@ -50,7 +50,7 @@ export function HallInformation({ form }: Props) {
           <div className="space-y-2">
             <Label
               htmlFor="hallName"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground/80"
             >
               Hall Name *
             </Label>
@@ -58,10 +58,10 @@ export function HallInformation({ form }: Props) {
               id="hallName"
               {...register("hallName")}
               placeholder="e.g., Grand Theater"
-              className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 border-slate-200"
+              className="transition-all duration-200 focus:ring-2 focus:ring-info/20 border-border"
             />
             {errors.hallName && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-destructive flex items-center gap-1">
                 {errors.hallName.message}
               </p>
             )}
@@ -70,7 +70,7 @@ export function HallInformation({ form }: Props) {
           <div className="space-y-2">
             <Label
               htmlFor="hallNumber"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground/80"
             >
               Hall Number *
             </Label>
@@ -79,10 +79,10 @@ export function HallInformation({ form }: Props) {
               type="number"
               {...register("hallNumber", { valueAsNumber: true })}
               placeholder="e.g., 1"
-              className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 border-slate-200"
+              className="transition-all duration-200 focus:ring-2 focus:ring-info/20 border-border"
             />
             {errors.hallNumber && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-destructive flex items-center gap-1">
                 {errors.hallNumber.message}
               </p>
             )}
@@ -91,7 +91,7 @@ export function HallInformation({ form }: Props) {
           <div className="space-y-2">
             <Label
               htmlFor="status"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground/80"
             >
               Status *
             </Label>
@@ -104,32 +104,32 @@ export function HallInformation({ form }: Props) {
                 )
               }
             >
-              <SelectTrigger className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 border-slate-200">
+              <SelectTrigger className="transition-all duration-200 focus:ring-2 focus:ring-info/20 border-border">
                 <SelectValue placeholder="Select hall status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="active">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-success"></div>
                     Active
                   </div>
                 </SelectItem>
                 <SelectItem value="maintenance">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-warning"></div>
                     Maintenance
                   </div>
                 </SelectItem>
                 <SelectItem value="inactive">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-destructive"></div>
                     Inactive
                   </div>
                 </SelectItem>
               </SelectContent>
             </Select>
             {errors.status && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-destructive flex items-center gap-1">
                 {errors.status.message}
               </p>
             )}
@@ -138,7 +138,7 @@ export function HallInformation({ form }: Props) {
           <div className="space-y-2">
             <Label
               htmlFor="rows"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground/80"
             >
               Number of Rows *
             </Label>
@@ -149,10 +149,10 @@ export function HallInformation({ form }: Props) {
               min="1"
               max="50"
               placeholder="10"
-              className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 border-slate-200"
+              className="transition-all duration-200 focus:ring-2 focus:ring-info/20 border-border"
             />
             {errors.rows && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-destructive flex items-center gap-1">
                 {errors.rows.message}
               </p>
             )}
@@ -161,7 +161,7 @@ export function HallInformation({ form }: Props) {
           <div className="space-y-2">
             <Label
               htmlFor="columns"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-foreground/80"
             >
               Seats per Row *
             </Label>
@@ -172,10 +172,10 @@ export function HallInformation({ form }: Props) {
               min="1"
               max="50"
               placeholder="15"
-              className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 border-slate-200"
+              className="transition-all duration-200 focus:ring-2 focus:ring-info/20 border-border"
             />
             {errors.columns && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
+              <p className="text-sm text-destructive flex items-center gap-1">
                 {errors.columns.message}
               </p>
             )}

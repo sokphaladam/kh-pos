@@ -154,7 +154,7 @@ export function ReplenishmentButtonApprove({
         onClick={onApprove}
         type="button"
         variant={"outline"}
-        className="bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white"
+        className="bg-success text-white hover:bg-success/90 hover:text-white"
       >
         {isApproving && <LoadingSpinner />}
         Approve
@@ -165,7 +165,7 @@ export function ReplenishmentButtonApprove({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <ScanLineIcon className="h-5 w-5 text-emerald-500" />
+              <ScanLineIcon className="h-5 w-5 text-success" />
               Lot Verification Required
             </DialogTitle>
             <DialogDescription>
@@ -209,7 +209,7 @@ export function ReplenishmentButtonApprove({
                   className={cn(
                     "flex items-center justify-between rounded-md border px-3 py-2 text-sm",
                     verified
-                      ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20"
+                      ? "border-success bg-success/10"
                       : "border-border",
                   )}
                 >
@@ -228,7 +228,7 @@ export function ReplenishmentButtonApprove({
                     ))}
                   </span>
                   {verified ? (
-                    <CheckCircle2Icon className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <CheckCircle2Icon className="h-4 w-4 text-success shrink-0" />
                   ) : (
                     <Badge variant="outline" className="text-[10px]">
                       Pending
@@ -253,7 +253,7 @@ export function ReplenishmentButtonApprove({
             </Button>
             <Button
               type="button"
-              className="bg-emerald-500 text-white hover:bg-emerald-600"
+              className="bg-success text-white hover:bg-success/90"
               disabled={!allVerified || isApproving || isVerifying}
               onClick={doApprove}
             >

@@ -30,39 +30,39 @@ export function GuestSummaryCards({ data }: { data: GuestNumberData[] }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card className="border-blue-200 bg-blue-50/50">
+      <Card className="border-info/20 bg-info/50">
         <CardHeader className="pb-3">
-          <CardDescription className="text-blue-600">
+          <CardDescription className="text-info">
             Total Guests
           </CardDescription>
-          <CardTitle className="text-2xl font-bold text-blue-700">
+          <CardTitle className="text-2xl font-bold text-info">
             {totalGuests.toLocaleString()}
           </CardTitle>
         </CardHeader>
       </Card>
 
-      <Card className="border-green-200 bg-green-50/50">
+      <Card className="border-success/20 bg-success/50">
         <CardHeader className="pb-3">
-          <CardDescription className="text-green-600">
+          <CardDescription className="text-success">
             Daily Average
           </CardDescription>
-          <CardTitle className="text-2xl font-bold text-green-700">
+          <CardTitle className="text-2xl font-bold text-success">
             {averageGuestsPerDay.toLocaleString()}
           </CardTitle>
         </CardHeader>
       </Card>
 
-      <Card className="border-orange-200 bg-orange-50/50">
+      <Card className="border-warning/20 bg-warning/50">
         <CardHeader className="pb-3">
-          <CardDescription className="text-orange-600">
+          <CardDescription className="text-warning">
             Peak Hour
           </CardDescription>
-          <CardTitle className="text-2xl font-bold text-orange-700">
+          <CardTitle className="text-2xl font-bold text-warning">
             {peakHour.hour
               ? moment(peakHour.hour, "HH:mm:ss").format("h:mm A")
               : "N/A"}
           </CardTitle>
-          <CardDescription className="text-sm text-orange-600">
+          <CardDescription className="text-sm text-warning">
             {peakHour.total_guests} guests
           </CardDescription>
         </CardHeader>

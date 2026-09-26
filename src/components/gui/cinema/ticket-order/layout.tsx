@@ -453,7 +453,7 @@ export function TicketOrderLayout() {
                           className={cn(
                             "h-8 text-xs w-full min-w-[80px]",
                             atMax &&
-                              "border-amber-400 focus-visible:ring-amber-400/30",
+                              "border-warning/50 focus-visible:ring-warning/30",
                           )}
                         />
                         {capacity !== undefined && (
@@ -461,7 +461,7 @@ export function TicketOrderLayout() {
                             className={cn(
                               "text-[10px] text-center leading-tight",
                               atMax
-                                ? "text-amber-500 font-medium"
+                                ? "text-warning font-medium"
                                 : "text-muted-foreground",
                             )}
                           >
@@ -540,7 +540,7 @@ export function TicketOrderLayout() {
         {!isFormComplete && (
           <>
             <span>·</span>
-            <span className="text-amber-500">
+            <span className="text-warning">
               Fill all fields and add at least one ticket to enable upload.
             </span>
           </>

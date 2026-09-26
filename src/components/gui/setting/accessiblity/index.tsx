@@ -28,7 +28,7 @@ function AccessibilityLayout(props: WithLayoutPermissionProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-muted/40">
         <div className="p-8 max-w-6xl mx-auto">
           <LoadingState />
         </div>
@@ -37,7 +37,7 @@ function AccessibilityLayout(props: WithLayoutPermissionProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted/40">
       <div className="p-8 max-w-6xl mx-auto">
         {!!props.allowCreate && <HeaderSection onAddRole={openAddRoleSheet} />}
 

@@ -99,7 +99,7 @@ export function DropImage(props: Props) {
                 />
                 {isSelected && (
                   <div className="absolute top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center">
-                    <CheckCircle className="text-emerald-500" />
+                    <CheckCircle className="text-success" />
                   </div>
                 )}
               </div>

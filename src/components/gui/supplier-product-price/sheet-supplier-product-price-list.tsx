@@ -229,14 +229,14 @@ export const sheetSupplierProductPriceList = createSheet<{
                         {row.supplier?.name}
                       </TableCell>
                       <TableCell className="text-nowrap text-xs">
-                        <Badge className="bg-emerald-500 hover:bg-emerald-600">
+                        <Badge className="bg-success hover:bg-success/90">
                           {currency}
                           {row.price}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         {row.scheduledPrice ? (
-                          <Badge className="bg-rose-500 hover:bg-rose-600">
+                          <Badge className="bg-destructive hover:bg-destructive/90">
                             {currency}
                             {row.scheduledPrice ?? "0.00"}
                           </Badge>

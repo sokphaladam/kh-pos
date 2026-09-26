@@ -127,9 +127,9 @@ export default function ReplenishmentSuggestionLayout() {
   return (
     <div className="container mx-auto py-4">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white py-4 border mb-6 px-4 rounded-lg">
+      <div className="sticky top-0 z-10 bg-card py-4 border mb-6 px-4 rounded-lg">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Product Replenishment</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Product Replenishment</h1>
           <p className="text-muted-foreground">
             Manage stock levels across warehouses
           </p>
@@ -177,7 +177,7 @@ export default function ReplenishmentSuggestionLayout() {
                     el as HTMLDivElement;
                 }}
                 className={cn(
-                  "bg-white rounded-lg border shadow-sm",
+                  "bg-card rounded-lg border shadow-sm",
                   selected !== warehouse.warehouseId && "hidden"
                 )}
               >

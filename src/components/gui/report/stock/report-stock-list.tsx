@@ -20,7 +20,7 @@ function EmptyState() {
   return (
     <div className="text-center py-12">
       <svg
-        className="mx-auto h-12 w-12 text-gray-400"
+        className="mx-auto h-12 w-12 text-muted-foreground/70"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -32,10 +32,10 @@ function EmptyState() {
           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
         />
       </svg>
-      <h3 className="mt-2 text-sm font-medium text-gray-900">
+      <h3 className="mt-2 text-sm font-medium text-foreground">
         No data available
       </h3>
-      <p className="mt-1 text-sm text-gray-500">
+      <p className="mt-1 text-sm text-muted-foreground">
         Try selecting a different date range.
       </p>
     </div>
@@ -55,13 +55,13 @@ export function StockReportList({ data }: ReportListProps) {
   const getRowStyle = (row: StockReportRow) => {
     switch (row.type) {
       case "total":
-        return "bg-blue-50 font-bold border-t-2 border-b-2 border-blue-300";
+        return "bg-info/10 font-bold border-t-2 border-b-2 border-info/30";
       case "warehouse":
-        return "bg-gray-300 font-semibold";
+        return "bg-border font-semibold";
       case "category":
-        return "bg-gray-100 font-semibold";
+        return "bg-muted font-semibold";
       case "detail":
-        return "hover:bg-gray-50";
+        return "hover:bg-muted/40";
       default:
         return "";
     }
@@ -72,7 +72,7 @@ export function StockReportList({ data }: ReportListProps) {
       case "total":
         return (
           <svg
-            className="w-4 h-4 text-blue-600"
+            className="w-4 h-4 text-info"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -82,7 +82,7 @@ export function StockReportList({ data }: ReportListProps) {
       case "warehouse":
         return (
           <svg
-            className="w-4 h-4 text-gray-600"
+            className="w-4 h-4 text-muted-foreground"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -92,7 +92,7 @@ export function StockReportList({ data }: ReportListProps) {
       case "category":
         return (
           <svg
-            className="w-4 h-4 text-gray-600"
+            className="w-4 h-4 text-muted-foreground"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -105,12 +105,12 @@ export function StockReportList({ data }: ReportListProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+    <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+      <div className="px-6 py-4 border-b border-border bg-muted/40">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+          <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
             <svg
-              className="w-5 h-5 text-blue-600"
+              className="w-5 h-5 text-info"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -124,7 +124,7 @@ export function StockReportList({ data }: ReportListProps) {
             </svg>
             Detailed Breakdown
           </h2>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             {reportData.length} {reportData.length === 1 ? "record" : "records"}
           </div>
         </div>
@@ -136,26 +136,26 @@ export function StockReportList({ data }: ReportListProps) {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50">
-                  <TableHead className="font-bold text-gray-700">
+                <TableRow className="bg-muted/40">
+                  <TableHead className="font-bold text-foreground/80">
                     Product Code
                   </TableHead>
-                  <TableHead className="font-bold text-gray-700">
+                  <TableHead className="font-bold text-foreground/80">
                     Product Name
                   </TableHead>
-                  <TableHead className="font-bold text-gray-700 text-right">
+                  <TableHead className="font-bold text-foreground/80 text-right">
                     Cost
                   </TableHead>
-                  <TableHead className="font-bold text-gray-700 text-right">
+                  <TableHead className="font-bold text-foreground/80 text-right">
                     Price
                   </TableHead>
-                  <TableHead className="font-bold text-gray-700 text-right">
+                  <TableHead className="font-bold text-foreground/80 text-right">
                     Quantity
                   </TableHead>
-                  <TableHead className="font-bold text-gray-700 text-right">
+                  <TableHead className="font-bold text-foreground/80 text-right">
                     Total Cost
                   </TableHead>
-                  <TableHead className="font-bold text-gray-700 text-right">
+                  <TableHead className="font-bold text-foreground/80 text-right">
                     Total Price
                   </TableHead>
                 </TableRow>
@@ -174,7 +174,7 @@ export function StockReportList({ data }: ReportListProps) {
                         <div className="flex flex-col">
                           <span
                             className={
-                              row.type === "total" ? "text-blue-900" : ""
+                              row.type === "total" ? "text-info" : ""
                             }
                           >
                             {row.name ||

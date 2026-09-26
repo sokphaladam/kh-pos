@@ -86,7 +86,7 @@ export default function TableForm({
           <h2 className="text-2xl font-bold mb-1">
             {isEdit ? "Edit Table" : "Create New Table"}
           </h2>
-          <p className="text-gray-500 mb-4">
+          <p className="text-muted-foreground mb-4">
             {isEdit ? "Change a " : "Add a new "} dining table to your
             restaurant layout
           </p>
@@ -223,7 +223,7 @@ export default function TableForm({
                   <button
                     type="button"
                     onClick={() => removeFeature(f)}
-                    className="ml-1 hover:text-red-500"
+                    className="ml-1 hover:text-destructive"
                   >
                     <X className="h-3 w-3" />
                   </button>

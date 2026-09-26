@@ -13,13 +13,13 @@ const statusConfig = {
     label: "Draft",
     icon: Clock,
     variant: "secondary" as const,
-    className: "bg-gray-100 text-gray-700 hover:bg-gray-200",
+    className: "bg-muted text-foreground/80 hover:bg-muted",
   },
   COMPLETED: {
     label: "Completed",
     icon: CheckCircle2,
     variant: "default" as const,
-    className: "bg-green-100 text-green-700 hover:bg-green-200",
+    className: "bg-success/15 text-success hover:bg-success/25",
   },
 };
 

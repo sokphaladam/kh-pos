@@ -50,7 +50,7 @@ export function SettlementRow({
         <div className="flex flex-row items-center gap-2">
           <ImageWithFallback
             alt="Product image"
-            className="w-12 h-12 border border-gray-200 rounded-lg object-contain"
+            className="w-12 h-12 border border-border rounded-lg object-contain"
             height={48}
             src={image ?? ""}
             width={48}

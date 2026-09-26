@@ -36,7 +36,7 @@ function PriceTag({
           {originalPrice}
         </span>
       )}
-      <span className={cn(discounted && "text-emerald-300")}>{price}</span>
+      <span className={cn(discounted && "text-success/80")}>{price}</span>
     </span>
   );
 }
@@ -58,7 +58,7 @@ export function ProductImageDisplay({
       {((discounted && discountLabel) || (badges && badges.length > 0)) && (
         <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
           {discounted && discountLabel && (
-            <span className="text-[10px] sm:text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-md shadow-sm">
+            <span className="text-[10px] sm:text-xs font-bold text-white bg-destructive px-1.5 py-0.5 rounded-md shadow-sm">
               {discountLabel}
             </span>
           )}
@@ -80,8 +80,8 @@ export function ProductImageDisplay({
         {stockStatus && (
           <div
             className={cn(
-              "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-white shadow-sm",
-              stockStatus.isInStock ? "bg-green-500" : "bg-red-500"
+              "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-card shadow-sm",
+              stockStatus.isInStock ? "bg-success" : "bg-destructive"
             )}
           />
         )}
@@ -94,15 +94,15 @@ export function ProductImageDisplay({
       <div className="flex flex-col h-full">
         <div
           className={cn(
-            "bg-gray-100 flex items-center justify-center rounded-t-xl aspect-[5/5] w-full relative",
+            "bg-muted flex items-center justify-center rounded-t-xl aspect-[5/5] w-full relative",
             className
           )}
         >
-          <span className="text-gray-400 text-xs sm:text-sm">No Image</span>
+          <span className="text-muted-foreground/70 text-xs sm:text-sm">No Image</span>
           {overlay}
         </div>
         <div className="flex-1 p-1.5 sm:p-2 flex flex-col justify-center">
-          <h3 className="text-xs sm:text-sm font-medium text-gray-800 leading-tight line-clamp-2 text-center">
+          <h3 className="text-xs sm:text-sm font-medium text-foreground leading-tight line-clamp-2 text-center">
             {title}
           </h3>
         </div>
@@ -128,7 +128,7 @@ export function ProductImageDisplay({
             />
           </div>
         ) : (
-          <div className="h-full w-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs sm:text-sm">
+          <div className="h-full w-full flex items-center justify-center bg-muted text-muted-foreground/70 text-xs sm:text-sm">
             No Image
           </div>
         )}
@@ -137,7 +137,7 @@ export function ProductImageDisplay({
       </div>
 
       <div className="flex-1 p-1.5 sm:p-2 flex flex-col justify-center">
-        <h3 className="text-xs sm:text-sm font-medium text-gray-800 leading-tight line-clamp-2 text-center">
+        <h3 className="text-xs sm:text-sm font-medium text-foreground leading-tight line-clamp-2 text-center">
           {title}
         </h3>
       </div>

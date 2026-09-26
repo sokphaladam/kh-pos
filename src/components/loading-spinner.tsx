@@ -1,12 +1,17 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { LoaderIcon } from "lucide-react";
+import { LatticeLoader } from "@/components/ui/lattice-loader";
 
-export default function LoadingSpinner({ className }: { className?: string }) {
+export default function LoadingSpinner({
+  className,
+  label = "",
+}: {
+  className?: string;
+  label?: string;
+}) {
   return (
     <div className="flex justify-center">
-      <LoaderIcon className={cn("h-6 w-6 animate-spin", className)} />
+      <LatticeLoader label={label} className={className} />
     </div>
   );
 }

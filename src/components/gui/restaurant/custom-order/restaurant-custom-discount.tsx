@@ -564,10 +564,10 @@ export function RestaurantCustomDiscount({
                     <div
                       key={index}
                       className={`flex items-center justify-between p-2 rounded border transition-colors ${
-                        isApplied
-                          ? "bg-green-50 border-green-200"
-                          : "bg-white border-gray-200 hover:bg-gray-50"
-                      }`}
+ isApplied
+ ? "bg-success/10 border-success/20"
+ : "bg-card border-border hover:bg-muted/40"
+ }`}
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <Switch
@@ -600,7 +600,7 @@ export function RestaurantCustomDiscount({
               )}
             </div>
           ) : (
-            <div className="text-center py-3 text-gray-500">
+            <div className="text-center py-3 text-muted-foreground">
               <Tag className="h-6 w-6 mx-auto mb-1 opacity-50" />
               <p className="text-xs">No promotions available</p>
             </div>

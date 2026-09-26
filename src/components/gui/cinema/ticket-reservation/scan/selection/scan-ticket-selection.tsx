@@ -59,8 +59,8 @@ export function ScanTicketsSelection({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <ScanLine className="h-6 w-6 text-blue-600" />
+                <div className="p-2 bg-info/15 rounded-lg">
+                  <ScanLine className="h-6 w-6 text-info" />
                 </div>
                 Scan Tickets
               </h2>
@@ -95,42 +95,42 @@ export function ScanTicketsSelection({
       <Card className="shadow-lg border-0">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-3 text-xl">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <BarChart3 className="h-5 w-5 text-green-600" />
+            <div className="p-2 bg-success/15 rounded-lg">
+              <BarChart3 className="h-5 w-5 text-success" />
             </div>
             Admission Summary
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="bg-indigo-50 p-6 rounded-xl text-center">
-              <div className="text-4xl font-bold text-indigo-600 mb-1">
+            <div className="bg-info/10 p-6 rounded-xl text-center">
+              <div className="text-4xl font-bold text-info mb-1">
                 {totalAdmitted}
               </div>
-              <p className="text-sm font-medium text-indigo-700">Admitted</p>
+              <p className="text-sm font-medium text-info">Admitted</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Tickets scanned
               </p>
             </div>
-            <div className="bg-gray-50 p-6 rounded-xl text-center">
-              <div className="text-4xl font-bold text-gray-700 mb-1">
+            <div className="bg-muted/40 p-6 rounded-xl text-center">
+              <div className="text-4xl font-bold text-foreground/80 mb-1">
                 {totalReservations}
               </div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-foreground/80">
                 Total Reserved
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 All reservations
               </p>
             </div>
-            <div className="bg-green-50 p-6 rounded-xl text-center">
-              <div className="text-4xl font-bold text-green-600 mb-1">
+            <div className="bg-success/10 p-6 rounded-xl text-center">
+              <div className="text-4xl font-bold text-success mb-1">
                 {totalReservations > 0
                   ? Math.round((totalAdmitted / totalReservations) * 100)
                   : 0}
                 %
               </div>
-              <p className="text-sm font-medium text-green-700">Completion</p>
+              <p className="text-sm font-medium text-success">Completion</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Admission rate
               </p>
@@ -145,9 +145,9 @@ export function ScanTicketsSelection({
                 {totalAdmitted} / {totalReservations} tickets
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="w-full bg-muted rounded-full h-3">
               <div
-                className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500 ease-out"
+                className="bg-info h-3 rounded-full transition-all duration-500 ease-out"
                 style={{
                   width:
                     totalReservations > 0
@@ -166,11 +166,11 @@ export function ScanTicketsSelection({
       </Card>
 
       {/* Scan Action */}
-      <Card className="shadow-lg border-0 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <Card className="shadow-lg border-0">
         <CardContent className="p-8 text-center">
           <div className="mb-4">
-            <div className="p-4 bg-blue-100 rounded-full w-fit mx-auto mb-3">
-              <Ticket className="h-8 w-8 text-blue-600" />
+            <div className="p-4 bg-info/15 rounded-full w-fit mx-auto mb-3">
+              <Ticket className="h-8 w-8 text-info" />
             </div>
             <h3 className="text-lg font-semibold mb-1">Ready to Scan</h3>
             <p className="text-muted-foreground text-sm">
@@ -193,8 +193,8 @@ export function ScanTicketsSelection({
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-green-600" />
+              <div className="p-2 bg-success/15 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-success" />
               </div>
               Admitted Tickets ({admittedReservations.length})
             </CardTitle>
@@ -258,18 +258,18 @@ export function ScanTicketsSelection({
               {admittedReservations.map((reservation) => (
                 <div
                   key={reservation.id}
-                  className="flex items-center gap-4 p-4 bg-green-50 border border-green-200 rounded-lg transition-all hover:bg-green-100"
+                  className="flex items-center gap-4 p-4 bg-success/10 border border-success/20 rounded-lg transition-all hover:bg-success/15"
                 >
-                  <div className="p-1 bg-green-100 rounded-full">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  <div className="p-1 bg-success/15 rounded-full">
+                    <CheckCircle className="h-5 w-5 text-success" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-green-900 truncate">
+                    <div className="font-medium text-success truncate">
                       {reservation.seat
                         ? `Seat ${reservation.seat.row}${reservation.seat.column}`
                         : "Unknown Seat"}
                     </div>
-                    <div className="text-sm text-green-700">
+                    <div className="text-sm text-success">
                       {reservation.seat?.type && (
                         <span className="capitalize">
                           {reservation.seat.type} seat
@@ -283,7 +283,7 @@ export function ScanTicketsSelection({
                     )}
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium text-green-700">
+                    <div className="text-sm font-medium text-success">
                       {reservation.admittedAt
                         ? format(new Date(reservation.admittedAt), "HH:mm:ss")
                         : "Just now"}
@@ -324,7 +324,7 @@ function VisualSeatingView({
   return (
     <div className="space-y-6">
       {/* Seat Layout */}
-      <div className="bg-gradient-to-b from-gray-50 to-gray-100 p-6 rounded-xl">
+      <div className="p-6 rounded-xl">
         <div className="overflow-x-auto">
           <SeatLayout
             seats={hall.seats.map((seat) => {
@@ -343,17 +343,17 @@ function VisualSeatingView({
             overwriteType={[
               {
                 label: "Admitted",
-                color: "bg-indigo-500 border-indigo-600 shadow-md",
+                color: "bg-info border-info shadow-md",
                 description: "Ticket has been scanned and admitted",
               },
               {
                 label: "Reserved",
-                color: "bg-green-500 border-green-600 shadow-md",
+                color: "bg-success border-success shadow-md",
                 description: "Seat is reserved but not yet admitted",
               },
               {
                 label: "Available",
-                color: "bg-gray-300 border-gray-400",
+                color: "bg-border border-input",
                 description: "Seat is available",
               },
             ]}

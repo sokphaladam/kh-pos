@@ -67,8 +67,8 @@ export default function SaleItemReportPage() {
       label: "Total Items",
       value: summary.totalItems.toLocaleString(),
       icon: ShoppingCart,
-      bg: "bg-blue-50",
-      iconColor: "text-blue-600",
+      bg: "bg-info/10",
+      iconColor: "text-info",
     },
     {
       label: "Total Qty Sold",
@@ -81,8 +81,8 @@ export default function SaleItemReportPage() {
       label: "Total Revenue",
       value: formatForDisplay(summary.totalRevenue),
       icon: TrendingUp,
-      bg: "bg-green-50",
-      iconColor: "text-green-600",
+      bg: "bg-success/10",
+      iconColor: "text-success",
     },
   ];
 
@@ -98,8 +98,8 @@ export default function SaleItemReportPage() {
               : ""
           }`}
           icon={Calendar}
-          iconBgColor="bg-blue-100"
-          iconColor="text-blue-600"
+          iconBgColor="bg-info/15"
+          iconColor="text-info"
           dateRange={dateRange}
           onDateRangeChange={setDateRange}
           onRefresh={() => mutate()}
@@ -117,7 +117,7 @@ export default function SaleItemReportPage() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+              className="rounded-xl border border-border bg-card p-4 shadow-sm"
             >
               <Skeleton className="mb-3 h-8 w-8 rounded-lg" />
               <Skeleton className="mb-2 h-6 w-2/3" />
@@ -130,15 +130,15 @@ export default function SaleItemReportPage() {
           {statCards.map((card) => (
             <div
               key={card.label}
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+              className="rounded-xl border border-border bg-card p-4 shadow-sm"
             >
               <div
                 className={`mb-3 inline-flex h-9 w-9 items-center justify-center rounded-lg ${card.bg}`}
               >
                 <card.icon className={`h-5 w-5 ${card.iconColor}`} />
               </div>
-              <p className="text-xl font-bold text-gray-900">{card.value}</p>
-              <p className="mt-0.5 text-xs text-gray-500">{card.label}</p>
+              <p className="text-xl font-bold text-foreground">{card.value}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{card.label}</p>
             </div>
           ))}
         </div>
@@ -147,11 +147,11 @@ export default function SaleItemReportPage() {
       <div>
         {/* Table */}
         {isLoading ? (
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
+          <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+            <div className="border-b border-border bg-muted/40 px-6 py-4">
               <Skeleton className="h-5 w-48" />
             </div>
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-border">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-4 px-6 py-3.5">
                   <Skeleton className="h-4 w-6 shrink-0" />
@@ -171,13 +171,13 @@ export default function SaleItemReportPage() {
             error={error instanceof Error ? error : undefined}
           />
         ) : (
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-6 py-4">
-              <h2 className="flex items-center gap-2 text-base font-semibold text-gray-800">
-                <ShoppingCart className="h-4 w-4 text-blue-600" />
+          <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+            <div className="flex items-center justify-between border-b border-border bg-muted/40 px-6 py-4">
+              <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
+                <ShoppingCart className="h-4 w-4 text-info" />
                 Item Breakdown
               </h2>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-muted-foreground">
                 {items.length} {items.length === 1 ? "item" : "items"}
               </span>
             </div>
@@ -185,17 +185,17 @@ export default function SaleItemReportPage() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50 hover:bg-gray-50">
-                    <TableHead className="w-10 text-center font-semibold text-gray-600">
+                  <TableRow className="bg-muted/40 hover:bg-muted/40">
+                    <TableHead className="w-10 text-center font-semibold text-muted-foreground">
                       #
                     </TableHead>
-                    <TableHead className="select-none font-semibold text-gray-600">
+                    <TableHead className="select-none font-semibold text-muted-foreground">
                       Item Description
                     </TableHead>
-                    <TableHead className="select-none text-right font-semibold text-gray-600">
+                    <TableHead className="select-none text-right font-semibold text-muted-foreground">
                       Qty
                     </TableHead>
-                    <TableHead className="select-none text-right font-semibold text-gray-600">
+                    <TableHead className="select-none text-right font-semibold text-muted-foreground">
                       Total Amount
                     </TableHead>
                   </TableRow>
@@ -204,30 +204,30 @@ export default function SaleItemReportPage() {
                   {items.map((item, idx) => (
                     <TableRow
                       key={idx}
-                      className="transition-colors hover:bg-blue-50/40"
+                      className="transition-colors hover:bg-info/40"
                     >
-                      <TableCell className="text-center text-sm text-gray-400">
+                      <TableCell className="text-center text-sm text-muted-foreground/70">
                         {idx + 1}
                       </TableCell>
-                      <TableCell className="font-medium text-gray-800">
+                      <TableCell className="font-medium text-foreground">
                         {item.description}
                       </TableCell>
-                      <TableCell className="text-right tabular-nums text-gray-700">
+                      <TableCell className="text-right tabular-nums text-foreground/80">
                         {item.qty.toLocaleString()}
                       </TableCell>
-                      <TableCell className="text-right tabular-nums font-semibold text-gray-900">
+                      <TableCell className="text-right tabular-nums font-semibold text-foreground">
                         {formatForDisplay(item.total_amount)}
                       </TableCell>
                     </TableRow>
                   ))}
                   {/* Totals Row */}
-                  <TableRow className="border-t-2 border-blue-200 bg-blue-50 font-bold hover:bg-blue-50">
+                  <TableRow className="border-t-2 border-info/20 bg-info/10 font-bold hover:bg-info/10">
                     <TableCell />
-                    <TableCell className="text-gray-700">Grand Total</TableCell>
-                    <TableCell className="text-right tabular-nums text-gray-800">
+                    <TableCell className="text-foreground/80">Grand Total</TableCell>
+                    <TableCell className="text-right tabular-nums text-foreground">
                       {summary.totalQty.toLocaleString()}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums text-blue-700">
+                    <TableCell className="text-right tabular-nums text-info">
                       {formatForDisplay(summary.totalRevenue)}
                     </TableCell>
                   </TableRow>

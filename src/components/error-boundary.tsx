@@ -59,17 +59,17 @@ function DefaultErrorFallback({
   reset: () => void;
 }) {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+    <div className="flex items-center justify-center min-h-screen bg-muted/40">
+      <div className="max-w-md w-full bg-card rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold text-foreground mb-4">
           Something went wrong
         </h2>
-        <p className="text-gray-600 mb-4">
+        <p className="text-muted-foreground mb-4">
           An error occurred while loading the page. This might be a temporary
           issue.
         </p>
         {error && (
-          <details className="text-sm text-gray-500 mb-4">
+          <details className="text-sm text-muted-foreground mb-4">
             <summary className="cursor-pointer">Error details</summary>
             <pre className="mt-2 whitespace-pre-wrap">{error.message}</pre>
           </details>
@@ -77,13 +77,13 @@ function DefaultErrorFallback({
         <div className="flex gap-2">
           <button
             onClick={reset}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-info text-white rounded hover:bg-info/90"
           >
             Try again
           </button>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+            className="px-4 py-2 bg-muted-foreground text-white rounded hover:bg-gray-700"
           >
             Reload page
           </button>

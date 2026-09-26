@@ -67,7 +67,7 @@ function DropDownMenuImage(props: {
         >
           Unbind variant
         </DropdownMenuItem>
-        <hr className="my-1 border-t border-gray-200 dark:border-gray-700" />
+        <hr className="my-1 border-t border-border" />
         <DropdownMenuItem
           id="delete-image"
           onClick={(e) => {

@@ -43,12 +43,12 @@ export const PermissionForm: React.FC<PermissionFormProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6">
+    <div className="bg-card rounded-2xl border border-border p-6">
       <div className="space-y-6">
         <div className="space-y-3">
           <Label
             htmlFor="roleName"
-            className="text-lg font-semibold text-gray-900"
+            className="text-lg font-semibold text-foreground"
           >
             Role Name
           </Label>
@@ -58,7 +58,7 @@ export const PermissionForm: React.FC<PermissionFormProps> = ({
             value={newRoleName}
             onChange={(e) => setNewRoleName(e.target.value)}
             maxLength={50}
-            className="h-12 text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+            className="h-12 text-base border-border focus:border-info focus:ring-info"
           />
         </div>
 
@@ -75,22 +75,22 @@ export const PermissionForm: React.FC<PermissionFormProps> = ({
           {/* Show permissions for added resources */}
           {Object.keys(selectedPermissions).length > 0 && (
             <div className="space-y-4">
-              <h4 className="font-medium text-gray-900">
+              <h4 className="font-medium text-foreground">
                 Configure Permissions
               </h4>
               {Object.entries(selectedPermissions).map(
                 ([resource, resourceActions]) => (
-                  <div key={resource} className="bg-gray-50 rounded-xl p-4">
+                  <div key={resource} className="bg-muted/40 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center">
                           {getResourceIcon(resource)}
                         </div>
                         <div>
-                          <h5 className="font-medium text-gray-900 capitalize">
+                          <h5 className="font-medium text-foreground capitalize">
                             {resource.replace(/-/g, " ")}
                           </h5>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-muted-foreground">
                             {getResourceDescription(resource)}
                           </p>
                         </div>
@@ -99,7 +99,7 @@ export const PermissionForm: React.FC<PermissionFormProps> = ({
                         size="sm"
                         variant="ghost"
                         onClick={() => onRemoveResource(resource)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg p-2 h-8 w-8"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg p-2 h-8 w-8"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -152,17 +152,17 @@ export const PermissionCard: React.FC<PermissionCardProps> = ({
   getResourceDescription,
 }) => {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="flex items-center justify-between p-4 border-b border-gray-100">
+    <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-info/10 flex items-center justify-center">
             {getResourceIcon(resource)}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 capitalize">
+            <h3 className="font-semibold text-foreground capitalize">
               {resource.replace(/-/g, " ")}
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {getResourceDescription(resource)}
             </p>
           </div>
@@ -171,7 +171,7 @@ export const PermissionCard: React.FC<PermissionCardProps> = ({
           size="sm"
           variant="ghost"
           onClick={() => onRemove(resource)}
-          className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg p-2"
+          className="text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg p-2"
         >
           <X className="h-4 w-4" />
         </Button>
@@ -180,12 +180,12 @@ export const PermissionCard: React.FC<PermissionCardProps> = ({
       <div className="p-1">
         {actions.map((action, index) => (
           <div key={action}>
-            <div className="flex items-center justify-between py-3 px-4 hover:bg-gray-50 transition-colors">
+            <div className="flex items-center justify-between py-3 px-4 hover:bg-muted/40 transition-colors">
               <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-lg bg-gray-100 flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
                 </div>
-                <label className="text-sm font-medium capitalize text-gray-900">
+                <label className="text-sm font-medium capitalize text-foreground">
                   {action.replace("-", " ")}
                 </label>
               </div>
@@ -197,7 +197,7 @@ export const PermissionCard: React.FC<PermissionCardProps> = ({
               />
             </div>
             {index < actions.length - 1 && (
-              <div className="mx-4 border-b border-gray-100"></div>
+              <div className="mx-4 border-b border-border"></div>
             )}
           </div>
         ))}
@@ -229,12 +229,12 @@ export const PermissionList: React.FC<PermissionListProps> = ({
 }) => {
   if (Object.keys(permissions).length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-8 text-center border border-gray-200">
-        <Shield className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+      <div className="bg-card rounded-2xl p-8 text-center border border-border">
+        <Shield className="h-12 w-12 text-muted-foreground/70 mx-auto mb-3" />
+        <h3 className="text-lg font-medium text-foreground mb-2">
           No permissions added yet
         </h3>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           Add resources to configure permissions for this role.
         </p>
       </div>
@@ -271,19 +271,19 @@ export const PermissionActions: React.FC<PermissionActionsProps> = ({
   isDisabled,
 }) => {
   return (
-    <div className="bg-white rounded-2xl p-6 border border-gray-200">
+    <div className="bg-card rounded-2xl p-6 border border-border">
       <div className="flex justify-end gap-3">
         <Button
           variant="outline"
           onClick={onCancel}
-          className="h-10 px-6 hover:bg-gray-50"
+          className="h-10 px-6 hover:bg-muted/40"
         >
           Cancel
         </Button>
         <Button
           onClick={onSave}
           disabled={isDisabled}
-          className="h-10 px-6 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400"
+          className="h-10 px-6 flex items-center gap-2"
         >
           <Save className="h-4 w-4" />
           Create Role

@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/ui/state";
 import { useQueryOrder } from "@/app/hooks/use-query-order";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
 import { Button } from "@/components/ui/button";
@@ -60,20 +61,20 @@ export function OrderDetail(props: Props) {
   }, [returns, trigger, mutate]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingState label="Loading order" />;
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "COMPLETED":
         return (
-          <Badge className="bg-green-500 hover:bg-green-600">
+          <Badge className="bg-success hover:bg-success/90">
             <CheckCircle className="h-3 w-3 mr-1" /> Completed
           </Badge>
         );
       case "CANCELLED":
         return (
-          <Badge className="bg-red-500 hover:bg-red-600">
+          <Badge className="bg-destructive hover:bg-destructive/90">
             <XCircle className="h-3 w-3 mr-1" /> Cancelled
           </Badge>
         );

@@ -1,4 +1,5 @@
 "use client";
+import { LoadingState } from "@/components/ui/state";
 import React, { useEffect, useMemo, useState } from "react";
 import { ProductMenuLayout } from "./product-menu-layout";
 import { ProductPublicLayout } from "./product-public-layout";
@@ -160,6 +161,6 @@ export function ProductMenuPageRender() {
   }
 
   return (
-    <div className="flex items-center justify-center h-screen">Loading...</div>
+    <LoadingState fullScreen label="Loading menu" />
   );
 }

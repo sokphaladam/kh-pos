@@ -81,19 +81,19 @@ export function BackLog() {
             <Table className="w-full text-xs">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="font-semibold text-gray-600 dark:text-gray-300 w-[120px]">
+                  <TableHead className="font-semibold text-muted-foreground w-[120px]">
                     Product
                   </TableHead>
-                  <TableHead className="font-semibold text-gray-600 dark:text-gray-300 max-lg:hidden w-[80px]">
+                  <TableHead className="font-semibold text-muted-foreground max-lg:hidden w-[80px]">
                     Slot
                   </TableHead>
-                  <TableHead className="font-semibold text-gray-600 dark:text-gray-300 w-[80px]">
+                  <TableHead className="font-semibold text-muted-foreground w-[80px]">
                     Stock
                   </TableHead>
-                  <TableHead className="font-semibold text-gray-600 dark:text-gray-300 w-[80px]">
+                  <TableHead className="font-semibold text-muted-foreground w-[80px]">
                     Qty
                   </TableHead>
-                  <TableHead className="font-semibold text-gray-600 dark:text-gray-300 w-[80px]">
+                  <TableHead className="font-semibold text-muted-foreground w-[80px]">
                     Action
                   </TableHead>
                 </TableRow>
@@ -112,13 +112,13 @@ export function BackLog() {
                         <ImageWithFallback
                           src={x.variant?.basicProduct?.images[0]?.url + ""}
                           alt={x.variant?.basicProduct?.title + ""}
-                          className="w-[28px] h-[28px] border border-dotted rounded-md object-contain bg-white"
+                          className="w-[28px] h-[28px] border border-dotted rounded-md object-contain bg-card"
                           height={28}
                           width={28}
                           title={x.variant?.basicProduct?.title + ""}
                         />
                         <div>
-                          <div className="max-lg:hidden font-semibold text-gray-800 dark:text-gray-200 truncate w-[80px]">
+                          <div className="max-lg:hidden font-semibold text-foreground truncate w-[80px]">
                             <span
                               className="truncate w-full block"
                               title={
@@ -134,7 +134,7 @@ export function BackLog() {
                           </div>
                           <div>
                             <small
-                              className="text-gray-400 truncate w-[60px] block"
+                              className="text-muted-foreground/70 truncate w-[60px] block"
                               title={
                                 x.variant?.sku
                                   ? String(x.variant?.sku)
@@ -150,7 +150,7 @@ export function BackLog() {
                     <TableCell className="max-lg:hidden">
                       <div>
                         <span
-                          className="font-semibold text-gray-700 dark:text-gray-200 truncate w-[60px] inline-block"
+                          className="font-semibold text-foreground/80 truncate w-[60px] inline-block"
                           title={
                             x.slot?.name + (x.slot?.posSlot ? " (POS)" : "")
                           }
@@ -159,17 +159,17 @@ export function BackLog() {
                         </span>
                         <br />
                         <small
-                          className="text-gray-400 truncate w-[60px] inline-block"
+                          className="text-muted-foreground/70 truncate w-[60px] inline-block"
                           title={(x.slot as any).warehouse.name}
                         >
                           {(x.slot as any).warehouse.name}
                         </small>
                       </div>
                     </TableCell>
-                    <TableCell className="font-semibold text-blue-700 dark:text-blue-300 text-center">
+                    <TableCell className="font-semibold text-info text-center">
                       {x.variant?.stock}
                     </TableCell>
-                    <TableCell className="font-semibold text-pink-700 dark:text-pink-300 text-center">
+                    <TableCell className="font-semibold text-destructive text-center">
                       {x.qty}
                     </TableCell>
                     <TableCell className="text-center">

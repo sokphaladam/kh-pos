@@ -22,8 +22,8 @@ export function HallSelection({
       <Card className="shadow-lg border-0">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-3 text-xl">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Building2 className="h-5 w-5 text-blue-600" />
+            <div className="p-2 bg-info/15 rounded-lg">
+              <Building2 className="h-5 w-5 text-info" />
             </div>
             Select Hall
           </CardTitle>
@@ -50,8 +50,8 @@ export function HallSelection({
     <Card className="shadow-lg border-0">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-3 text-xl">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Building2 className="h-5 w-5 text-blue-600" />
+          <div className="p-2 bg-info/15 rounded-lg">
+            <Building2 className="h-5 w-5 text-info" />
           </div>
           Select Hall
         </CardTitle>
@@ -79,17 +79,17 @@ export function HallSelection({
               return (
                 <Card
                   key={hall.id}
-                  className="group cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-blue-200 active:scale-95"
+                  className="group cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-info/20 active:scale-95"
                   onClick={() => onHallSelect(hall)}
                 >
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-50 group-hover:bg-blue-100 rounded-lg transition-colors">
-                          <Building2 className="h-5 w-5 text-blue-600" />
+                        <div className="p-2 bg-info/10 group-hover:bg-info/15 rounded-lg transition-colors">
+                          <Building2 className="h-5 w-5 text-info" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg group-hover:text-blue-700 transition-colors">
+                          <h3 className="font-semibold text-lg group-hover:text-info transition-colors">
                             {hall.name}
                           </h3>
                           <Badge

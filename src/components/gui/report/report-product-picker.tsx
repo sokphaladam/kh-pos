@@ -41,7 +41,7 @@ const ProductImage = ({ item }: { item: ProductSearchResult }) => {
 
   if (image) {
     return (
-      <div className="w-12 h-12 flex items-center justify-center overflow-hidden rounded border border-gray-200 bg-white">
+      <div className="w-12 h-12 flex items-center justify-center overflow-hidden rounded border border-border bg-card">
         <ImageWithFallback
           src={image.url}
           alt={item.productTitle}
@@ -53,7 +53,7 @@ const ProductImage = ({ item }: { item: ProductSearchResult }) => {
   }
 
   return (
-    <div className="w-12 h-12 bg-gray-50 rounded flex items-center justify-center text-gray-400 border border-gray-200">
+    <div className="w-12 h-12 bg-muted/40 rounded flex items-center justify-center text-muted-foreground/70 border border-border">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="w-5 h-5"
@@ -198,7 +198,7 @@ export function ReportProductPicker(props: Props) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between min-h-10 h-auto border-t-0 border-x-0 bg-transparent rounded-none border-b-[1px] dark:border-gray-600 focus:border-primary text-base md:text-sm text-gray-900 focus:outline-none dark:text-white dark:focus:border-primary transition-colors duration-200"
+          className="w-full justify-between min-h-10 h-auto border-t-0 border-x-0 bg-transparent rounded-none border-b-[1px] focus:border-primary text-base md:text-sm text-foreground focus:outline-none dark:focus:border-primary transition-colors duration-200"
         >
           <div className="flex items-center gap-2 flex-1 overflow-hidden">
             <ShoppingBag />
@@ -212,17 +212,17 @@ export function ReportProductPicker(props: Props) {
                   </div>
                 </div>
               ) : (
-                <span className="text-gray-500">Select a product...</span>
+                <span className="text-muted-foreground">Select a product...</span>
               )}
             </div>
           </div>
           {selectedItem && (
             <div
               onClick={handleClearSelection}
-              className="ml-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+              className="ml-2 p-1 hover:bg-muted rounded-full transition-colors"
               aria-label="Clear selection"
             >
-              <X className="h-4 w-4 text-gray-500" />
+              <X className="h-4 w-4 text-muted-foreground" />
             </div>
           )}
         </Button>
@@ -260,16 +260,16 @@ export function ReportProductPicker(props: Props) {
                 key={`report-product-picker-${product.productId}-${index}`}
                 value={product.productId}
                 onSelect={() => handleSelectProduct(product)}
-                className="flex items-center gap-3 p-2 hover:bg-gray-50"
+                className="flex items-center gap-3 p-2 hover:bg-muted/40"
               >
                 <ProductImage item={product} />
                 <div className="flex-1">
                   <div className="font-medium">{product.productTitle}</div>
-                  <div className="text-sm text-gray-500 flex gap-3">
+                  <div className="text-sm text-muted-foreground flex gap-3">
                     <span>SKU: {product.sku}</span>
                     {product.barcode && <span>Barcode: {product.barcode}</span>}
                     {product.price && (
-                      <span className="text-green-600 font-semibold">
+                      <span className="text-success font-semibold">
                         {formatForDisplay(product.price || 0)}
                       </span>
                     )}
@@ -285,7 +285,7 @@ export function ReportProductPicker(props: Props) {
                     setLoading(true);
                     trigger().finally(() => setLoading(false));
                   }}
-                  className="text-blue-600 hover:text-blue-800 text-sm"
+                  className="text-info hover:text-info text-sm"
                   disabled={loading}
                 >
                   {loading ? "Loading..." : "Load more"}

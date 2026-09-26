@@ -37,14 +37,14 @@ export function DiscountProductList({
 
       {/* Applied Products List */}
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-gray-700">
+        <h3 className="text-sm font-medium text-foreground/80">
           Applied Products ({productApplied.length})
         </h3>
         <div className="max-h-[70vh] overflow-y-auto space-y-2">
           {productApplied.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               <p className="text-sm">No products applied to this discount</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-foreground/70 mt-1">
                 Search and select products above to add them
               </p>
             </div>
@@ -69,12 +69,12 @@ export function DiscountProductList({
 
                       {/* Product Information */}
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium text-gray-900 truncate">
+                        <h4 className="text-sm font-medium text-foreground truncate">
                           {product.title}
                         </h4>
                         <div className="flex items-center gap-2 mt-1">
                           {product.productCategories?.length > 0 && (
-                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                            <span className="text-xs bg-info/15 text-info px-2 py-0.5 rounded">
                               {product.productCategories[0].title}
                             </span>
                           )}
@@ -88,7 +88,7 @@ export function DiscountProductList({
                             variant="ghost"
                             size="sm"
                             onClick={() => onRemoveProduct(product.id)}
-                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                           >
                             <X className="h-4 w-4" />
                           </Button>
@@ -99,7 +99,7 @@ export function DiscountProductList({
                     {/* Variant targeting */}
                     {onToggleVariant && variants.length > 1 && (
                       <div className="border-t pt-2 space-y-1.5">
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {selected.length === 0
                             ? "Applies to all variants — tick to limit"
                             : `Applies to ${selected.length} variant(s)`}

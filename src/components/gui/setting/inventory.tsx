@@ -80,12 +80,12 @@ export function InventorySetting(props: Props) {
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Warehouse className="h-4 w-4 text-gray-500" />
-            <h4 className="text-sm font-semibold text-gray-900">
+            <Warehouse className="h-4 w-4 text-muted-foreground" />
+            <h4 className="text-sm font-semibold text-foreground">
               Inventory Configuration
             </h4>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             Configure inventory settings for your warehouses. This setting
             allows you to restrict product lots.
           </p>
@@ -132,7 +132,7 @@ export function InventorySetting(props: Props) {
           />
           <Label
             htmlFor="shared-order-draft"
-            className="text-sm font-medium text-gray-700 cursor-pointer"
+            className="text-sm font-medium text-foreground/80 cursor-pointer"
           >
             {currentValue.restrict_product_lot
               ? "Restrict product lot enabled"

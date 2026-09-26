@@ -104,16 +104,16 @@ export function ProductVariant() {
             Configure Options
           </Button>
           {isMovie && (
-            <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
-              <p className="text-sm text-amber-800 dark:text-amber-200">
+            <div className="mt-3 p-3 bg-warning/10 rounded-lg border border-warning/20">
+              <p className="text-sm text-warning">
                 <strong>Note:</strong> Movie products can only have one variant.
                 Multiple variants are not allowed for cinema category.
               </p>
             </div>
           )}
           {(product.productOption.length || 0) > 0 && !isMovie && (
-            <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+            <div className="mt-3 p-3 bg-info/10 rounded-lg border border-info/20">
+              <p className="text-sm text-info">
                 <strong>Options:</strong>{" "}
                 {product.productOption.map((x) => x.name).join(" • ")}
               </p>

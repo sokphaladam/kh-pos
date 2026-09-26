@@ -140,7 +140,7 @@ export function OrderFilters({
     ).system_type === "CINEMA";
 
   return (
-    <div className="bg-white rounded-lg border shadow-sm">
+    <div className="bg-card rounded-lg border shadow-sm">
       <div className="p-4">
         {/* Single Row Layout for Desktop */}
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">

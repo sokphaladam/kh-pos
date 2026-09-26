@@ -21,20 +21,20 @@ const transactionTypeConfig: Record<string, { color: string; label: string }> =
   {
     STOCK_IN: {
       color:
-        "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+        "bg-success/15 text-success",
       label: "Stock In",
     },
     STOCK_OUT: {
       color:
-        "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+        "bg-warning/15 text-warning",
       label: "Stock Out",
     },
     ADJUSTMENT_IN: {
-      color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      color: "bg-info/15 text-info",
       label: "Adjustment In",
     },
     ADJUSTMENT_OUT: {
-      color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+      color: "bg-destructive/15 text-destructive",
       label: "Adjustment Out",
     },
   };
@@ -99,7 +99,7 @@ export const sheetProductTransaction = createSheet<{
                 <TableCell className="text-right font-bold">
                   <span
                     className={
-                      total.qty < 0 ? "text-red-500" : "text-green-500"
+                      total.qty < 0 ? "text-destructive" : "text-success"
                     }
                   >
                     {total.qty < 0 ? "-" : "+"}
@@ -115,7 +115,7 @@ export const sheetProductTransaction = createSheet<{
                 const typeConfig = transactionTypeConfig[
                   transaction.transactionType!
                 ] || {
-                  color: "bg-gray-100 text-gray-800",
+                  color: "bg-muted text-foreground",
                   label: transaction.transactionType,
                 };
                 const isNegativeQty = transaction.qty < 0;
@@ -158,7 +158,7 @@ export const sheetProductTransaction = createSheet<{
                     <TableCell className="text-right font-medium text-xs">
                       <span
                         className={
-                          isNegativeQty ? "text-red-500" : "text-green-500"
+                          isNegativeQty ? "text-destructive" : "text-success"
                         }
                       >
                         {isNegativeQty ? "-" : "+"}

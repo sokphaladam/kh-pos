@@ -109,7 +109,7 @@ export function ProductionScanDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ScanBarcode className="h-5 w-5 text-emerald-500" />
+            <ScanBarcode className="h-5 w-5 text-success" />
             Lot Verification Required
           </DialogTitle>
           <DialogDescription>
@@ -149,7 +149,7 @@ export function ProductionScanDialog({
                 className={cn(
                   "flex items-center justify-between rounded-md border px-3 py-2 text-sm",
                   verified
-                    ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20"
+                    ? "border-success bg-success/10"
                     : "border-border",
                 )}
               >
@@ -167,7 +167,7 @@ export function ProductionScanDialog({
                   ))}
                 </span>
                 {verified ? (
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
                 ) : (
                   <Badge variant="outline" className="text-[10px]">
                     Pending

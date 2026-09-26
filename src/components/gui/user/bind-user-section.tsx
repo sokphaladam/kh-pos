@@ -110,12 +110,12 @@ export function BindUserSection({ group, entries, onChange, loading }: Props) {
             <div
               key={entry.warehouseId}
               className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm ${
-                entry.isMain
-                  ? "border-primary/40 bg-primary/10 text-primary"
-                  : entry.isNew
-                    ? "border-emerald-400/40 bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                    : "border-border bg-muted/50 text-foreground"
-              }`}
+ entry.isMain
+ ? "border-primary/40 bg-primary/10 text-primary"
+ : entry.isNew
+ ? "border-success/40 bg-success/10 text-success "
+ : "border-border bg-muted/50 text-foreground"
+ }`}
             >
               {entry.isMain && (
                 <span className="text-[10px] font-semibold uppercase tracking-wide opacity-70">

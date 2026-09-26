@@ -102,8 +102,8 @@ export function NavSidebar() {
                     tooltip={item.title}
                     className={
                       isActive
-                        ? "bg-blue-500 text-white shadow-none"
-                        : "bg-transparent shadow-none hover:bg-gray-200"
+                        ? "bg-info text-white shadow-none"
+                        : "bg-transparent shadow-none hover:bg-muted"
                     }
                   >
                     <Link
@@ -129,8 +129,8 @@ export function NavSidebar() {
                   tooltip={item.title}
                   className={
                     isActive
-                      ? "bg-blue-500 text-white shadow-none"
-                      : "bg-transparent shadow-none hover:bg-gray-200"
+                      ? "bg-info text-white shadow-none"
+                      : "bg-transparent shadow-none hover:bg-muted"
                   }
                 >
                   <Link
@@ -167,8 +167,8 @@ export function NavSidebar() {
                 asChild
                 className={
                   isActive
-                    ? "bg-blue-500 text-white shadow-none"
-                    : "bg-transparent shadow-none hover:bg-gray-200"
+                    ? "bg-info text-white shadow-none"
+                    : "bg-transparent shadow-none hover:bg-muted"
                 }
               >
                 <Link
@@ -209,7 +209,7 @@ export function NavSidebar() {
       >
         <SidebarGroup>
           <CollapsibleTrigger asChild>
-            <SidebarGroupLabel className="cursor-pointer hover:bg-gray-200 bg-transparent shadow-none rounded-md px-2 py-1 flex items-center gap-2">
+            <SidebarGroupLabel className="cursor-pointer hover:bg-muted bg-transparent shadow-none rounded-md px-2 py-1 flex items-center gap-2">
               {React.createElement(getSectionIcon(menu.key), { size: 16 })}
               {menu.title}
               <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -235,8 +235,8 @@ export function NavSidebar() {
                             tooltip={item.title}
                             className={
                               isActive
-                                ? "bg-blue-500 text-white"
-                                : "bg-transparent shadow-none hover:bg-blue-200"
+                                ? "bg-info text-white"
+                                : "bg-transparent shadow-none hover:bg-info/25"
                             }
                           >
                             <item.icon />
@@ -268,8 +268,8 @@ export function NavSidebar() {
                                     asChild
                                     className={
                                       isSubActive
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-transparent shadow-none hover:bg-blue-200"
+                                        ? "bg-info text-white"
+                                        : "bg-transparent shadow-none hover:bg-info/25"
                                     }
                                   >
                                     <Link
@@ -302,8 +302,8 @@ export function NavSidebar() {
                       asChild
                       className={
                         isActive
-                          ? "bg-blue-500 text-white shadow-none"
-                          : "bg-transparent shadow-none hover:bg-gray-200"
+                          ? "bg-info text-white shadow-none"
+                          : "bg-transparent shadow-none hover:bg-muted"
                       }
                     >
                       <Link

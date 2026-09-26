@@ -215,7 +215,7 @@ export function ProductionForm(props: Props) {
               />
             </div>
             <div className="w-full">
-              <Label className="text-gray-500 dark:text-gray-400 text-xs font-light">
+              <Label className="text-muted-foreground text-xs font-light">
                 Slot
               </Label>
               <ProductSlotCombobox
@@ -305,7 +305,7 @@ export function ProductionForm(props: Props) {
                             "relative overflow-hidden rounded-lg border bg-card transition-all duration-200 hover:shadow-sm",
                             isStockSufficient
                               ? "border-border"
-                              : "border-red-200 bg-red-50/30 dark:border-red-800 dark:bg-red-950/10",
+                              : "border-destructive/20 bg-destructive/30",
                           )}
                         >
                           {/* Header with item number and status indicator */}
@@ -393,7 +393,7 @@ export function ProductionForm(props: Props) {
                                           slot.slot ? "" : "italic",
                                           inventorySetting.restrict_product_lot &&
                                             !slot.lot?.id
-                                            ? "border border-red-400 bg-red-50 dark:bg-red-950/20"
+                                            ? "border border-destructive/50 bg-destructive/10"
                                             : "",
                                         )}
                                       >
@@ -405,7 +405,7 @@ export function ProductionForm(props: Props) {
                                               "text-muted-foreground",
                                               inventorySetting.restrict_product_lot &&
                                                 !slot.lot?.id
-                                                ? "text-red-500 font-medium"
+                                                ? "text-destructive font-medium"
                                                 : "",
                                             )}
                                           >
@@ -442,7 +442,7 @@ export function ProductionForm(props: Props) {
                     className={cn(
                       "font-medium",
                       getSuggestedQty(value) < value.composedVariant.qty
-                        ? "text-red-600"
+                        ? "text-destructive"
                         : "",
                     )}
                   >
@@ -451,12 +451,12 @@ export function ProductionForm(props: Props) {
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span>Max Compositions Possible:</span>
-                  <span className="font-medium text-blue-600">
+                  <span className="font-medium text-info">
                     {getSuggestedQty(value)} Quantity
                   </span>
                 </div>
                 {getSuggestedQty(value) < value.composedVariant.qty && (
-                  <div className="text-red-600 text-xs mt-1">
+                  <div className="text-destructive text-xs mt-1">
                     ⚠️ Exceeds available stock
                   </div>
                 )}

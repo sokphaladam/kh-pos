@@ -95,8 +95,8 @@ export default function GuestNumberReportPage() {
         title="Guest Number Report"
         description="Track guest count patterns and trends over time"
         icon={Users}
-        iconBgColor="bg-blue-100"
-        iconColor="text-blue-600"
+        iconBgColor="bg-info/15"
+        iconColor="text-info"
         dateRange={dateRange}
         onDateRangeChange={setDateRange}
         onRefresh={handleRefresh}
@@ -117,11 +117,11 @@ export default function GuestNumberReportPage() {
           ) : (
             <Card>
               <CardContent className="p-12 text-center">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <Users className="h-12 w-12 text-muted-foreground/70 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
                   No Guest Data Available
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-muted-foreground mb-4">
                   No guest number data found for the selected date range.
                 </p>
                 <Button onClick={handleRefresh} variant="outline">

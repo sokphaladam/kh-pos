@@ -78,7 +78,7 @@ export const sheetRestaurantServed = createSheet<
         <div className="space-y-6 p-4">
           {/* Product Info */}
           <div className="flex items-start space-x-4">
-            <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+            <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-muted">
               <ImageWithFallback
                 src={productImage || ""}
                 alt={productTitle}
@@ -91,9 +91,9 @@ export const sheetRestaurantServed = createSheet<
             <div className="flex-1">
               <h3 className="font-semibold text-lg">{productTitle}</h3>
               {productCategory && (
-                <p className="text-sm text-gray-600">{productCategory}</p>
+                <p className="text-sm text-muted-foreground">{productCategory}</p>
               )}
-              <p className="text-sm font-medium text-blue-600">
+              <p className="text-sm font-medium text-info">
                 ${Number(data.price).toFixed(2)} each
               </p>
             </div>
@@ -103,29 +103,29 @@ export const sheetRestaurantServed = createSheet<
 
           {/* Status Overview */}
           <div className="space-y-3">
-            <h4 className="font-medium text-gray-900">Order Status Overview</h4>
+            <h4 className="font-medium text-foreground">Order Status Overview</h4>
 
             <div className="grid grid-cols-1 gap-3">
               {/* Cooking Status */}
-              <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
+              <div className="flex items-center justify-between p-3 bg-warning/10 rounded-lg border border-warning/20">
                 <div className="flex items-center space-x-2">
-                  <Badge className="bg-orange-700 text-white">Cooking</Badge>
+                  <Badge className="bg-warning text-white">Cooking</Badge>
                 </div>
-                <span className="text-lg font-bold text-orange-700">
+                <span className="text-lg font-bold text-warning">
                   {totalCookingQty} {totalCookingQty === 1 ? "item" : "items"}
                 </span>
               </div>
 
               {/* Ready Status */}
               {totalReadyQty > 0 && (
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                <div className="flex items-center justify-between p-3 bg-success/10 rounded-lg border border-success/20">
                   <div className="flex items-center space-x-2">
-                    <Badge className="bg-green-700 text-white">Ready</Badge>
+                    <Badge className="bg-success text-white">Ready</Badge>
                     <span className="text-sm font-medium">
                       Already completed
                     </span>
                   </div>
-                  <span className="text-lg font-bold text-green-700">
+                  <span className="text-lg font-bold text-success">
                     {totalReadyQty} {totalReadyQty === 1 ? "item" : "items"}
                   </span>
                 </div>
@@ -133,12 +133,12 @@ export const sheetRestaurantServed = createSheet<
 
               {/* Served Status */}
               {totalServedQty > 0 && (
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between p-3 bg-info/10 rounded-lg border border-info/20">
                   <div className="flex items-center space-x-2">
-                    <Badge className="bg-blue-700 text-white">Served</Badge>
+                    <Badge className="bg-info text-white">Served</Badge>
                     <span className="text-sm font-medium">Already served</span>
                   </div>
-                  <span className="text-lg font-bold text-blue-700">
+                  <span className="text-lg font-bold text-info">
                     {totalServedQty} {totalServedQty === 1 ? "item" : "items"}
                   </span>
                 </div>
@@ -151,7 +151,7 @@ export const sheetRestaurantServed = createSheet<
           {/* Serve Items Form */}
           {totalCookingQty > 0 ? (
             <div className="space-y-4">
-              <h4 className="font-medium text-gray-900">
+              <h4 className="font-medium text-foreground">
                 Mark Items as Served
               </h4>
 
@@ -198,7 +198,7 @@ export const sheetRestaurantServed = createSheet<
             </div>
           ) : (
             <div className="text-center py-8">
-              <div className="text-gray-500">
+              <div className="text-muted-foreground">
                 <p className="text-lg font-medium">No items ready to serve</p>
                 <p className="text-sm">
                   All items for this product have already been served or are not

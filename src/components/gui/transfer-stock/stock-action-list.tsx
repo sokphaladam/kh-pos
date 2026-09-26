@@ -83,9 +83,9 @@ export function StockActionList({
 
   if (totalActionableItems === 0 && !showAvailable && !showNoStock) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-3" />
-        <p className="text-lg font-medium text-gray-900">
+      <div className="text-center py-8 text-muted-foreground">
+        <CheckCircle className="h-12 w-12 mx-auto text-success mb-3" />
+        <p className="text-lg font-medium text-foreground">
           All items are ready!
         </p>
         <p className="text-sm">No stock transfers or conversions needed.</p>
@@ -247,10 +247,10 @@ function StockCategoryCard({
   compact = false,
 }: StockCategoryCardProps) {
   const variantStyles = {
-    warning: "border-yellow-200 bg-yellow-50",
-    info: "border-blue-200 bg-blue-50",
-    destructive: "border-red-200 bg-red-50",
-    success: "border-green-200 bg-green-50",
+    warning: "border-warning/20 bg-warning/10",
+    info: "border-info/20 bg-info/10",
+    destructive: "border-destructive/20 bg-destructive/10",
+    success: "border-success/20 bg-success/10",
   };
 
   return (
@@ -307,8 +307,8 @@ function ProductItem({
   return (
     <div
       className={`flex items-center gap-3 ${
-        compact ? "p-2" : "p-2"
-      } bg-white rounded border`}
+ compact ? "p-2" : "p-2"
+ } bg-card rounded border`}
     >
       <ImageWithFallback
         alt={item.variant?.basicProduct?.title || ""}
@@ -335,12 +335,12 @@ function ProductItem({
           {showSlot && item.slot && (
             <>
               <span>•</span>
-              <span className="text-blue-600">{item.slot.name}</span>
+              <span className="text-info">{item.slot.name}</span>
             </>
           )}
         </div>
         {showMessage && item.message && (
-          <p className={`${compact ? "text-xs" : "text-xs"} text-red-600 mt-1`}>
+          <p className={`${compact ? "text-xs" : "text-xs"} text-destructive mt-1`}>
             {item.message}
           </p>
         )}
@@ -406,8 +406,8 @@ function ConversionProductItem({
     <div className="space-y-2">
       <div
         className={`flex items-center gap-3 ${
-          compact ? "p-2" : "p-2"
-        } bg-white rounded border`}
+ compact ? "p-2" : "p-2"
+ } bg-card rounded border`}
       >
         <ImageWithFallback
           alt={item.variant?.basicProduct?.title || ""}
@@ -450,8 +450,8 @@ function ConversionProductItem({
                 size="sm"
                 onClick={onToggleExpand}
                 className={`${
-                  compact ? "h-4" : "h-5"
-                } p-0 text-blue-600 hover:text-blue-800 text-xs`}
+ compact ? "h-4" : "h-5"
+ } p-0 text-info hover:text-info text-xs`}
               >
                 {isExpanded ? (
                   <ChevronDown className="h-3 w-3 mr-1" />
@@ -462,7 +462,7 @@ function ConversionProductItem({
               </Button>
             )}
             {!hasConversionDetails && (
-              <p className={`${compact ? "text-xs" : "text-xs"} text-blue-600`}>
+              <p className={`${compact ? "text-xs" : "text-xs"} text-info`}>
                 {getConversionInfo()}
               </p>
             )}
@@ -491,16 +491,16 @@ function ConversionProductItem({
       {isExpanded && hasConversionDetails && (
         <div
           className={`${
-            compact ? "ml-8" : "ml-11"
-          } space-y-2 pl-3 border-l-2 border-gray-200`}
+ compact ? "ml-8" : "ml-11"
+ } space-y-2 pl-3 border-l-2 border-border`}
         >
           {/* Breakdown sources */}
           {item.breakdownStockInfo && item.breakdownStockInfo.length > 0 && (
             <div>
               <p
                 className={`${
-                  compact ? "text-xs" : "text-xs"
-                } font-medium text-gray-700 mb-1`}
+ compact ? "text-xs" : "text-xs"
+ } font-medium text-foreground/80 mb-1`}
               >
                 Breakdown sources:
               </p>
@@ -508,16 +508,16 @@ function ConversionProductItem({
                 <div
                   key={idx}
                   className={`flex items-center gap-2 ${
-                    compact ? "text-xs" : "text-xs"
-                  } text-gray-600 py-1`}
+ compact ? "text-xs" : "text-xs"
+ } text-muted-foreground py-1`}
                 >
-                  <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
+                  <span className="w-2 h-2 bg-warning/70 rounded-full"></span>
                   <span className="font-medium">{source.qty}x</span>
                   <span>{getVariantProperName(source.variant)}</span>
                   {source.slot && (
                     <>
                       <span>•</span>
-                      <span className="text-blue-600">{source.slot.name}</span>
+                      <span className="text-info">{source.slot.name}</span>
                     </>
                   )}
                 </div>
@@ -530,8 +530,8 @@ function ConversionProductItem({
             <div>
               <p
                 className={`${
-                  compact ? "text-xs" : "text-xs"
-                } font-medium text-gray-700 mb-1`}
+ compact ? "text-xs" : "text-xs"
+ } font-medium text-foreground/80 mb-1`}
               >
                 Repack sources:
               </p>
@@ -539,16 +539,16 @@ function ConversionProductItem({
                 <div
                   key={idx}
                   className={`flex items-center gap-2 ${
-                    compact ? "text-xs" : "text-xs"
-                  } text-gray-600 py-1`}
+ compact ? "text-xs" : "text-xs"
+ } text-muted-foreground py-1`}
                 >
-                  <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                  <span className="w-2 h-2 bg-success/70 rounded-full"></span>
                   <span className="font-medium">{source.qty}x</span>
                   <span>{getVariantProperName(source.variant)}</span>
                   {source.slot && (
                     <>
                       <span>•</span>
-                      <span className="text-blue-600">{source.slot.name}</span>
+                      <span className="text-info">{source.slot.name}</span>
                     </>
                   )}
                 </div>

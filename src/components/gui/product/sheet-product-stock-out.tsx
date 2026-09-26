@@ -233,14 +233,14 @@ export const sheetProductStockOut = createSheet<
                 <div className="flex items-center justify-between px-4 py-3 bg-black/80">
                   <div className="text-white">
                     <p className="text-sm font-semibold">Scan Lot Barcode</p>
-                    <p className="text-xs text-gray-300">
+                    <p className="text-xs text-muted-foreground/70">
                       Expected: {scanningLot?.lot?.lotNumber}
                     </p>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-white hover:bg-white/20 h-9 w-9 p-0"
+                    className="text-white hover:bg-card/20 h-9 w-9 p-0"
                     onClick={() => setCameraOpenIdx(null)}
                   >
                     <X className="h-5 w-5" />
@@ -329,8 +329,8 @@ export const sheetProductStockOut = createSheet<
                 className={cn(
                   "flex items-start gap-2 rounded-lg border px-3 py-2.5 text-xs",
                   allVerified
-                    ? "border-green-200 bg-green-50 text-green-700"
-                    : "border-amber-200 bg-amber-50 text-amber-700",
+                    ? "border-success/20 bg-success/10 text-success"
+                    : "border-warning/20 bg-warning/10 text-warning",
                 )}
               >
                 {allVerified ? (
@@ -409,9 +409,9 @@ export const sheetProductStockOut = createSheet<
                   className={cn(
                     "rounded-lg border bg-card transition-colors",
                     isChanged && !isVerified
-                      ? "border-amber-300 bg-amber-50/50"
+                      ? "border-warning/30 bg-warning/50"
                       : isChanged && isVerified
-                        ? "border-green-300 bg-green-50/50"
+                        ? "border-success/30 bg-success/50"
                         : "border-border",
                   )}
                 >
@@ -425,7 +425,7 @@ export const sheetProductStockOut = createSheet<
                         Batch-{String(idx + 1).padStart(3, "0")}
                       </Badge>
                       {isVerified && (
-                        <Badge className="text-[10px] bg-green-600 hover:bg-green-600 px-1.5 py-0 gap-1">
+                        <Badge className="text-[10px] bg-success hover:bg-success/90 px-1.5 py-0 gap-1">
                           <CheckCircle2 className="h-2.5 w-2.5" />
                           Verified
                         </Badge>
@@ -433,7 +433,7 @@ export const sheetProductStockOut = createSheet<
                       {needsVerify && (
                         <Badge
                           variant="outline"
-                          className="text-[10px] border-amber-400 text-amber-600 px-1.5 py-0 gap-1"
+                          className="text-[10px] border-warning/50 text-warning px-1.5 py-0 gap-1"
                         >
                           <AlertCircle className="h-2.5 w-2.5" />
                           Verify required
@@ -554,7 +554,7 @@ export const sheetProductStockOut = createSheet<
                     sp.actualStock > 0 && (
                       <div className="border-t px-3 py-2.5">
                         {isVerified ? (
-                          <div className="flex items-center gap-2 text-xs text-green-700">
+                          <div className="flex items-center gap-2 text-xs text-success">
                             <CheckCircle2 className="h-3.5 w-3.5" />
                             <span className="font-medium">Lot verified</span>
                           </div>

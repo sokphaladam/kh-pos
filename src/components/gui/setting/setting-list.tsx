@@ -150,7 +150,7 @@ export function SettingList({ onBack }: SettingListProps = {}) {
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col h-full bg-white text-gray-900">
+      <div className="flex flex-col h-full bg-card text-foreground">
         {/* Mobile Header */}
         <MobileSettingHeader
           categories={categories}
@@ -183,7 +183,7 @@ export function SettingList({ onBack }: SettingListProps = {}) {
               className={
                 "relative z-40 md:static md:z-auto " +
                 (sidebarOpen ? "block" : "hidden md:block") +
-                " w-3/4 max-w-xs md:w-64 bg-gray-50 border-r border-gray-200 h-full flex flex-col"
+                " w-3/4 max-w-xs md:w-64 bg-muted/40 border-r border-border h-full flex flex-col"
               }
             >
               {/* Sidebar Content */}
@@ -202,7 +202,7 @@ export function SettingList({ onBack }: SettingListProps = {}) {
               </div>
 
               {/* Mobile Safe Area Bottom Padding */}
-              <div className="md:hidden safe-area-bottom bg-gray-50" />
+              <div className="md:hidden safe-area-bottom bg-muted/40" />
             </div>
           </div>
 
@@ -232,11 +232,11 @@ export function SettingList({ onBack }: SettingListProps = {}) {
               <div className="max-w-4xl space-y-6">
                 {filteredSettings.length === 0 ? (
                   <div className="text-center py-12">
-                    <Settings className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                    <h3 className="text-lg font-medium mb-2 text-gray-900">
+                    <Settings className="h-12 w-12 mx-auto mb-4 text-muted-foreground/70" />
+                    <h3 className="text-lg font-medium mb-2 text-foreground">
                       No settings found
                     </h3>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       {"No settings available in this category"}
                     </p>
                   </div>
@@ -269,7 +269,7 @@ export function SettingList({ onBack }: SettingListProps = {}) {
             </ScrollArea>
 
             {singleSetting && (
-              <div className="border-t border-gray-200 bg-white px-4 py-3 md:px-6 flex justify-end">
+              <div className="border-t border-border bg-card px-4 py-3 md:px-6 flex justify-end">
                 <Button
                   onClick={() => handleSaveSetting(singleSetting)}
                   disabled={!canEditSingleSetting || savingSingleSetting}

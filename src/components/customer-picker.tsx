@@ -220,16 +220,16 @@ export function CustomerPicker({
     );
 
   const createButton = showCreateButton ? (
-    <div className="border-t bg-gray-50 p-3">
+    <div className="border-t bg-muted/40 p-3">
       <div className="space-y-3">
-        <div className="text-sm font-medium text-gray-700">
+        <div className="text-sm font-medium text-foreground/80">
           Create new customer: &ldquo;{search.trim()}&rdquo;
         </div>
 
         <button
           onClick={handleCreateCustomer}
           disabled={createCustomerMutation.isMutating}
-          className="w-full py-2 px-3 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full py-2 px-3 bg-info text-white text-sm rounded hover:bg-info/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" />
           {createCustomerMutation.isMutating

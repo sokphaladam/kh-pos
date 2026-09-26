@@ -253,7 +253,7 @@ function ReplenishmentItem({
           variant="outline"
           className={cn(
             "uppercase",
-            data.status === "completed" ? "border-green-500" : "",
+            data.status === "completed" ? "border-success" : "",
             data.status === "closed" ? "opacity-50" : ""
           )}
         >

@@ -44,6 +44,6 @@ export const SettingItem: React.FC<SettingItemProps> = ({
         )}
       </div>
     </div>
-    <div className="border-b border-gray-200" />
+    <div className="border-b border-border" />
   </div>
 );

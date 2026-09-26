@@ -31,7 +31,7 @@ export const POSPreviewPickingList = createSheet<
           <CardContent className="p-0 relative">
             <table className="w-full">
               <thead>
-                <tr className="border-b bg-gray-50">
+                <tr className="border-b bg-muted/40">
                   <th className="text-left p-4 font-medium text-xs text-nowrap">
                     Product
                   </th>
@@ -63,9 +63,9 @@ export const POSPreviewPickingList = createSheet<
                       <td className="p-4 font-medium align-top text-xs text-nowrap">
                         <div className="flex items-center gap-2">
                           {shortage === 0 ? (
-                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <CheckCircle className="w-4 h-4 text-success" />
                           ) : (
-                            <Package className="w-4 h-4 text-gray-400" />
+                            <Package className="w-4 h-4 text-muted-foreground/70" />
                           )}
                           <img
                             src={image}
@@ -109,7 +109,7 @@ export const POSPreviewPickingList = createSheet<
                           )}
 
                           {shortage > 0 && (
-                            <div className="flex items-center justify-center gap-1 text-red-600 text-sm">
+                            <div className="flex items-center justify-center gap-1 text-destructive text-sm">
                               <AlertTriangle className="w-3 h-3" />
                               {shortage} unavailable
                             </div>

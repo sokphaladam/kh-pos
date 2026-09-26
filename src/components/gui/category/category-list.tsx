@@ -226,17 +226,17 @@ function CategoryItem({
         <div className="flex items-center gap-1">
           <span
             className={`truncate ${
-              data.forSaleCount === data.productCount
-                ? "text-green-600 font-semibold"
-                : data.forSaleCount === 0
-                  ? "text-red-600"
-                  : "text-yellow-600"
-            }`}
+ data.forSaleCount === data.productCount
+ ? "text-success font-semibold"
+ : data.forSaleCount === 0
+ ? "text-destructive"
+ : "text-warning"
+ }`}
             title={`${data.forSaleCount ?? 0} for sale out of ${data.productCount ?? 0} total`}
           >
             {data.forSaleCount ?? 0}/{data.productCount ?? 0}
           </span>
-          <span className="text-gray-500 text-[10px]">products</span>
+          <span className="text-muted-foreground text-[10px]">products</span>
         </div>
       </TableCell>
       <TableCell className="font-medium md:table-cell text-nowrap text-xs">

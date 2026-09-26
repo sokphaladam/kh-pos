@@ -358,19 +358,19 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
     const getStatusColor = (status: string) => {
       switch (status) {
         case "scheduled":
-          return "bg-blue-100 text-blue-800 border-blue-200";
+          return "bg-info/15 text-info border-info/20";
         case "selling":
-          return "bg-green-100 text-green-800 border-green-200";
+          return "bg-success/15 text-success border-success/20";
         case "sold_out":
-          return "bg-red-100 text-red-800 border-red-200";
+          return "bg-destructive/15 text-destructive border-destructive/20";
         case "started":
-          return "bg-yellow-100 text-yellow-800 border-yellow-200";
+          return "bg-warning/15 text-warning border-warning/20";
         case "ended":
-          return "bg-gray-100 text-gray-800 border-gray-200";
+          return "bg-muted text-foreground border-border";
         case "cancelled":
-          return "bg-red-100 text-red-800 border-red-200";
+          return "bg-destructive/15 text-destructive border-destructive/20";
         default:
-          return "bg-gray-100 text-gray-800 border-gray-200";
+          return "bg-muted text-foreground border-border";
       }
     };
 
@@ -473,7 +473,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
       <>
         <SheetHeader className="space-y-4">
           <div className="flex items-center justify-between py-6">
-            <SheetTitle className="text-2xl font-bold text-gray-900">
+            <SheetTitle className="text-2xl font-bold text-foreground">
               Update Advanced Showtime
             </SheetTitle>
             <Badge
@@ -490,9 +490,9 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
         </SheetHeader>
 
         {isStarted && (
-          <Alert className="mx-0 border-yellow-200 bg-yellow-50 text-yellow-800">
-            <AlertTriangle className="h-4 w-4 text-yellow-600" />
-            <AlertDescription className="text-yellow-800">
+          <Alert className="mx-0 border-warning/20 bg-warning/10 text-warning">
+            <AlertTriangle className="h-4 w-4 text-warning" />
+            <AlertDescription className="text-warning">
               This showtime is <strong>in progress</strong>. You may update the
               movie, start/end time, and price. A confirmation will be required
               before saving.
@@ -500,9 +500,9 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
           </Alert>
         )}
         {!isScheduled && !isStarted && (
-          <Alert className="mx-0 border-amber-200 bg-amber-50 text-amber-800">
-            <AlertTriangle className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="text-amber-800">
+          <Alert className="mx-0 border-warning/20 bg-warning/10 text-warning">
+            <AlertTriangle className="h-4 w-4 text-warning" />
+            <AlertDescription className="text-warning">
               This showtime is <strong>{showtime.status}</strong>. Only the
               movie can be changed.
             </AlertDescription>
@@ -562,11 +562,11 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                           </div>
                           <ScrollArea className="max-h-72">
                             {movieSearchResult.isLoading ? (
-                              <div className="p-4 text-center text-sm text-gray-500">
+                              <div className="p-4 text-center text-sm text-muted-foreground">
                                 Loading movies...
                               </div>
                             ) : filteredMovies.length === 0 ? (
-                              <div className="p-4 text-center text-sm text-gray-500">
+                              <div className="p-4 text-center text-sm text-muted-foreground">
                                 No movies found
                               </div>
                             ) : (
@@ -583,7 +583,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                                       }`}
                                       onClick={() => handleMovieSelect(movie)}
                                     >
-                                      <div className="w-8 h-10 flex-shrink-0 bg-gray-200 rounded overflow-hidden flex items-center justify-center">
+                                      <div className="w-8 h-10 flex-shrink-0 bg-muted rounded overflow-hidden flex items-center justify-center">
                                         {variant?.movie?.posterUrl ? (
                                           <img
                                             src={variant.movie.posterUrl}
@@ -591,7 +591,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                                             className="w-full h-full object-cover"
                                           />
                                         ) : (
-                                          <Film className="h-4 w-4 text-gray-400" />
+                                          <Film className="h-4 w-4 text-muted-foreground/70" />
                                         )}
                                       </div>
                                       <div className="flex-1 min-w-0">
@@ -608,7 +608,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                                             </Badge>
                                           )}
                                           {variant?.movie?.durationMinutes && (
-                                            <span className="text-xs text-gray-500 flex items-center gap-0.5">
+                                            <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                                               <Clock className="h-2.5 w-2.5" />
                                               {variant.movie.durationMinutes}m
                                             </span>
@@ -616,7 +616,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                                         </div>
                                       </div>
                                       {isSelected && (
-                                        <CheckCircle className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                                        <CheckCircle className="h-4 w-4 text-info flex-shrink-0" />
                                       )}
                                     </button>
                                   );
@@ -627,15 +627,15 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                         </PopoverContent>
                       </Popover>
                     </div>
-                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className="p-3 bg-muted/40 border border-border rounded-lg">
                       <div className="flex items-center gap-3">
-                        <Film className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                        <Film className="h-5 w-5 text-info flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-900 truncate">
+                          <div className="font-medium text-foreground truncate">
                             {showtime.variant?.[0]?.basicProduct?.title ||
                               "Unknown Movie"}
                           </div>
-                          <div className="text-sm text-gray-500 mt-1">
+                          <div className="text-sm text-muted-foreground mt-1">
                             <div className="flex items-center gap-4 flex-wrap">
                               {showtime.variant?.[0]?.movie
                                 ?.durationMinutes && (
@@ -670,7 +670,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
 
                   <div className="space-y-2">
                     <Label htmlFor="hall" className="text-sm font-medium">
-                      Hall <span className="text-red-500">*</span>
+                      Hall <span className="text-destructive">*</span>
                     </Label>
                     <Select
                       value={showtime.hallId}
@@ -679,7 +679,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                     >
                       <SelectTrigger
                         className={
-                          validationErrors.hallId ? "border-red-500" : ""
+                          validationErrors.hallId ? "border-destructive" : ""
                         }
                       >
                         <SelectValue placeholder="Select a hall" />
@@ -710,7 +710,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                       </SelectContent>
                     </Select>
                     {validationErrors.hallId && (
-                      <p className="text-sm text-red-500 flex items-center gap-1">
+                      <p className="text-sm text-destructive flex items-center gap-1">
                         <AlertTriangle className="h-3 w-3" />
                         {validationErrors.hallId}
                       </p>
@@ -794,7 +794,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="showDate" className="text-sm font-medium">
-                    Show Date <span className="text-red-500">*</span>
+                    Show Date <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     type="date"
@@ -802,11 +802,11 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                     onChange={(e) => handleDateChange(e.target.value)}
                     disabled={!isScheduled}
                     className={
-                      validationErrors.showDate ? "border-red-500" : ""
+                      validationErrors.showDate ? "border-destructive" : ""
                     }
                   />
                   {validationErrors.showDate && (
-                    <p className="text-sm text-red-500 flex items-center gap-1">
+                    <p className="text-sm text-destructive flex items-center gap-1">
                       <AlertTriangle className="h-3 w-3" />
                       {validationErrors.showDate}
                     </p>
@@ -816,10 +816,10 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="startTime" className="text-sm font-medium">
-                      Start Time <span className="text-red-500">*</span>
+                      Start Time <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
-                      <Clock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/70" />
                       <Input
                         type="time"
                         step="300"
@@ -827,19 +827,19 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                         onChange={(e) => handleStartTimeChange(e.target.value)}
                         disabled={!isScheduled && !isStarted}
                         className={`pl-10 ${
-                          validationErrors.startTime ? "border-red-500" : ""
-                        }`}
+ validationErrors.startTime ? "border-destructive" : ""
+ }`}
                         placeholder="HH:MM"
                       />
                     </div>
                     {movieDurationMinutes > 0 && (
-                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Info className="h-3 w-3" />
                         Movie duration: {movieDurationMinutes} minutes
                       </p>
                     )}
                     {validationErrors.startTime && (
-                      <p className="text-sm text-red-500 flex items-center gap-1">
+                      <p className="text-sm text-destructive flex items-center gap-1">
                         <AlertTriangle className="h-3 w-3" />
                         {validationErrors.startTime}
                       </p>
@@ -849,7 +849,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="endTime" className="text-sm font-medium">
-                        End Time <span className="text-red-500">*</span>
+                        End Time <span className="text-destructive">*</span>
                       </Label>
                       <div className="flex items-center gap-2">
                         <input
@@ -894,14 +894,14 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                         />
                         <label
                           htmlFor="autoCalculate"
-                          className="text-xs text-gray-600"
+                          className="text-xs text-muted-foreground"
                         >
                           Auto-calculate
                         </label>
                       </div>
                     </div>
                     <div className="relative">
-                      <Clock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/70" />
                       <Input
                         type="time"
                         step="300"
@@ -911,21 +911,21 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                           autoCalculateEndTime || (!isScheduled && !isStarted)
                         }
                         className={`pl-10 ${
-                          validationErrors.endTime ? "border-red-500" : ""
-                        } ${
-                          autoCalculateEndTime ? "bg-gray-50 text-gray-500" : ""
-                        }`}
+ validationErrors.endTime ? "border-destructive" : ""
+ } ${
+ autoCalculateEndTime ? "bg-muted/40 text-muted-foreground" : ""
+ }`}
                         placeholder="HH:MM"
                       />
                     </div>
                     {autoCalculateEndTime && movieDurationMinutes > 0 && (
-                      <p className="text-xs text-green-600 flex items-center gap-1">
+                      <p className="text-xs text-success flex items-center gap-1">
                         <CheckCircle className="h-3 w-3" />
                         Auto-calculated (+15 min cleanup time)
                       </p>
                     )}
                     {validationErrors.endTime && (
-                      <p className="text-sm text-red-500 flex items-center gap-1">
+                      <p className="text-sm text-destructive flex items-center gap-1">
                         <AlertTriangle className="h-3 w-3" />
                         {validationErrors.endTime}
                       </p>
@@ -952,10 +952,10 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="basePrice" className="text-sm font-medium">
-                    Base Price <span className="text-red-500">*</span>
+                    Base Price <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/70" />
                     <Input
                       type="number"
                       step="0.01"
@@ -969,13 +969,13 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                       }
                       disabled={!isScheduled && !isStarted}
                       className={`pl-10 ${
-                        validationErrors.basePrice ? "border-red-500" : ""
-                      }`}
+ validationErrors.basePrice ? "border-destructive" : ""
+ }`}
                       placeholder="0.00"
                     />
                   </div>
                   {validationErrors.basePrice && (
-                    <p className="text-sm text-red-500 flex items-center gap-1">
+                    <p className="text-sm text-destructive flex items-center gap-1">
                       <AlertTriangle className="h-3 w-3" />
                       {validationErrors.basePrice}
                     </p>
@@ -1028,11 +1028,11 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
                 </div>
 
                 {showtime.priceTemplateId && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <h4 className="font-medium text-green-900 mb-2">
+                  <div className="bg-success/10 border border-success/20 rounded-lg p-4">
+                    <h4 className="font-medium text-success mb-2">
                       Pricing Template Applied
                     </h4>
-                    <p className="text-sm text-green-800">
+                    <p className="text-sm text-success">
                       Advanced pricing rules will be applied based on the
                       selected template. Individual seat prices may vary from
                       the base price.
@@ -1045,7 +1045,7 @@ export const updateAdvanceShowtime = createSheet<Props, unknown>(
         </ScrollArea>
 
         <SheetFooter className="border-t pt-4 flex flex-row justify-between items-center">
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted-foreground">
             Last updated:{" "}
             {showtime.updatedAt
               ? format(new Date(showtime.updatedAt), "MMM d, yyyy HH:mm")

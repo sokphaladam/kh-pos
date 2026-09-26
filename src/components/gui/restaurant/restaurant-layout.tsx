@@ -1,4 +1,5 @@
 "use client";
+import { LoadingState } from "@/components/ui/state";
 import { useQueryCategory } from "@/app/hooks/use-query-category";
 import { useQueryPOSInfo } from "@/app/hooks/use-query-order";
 import { useQueryTable } from "@/app/hooks/use-query-table";
@@ -216,9 +217,7 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
     queryPOSInfo.isLoading
   ) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        Loading...
-      </div>
+      <LoadingState fullScreen label="Loading restaurant" />
     );
   }
 

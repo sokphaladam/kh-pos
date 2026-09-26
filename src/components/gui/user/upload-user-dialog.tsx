@@ -266,7 +266,7 @@ export const uploadUserDialog = createDialog(
       <>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileSpreadsheet className="h-5 w-5 text-emerald-600" />
+            <FileSpreadsheet className="h-5 w-5 text-success" />
             Upload Users from Excel
           </DialogTitle>
           <DialogDescription>
@@ -304,10 +304,10 @@ export const uploadUserDialog = createDialog(
               {!selectedFile && !uploadProgress ? (
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-                    isDragging
-                      ? "border-emerald-400 bg-emerald-50"
-                      : "border-gray-300 hover:border-gray-400"
-                  }`}
+ isDragging
+ ? "border-success/50 bg-success/10"
+ : "border-border hover:border-input"
+ }`}
                   onDragOver={(e) => {
                     e.preventDefault();
                     setIsDragging(true);
@@ -321,11 +321,11 @@ export const uploadUserDialog = createDialog(
                   }}
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <Upload className="h-12 w-12 text-muted-foreground/70 mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">
                     Drop your Excel file here, or click to browse
                   </h3>
-                  <p className="text-sm text-gray-500 mb-4">
+                  <p className="text-sm text-muted-foreground mb-4">
                     Supports .xlsx and .xls files up to 10MB
                   </p>
                   <Button variant="outline" size="sm">
@@ -353,10 +353,10 @@ export const uploadUserDialog = createDialog(
                           : "Processing..."}
                     </h3>
                     {uploadProgress.phase === "complete" && (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <CheckCircle className="h-5 w-5 text-success" />
                     )}
                     {uploadProgress.phase === "error" && (
-                      <AlertCircle className="h-5 w-5 text-red-500" />
+                      <AlertCircle className="h-5 w-5 text-destructive" />
                     )}
                     {(uploadProgress.phase === "parsing" ||
                       uploadProgress.phase === "uploading") && (
@@ -364,19 +364,19 @@ export const uploadUserDialog = createDialog(
                     )}
                   </div>
 
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-muted rounded-full h-2">
                     <div
-                      className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-success h-2 rounded-full transition-all duration-300"
                       style={{ width: `${uploadProgress.progress}%` }}
                     />
                   </div>
 
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     {uploadProgress.message}
                   </p>
 
                   {uploadProgress.totalRows && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-muted-foreground">
                       {uploadProgress.processedRows ?? 0} of{" "}
                       {uploadProgress.totalRows} rows processed
                     </div>
@@ -396,14 +396,14 @@ export const uploadUserDialog = createDialog(
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                  <div className="flex items-center justify-between p-3 bg-muted/40 rounded">
                     <div className="flex items-center gap-3">
-                      <FileSpreadsheet className="h-8 w-8 text-emerald-600" />
+                      <FileSpreadsheet className="h-8 w-8 text-success" />
                       <div>
                         <p className="font-medium text-sm">
                           {selectedFile?.name}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {selectedFile &&
                             (selectedFile.size / 1024 / 1024).toFixed(2)}{" "}
                           MB
@@ -414,18 +414,18 @@ export const uploadUserDialog = createDialog(
                       variant="ghost"
                       size="sm"
                       onClick={resetUpload}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
 
                   {validationErrors.length > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded p-3">
-                      <h4 className="font-medium text-red-800 text-sm mb-2">
+                    <div className="bg-destructive/10 border border-destructive/20 rounded p-3">
+                      <h4 className="font-medium text-destructive text-sm mb-2">
                         Validation Errors:
                       </h4>
-                      <ul className="text-sm text-red-700 space-y-1">
+                      <ul className="text-sm text-destructive space-y-1">
                         {validationErrors.map((error, index) => (
                           <li key={index} className="flex items-start gap-2">
                             <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
@@ -437,8 +437,8 @@ export const uploadUserDialog = createDialog(
                   )}
 
                   {validationErrors.length === 0 && (
-                    <div className="bg-green-50 border border-green-200 rounded p-3">
-                      <div className="flex items-center gap-2 text-green-800 text-sm">
+                    <div className="bg-success/10 border border-success/20 rounded p-3">
+                      <div className="flex items-center gap-2 text-success text-sm">
                         <CheckCircle className="h-4 w-4" />
                         File validation passed! Ready to upload.
                       </div>
@@ -480,9 +480,9 @@ export const uploadUserDialog = createDialog(
                 {REQUIRED_HEADERS.map((header) => (
                   <div
                     key={header}
-                    className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded"
+                    className="flex items-center gap-2 p-2 bg-destructive/10 border border-destructive/20 rounded"
                   >
-                    <span className="font-mono text-red-700">{header}</span>
+                    <span className="font-mono text-destructive">{header}</span>
                   </div>
                 ))}
               </div>

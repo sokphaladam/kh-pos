@@ -262,7 +262,7 @@ export const sheetPricingTemplate = createSheet<
                     ([key, value], index) => (
                       <div
                         key={index}
-                        className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border group transition-colors hover:border-primary/50"
+                        className="p-3 bg-muted/40 rounded-lg border group transition-colors hover:border-primary/50"
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div className="grid grid-cols-2 gap-3 flex-1">
@@ -343,12 +343,12 @@ export const sheetPricingTemplate = createSheet<
               )}
 
             {/* Add New Seat Type */}
-            <Card className="border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-900/30">
+            <Card className="border-2 border-dashed border-border bg-muted/30">
               <CardContent className="p-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-1 bg-gray-100 dark:bg-gray-800 rounded">
-                      <Plus className="h-3 w-3 text-gray-600 dark:text-gray-400" />
+                    <div className="p-1 bg-muted rounded">
+                      <Plus className="h-3 w-3 text-muted-foreground" />
                     </div>
                     <label className="text-sm font-medium">
                       Add New Seat Type

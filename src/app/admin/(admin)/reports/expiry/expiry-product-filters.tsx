@@ -62,8 +62,8 @@ export default function ExpiryProductFilters({
     <div className="flex items-center gap-4 flex-wrap">
       {/* Search Input */}
       <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-gray-700 flex items-center">
-          <Search className="w-4 h-4 mr-1 text-gray-600" />
+        <label className="text-sm font-medium text-foreground/80 flex items-center">
+          <Search className="w-4 h-4 mr-1 text-muted-foreground" />
           Search:
         </label>
         <Input
@@ -77,8 +77,8 @@ export default function ExpiryProductFilters({
 
       {/* Slot Filter Dropdown */}
       <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-gray-700 flex items-center">
-          <Building2 className="w-4 h-4 mr-1 text-blue-600" />
+        <label className="text-sm font-medium text-foreground/80 flex items-center">
+          <Building2 className="w-4 h-4 mr-1 text-info" />
           Slot:
         </label>
         <DropdownMenu>
@@ -117,8 +117,8 @@ export default function ExpiryProductFilters({
 
       {/* Category Filter Dropdown */}
       <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-gray-700 flex items-center">
-          <Tag className="w-4 h-4 mr-1 text-green-600" />
+        <label className="text-sm font-medium text-foreground/80 flex items-center">
+          <Tag className="w-4 h-4 mr-1 text-success" />
           Category:
         </label>
         <DropdownMenu>
@@ -162,19 +162,19 @@ export default function ExpiryProductFilters({
         <>
           <div className="flex items-center gap-2">
             {filters.search && (
-              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-muted text-foreground">
                 <Search className="w-3 h-3 mr-1" />
                 &quot;{filters.search}&quot;
               </span>
             )}
             {filters.slotId && (
-              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-info/15 text-info">
                 <Check className="w-3 h-3 mr-1" />
                 {selectedSlot?.name || "Unknown"}
               </span>
             )}
             {filters.categoryId && (
-              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-success/15 text-success">
                 <Check className="w-3 h-3 mr-1" />
                 {selectedCategory?.title || "Unknown"}
               </span>
@@ -186,7 +186,7 @@ export default function ExpiryProductFilters({
             variant="ghost"
             size="sm"
             onClick={clearAllFilters}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8"
           >
             <X className="w-4 h-4 mr-1" />
             Clear

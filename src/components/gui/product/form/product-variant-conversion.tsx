@@ -150,7 +150,7 @@ export function ProductVariantConversion() {
       ) : (
         /* Conversions List */
         <div className="space-y-2">
-          <div className="p-2 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded text-xs text-blue-800 dark:text-blue-200">
+          <div className="p-2 bg-info/10 border border-info/20 rounded text-xs text-info">
             💡 When a variant is out of stock, the system will automatically
             break larger units into smaller ones.
           </div>
@@ -169,16 +169,16 @@ export function ProductVariantConversion() {
               <div
                 key={index}
                 className={`relative p-3 border rounded transition-all duration-200 ${
-                  isComplete
-                    ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
-                    : "bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700"
-                }`}
+ isComplete
+ ? "bg-info/50 border-info/20 "
+ : "bg-muted/50 border-border "
+ }`}
               >
                 {/* Compact Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                   {/* From Variant */}
                   <div className="md:col-span-4">
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">
                       From
                     </label>
                     <Select
@@ -202,11 +202,11 @@ export function ProductVariantConversion() {
 
                   {/* Conversion Rate */}
                   <div className="md:col-span-3">
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">
                       Rate
                     </label>
                     <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-500">1 =</span>
+                      <span className="text-xs text-muted-foreground">1 =</span>
                       <MaterialInput
                         type="number"
                         min={2}
@@ -226,7 +226,7 @@ export function ProductVariantConversion() {
 
                   {/* To Variant */}
                   <div className="md:col-span-4">
-                    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">
                       To
                     </label>
                     <Select
@@ -255,7 +255,7 @@ export function ProductVariantConversion() {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeConversion(index)}
-                      className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -265,9 +265,9 @@ export function ProductVariantConversion() {
                 {/* Status indicator */}
                 <div className="absolute top-2 right-2">
                   {isComplete ? (
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                    <div className="w-1.5 h-1.5 bg-info rounded-full"></div>
                   ) : (
-                    <div className="w-1.5 h-1.5 bg-gray-300 rounded-full"></div>
+                    <div className="w-1.5 h-1.5 bg-border rounded-full"></div>
                   )}
                 </div>
               </div>
@@ -292,8 +292,8 @@ export function ProductVariantConversion() {
 
           {/* Compact No More Conversions Available */}
           {availableConversions === 0 && (
-            <div className="text-center py-2 px-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded">
-              <p className="text-xs text-blue-800 dark:text-blue-200 font-medium">
+            <div className="text-center py-2 px-3 bg-info/10 border border-info/20 rounded">
+              <p className="text-xs text-info font-medium">
                 ✅ All conversions configured
               </p>
             </div>

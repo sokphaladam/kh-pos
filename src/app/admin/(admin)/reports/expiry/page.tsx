@@ -123,17 +123,17 @@ export default function ExpiryReportDashboard() {
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                   Inventory Expiry Dashboard
                 </h1>
-                <p className="text-gray-600 text-lg">
+                <p className="text-muted-foreground text-lg">
                   Monitor product expiration dates and manage inventory
                   efficiently
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-sm text-gray-500">Last Updated</div>
-                <div className="text-lg font-semibold text-gray-700">
+                <div className="text-sm text-muted-foreground">Last Updated</div>
+                <div className="text-lg font-semibold text-foreground/80">
                   {new Date().toLocaleDateString("en-US", {
                     weekday: "short",
                     year: "numeric",
@@ -165,10 +165,10 @@ export default function ExpiryReportDashboard() {
 
           {/* Filters Section */}
           <div className="mb-8">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center">
                 <svg
-                  className="w-5 h-5 mr-2 text-blue-600"
+                  className="w-5 h-5 mr-2 text-info"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -194,12 +194,12 @@ export default function ExpiryReportDashboard() {
           </div>
 
           {/* Products Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+            <div className="px-6 py-4 border-b border-border bg-muted/40">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-800 flex items-center">
+                <h2 className="text-xl font-semibold text-foreground flex items-center">
                   <svg
-                    className="w-5 h-5 mr-2 text-blue-600"
+                    className="w-5 h-5 mr-2 text-info"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -213,7 +213,7 @@ export default function ExpiryReportDashboard() {
                   </svg>
                   Product Expiry Details
                 </h2>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   {productList.length}{" "}
                   {productList.length === 1 ? "product" : "products"} found
                 </div>

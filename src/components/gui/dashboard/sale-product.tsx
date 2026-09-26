@@ -58,9 +58,9 @@ function CustomTooltip({ active, payload, viewMode }: CustomTooltipProps) {
   if (active && payload && payload.length) {
     const data = payload[0].payload as ChartDataItem;
     return (
-      <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-        <p className="font-medium text-gray-900 mb-1">{data.fullName}</p>
-        <p className="text-blue-600 font-semibold">
+      <div className="bg-card p-3 border border-border rounded-lg shadow-lg">
+        <p className="font-medium text-foreground mb-1">{data.fullName}</p>
+        <p className="text-info font-semibold">
           {viewMode === "revenue"
             ? formatWithSymbol(data.value)
             : `${data.value.toLocaleString()}`}
@@ -177,8 +177,8 @@ export function SaleProduct(props: Props) {
       <ReportHeader
         title="Sale Product Report"
         description="Detailed report of product sales over a selected date range."
-        iconBgColor="bg-blue-100"
-        iconColor="text-blue-600"
+        iconBgColor="bg-info/15"
+        iconColor="text-info"
         dateRange={props.dateRange || { from: undefined, to: undefined }}
         onDateRangeChange={props.setDateRange || (() => {})}
         icon={ShoppingBag}
@@ -191,10 +191,10 @@ export function SaleProduct(props: Props) {
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             {props.showHeader === true ? (
               <div>
-                <CardTitle className="text-xl font-semibold text-gray-900">
+                <CardTitle className="text-xl font-semibold text-foreground">
                   Best Selling Products
                 </CardTitle>
-                <p className="text-sm text-gray-500 mt-1">{formatDateRange}</p>
+                <p className="text-sm text-muted-foreground mt-1">{formatDateRange}</p>
               </div>
             ) : (
               <div></div>
@@ -217,7 +217,7 @@ export function SaleProduct(props: Props) {
               </div>
               <p className="text-sm font-medium">
                 Total {viewMode === "revenue" ? "Sales" : "Quantity"}:{" "}
-                <span className="text-green-600 font-semibold">
+                <span className="text-success font-semibold">
                   {viewMode === "revenue"
                     ? formatWithSymbol(totalSales)
                     : `${totalSales.toLocaleString()} units`}
@@ -226,7 +226,7 @@ export function SaleProduct(props: Props) {
             </div>
           </div>
           {chartData.length === 0 && (
-            <p className="text-xs text-amber-600 mt-2">
+            <p className="text-xs text-warning mt-2">
               Showing sample data - no real sales data found
             </p>
           )}
@@ -299,7 +299,7 @@ export function SaleProduct(props: Props) {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-4 text-xs text-gray-500 text-center">
+          <div className="mt-4 text-xs text-muted-foreground text-center">
             {chartData.length === 20
               ? `Showing top 20 products by ${viewMode}`
               : `Showing ${chartData.length} products by ${viewMode}`}

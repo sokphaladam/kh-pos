@@ -176,7 +176,7 @@ export function FileUpload({
         <div className="relative group h-full">
           {type === "image" ? (
             <div
-              className="relative w-full h-full rounded-lg overflow-hidden border-2 border-gray-200 cursor-pointer hover:border-primary transition-colors"
+              className="relative w-full h-full rounded-lg overflow-hidden border-2 border-border cursor-pointer hover:border-primary transition-colors"
               onClick={() =>
                 !isUploading && !disabled && setShowImageViewer(true)
               }
@@ -199,7 +199,7 @@ export function FileUpload({
               <video
                 src={currentUrl}
                 controls
-                className="w-full h-full rounded-lg border-2 border-gray-200 bg-black"
+                className="w-full h-full rounded-lg border-2 border-border bg-black"
               >
                 Your browser does not support the video tag.
               </video>
@@ -228,10 +228,10 @@ export function FileUpload({
         // Show upload button when no file
         <div
           className={`h-full border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
-            isDragging
-              ? "border-primary bg-primary/10 scale-105"
-              : "hover:border-primary hover:bg-gray-50"
-          } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+ isDragging
+ ? "border-primary bg-primary/10 scale-105"
+ : "hover:border-primary hover:bg-muted/40"
+ } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
           onClick={() => !disabled && fileInputRef.current?.click()}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}

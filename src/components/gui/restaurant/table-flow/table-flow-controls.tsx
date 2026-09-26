@@ -75,10 +75,10 @@ export function TableFlowControls({
   return (
     <>
       {/* Stats Panel */}
-      <Card className="p-3 sm:p-4 bg-white/95 backdrop-blur-sm shadow-lg border-0">
+      <Card className="p-3 sm:p-4 bg-card/95 backdrop-blur-sm shadow-lg border-0">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+            <h2 className="text-base sm:text-lg font-semibold text-foreground">
               Table Layout
             </h2>
             <Badge variant="outline" className="text-xs">
@@ -87,10 +87,10 @@ export function TableFlowControls({
             <Badge
               variant={isEditMode ? "default" : "secondary"}
               className={`text-xs ${
-                isEditMode
-                  ? "bg-blue-100 text-blue-800 border-blue-200"
-                  : "bg-gray-100 text-gray-600"
-              }`}
+ isEditMode
+ ? "bg-info/15 text-info border-info/20"
+ : "bg-muted text-muted-foreground"
+ }`}
             >
               {isEditMode ? (
                 <>
@@ -110,12 +110,12 @@ export function TableFlowControls({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1 px-2 py-1 rounded bg-green-50">
-                    <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500"></div>
-                    <span className="font-medium text-green-700 text-xs sm:text-sm">
+                  <div className="flex items-center gap-1 px-2 py-1 rounded bg-success/10">
+                    <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-success"></div>
+                    <span className="font-medium text-success text-xs sm:text-sm">
                       {stats.available}
                     </span>
-                    <span className="hidden sm:inline text-xs text-green-600">
+                    <span className="hidden sm:inline text-xs text-success">
                       avail
                     </span>
                   </div>
@@ -129,12 +129,12 @@ export function TableFlowControls({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1 px-2 py-1 rounded bg-blue-50">
-                    <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-blue-500"></div>
-                    <span className="font-medium text-blue-700 text-xs sm:text-sm">
+                  <div className="flex items-center gap-1 px-2 py-1 rounded bg-info/10">
+                    <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-info"></div>
+                    <span className="font-medium text-info text-xs sm:text-sm">
                       {stats.occupied}
                     </span>
-                    <span className="hidden sm:inline text-xs text-blue-600">
+                    <span className="hidden sm:inline text-xs text-info">
                       busy
                     </span>
                   </div>
@@ -148,12 +148,12 @@ export function TableFlowControls({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1 px-2 py-1 rounded bg-amber-50">
-                    <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-amber-500"></div>
-                    <span className="font-medium text-amber-700 text-xs sm:text-sm">
+                  <div className="flex items-center gap-1 px-2 py-1 rounded bg-warning/10">
+                    <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-warning"></div>
+                    <span className="font-medium text-warning text-xs sm:text-sm">
                       {stats.cleaning}
                     </span>
-                    <span className="hidden sm:inline text-xs text-amber-600">
+                    <span className="hidden sm:inline text-xs text-warning">
                       clean
                     </span>
                   </div>
@@ -169,7 +169,7 @@ export function TableFlowControls({
 
       {/* Main Controls */}
       {(canCreate || canUpdate) && (
-        <Card className="p-2 bg-white/95 backdrop-blur-sm shadow-lg border-0">
+        <Card className="p-2 bg-card/95 backdrop-blur-sm shadow-lg border-0">
           <div className="flex items-center gap-1 sm:gap-2">
             {/* Edit Mode Toggle */}
             <TooltipProvider>
@@ -181,10 +181,10 @@ export function TableFlowControls({
                       variant={isEditMode ? "default" : "outline"}
                       onClick={onToggleEditMode}
                       className={`px-2 sm:px-3 ${
-                        isEditMode
-                          ? "bg-blue-600 hover:bg-blue-700 text-white"
-                          : ""
-                      }`}
+ isEditMode
+ ? "bg-info hover:bg-info/90 text-white"
+ : ""
+ }`}
                     >
                       {isEditMode ? (
                         <Edit className="h-4 w-4" />
@@ -209,7 +209,7 @@ export function TableFlowControls({
               </Tooltip>
             </TooltipProvider>
 
-            <div className="w-px h-6 bg-gray-300 mx-1" />
+            <div className="w-px h-6 bg-border mx-1" />
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -234,7 +234,7 @@ export function TableFlowControls({
               </Tooltip>
             </TooltipProvider>
 
-            <div className="w-px h-6 bg-gray-300 mx-1" />
+            <div className="w-px h-6 bg-border mx-1" />
 
             <TooltipProvider>
               <Tooltip>
@@ -312,7 +312,7 @@ export function TableFlowControls({
               </Tooltip>
             </TooltipProvider>
 
-            <div className="w-px h-6 bg-gray-300 mx-1" />
+            <div className="w-px h-6 bg-border mx-1" />
 
             {/* View Controls - Hidden on mobile */}
             <div className="hidden sm:flex items-center gap-1">

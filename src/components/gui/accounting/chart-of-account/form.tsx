@@ -114,7 +114,7 @@ export const chartOfAccountForm = createDialog<
             <div className="space-y-2">
               <Label
                 htmlFor="account_name"
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium text-foreground/80"
               >
                 Account Name *
               </Label>
@@ -122,10 +122,10 @@ export const chartOfAccountForm = createDialog<
                 id="account_name"
                 {...register("account_name")}
                 placeholder="e.g., Cash, Sales, etc."
-                className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 border-slate-200"
+                className="transition-all duration-200 focus:ring-2 focus:ring-info/20 border-border"
               />
               {errors.account_name && (
-                <p className="text-sm text-red-500 flex items-center gap-1">
+                <p className="text-sm text-destructive flex items-center gap-1">
                   {errors.account_name?.message}
                 </p>
               )}
@@ -134,7 +134,7 @@ export const chartOfAccountForm = createDialog<
             <div className="space-y-2">
               <Label
                 htmlFor="account_type"
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium text-foreground/80"
               >
                 Account Type *
               </Label>
@@ -154,7 +154,7 @@ export const chartOfAccountForm = createDialog<
                 )}
               />
               {errors.account_type && (
-                <p className="text-sm text-red-500 flex items-center gap-1">
+                <p className="text-sm text-destructive flex items-center gap-1">
                   {errors.account_type?.message}
                 </p>
               )}

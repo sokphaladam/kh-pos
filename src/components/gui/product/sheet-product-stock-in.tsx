@@ -393,8 +393,8 @@ export const sheetProductStockIn = createSheet<
                   <TableRow
                     key={idx}
                     className={cn(
-                      changed.includes(idx) ? "bg-amber-200" : "",
-                      x.new ? "bg-emerald-200" : "",
+                      changed.includes(idx) ? "bg-warning/25" : "",
+                      x.new ? "bg-success/25" : "",
                       x.stock === 0 && !x.new ? "hidden" : "",
                     )}
                   >
@@ -402,9 +402,9 @@ export const sheetProductStockIn = createSheet<
                       className={cn(
                         "text-xs",
                         changed.includes(idx)
-                          ? "border-l-2 border-amber-500"
+                          ? "border-l-2 border-warning"
                           : "",
-                        x.new ? "border-l-2 border-emerald-500" : "",
+                        x.new ? "border-l-2 border-success" : "",
                       )}
                     >
                       Batch-{String(idx + 1).padStart(3, "0")}

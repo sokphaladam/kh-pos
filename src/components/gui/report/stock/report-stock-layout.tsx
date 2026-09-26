@@ -1,5 +1,6 @@
 "use client";
 
+import { LatticeLoader } from "@/components/ui/lattice-loader";
 import {
   SidebarInset,
   SidebarProvider,
@@ -99,15 +100,15 @@ export function StockReportLayout() {
         />
         <SidebarInset className="flex-1">
           {/* Header */}
-          <div className="bg-white border-b border-gray-200 p-4">
+          <div className="bg-card border-b border-border p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <SidebarTrigger />
                 <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
+                  <h1 className="text-xl font-semibold tracking-tight text-foreground">
                     Stock Report
                   </h1>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     Analyze your stock levels with detailed insights
                   </p>
                 </div>
@@ -133,17 +134,17 @@ export function StockReportLayout() {
 
             {/* Active Filters Summary */}
             {activeFiltersCount > 0 && (
-              <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="mt-3 p-2 bg-info/10 rounded-lg border border-info/20">
                 <div className="flex items-center gap-2 text-sm">
-                  <Filter className="w-4 h-4 text-blue-600" />
-                  <span className="font-medium text-blue-900">
+                  <Filter className="w-4 h-4 text-info" />
+                  <span className="font-medium text-info">
                     Active Filters:
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {/* {filters.dateRange && (
                       <Badge
                         variant="outline"
-                        className="text-blue-700 border-blue-300"
+                        className="text-info border-info/30"
                       >
                         Date Range
                       </Badge>
@@ -153,7 +154,7 @@ export function StockReportLayout() {
                       user?.role?.role === "OWNER" && (
                         <Badge
                           variant="outline"
-                          className="text-blue-700 border-blue-300"
+                          className="text-info border-info/30"
                         >
                           {filters.warehouseIds.length} Branches
                         </Badge>
@@ -161,7 +162,7 @@ export function StockReportLayout() {
                     {filters.categoryId.length > 0 && (
                       <Badge
                         variant="outline"
-                        className="text-blue-700 border-blue-300"
+                        className="text-info border-info/30"
                       >
                         Category
                       </Badge>
@@ -169,7 +170,7 @@ export function StockReportLayout() {
                     {filters.productId && (
                       <Badge
                         variant="outline"
-                        className="text-blue-700 border-blue-300"
+                        className="text-info border-info/30"
                       >
                         Product
                       </Badge>
@@ -184,8 +185,7 @@ export function StockReportLayout() {
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="flex flex-col items-center gap-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                  <p className="text-gray-600">Loading report data...</p>
+                  <LatticeLoader label="Loading report data" />
                 </div>
               </div>
             ) : viewMode === "list" ? (

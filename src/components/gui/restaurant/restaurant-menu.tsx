@@ -55,7 +55,7 @@ function ProductImageSlideshow({
           {formatForDisplay(originalPrice as number)}
         </span>
       )}
-      <span className={cn(discounted && "text-emerald-300")}>
+      <span className={cn(discounted && "text-success/80")}>
         {formatForDisplay(price)}
       </span>
     </span>
@@ -64,7 +64,7 @@ function ProductImageSlideshow({
     (badges && badges.length > 0)) && (
     <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
       {discounted && discountLabel && (
-        <span className="text-[10px] sm:text-xs font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-md shadow-sm">
+        <span className="text-[10px] sm:text-xs font-bold text-white bg-destructive px-1.5 py-0.5 rounded-md shadow-sm">
           {discountLabel}
         </span>
       )}
@@ -87,11 +87,11 @@ function ProductImageSlideshow({
         {/* Image Container with Portrait Ratio */}
         <div
           className={cn(
-            "bg-gray-100 flex items-center justify-center rounded-t-xl aspect-[5/5] w-full relative",
+            "bg-muted flex items-center justify-center rounded-t-xl aspect-[5/5] w-full relative",
             className,
           )}
         >
-          <span className="text-gray-400 text-xs sm:text-sm">No Image</span>
+          <span className="text-muted-foreground/70 text-xs sm:text-sm">No Image</span>
 
           {topBadges}
           {/* Price and Stock Status Overlay */}
@@ -100,8 +100,8 @@ function ProductImageSlideshow({
             {stockStatus && (
               <div
                 className={cn(
-                  "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-white shadow-sm",
-                  stockStatus.isInStock ? "bg-green-500" : "bg-red-500",
+                  "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-card shadow-sm",
+                  stockStatus.isInStock ? "bg-success" : "bg-destructive",
                 )}
               />
             )}
@@ -109,7 +109,7 @@ function ProductImageSlideshow({
         </div>
         {/* Product Info */}
         <div className="flex-1 p-1.5 sm:p-2 flex flex-col justify-center">
-          <h3 className="text-xs sm:text-sm font-medium text-gray-800 leading-tight line-clamp-2 text-center">
+          <h3 className="text-xs sm:text-sm font-medium text-foreground leading-tight line-clamp-2 text-center">
             {title}
           </h3>
         </div>
@@ -136,7 +136,7 @@ function ProductImageSlideshow({
             />
           </div>
         ) : (
-          <div className="h-full w-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs sm:text-sm">
+          <div className="h-full w-full flex items-center justify-center bg-muted text-muted-foreground/70 text-xs sm:text-sm">
             No Image
           </div>
         )}
@@ -148,8 +148,8 @@ function ProductImageSlideshow({
           {stockStatus && (
             <div
               className={cn(
-                "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-white shadow-sm",
-                stockStatus.isInStock ? "bg-green-500" : "bg-red-500",
+                "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border border-card shadow-sm",
+                stockStatus.isInStock ? "bg-success" : "bg-destructive",
               )}
             />
           )}
@@ -158,7 +158,7 @@ function ProductImageSlideshow({
 
       {/* Product Info */}
       <div className="flex-1 p-1.5 sm:p-2 flex flex-col justify-center">
-        <h3 className="text-xs sm:text-sm font-medium text-gray-800 leading-tight line-clamp-2 text-center">
+        <h3 className="text-xs sm:text-sm font-medium text-foreground leading-tight line-clamp-2 text-center">
           {title}
         </h3>
       </div>
@@ -362,7 +362,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
 
           {/* Menu Items Grid */}
           <div
-            className="flex-1 overflow-y-auto p-4 bg-gray-50"
+            className="flex-1 overflow-y-auto p-4 bg-muted/40"
             // style={{ height: height - 400 }}
           >
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
@@ -372,7 +372,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                   Array.from({ length: 12 }).map((_, index) => (
                     <Card
                       key={`skeleton-${index}`}
-                      className="overflow-hidden border-0 shadow-sm bg-white rounded-xl h-full"
+                      className="overflow-hidden border-0 shadow-sm bg-card rounded-xl h-full"
                     >
                       <div className="aspect-[5/5] w-full bg-muted animate-pulse rounded-t-xl" />
                       <div className="p-1.5 sm:p-2 flex justify-center">
@@ -404,7 +404,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                       <Card
                         key={`${item.variantId}-${index}`}
                         className={cn(
-                          "group overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 bg-white rounded-xl hover:border-gray-300 h-full flex flex-col relative",
+                          "group overflow-hidden border border-border shadow-sm hover:shadow-lg transition-all duration-300 bg-card rounded-xl hover:border-border h-full flex flex-col relative",
                           loading || isRequest
                             ? "cursor-not-allowed opacity-60"
                             : "cursor-pointer hover:-translate-y-1 active:scale-95",
@@ -417,7 +417,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                         {/* Quantity Badge */}
                         {quantityInOrder > 0 && (
                           <div className="absolute top-2 right-2 z-10">
-                            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
+                            <div className="bg-success text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
                               {quantityInOrder}
                             </div>
                           </div>
@@ -492,7 +492,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                 Array.from({ length: 12 }).map((_, index) => (
                   <Card
                     key={`skeleton-${index}`}
-                    className="overflow-hidden border-0 shadow-sm bg-white rounded-xl h-full"
+                    className="overflow-hidden border-0 shadow-sm bg-card rounded-xl h-full"
                   >
                     <div className="aspect-[5/5] w-full bg-muted animate-pulse rounded-t-xl" />
                     <div className="p-1.5 sm:p-2 flex justify-center">
@@ -524,7 +524,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                     <Card
                       key={`${item.variantId}-${index}`}
                       className={cn(
-                        "group overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 bg-white rounded-xl hover:border-gray-300 h-full flex flex-col relative",
+                        "group overflow-hidden border border-border shadow-sm hover:shadow-lg transition-all duration-300 bg-card rounded-xl hover:border-border h-full flex flex-col relative",
                         loading || isRequest
                           ? "cursor-not-allowed opacity-60"
                           : "cursor-pointer hover:-translate-y-1 active:scale-95",
@@ -537,7 +537,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                       {/* Quantity Badge */}
                       {quantityInOrder > 0 && (
                         <div className="absolute top-2 right-2 z-10">
-                          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
+                          <div className="bg-success text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
                             {quantityInOrder}
                           </div>
                         </div>
@@ -605,7 +605,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                 animation: `${flyingAnimation.animationName} ${flyingAnimation.duration}ms cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards`,
               }}
             >
-              <div className="absolute inset-0 bg-white rounded-xl border shadow-2xl overflow-hidden">
+              <div className="absolute inset-0 bg-card rounded-xl border shadow-2xl overflow-hidden">
                 {flyingAnimation.productImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -614,8 +614,8 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                     className="w-full h-3/4 object-contain"
                   />
                 ) : (
-                  <div className="w-full h-3/4 bg-gray-100 flex items-center justify-center">
-                    <span className="text-gray-400 text-xs">No Image</span>
+                  <div className="w-full h-3/4 bg-muted flex items-center justify-center">
+                    <span className="text-muted-foreground/70 text-xs">No Image</span>
                   </div>
                 )}
                 <div className="h-1/4 p-1 flex items-center justify-center">
@@ -626,8 +626,8 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
               </div>
 
               {/* Enhanced Glow effect with pulse */}
-              <div className="absolute inset-0 bg-gradient-to-r from-green-400/40 to-blue-400/40 rounded-xl animate-pulse" />
-              <div className="absolute inset-0 bg-green-400/20 rounded-xl animate-ping" />
+              <div className="absolute inset-0 bg-success/40 rounded-xl animate-pulse" />
+              <div className="absolute inset-0 bg-success/20 rounded-xl animate-ping" />
             </div>
           </div>
 

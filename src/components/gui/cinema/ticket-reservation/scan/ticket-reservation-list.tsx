@@ -103,7 +103,7 @@ function getStatusConfig(status: SeatReservation["status"]) {
       return {
         variant: "default" as const,
         className:
-          "bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500",
+          "bg-success hover:bg-success/90 text-white border-success",
         icon: <CheckCircle className="h-3 w-3" />,
         label: "Confirmed",
       };
@@ -111,28 +111,28 @@ function getStatusConfig(status: SeatReservation["status"]) {
       return {
         variant: "secondary" as const,
         className:
-          "bg-amber-500 hover:bg-amber-600 text-white border-amber-500",
+          "bg-warning hover:bg-warning/90 text-white border-warning",
         icon: <Clock className="h-3 w-3" />,
         label: "Pending",
       };
     case "admitted":
       return {
         variant: "default" as const,
-        className: "bg-blue-500 hover:bg-blue-600 text-white border-blue-500",
+        className: "bg-info hover:bg-info/90 text-white border-info",
         icon: <Ticket className="h-3 w-3" />,
         label: "Admitted",
       };
     case "cancelled":
       return {
         variant: "destructive" as const,
-        className: "bg-red-500 hover:bg-red-600 text-white border-red-500",
+        className: "bg-destructive hover:bg-destructive/90 text-white border-destructive",
         icon: <XCircle className="h-3 w-3" />,
         label: "Cancelled",
       };
     case "expired":
       return {
         variant: "outline" as const,
-        className: "bg-gray-500 hover:bg-gray-600 text-white border-gray-500",
+        className: "bg-muted-foreground hover:bg-muted-foreground text-white border-input",
         icon: <AlertTriangle className="h-3 w-3" />,
         label: "Expired",
       };

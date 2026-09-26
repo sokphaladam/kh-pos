@@ -38,7 +38,7 @@ export default function LoginPage() {
   if (!!user) return <></>;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-muted">
       <Card className="w-full max-w-md p-6">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>

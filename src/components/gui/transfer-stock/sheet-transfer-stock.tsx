@@ -1,4 +1,5 @@
 "use client";
+import { LoadingState } from "@/components/ui/state";
 import { Order } from "@/classes/order";
 import { createSheet } from "@/components/create-sheet";
 import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -251,10 +252,7 @@ export const SheetTransferStock = createSheet<Props, unknown>(
 
         <div className="space-y-3">
           {isLoading && (
-            <div className="text-center py-8 text-gray-500">
-              <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-3"></div>
-              <p>Loading stock information...</p>
-            </div>
+            <LoadingState label="Loading stock" />
           )}
 
           {!isLoading && (

@@ -21,14 +21,14 @@ export function ListCategoryDiscount({
       <DiscountSearchCategory clearInput onChange={onAddCategory} />
       {/* Applied Category List */}
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-gray-700">
+        <h3 className="text-sm font-medium text-foreground/80">
           Applied Category ({category.length})
         </h3>
         <div className="max-h-[70vh] overflow-y-auto space-y-2">
           {category.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               <p className="text-sm">No categories applied to this discount</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-foreground/70 mt-1">
                 Search and select category above to add them
               </p>
             </div>
@@ -50,7 +50,7 @@ export function ListCategoryDiscount({
 
                     {/* Product Information */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium text-gray-900 truncate">
+                      <h4 className="text-sm font-medium text-foreground truncate">
                         {x.title}
                       </h4>
                     </div>
@@ -62,7 +62,7 @@ export function ListCategoryDiscount({
                           variant="ghost"
                           size="sm"
                           onClick={() => onRemoveCategory(x.id)}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
                           <X className="h-4 w-4" />
                         </Button>

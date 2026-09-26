@@ -61,7 +61,7 @@ function DrawerCheckout({
     <Drawer>
       <DrawerTrigger asChild>
         <Button
-          className="w-full md:hidden text-base font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+          className="w-full md:hidden text-base font-semibold shadow-sm"
           disabled={disabledCheckout}
           size="lg"
         >
@@ -72,26 +72,26 @@ function DrawerCheckout({
       <DrawerContent>
         <div className="mx-auto w-full max-w-md">
           <DrawerHeader className="text-center pb-4">
-            <DrawerTitle className="text-xl font-bold text-gray-800">
+            <DrawerTitle className="text-xl font-bold text-foreground">
               Order Summary
             </DrawerTitle>
-            <DrawerDescription className="text-gray-600">
+            <DrawerDescription className="text-muted-foreground">
               Review your order before payment
             </DrawerDescription>
           </DrawerHeader>
 
           <div className="px-6 pb-6">
-            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+            <div className="bg-muted/40 rounded-lg p-4 space-y-3">
               {by && (
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 text-sm">Cashier:</span>
-                  <span className="font-medium text-gray-800">{by}</span>
+                  <span className="text-muted-foreground text-sm">Cashier:</span>
+                  <span className="font-medium text-foreground">{by}</span>
                 </div>
               )}
 
               <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">Exchange Rate:</span>
-                <span className="font-medium text-gray-800">
+                <span className="text-muted-foreground text-sm">Exchange Rate:</span>
+                <span className="font-medium text-foreground">
                   {currency}1 = {Formatter.formatCurrencyKH(exchangeRate)}
                 </span>
               </div>
@@ -100,22 +100,22 @@ function DrawerCheckout({
 
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal:</span>
+                  <span className="text-muted-foreground">Subtotal:</span>
                   <div className="text-right">
                     <div className="font-medium">${total.toFixed(2)}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-muted-foreground">
                       {Formatter.formatCurrencyKH(totalKHR)}
                     </div>
                   </div>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tax ({tax}%):</span>
-                  <span className="text-gray-600 text-sm">Included</span>
+                  <span className="text-muted-foreground">Tax ({tax}%):</span>
+                  <span className="text-muted-foreground text-sm">Included</span>
                 </div>
 
                 {totalDiscount > 0 && (
-                  <div className="flex justify-between text-green-600">
+                  <div className="flex justify-between text-success">
                     <span>Discount:</span>
                     <div className="text-right">
                       <div className="font-medium">
@@ -135,13 +135,13 @@ function DrawerCheckout({
               <Separator className="my-3" />
 
               <div className="flex justify-between items-center">
-                <span className="text-lg font-bold text-gray-800">Total:</span>
+                <span className="text-lg font-bold text-foreground">Total:</span>
                 <div className="text-right">
-                  <div className="text-xl font-bold text-blue-600">
+                  <div className="text-xl font-bold text-info">
                     {currency}
                     {totalAfterDiscount.toFixed(2)}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-muted-foreground">
                     {Formatter.formatCurrencyKH(
                       totalAfterDiscount * (exchangeRate || 0),
                     )}
@@ -154,7 +154,7 @@ function DrawerCheckout({
           <DrawerFooter className="px-6 pb-6">
             <DrawerClose asChild>
               <Button
-                className="w-full text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+                className="w-full text-lg font-semibold shadow-sm"
                 size="lg"
                 disabled={disabledCheckout}
                 onClick={handleCheckout}
@@ -513,29 +513,29 @@ export function POSCheckoutFooter() {
 
   return (
     <div
-      className="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm"
+      className="flex flex-col bg-card border border-border rounded-lg shadow-sm"
       style={{ height: width < 768 ? "auto" : height - 130 }}
     >
       {/* Summary Section - Desktop */}
       <div className="flex-1 p-6 hidden md:block">
         <div className="space-y-4">
-          <div className="border-b border-gray-200 pb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+          <div className="border-b border-border pb-4">
+            <h3 className="text-lg font-semibold text-foreground mb-3">
               Order Summary
             </h3>
 
             {orders.by && (
               <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-600 text-sm">Cashier:</span>
-                <span className="font-medium text-gray-800">
+                <span className="text-muted-foreground text-sm">Cashier:</span>
+                <span className="font-medium text-foreground">
                   {orders.by?.fullname}
                 </span>
               </div>
             )}
 
             <div className="flex justify-between items-center">
-              <span className="text-gray-600 text-sm">Exchange Rate:</span>
-              <span className="font-medium text-gray-800">
+              <span className="text-muted-foreground text-sm">Exchange Rate:</span>
+              <span className="font-medium text-foreground">
                 $1 = {Formatter.formatCurrencyKH(exchangeRate)}
               </span>
             </div>
@@ -543,24 +543,24 @@ export function POSCheckoutFooter() {
 
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal:</span>
+              <span className="text-muted-foreground">Subtotal:</span>
               <div className="text-right">
-                <div className="font-medium text-gray-800">
+                <div className="font-medium text-foreground">
                   ${total.toFixed(2)}
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted-foreground">
                   {Formatter.formatCurrencyKH(totalKHR)}
                 </div>
               </div>
             </div>
 
             <div className="flex justify-between">
-              <span className="text-gray-600">Tax ({tax}%):</span>
-              <span className="text-gray-600 text-sm">Included</span>
+              <span className="text-muted-foreground">Tax ({tax}%):</span>
+              <span className="text-muted-foreground text-sm">Included</span>
             </div>
 
             {totalDiscount > 0 && (
-              <div className="flex justify-between text-green-600">
+              <div className="flex justify-between text-success">
                 <span>Discount:</span>
                 <div className="text-right">
                   <div className="font-medium">
@@ -579,12 +579,12 @@ export function POSCheckoutFooter() {
             <Separator className="my-3" />
 
             <div className="flex justify-between items-center">
-              <span className="text-xl font-bold text-gray-800">Total:</span>
+              <span className="text-xl font-bold text-foreground">Total:</span>
               <div className="text-right">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-info">
                   ${totalAfterDiscount.toFixed(2)}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-foreground">
                   {Formatter.formatCurrencyKH(
                     totalAfterDiscount * (exchangeRate || 0),
                   )}
@@ -596,12 +596,12 @@ export function POSCheckoutFooter() {
       </div>
 
       {/* Actions Section */}
-      <div className="p-6 bg-gray-50 border-t border-gray-200">
+      <div className="p-6 bg-muted/40 border-t border-border">
         <div className="space-y-3">
           {/* Stock Transfer and Print Buttons */}
           <div className="flex gap-3">
             <Button
-              className="flex-1 justify-center bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200 font-medium"
+              className="flex-1 justify-center bg-warning/10 hover:bg-warning/15 text-warning border-warning/20 font-medium"
               variant="outline"
               size="sm"
               disabled={isEmpty}
@@ -612,7 +612,7 @@ export function POSCheckoutFooter() {
             </Button>
 
             <Button
-              className="flex-1 justify-center bg-green-50 hover:bg-green-100 text-green-700 border-green-200 font-medium"
+              className="flex-1 justify-center bg-success/10 hover:bg-success/15 text-success border-success/20 font-medium"
               variant="outline"
               size="sm"
               disabled={isEmpty || printing}
@@ -624,10 +624,10 @@ export function POSCheckoutFooter() {
 
             <Button
               className={`flex-1 justify-center font-medium transition-all ${
-                orders.customer
-                  ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
-                  : "bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200"
-              }`}
+ orders.customer
+ ? "bg-success/10 hover:bg-success/15 text-success border-success/20"
+ : "bg-muted/40 hover:bg-muted text-foreground/80 border-border"
+ }`}
               variant="outline"
               size="sm"
               disabled={isEmpty}
@@ -657,7 +657,7 @@ export function POSCheckoutFooter() {
           {/* Main Checkout Button - Desktop */}
           <div className="hidden md:block">
             <Button
-              className="w-full text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+              className="w-full text-lg font-semibold shadow-sm"
               size="lg"
               disabled={disabledCheckout}
               onClick={handleCheckout}

@@ -74,7 +74,7 @@ export function ShowTimeItem({
 
   if (isResizing) {
     classNames =
-      "opacity-70 border-orange-500 shadow-xl ring-4 ring-orange-500/30 scale-105";
+      "opacity-70 border-warning shadow-xl ring-4 ring-warning/30 scale-105";
   }
 
   if (showtime.status === "scheduled") {
@@ -106,12 +106,12 @@ export function ShowTimeItem({
             <div className="flex items-center gap-2 mb-1">
               <div
                 className={cn("w-2 h-2 p-1 rounded-full flex-shrink-0 ", {
-                  "bg-blue-500 animate-pulse": showtime.status === "scheduled",
-                  "bg-green-500 animate-pulse": showtime.status === "selling",
-                  "bg-red-500": showtime.status === "sold_out",
-                  "bg-yellow-500 animate-pulse": showtime.status === "started",
-                  "bg-slate-400": showtime.status === "ended",
-                  "bg-rose-800": showtime.status === "cancelled",
+                  "bg-info animate-pulse": showtime.status === "scheduled",
+                  "bg-success animate-pulse": showtime.status === "selling",
+                  "bg-destructive": showtime.status === "sold_out",
+                  "bg-warning animate-pulse": showtime.status === "started",
+                  "bg-muted-foreground": showtime.status === "ended",
+                  "bg-destructive/60": showtime.status === "cancelled",
                 })}
               ></div>
               {/* Movie image */}
@@ -137,17 +137,17 @@ export function ShowTimeItem({
                     className={cn(
                       "text-[9px] font-medium px-1 py-0.5 rounded capitalize",
                       {
-                        "bg-blue-100 text-blue-700":
+                        "bg-info/15 text-info":
                           showtime.status === "scheduled",
-                        "bg-green-100 text-green-700":
+                        "bg-success/15 text-success":
                           showtime.status === "selling",
-                        "bg-red-100 text-red-700":
+                        "bg-destructive/15 text-destructive":
                           showtime.status === "sold_out",
-                        "bg-yellow-100 text-yellow-700":
+                        "bg-warning/15 text-warning":
                           showtime.status === "started",
-                        "bg-slate-100 text-slate-700":
+                        "bg-muted text-foreground/80":
                           showtime.status === "ended",
-                        "bg-rose-100 text-rose-700":
+                        "bg-destructive/10 text-destructive/80":
                           showtime.status === "cancelled",
                       },
                     )}
@@ -256,9 +256,9 @@ export function ShowTimeItem({
         <div
           className={cn(
             "resize-handle absolute right-0 top-0 bottom-0 w-3 cursor-col-resize flex items-center justify-center transition-all duration-200",
-            "opacity-0 group-hover/item:opacity-100 hover:bg-gradient-to-r hover:from-orange-500/10 hover:to-orange-500/30 hover:w-4",
+            "opacity-0 group-hover/item:opacity-100 hover:bg-warning/20 hover:w-4",
             isResizing &&
-              "opacity-100 bg-gradient-to-r from-orange-500/20 to-orange-500/40 w-4 shadow-lg",
+              "opacity-100 bg-warning/30 w-4 shadow-lg",
           )}
           onMouseDown={(e) => {
             e.stopPropagation();
@@ -266,9 +266,9 @@ export function ShowTimeItem({
           }}
         >
           <div className="flex flex-col gap-0.5">
-            <div className="w-1 h-1 bg-orange-500 rounded-full"></div>
-            <div className="w-1 h-1 bg-orange-500 rounded-full"></div>
-            <div className="w-1 h-1 bg-orange-500 rounded-full"></div>
+            <div className="w-1 h-1 bg-warning rounded-full"></div>
+            <div className="w-1 h-1 bg-warning rounded-full"></div>
+            <div className="w-1 h-1 bg-warning rounded-full"></div>
           </div>
         </div>
       )}

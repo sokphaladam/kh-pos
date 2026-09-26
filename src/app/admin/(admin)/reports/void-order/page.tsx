@@ -1,5 +1,6 @@
 "use client";
 
+import { LatticeLoader } from "@/components/ui/lattice-loader";
 import { useQueryVoidedOrderReport } from "@/app/hooks/user-query-report";
 import { VoidOrderReportResponse } from "./types";
 import { endOfDay, startOfDay } from "date-fns";
@@ -102,8 +103,8 @@ export default function VoidOrderReportPage() {
         title="Void Order Report"
         description="Track and analyze voided orders and printing discrepancies"
         icon={AlertTriangle}
-        iconBgColor="bg-red-100"
-        iconColor="text-red-600"
+        iconBgColor="bg-destructive/15"
+        iconColor="text-destructive"
         dateRange={dateRange}
         onDateRangeChange={setDateRange}
         onRefresh={handleRefresh}
@@ -122,11 +123,10 @@ export default function VoidOrderReportPage() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-12">
           <div className="flex items-center justify-center">
             <div className="flex items-center space-x-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-              <span className="text-gray-600">Loading void order data...</span>
+              <LatticeLoader label="Loading void order data" />
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function VoidOrderReportPage() {
           <ReportDataSection
             title="Void Order Details"
             icon={FileX}
-            iconColor="text-red-600"
+            iconColor="text-destructive"
             recordCount={reportData.length}
             recordLabel="issues"
           >

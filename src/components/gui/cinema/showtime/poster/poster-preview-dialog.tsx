@@ -300,7 +300,7 @@ export const posterPreviewDialog = createDialog<PosterPreviewProps, unknown>(
 
           {/* Poster preview */}
           <div
-            className="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg flex items-center justify-center"
+            className="bg-muted p-4 rounded-lg flex items-center justify-center"
             style={{
               maxWidth: "100%",
               maxHeight: "60vh",

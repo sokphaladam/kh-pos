@@ -99,30 +99,30 @@ function CleanUpDummy() {
             <div className="flex items-center justify-between">
               <DialogTitle className="text-xl font-semibold tracking-tightflex items-center gap-2">
                 {status === "processing" && (
-                  <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
+                  <Loader2 className="h-5 w-5 animate-spin text-info/80" />
                 )}
                 {status === "success" && (
-                  <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                  <CheckCircle2 className="h-5 w-5 text-success/80" />
                 )}
                 {status === "failed" && (
-                  <AlertCircle className="h-5 w-5 text-rose-400" />
+                  <AlertCircle className="h-5 w-5 text-destructive/80" />
                 )}
                 Database Purge Pipeline
               </DialogTitle>
               <Badge
                 className={`capitalize px-2.5 py-0.5 font-mono ${
-                  status === "success"
-                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                    : status === "failed"
-                      ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                      : "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                }`}
+ status === "success"
+ ? "bg-success/10 text-success/80 border-success/20"
+ : status === "failed"
+ ? "bg-destructive/10 text-destructive/80 border-destructive/20"
+ : "bg-info/10 text-info/80 border-info/20"
+ }`}
                 variant="outline"
               >
                 {status}
               </Badge>
             </div>
-            <DialogDescription className="text-slate-400 text-sm pt-1">
+            <DialogDescription className="text-muted-foreground/70 text-sm pt-1">
               Running secure cascading drops on tables flagged with temporary
               testing metadata.
             </DialogDescription>
@@ -131,30 +131,30 @@ function CleanUpDummy() {
           <div className="space-y-4 py-4">
             {/* Progress Bar Display */}
             <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-mono text-slate-400">
+              <div className="flex justify-between text-xs font-mono text-muted-foreground/70">
                 <span>SYNC_PROGRESS</span>
                 <span className="font-bold text-white">{progress}%</span>
               </div>
               <Progress
                 value={progress}
-                className="h-2 bg-slate-800 [&>div]:bg-gradient-to-r [&>div]:from-blue-500 [&>div]:to-indigo-500"
+                className="h-2 bg-slate-800 [&>div]:bg-info [&> [&>"
               />
             </div>
 
             {/* Simulated Log Output Window */}
             <div className="space-y-1.5">
-              <label className="text-xs font-mono text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-mono text-muted-foreground/70 uppercase tracking-wider">
                 Console Stream Output
               </label>
-              <div className="h-32 w-full rounded-md border border-slate-800 bg-slate-900/50 bg-slate-950 text-slate-100 p-3 font-mono text-xs overflow-y-auto leading-relaxed scrollbar-thin scrollbar-thumb-slate-800">
+              <div className="h-32 w-full rounded-md border border-input bg-slate-900/50 bg-slate-950 text-slate-100 p-3 font-mono text-xs overflow-y-auto leading-relaxed scrollbar-thin scrollbar-thumb-slate-800">
                 {isLoading ? (
-                  <div className="flex items-center gap-2 text-slate-500 italic animate-pulse">
+                  <div className="flex items-center gap-2 text-muted-foreground italic animate-pulse">
                     <Loader2 className="h-3 w-3 animate-spin" />
                     Spawning secure edge runtime connection...
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    <div className="text-slate-500">
+                    <div className="text-muted-foreground">
                       [{new Date().toLocaleTimeString()}] Pipeline listener
                       initialized.
                     </div>
@@ -162,14 +162,14 @@ function CleanUpDummy() {
                     {logs.map((log, index) => (
                       <div
                         key={index}
-                        className="text-slate-300 flex items-start gap-1"
+                        className="text-muted-foreground/70 flex items-start gap-1"
                       >
-                        <span className="text-blue-500 select-none">&gt;</span>
+                        <span className="text-info select-none">&gt;</span>
                         <span
                           className={
                             index === logs.length - 1
                               ? "text-white font-medium"
-                              : "text-slate-400"
+                              : "text-muted-foreground/70"
                           }
                         >
                           {log}
@@ -177,12 +177,12 @@ function CleanUpDummy() {
                       </div>
                     ))}
                     {status === "completed" && (
-                      <div className="text-emerald-400 font-semibold pt-1">
+                      <div className="text-success/80 font-semibold pt-1">
                         ✓ Process completed with status code 200.
                       </div>
                     )}
                     {status === "failed" && (
-                      <div className="text-rose-400 font-semibold pt-1">
+                      <div className="text-destructive/80 font-semibold pt-1">
                         ❌ Pipeline crashed. Connection disconnected.
                       </div>
                     )}
@@ -209,7 +209,7 @@ export function TypePos({ value, onChange }: TypePosProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-gray-700">System Type</Label>
+        <Label className="text-sm font-medium text-foreground/80">System Type</Label>
         <Select
           value={parsed.system_type}
           onValueChange={(v) => {
@@ -238,7 +238,7 @@ export function TypePos({ value, onChange }: TypePosProps) {
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-sm font-medium text-gray-700">Enviroment</Label>
+        <Label className="text-sm font-medium text-foreground/80">Enviroment</Label>
         <Select
           value={parsed.enviroment}
           onValueChange={(v) => {
@@ -278,7 +278,7 @@ export function TypePos({ value, onChange }: TypePosProps) {
           />
           <Label
             htmlFor="shared-order-draft"
-            className="text-sm font-medium text-gray-700 cursor-pointer"
+            className="text-sm font-medium text-foreground/80 cursor-pointer"
           >
             {parsed.shared_order_draft
               ? "Shared order draft enabled"

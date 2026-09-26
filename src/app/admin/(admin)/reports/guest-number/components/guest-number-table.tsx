@@ -64,11 +64,11 @@ export function GuestNumberTable({ data }: { data: GuestNumberData[] }) {
 
   return (
     <Card>
-      <CardHeader className="border-b bg-gray-50/50">
+      <CardHeader className="border-b bg-muted/50">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-600" />
+              <BarChart3 className="h-5 w-5 text-info" />
               Guest Number Details
             </CardTitle>
             <CardDescription>
@@ -84,7 +84,7 @@ export function GuestNumberTable({ data }: { data: GuestNumberData[] }) {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50/50">
+              <TableRow className="bg-muted/50">
                 <TableHead className="font-semibold">Type</TableHead>
                 <TableHead className="font-semibold">Date</TableHead>
                 <TableHead className="font-semibold">Time</TableHead>
@@ -96,11 +96,11 @@ export function GuestNumberTable({ data }: { data: GuestNumberData[] }) {
             <TableBody>
               {/* Show guest_total first if exists */}
               {guestTotal && (
-                <TableRow className="bg-red-50/50 font-bold border-b-4 border-red-200">
+                <TableRow className="bg-destructive/50 font-bold border-b-4 border-destructive/20">
                   <TableCell className="pl-8">
                     <Badge
                       variant="destructive"
-                      className="bg-red-100 text-red-700"
+                      className="bg-destructive/15 text-destructive"
                     >
                       Grand Total
                     </Badge>
@@ -110,7 +110,7 @@ export function GuestNumberTable({ data }: { data: GuestNumberData[] }) {
                   </TableCell>
                   <TableCell>-</TableCell>
                   <TableCell className="text-right font-semibold">
-                    <span className="text-red-700 text-xl font-bold">
+                    <span className="text-destructive text-xl font-bold">
                       {guestTotal.total_guests.toLocaleString()}
                     </span>
                   </TableCell>
@@ -126,20 +126,20 @@ export function GuestNumberTable({ data }: { data: GuestNumberData[] }) {
                   <React.Fragment key={`date-${index}`}>
                     {/* Daily total row (clickable) */}
                     <TableRow
-                      className="bg-blue-50/30 font-medium border-b-2 cursor-pointer hover:bg-blue-100/40 transition-colors"
+                      className="bg-info/30 font-medium border-b-2 cursor-pointer hover:bg-info/40 transition-colors"
                       onClick={() => toggleDate(dateItem.date || "")}
                     >
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {timesForDate.length > 0 &&
                             (isExpanded ? (
-                              <ChevronDown className="h-4 w-4 text-blue-600" />
+                              <ChevronDown className="h-4 w-4 text-info" />
                             ) : (
-                              <ChevronRight className="h-4 w-4 text-blue-600" />
+                              <ChevronRight className="h-4 w-4 text-info" />
                             ))}
                           <Badge
                             variant="default"
-                            className="bg-blue-100 text-blue-700"
+                            className="bg-info/15 text-info"
                           >
                             Daily Total
                           </Badge>
@@ -150,7 +150,7 @@ export function GuestNumberTable({ data }: { data: GuestNumberData[] }) {
                       </TableCell>
                       <TableCell>-</TableCell>
                       <TableCell className="text-right font-semibold">
-                        <span className="text-blue-700 text-lg">
+                        <span className="text-info text-lg">
                           {dateItem.total_guests.toLocaleString()}
                         </span>
                       </TableCell>
@@ -161,12 +161,12 @@ export function GuestNumberTable({ data }: { data: GuestNumberData[] }) {
                       timesForDate.map((timeItem, timeIndex) => (
                         <TableRow
                           key={`time-${index}-${timeIndex}`}
-                          className="hover:bg-gray-50 border-l-4 border-l-blue-200"
+                          className="hover:bg-muted/40 border-l-4 border-l-info/20"
                         >
                           <TableCell className="pl-8">
                             <Badge
                               variant="secondary"
-                              className="bg-gray-100 text-gray-600"
+                              className="bg-muted text-muted-foreground"
                             >
                               Hourly
                             </Badge>
@@ -182,7 +182,7 @@ export function GuestNumberTable({ data }: { data: GuestNumberData[] }) {
                               : "-"}
                           </TableCell>
                           <TableCell className="text-right font-semibold">
-                            <span className="text-gray-900">
+                            <span className="text-foreground">
                               {timeItem.total_guests.toLocaleString()}
                             </span>
                           </TableCell>
@@ -196,7 +196,7 @@ export function GuestNumberTable({ data }: { data: GuestNumberData[] }) {
                 <TableRow>
                   <TableCell
                     colSpan={4}
-                    className="text-center py-8 text-gray-500"
+                    className="text-center py-8 text-muted-foreground"
                   >
                     No guest data available for the selected date range
                   </TableCell>

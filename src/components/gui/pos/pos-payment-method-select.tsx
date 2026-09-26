@@ -34,7 +34,7 @@ export function POSPaymentMehtodSelect(props: Props) {
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel className="text-xs text-gray-500">
+          <SelectLabel className="text-xs text-muted-foreground">
             Select Payment Method
           </SelectLabel>
           {data.result?.map((x) => {

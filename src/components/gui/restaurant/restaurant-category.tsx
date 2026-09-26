@@ -89,17 +89,17 @@ export function RestaurantCategory(props: Props) {
       return (
         <div
           className={cn(
-            "bg-white border-r border-gray-200 p-4 space-y-3",
+            "bg-card border-r border-border p-4 space-y-3",
             className,
           )}
         >
-          <div className="text-sm font-medium text-gray-900 mb-3">
+          <div className="text-sm font-medium text-foreground mb-3">
             Categories
           </div>
           {Array.from({ length: 5 }).map((_, index) => (
             <div
               key={`skeleton-${index}`}
-              className="h-9 bg-gray-200 animate-pulse rounded-md"
+              className="h-9 bg-muted animate-pulse rounded-md"
             />
           ))}
         </div>
@@ -107,13 +107,13 @@ export function RestaurantCategory(props: Props) {
     }
 
     return (
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+      <div className="sticky top-0 z-20 bg-card/95 backdrop-blur-sm border-b border-border">
         <div className="px-4 py-3">
           <div className="flex gap-2 min-w-fit">
             {Array.from({ length: 5 }).map((_, index) => (
               <div
                 key={`skeleton-${index}`}
-                className="h-8 w-20 bg-gray-200 animate-pulse rounded-md flex-shrink-0"
+                className="h-8 w-20 bg-muted animate-pulse rounded-md flex-shrink-0"
               />
             ))}
           </div>
@@ -127,12 +127,12 @@ export function RestaurantCategory(props: Props) {
     return (
       <div
         className={cn(
-          "bg-white border-r border-gray-200 p-4 relative",
+          "bg-card border-r border-border p-4 relative",
           className,
         )}
         // style={{ height: height - 75 }}
       >
-        <div className="text-sm font-medium text-gray-900 mb-3">Categories</div>
+        <div className="text-sm font-medium text-foreground mb-3">Categories</div>
 
         {/* Up Scroll Button */}
         {canScrollUp && (
@@ -140,7 +140,7 @@ export function RestaurantCategory(props: Props) {
             variant="ghost"
             size="sm"
             onClick={() => scrollTabs("up")}
-            className="absolute top-16 left-1/2 -translate-x-1/2 z-10 h-6 w-8 p-0 bg-white/90 border shadow-sm hover:bg-white hover:shadow-md transition-all duration-200"
+            className="absolute top-16 left-1/2 -translate-x-1/2 z-10 h-6 w-8 p-0 bg-card/90 border shadow-sm hover:bg-card hover:shadow-md transition-all duration-200"
             disabled={isScrolling}
           >
             <ChevronUp className="h-3 w-3" />
@@ -153,7 +153,7 @@ export function RestaurantCategory(props: Props) {
             variant="ghost"
             size="sm"
             onClick={() => scrollTabs("down")}
-            className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 h-6 w-8 p-0 bg-white/90 border shadow-sm hover:bg-white hover:shadow-md transition-all duration-200"
+            className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 h-6 w-8 p-0 bg-card/90 border shadow-sm hover:bg-card hover:shadow-md transition-all duration-200"
             disabled={isScrolling}
           >
             <ChevronDown className="h-3 w-3" />
@@ -175,7 +175,7 @@ export function RestaurantCategory(props: Props) {
               "w-full justify-start transition-all duration-200 text-base",
               props.selectedCategory === "All"
                 ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
-                : "hover:bg-gray-100 text-gray-700 hover:text-gray-900",
+                : "hover:bg-muted text-foreground/80 hover:text-foreground",
             )}
           >
             All Categories
@@ -194,7 +194,7 @@ export function RestaurantCategory(props: Props) {
                 "w-full justify-start transition-all duration-200 text-base",
                 props.selectedCategory === category.id
                   ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
-                  : "hover:bg-gray-100 text-gray-700 hover:text-gray-900",
+                  : "hover:bg-muted text-foreground/80 hover:text-foreground",
               )}
             >
               {category.title}
@@ -204,10 +204,10 @@ export function RestaurantCategory(props: Props) {
 
         {/* Gradient Fade Indicators */}
         {canScrollUp && (
-          <div className="absolute top-16 left-0 right-0 h-8 bg-gradient-to-b from-white to-transparent pointer-events-none" />
+          <div className="absolute top-16 left-0 right-0 h-8 pointer-events-none" />
         )}
         {canScrollDown && (
-          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none" />
         )}
       </div>
     );
@@ -215,7 +215,7 @@ export function RestaurantCategory(props: Props) {
 
   // Horizontal variant for mobile
   return (
-    <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+    <div className="sticky top-0 z-20 bg-card/95 backdrop-blur-sm border-b border-border">
       <div className="relative px-4 py-3">
         {/* Left Scroll Button */}
         {canScrollLeft && (
@@ -223,7 +223,7 @@ export function RestaurantCategory(props: Props) {
             variant="ghost"
             size="sm"
             onClick={() => scrollTabs("left")}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-white/90 border shadow-sm hover:bg-white hover:shadow-md transition-all duration-200"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-card/90 border shadow-sm hover:bg-card hover:shadow-md transition-all duration-200"
             disabled={isScrolling}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -236,7 +236,7 @@ export function RestaurantCategory(props: Props) {
             variant="ghost"
             size="sm"
             onClick={() => scrollTabs("right")}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-white/90 border shadow-sm hover:bg-white hover:shadow-md transition-all duration-200"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 p-0 bg-card/90 border shadow-sm hover:bg-card hover:shadow-md transition-all duration-200"
             disabled={isScrolling}
           >
             <ChevronRight className="h-4 w-4" />
@@ -259,7 +259,7 @@ export function RestaurantCategory(props: Props) {
                 "whitespace-nowrap transition-all duration-200 flex-shrink-0 relative text-base",
                 props.selectedCategory === "All"
                   ? "bg-primary text-primary-foreground shadow-sm border-primary hover:bg-primary/90"
-                  : "hover:bg-gray-50 border-gray-300 hover:border-gray-400 hover:shadow-sm",
+                  : "hover:bg-muted/40 border-border hover:border-input hover:shadow-sm",
               )}
             >
               All Categories
@@ -278,7 +278,7 @@ export function RestaurantCategory(props: Props) {
                   "whitespace-nowrap transition-all duration-200 flex-shrink-0 relative text-base",
                   props.selectedCategory === category.id
                     ? "bg-primary text-primary-foreground shadow-sm border-primary hover:bg-primary/90"
-                    : "hover:bg-gray-50 border-gray-300 hover:border-gray-400 hover:shadow-sm",
+                    : "hover:bg-muted/40 border-border hover:border-input hover:shadow-sm",
                 )}
               >
                 {category.title}
@@ -289,10 +289,10 @@ export function RestaurantCategory(props: Props) {
 
         {/* Gradient Fade Indicators */}
         {canScrollLeft && (
-          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white/95 to-transparent pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-12 pointer-events-none" />
         )}
         {canScrollRight && (
-          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white/95 to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-12 pointer-events-none" />
         )}
       </div>
     </div>

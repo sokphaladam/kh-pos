@@ -133,7 +133,7 @@ export const createWarehouseSheetV2 = createSheet<
 
     return (
       <>
-        <SheetHeader className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <SheetHeader className="px-6 pt-6 pb-4 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary">
               <Building2 className="h-5 w-5" />
@@ -164,7 +164,7 @@ export const createWarehouseSheetV2 = createSheet<
                   src={input.image}
                   alt="Warehouse Image"
                   title="Warehouse Image"
-                  className="w-16 h-16 object-cover rounded-lg border bg-white flex-shrink-0"
+                  className="w-16 h-16 object-cover rounded-lg border bg-card flex-shrink-0"
                   width={64}
                   height={64}
                 />
@@ -237,7 +237,7 @@ export const createWarehouseSheetV2 = createSheet<
           {/* Basic Information Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400">
+              <div className="flex items-center justify-center w-6 h-6 rounded-md bg-info/15 text-info">
                 <Building2 className="h-3.5 w-3.5" />
               </div>
               <h3 className="text-sm font-semibold text-foreground">
@@ -336,7 +336,7 @@ export const createWarehouseSheetV2 = createSheet<
           {/* Location Information Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-6 h-6 rounded-md bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400">
+              <div className="flex items-center justify-center w-6 h-6 rounded-md bg-success/15 text-success">
                 <MapPin className="h-3.5 w-3.5" />
               </div>
               <h3 className="text-sm font-semibold text-foreground">
@@ -461,7 +461,7 @@ export const createWarehouseSheetV2 = createSheet<
           )}
         </div>
 
-        <SheetFooter className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <SheetFooter className="px-6 py-4 border-t border-border">
           <div className="flex gap-3 w-full">
             <Button
               variant="outline"
@@ -478,7 +478,7 @@ export const createWarehouseSheetV2 = createSheet<
             >
               {loadingCreate || loadingUpdate ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-card border-t-transparent mr-2" />
                   {edit ? "Updating…" : "Creating…"}
                 </>
               ) : (

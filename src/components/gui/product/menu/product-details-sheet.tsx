@@ -231,7 +231,7 @@ export function ProductDetailsSheet({
     <div className="flex flex-col h-full -m-6">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
-        <h2 className="text-xl font-semibold text-gray-900">Product Details</h2>
+        <h2 className="text-xl font-semibold text-foreground">Product Details</h2>
       </div>
 
       {/* Content */}
@@ -257,15 +257,15 @@ export function ProductDetailsSheet({
 
             <div className="flex-1 space-y-2">
               <div>
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-lg font-medium text-foreground">
                   {product.productTitle}
                 </h3>
                 {variant?.name && (
-                  <p className="text-sm text-gray-600">{variant.name}</p>
+                  <p className="text-sm text-muted-foreground">{variant.name}</p>
                 )}
               </div>
 
-              <div className="flex items-center gap-4 text-sm text-gray-600">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Hash className="h-4 w-4" />
                   <span>SKU: {variant?.sku || product.sku || "N/A"}</span>
@@ -274,15 +274,15 @@ export function ProductDetailsSheet({
 
               <div className="flex items-center gap-2">
                 {hasDiscount && (
-                  <span className="text-sm text-gray-400 line-through">
+                  <span className="text-sm text-muted-foreground/70 line-through">
                     {formatForDisplay(price)}
                   </span>
                 )}
-                <span className="text-lg font-semibold text-green-600">
+                <span className="text-lg font-semibold text-success">
                   {formatForDisplay(effectivePrice)}
                 </span>
                 {hasDiscount && discountLabel && (
-                  <Badge className="bg-red-500 text-white">
+                  <Badge className="bg-destructive text-white">
                     {discountLabel}
                   </Badge>
                 )}
@@ -353,7 +353,7 @@ export function ProductDetailsSheet({
                     )}
                   </div>
                   {modifier.description && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       {modifier.description}
                     </p>
                   )}
@@ -390,7 +390,7 @@ export function ProductDetailsSheet({
                           </label>
                         </div>
                         {option.price > 0 && (
-                          <span className="text-sm text-green-600 font-medium">
+                          <span className="text-sm text-success font-medium">
                             +${option.price.toFixed(2)}
                           </span>
                         )}
@@ -419,14 +419,14 @@ export function ProductDetailsSheet({
       </div>
 
       {/* Footer */}
-      <div className="border-t bg-gray-50 p-4 space-y-4">
+      <div className="border-t bg-muted/40 p-4 space-y-4">
         {/* Price Summary */}
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               {quantity} × {formatForDisplay(totalPrice / quantity)}
             </p>
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-lg font-semibold text-foreground">
               Total: {formatForDisplay(totalPrice)}
             </p>
           </div>

@@ -55,25 +55,25 @@ const statusConfig = {
   pending: {
     label: "Pending",
     icon: Clock,
-    color: "text-yellow-700",
-    bgColor: "bg-yellow-100",
-    borderColor: "border-yellow-300",
+    color: "text-warning",
+    bgColor: "bg-warning/15",
+    borderColor: "border-warning/30",
     description: "Item is waiting to be prepared",
   },
   cooking: {
     label: "Cooking",
     icon: ChefHat,
-    color: "text-orange-700",
-    bgColor: "bg-orange-100",
-    borderColor: "border-orange-300",
+    color: "text-warning",
+    bgColor: "bg-warning/15",
+    borderColor: "border-warning/30",
     description: "Item is being prepared in kitchen",
   },
   served: {
     label: "Served",
     icon: CheckCircle,
-    color: "text-green-700",
-    bgColor: "bg-green-100",
-    borderColor: "border-green-300",
+    color: "text-success",
+    bgColor: "bg-success/15",
+    borderColor: "border-success/30",
     description: "Item has been served to customer",
   },
 };
@@ -172,9 +172,9 @@ export const restaurantUpdateStatus = createSheet<
     return (
       <>
         <SheetHeader className="pb-6 border-b">
-          <SheetTitle className="text-2xl font-bold flex items-center gap-3 text-gray-800">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Settings className="h-6 w-6 text-blue-600" />
+          <SheetTitle className="text-2xl font-bold flex items-center gap-3 text-foreground">
+            <div className="p-2 bg-info/15 rounded-lg">
+              <Settings className="h-6 w-6 text-info" />
             </div>
             Update Order Status
           </SheetTitle>
@@ -185,8 +185,8 @@ export const restaurantUpdateStatus = createSheet<
 
         <div className="space-y-6">
           {/* Update Mode Selection */}
-          <Card className="border-2 border-gray-200">
-            <CardHeader className="pb-4 bg-gray-50 rounded-t-lg">
+          <Card className="border-2 border-border">
+            <CardHeader className="pb-4 bg-muted/40 rounded-t-lg">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Zap className="h-5 w-5 text-purple-600" />
                 Choose Update Method
@@ -203,10 +203,10 @@ export const restaurantUpdateStatus = createSheet<
               >
                 <div
                   className={`flex items-start space-x-3 p-4 rounded-lg border-2 transition-all ${
-                    mode === "convert"
-                      ? "border-blue-300 bg-blue-50"
-                      : "border-gray-200 bg-white hover:bg-gray-50"
-                  }`}
+ mode === "convert"
+ ? "border-info/30 bg-info/10"
+ : "border-border bg-card hover:bg-muted/40"
+ }`}
                 >
                   <RadioGroupItem
                     value="convert"
@@ -218,7 +218,7 @@ export const restaurantUpdateStatus = createSheet<
                       htmlFor="convert"
                       className="cursor-pointer flex items-center gap-2 font-semibold"
                     >
-                      <RotateCcw className="h-4 w-4 text-blue-600" />
+                      <RotateCcw className="h-4 w-4 text-info" />
                       Convert Status (Recommended)
                     </Label>
                     <p className="text-sm text-muted-foreground mt-1">
@@ -229,10 +229,10 @@ export const restaurantUpdateStatus = createSheet<
                 </div>
                 <div
                   className={`flex items-start space-x-3 p-4 rounded-lg border-2 transition-all ${
-                    mode === "force"
-                      ? "border-orange-300 bg-orange-50"
-                      : "border-gray-200 bg-white hover:bg-gray-50"
-                  }`}
+ mode === "force"
+ ? "border-warning/30 bg-warning/10"
+ : "border-border bg-card hover:bg-muted/40"
+ }`}
                 >
                   <RadioGroupItem value="force" id="force" className="mt-1" />
                   <div className="flex-1">
@@ -240,7 +240,7 @@ export const restaurantUpdateStatus = createSheet<
                       htmlFor="force"
                       className="cursor-pointer flex items-center gap-2 font-semibold"
                     >
-                      <Zap className="h-4 w-4 text-orange-600" />
+                      <Zap className="h-4 w-4 text-warning" />
                       Force Update (Override)
                     </Label>
                     <p className="text-sm text-muted-foreground mt-1">
@@ -255,13 +255,13 @@ export const restaurantUpdateStatus = createSheet<
 
           {/* Convert Mode Settings */}
           {mode === "convert" && (
-            <Card className="border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-blue-100">
+            <Card className="border-2 border-info/30">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2 text-blue-800">
+                <CardTitle className="text-lg flex items-center gap-2 text-info">
                   <RotateCcw className="h-5 w-5" />
                   Convert Status
                 </CardTitle>
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-info">
                   Move <strong>{convertQuantity}</strong> item
                   {convertQuantity !== 1 ? "s" : ""} from{" "}
                   <strong>
@@ -278,7 +278,7 @@ export const restaurantUpdateStatus = createSheet<
                   <div className="space-y-2">
                     <Label
                       htmlFor="from-status"
-                      className="text-sm font-semibold text-gray-700"
+                      className="text-sm font-semibold text-foreground/80"
                     >
                       From Status
                     </Label>
@@ -288,7 +288,7 @@ export const restaurantUpdateStatus = createSheet<
                         setConvertFromStatus(value as OrderStatus)
                       }
                     >
-                      <SelectTrigger className="border-2 border-gray-300">
+                      <SelectTrigger className="border-2 border-border">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -309,15 +309,15 @@ export const restaurantUpdateStatus = createSheet<
                   </div>
 
                   <div className="flex items-center justify-center">
-                    <div className="p-3 bg-white rounded-full border-2 border-blue-300 shadow-sm">
-                      <ArrowRight className="h-6 w-6 text-blue-600" />
+                    <div className="p-3 bg-card rounded-full border-2 border-info/30 shadow-sm">
+                      <ArrowRight className="h-6 w-6 text-info" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor="to-status"
-                      className="text-sm font-semibold text-gray-700"
+                      className="text-sm font-semibold text-foreground/80"
                     >
                       To Status
                     </Label>
@@ -327,7 +327,7 @@ export const restaurantUpdateStatus = createSheet<
                         setTargetStatus(value as OrderStatus)
                       }
                     >
-                      <SelectTrigger className="border-2 border-gray-300">
+                      <SelectTrigger className="border-2 border-border">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -349,18 +349,18 @@ export const restaurantUpdateStatus = createSheet<
                 </div>
 
                 {!qtyAllowed ? (
-                  <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
-                    <p className="text-sm text-gray-600">
+                  <div className="bg-card p-4 rounded-lg border-2 border-info/20">
+                    <p className="text-sm text-muted-foreground">
                       No items available for conversion.
                     </p>
                   </div>
                 ) : (
-                  <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+                  <div className="bg-card p-4 rounded-lg border-2 border-info/20">
                     {isCookingToServed || isPendingToCooking ? (
                       <>
                         <Label
                           htmlFor="convert-quantity"
-                          className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                          className="text-sm font-semibold text-foreground/80 flex items-center gap-2"
                         >
                           <Users className="h-4 w-4" />
                           Quantity to Convert
@@ -381,12 +381,12 @@ export const restaurantUpdateStatus = createSheet<
                             }}
                             className="w-24 text-center text-lg font-bold border-2"
                           />
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-muted-foreground">
                             out of <strong>{currentStatusQty?.qty}</strong>{" "}
                             available items
                           </span>
                         </div>
-                        <div className="mt-2 flex items-center gap-2 text-xs text-blue-700 bg-blue-100 p-2 rounded">
+                        <div className="mt-2 flex items-center gap-2 text-xs text-info bg-info/15 p-2 rounded">
                           <Info className="h-3 w-3" />
                           <span>
                             This will move {convertQuantity} item
@@ -407,13 +407,13 @@ export const restaurantUpdateStatus = createSheet<
 
           {/* Force Mode Settings */}
           {mode === "force" && (
-            <Card className="border-2 border-orange-300 bg-gradient-to-br from-orange-50 to-orange-100">
+            <Card className="border-2 border-warning/30">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2 text-orange-800">
+                <CardTitle className="text-lg flex items-center gap-2 text-warning">
                   <Zap className="h-5 w-5" />
                   Force Update
                 </CardTitle>
-                <p className="text-sm text-orange-700">
+                <p className="text-sm text-warning">
                   Override the current status and set exactly{" "}
                   <strong>{quantity}</strong> item{quantity !== 1 ? "s" : ""} to{" "}
                   <strong>
@@ -422,10 +422,10 @@ export const restaurantUpdateStatus = createSheet<
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                <div className="bg-card p-4 rounded-lg border-2 border-warning/20">
                   <Label
                     htmlFor="target-status"
-                    className="text-sm font-semibold text-gray-700"
+                    className="text-sm font-semibold text-foreground/80"
                   >
                     Target Status
                   </Label>
@@ -435,7 +435,7 @@ export const restaurantUpdateStatus = createSheet<
                       setTargetStatus(value as OrderStatus)
                     }
                   >
-                    <SelectTrigger className="mt-2 border-2 border-gray-300">
+                    <SelectTrigger className="mt-2 border-2 border-border">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -458,10 +458,10 @@ export const restaurantUpdateStatus = createSheet<
                   </Select>
                 </div>
 
-                <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
+                <div className="bg-card p-4 rounded-lg border-2 border-warning/20">
                   <Label
                     htmlFor="quantity"
-                    className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                    className="text-sm font-semibold text-foreground/80 flex items-center gap-2"
                   >
                     <Users className="h-4 w-4" />
                     Set Exact Quantity
@@ -476,11 +476,11 @@ export const restaurantUpdateStatus = createSheet<
                       onChange={(e) => setQuantity(Number(e.target.value))}
                       className="w-24 text-center text-lg font-bold border-2"
                     />
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-muted-foreground">
                       maximum available: <strong>{currentQuantity}</strong>
                     </span>
                   </div>
-                  <div className="mt-2 flex items-center gap-2 text-xs text-orange-700 bg-orange-100 p-2 rounded">
+                  <div className="mt-2 flex items-center gap-2 text-xs text-warning bg-warning/15 p-2 rounded">
                     <Info className="h-3 w-3" />
                     <span>
                       This will override all current statuses and set exactly{" "}
@@ -500,10 +500,10 @@ export const restaurantUpdateStatus = createSheet<
             <Button
               onClick={handleSubmit}
               className={`flex-1 text-base font-semibold ${
-                mode === "convert"
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-orange-600 hover:bg-orange-700"
-              }`}
+ mode === "convert"
+ ? "bg-info hover:bg-info/90"
+ : "bg-warning hover:bg-warning/90"
+ }`}
               disabled={
                 (mode === "force" &&
                   (quantity < 1 || quantity > currentQuantity)) ||

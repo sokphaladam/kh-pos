@@ -104,12 +104,12 @@ export const customerWalkInCartSheet = createSheet(
         item.status?.find((s) => s.status === statusType)?.qty || 0;
 
       return (
-        <div className="group bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200">
+        <div className="group bg-card border border-border rounded-xl p-4 hover:shadow-md transition-all duration-200">
           {/* Main Item Info */}
           <div className="flex items-start gap-4">
             {/* Product Image */}
             <div className="relative flex-shrink-0">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-xl overflow-hidden border border-gray-100">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-muted/40 rounded-xl overflow-hidden border border-border">
                 {image?.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -125,11 +125,11 @@ export const customerWalkInCartSheet = createSheet(
                   />
                 ) : null}
                 <div
-                  className={`w-full h-full bg-gray-100 flex items-center justify-center ${
-                    image?.url ? "hidden" : ""
-                  }`}
+                  className={`w-full h-full bg-muted flex items-center justify-center ${
+ image?.url ? "hidden" : ""
+ }`}
                 >
-                  <Package className="h-6 w-6 text-gray-400" />
+                  <Package className="h-6 w-6 text-muted-foreground/70" />
                 </div>
               </div>
               {/* Quantity Badge */}
@@ -144,11 +144,11 @@ export const customerWalkInCartSheet = createSheet(
             {/* Product Details */}
             <div className="flex-1 min-w-0 space-y-2">
               <div>
-                <h4 className="font-semibold text-gray-900 text-sm sm:text-base leading-tight line-clamp-2">
+                <h4 className="font-semibold text-foreground text-sm sm:text-base leading-tight line-clamp-2">
                   {title}
                 </h4>
                 {item.variantId && item.productVariant?.name && (
-                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     {item.productVariant.name}
                   </p>
                 )}
@@ -159,10 +159,10 @@ export const customerWalkInCartSheet = createSheet(
                 <Badge
                   variant="secondary"
                   className={`text-xs ${
-                    statusType === "cooking"
-                      ? "bg-orange-500 text-white"
-                      : "bg-green-500 text-white"
-                  }`}
+ statusType === "cooking"
+ ? "bg-warning text-white"
+ : "bg-success text-white"
+ }`}
                 >
                   {statusType === "cooking" ? "Cooking" : "Served"}
                 </Badge>
@@ -173,15 +173,15 @@ export const customerWalkInCartSheet = createSheet(
                 <span className="text-lg font-bold text-primary">
                   {formatForDisplay(Number(item.price))}
                 </span>
-                <span className="text-sm text-gray-500">each</span>
+                <span className="text-sm text-muted-foreground">each</span>
               </div>
 
               {/* Add-ons Section */}
               {(item.orderModifiers?.length || 0) > 0 && (
-                <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                <div className="bg-info/10 rounded-lg p-3 border border-info/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+                    <div className="w-2 h-2 bg-info rounded-full"></div>
+                    <span className="text-xs font-semibold text-info uppercase tracking-wide">
                       Add-ons
                     </span>
                   </div>
@@ -196,10 +196,10 @@ export const customerWalkInCartSheet = createSheet(
                           key={idx}
                           className="flex justify-between items-center text-xs"
                         >
-                          <span className="text-blue-700">
+                          <span className="text-info">
                             + {productModifier?.name || "Add-on"}
                           </span>
-                          <span className="font-semibold text-blue-800">
+                          <span className="font-semibold text-info">
                             +{formatForDisplay(Number(modifier.price || 0))}
                           </span>
                         </div>
@@ -211,12 +211,12 @@ export const customerWalkInCartSheet = createSheet(
 
               {/* Notes Charge */}
               {item.notes && (
-                <div className="bg-amber-50 rounded-lg p-2 border border-amber-100">
+                <div className="bg-warning/10 rounded-lg p-2 border border-warning/20">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-amber-700 font-medium">
+                    <span className="text-warning font-medium">
                       {item.notes.notes}
                     </span>
-                    <span className="font-semibold text-amber-800">
+                    <span className="font-semibold text-warning">
                       +{formatForDisplay(Number(item.notes.price))}
                     </span>
                   </div>
@@ -225,10 +225,10 @@ export const customerWalkInCartSheet = createSheet(
 
               {/* Discounts Section */}
               {(item.discounts?.length || 0) > 0 && (
-                <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                <div className="bg-success/10 rounded-lg p-3 border border-success/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-xs font-semibold text-green-700 uppercase tracking-wide">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-xs font-semibold text-success uppercase tracking-wide">
                       Discounts Applied
                     </span>
                   </div>
@@ -238,8 +238,8 @@ export const customerWalkInCartSheet = createSheet(
                         key={idx}
                         className="flex justify-between items-center text-xs"
                       >
-                        <span className="text-green-700">{discount.name}</span>
-                        <span className="font-semibold text-green-800">
+                        <span className="text-success">{discount.name}</span>
+                        <span className="font-semibold text-success">
                           -{formatForDisplay(discount.amount)}
                         </span>
                       </div>
@@ -254,17 +254,17 @@ export const customerWalkInCartSheet = createSheet(
           <Separator className="my-4" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-muted-foreground">
                 Quantity:
               </span>
-              <span className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-md">
+              <span className="px-4 py-2 text-sm font-semibold text-foreground/80 bg-muted rounded-md">
                 {statusQty}
               </span>
             </div>
 
             <div className="text-right">
-              <div className="text-sm text-gray-500">Subtotal</div>
-              <div className="text-lg font-bold text-gray-900">
+              <div className="text-sm text-muted-foreground">Subtotal</div>
+              <div className="text-lg font-bold text-foreground">
                 {formatForDisplay(
                   (parseFloat(item.totalAmount || "0") * statusQty) /
                     (item.status?.reduce(
@@ -322,13 +322,13 @@ export const customerWalkInCartSheet = createSheet(
       return (
         <div
           key={`${item.variantId}-${activeTab}`}
-          className="group bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200"
+          className="group bg-card border border-border rounded-xl p-4 hover:shadow-md transition-all duration-200"
         >
           {/* Main Item Info */}
           <div className="flex items-start gap-4">
             {/* Product Image */}
             <div className="relative flex-shrink-0">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-xl overflow-hidden border border-gray-100">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-muted/40 rounded-xl overflow-hidden border border-border">
                 {image?.url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -344,11 +344,11 @@ export const customerWalkInCartSheet = createSheet(
                   />
                 ) : null}
                 <div
-                  className={`w-full h-full bg-gray-100 flex items-center justify-center ${
-                    image?.url ? "hidden" : ""
-                  }`}
+                  className={`w-full h-full bg-muted flex items-center justify-center ${
+ image?.url ? "hidden" : ""
+ }`}
                 >
-                  <Package className="h-6 w-6 text-gray-400" />
+                  <Package className="h-6 w-6 text-muted-foreground/70" />
                 </div>
               </div>
               {/* Quantity Badge */}
@@ -363,11 +363,11 @@ export const customerWalkInCartSheet = createSheet(
             {/* Product Details */}
             <div className="flex-1 min-w-0 space-y-2">
               <div>
-                <h4 className="font-semibold text-gray-900 text-sm sm:text-base leading-tight line-clamp-2">
+                <h4 className="font-semibold text-foreground text-sm sm:text-base leading-tight line-clamp-2">
                   {title}
                 </h4>
                 {item.variantId && item.productVariant?.name && (
-                  <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     {item.productVariant.name}
                   </p>
                 )}
@@ -378,12 +378,12 @@ export const customerWalkInCartSheet = createSheet(
                 <Badge
                   variant={activeTab === "pending" ? "default" : "secondary"}
                   className={`text-xs ${
-                    activeTab === "pending"
-                      ? "bg-blue-500 text-white"
-                      : activeTab === "cooking"
-                      ? "bg-orange-500 text-white"
-                      : "bg-green-500 text-white"
-                  }`}
+ activeTab === "pending"
+ ? "bg-info text-white"
+ : activeTab === "cooking"
+ ? "bg-warning text-white"
+ : "bg-success text-white"
+ }`}
                 >
                   {activeTab === "pending"
                     ? "Pending"
@@ -398,15 +398,15 @@ export const customerWalkInCartSheet = createSheet(
                 <span className="text-lg font-bold text-primary">
                   {formatForDisplay(Number(item.price))}
                 </span>
-                <span className="text-sm text-gray-500">each</span>
+                <span className="text-sm text-muted-foreground">each</span>
               </div>
 
               {/* Add-ons Section */}
               {(item.orderModifiers?.length || 0) > 0 && (
-                <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                <div className="bg-info/10 rounded-lg p-3 border border-info/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+                    <div className="w-2 h-2 bg-info rounded-full"></div>
+                    <span className="text-xs font-semibold text-info uppercase tracking-wide">
                       Add-ons
                     </span>
                   </div>
@@ -421,10 +421,10 @@ export const customerWalkInCartSheet = createSheet(
                           key={idx}
                           className="flex justify-between items-center text-xs"
                         >
-                          <span className="text-blue-700">
+                          <span className="text-info">
                             + {productModifier?.name || "Add-on"}
                           </span>
-                          <span className="font-semibold text-blue-800">
+                          <span className="font-semibold text-info">
                             +{formatForDisplay(Number(modifier.price || 0))}
                           </span>
                         </div>
@@ -436,12 +436,12 @@ export const customerWalkInCartSheet = createSheet(
 
               {/* Notes Charge */}
               {item.notes && (
-                <div className="bg-amber-50 rounded-lg p-2 border border-amber-100">
+                <div className="bg-warning/10 rounded-lg p-2 border border-warning/20">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-amber-700 font-medium">
+                    <span className="text-warning font-medium">
                       {item.notes.notes}
                     </span>
-                    <span className="font-semibold text-amber-800">
+                    <span className="font-semibold text-warning">
                       +{formatForDisplay(Number(item.notes.price))}
                     </span>
                   </div>
@@ -450,10 +450,10 @@ export const customerWalkInCartSheet = createSheet(
 
               {/* Discounts Section */}
               {(item.discounts?.length || 0) > 0 && (
-                <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                <div className="bg-success/10 rounded-lg p-3 border border-success/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-xs font-semibold text-green-700 uppercase tracking-wide">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-xs font-semibold text-success uppercase tracking-wide">
                       Discounts Applied
                     </span>
                   </div>
@@ -463,8 +463,8 @@ export const customerWalkInCartSheet = createSheet(
                         key={idx}
                         className="flex justify-between items-center text-xs"
                       >
-                        <span className="text-green-700">{discount.name}</span>
-                        <span className="font-semibold text-green-800">
+                        <span className="text-success">{discount.name}</span>
+                        <span className="font-semibold text-success">
                           -{formatForDisplay(discount.amount)}
                         </span>
                       </div>
@@ -496,7 +496,7 @@ export const customerWalkInCartSheet = createSheet(
                     }
                   }}
                   disabled={loading}
-                  className="h-8 w-8 p-0 text-red-700 hover:bg-red-50"
+                  className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -509,10 +509,10 @@ export const customerWalkInCartSheet = createSheet(
           <div className="flex items-center justify-between">
             {/* Quantity Controls */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-muted-foreground">
                 Quantity:
               </span>
-              <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
+              <div className="flex items-center gap-2 bg-muted/40 rounded-lg p-1">
                 {!isReadOnly ? (
                   <CartItemQty
                     qty={qtyForActiveTab}
@@ -527,7 +527,7 @@ export const customerWalkInCartSheet = createSheet(
                     }}
                   />
                 ) : (
-                  <span className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-md">
+                  <span className="px-4 py-2 text-sm font-semibold text-foreground/80 bg-muted rounded-md">
                     {qtyForActiveTab}
                   </span>
                 )}
@@ -536,8 +536,8 @@ export const customerWalkInCartSheet = createSheet(
 
             {/* Item Total */}
             <div className="text-right">
-              <div className="text-sm text-gray-500">Subtotal</div>
-              <div className="text-lg font-bold text-gray-900">
+              <div className="text-sm text-muted-foreground">Subtotal</div>
+              <div className="text-lg font-bold text-foreground">
                 {formatForDisplay(
                   (parseFloat(item.totalAmount || "0") * qtyForActiveTab) /
                     (item.status?.reduce(
@@ -554,8 +554,8 @@ export const customerWalkInCartSheet = createSheet(
 
     return (
       <>
-        <SheetHeader className="p-4 sm:p-6 pt-9 border-b bg-gradient-to-r from-primary/5 to-transparent -m-6">
-          <SheetTitle className="flex items-center gap-2 text-gray-900">
+        <SheetHeader className="p-4 sm:p-6 pt-9 border-b from-primary/5 -m-6">
+          <SheetTitle className="flex items-center gap-2 text-foreground">
             <div className="p-1.5 bg-primary/10 rounded-lg">
               <ShoppingCart className="h-5 w-5 text-primary" />
             </div>
@@ -566,7 +566,7 @@ export const customerWalkInCartSheet = createSheet(
               {totalItems} {totalItems === 1 ? "item" : "items"}
             </Badge>
           </SheetTitle>
-          <SheetDescription className="text-sm text-gray-600 mt-2 -ml-4">
+          <SheetDescription className="text-sm text-muted-foreground mt-2 -ml-4">
             Review your items before placing the order
           </SheetDescription>
         </SheetHeader>
@@ -574,17 +574,17 @@ export const customerWalkInCartSheet = createSheet(
           {(state.orders?.items.length || 0) <= 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="relative mb-6">
-                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
-                  <ShoppingCart className="h-10 w-10 text-gray-400" />
+                <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
+                  <ShoppingCart className="h-10 w-10 text-muted-foreground/70" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                   <Package className="h-4 w-4 text-primary" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+              <h3 className="text-xl font-semibold text-foreground mb-3">
                 Your cart is empty
               </h3>
-              <p className="text-gray-500 max-w-sm">
+              <p className="text-muted-foreground max-w-sm">
                 Browse our delicious menu and add some items to get started with
                 your order
               </p>
@@ -626,8 +626,8 @@ export const customerWalkInCartSheet = createSheet(
                 <TabsContent value="pending" className="space-y-4">
                   {pendingItems.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <Package className="h-12 w-12 text-gray-300 mb-3" />
-                      <p className="text-gray-500">No pending items</p>
+                      <Package className="h-12 w-12 text-muted-foreground/70 mb-3" />
+                      <p className="text-muted-foreground">No pending items</p>
                     </div>
                   ) : (
                     pendingItems
@@ -684,8 +684,8 @@ export const customerWalkInCartSheet = createSheet(
 
                     return itemsWithOtherStatuses.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-8 text-center">
-                        <Package className="h-12 w-12 text-gray-300 mb-3" />
-                        <p className="text-gray-500">
+                        <Package className="h-12 w-12 text-muted-foreground/70 mb-3" />
+                        <p className="text-muted-foreground">
                           No items in progress or served
                         </p>
                       </div>
@@ -709,12 +709,12 @@ export const customerWalkInCartSheet = createSheet(
         </ScrollArea>
         {/* Enhanced Order Total Footer */}
         {(state.orders?.items.length || 0) > 0 && (
-          <div className="border-t bg-white -m-6 p-2 shadow-lg mt-auto">
+          <div className="border-t bg-card -m-6 p-2 shadow-lg mt-auto">
             <div className="space-y-4">
               {/* Order Summary Header */}
               <div className="flex items-center gap-2 pb-2">
-                <Receipt className="h-5 w-5 text-gray-600" />
-                <h3 className="text-lg font-semibold text-gray-900">
+                <Receipt className="h-5 w-5 text-muted-foreground" />
+                <h3 className="text-lg font-semibold text-foreground">
                   Order Summary
                 </h3>
               </div>
@@ -755,10 +755,10 @@ export const customerWalkInCartSheet = createSheet(
                     }, 0) || 0;
 
                   return (
-                    <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                      <div className="flex justify-between items-center text-gray-700">
+                    <div className="bg-muted/40 rounded-xl p-4 space-y-3">
+                      <div className="flex justify-between items-center text-foreground/80">
                         <span className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
                           Subtotal ({totalItems}{" "}
                           {totalItems === 1 ? "item" : "items"})
                         </span>
@@ -768,9 +768,9 @@ export const customerWalkInCartSheet = createSheet(
                       </div>
 
                       {totalModifiers > 0 && (
-                        <div className="flex justify-between items-center text-blue-700">
+                        <div className="flex justify-between items-center text-info">
                           <span className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div className="w-2 h-2 bg-info rounded-full"></div>
                             Add-ons & Special Notes
                           </span>
                           <span className="font-semibold">
@@ -780,9 +780,9 @@ export const customerWalkInCartSheet = createSheet(
                       )}
 
                       {totalDiscounts > 0 && (
-                        <div className="flex justify-between items-center text-green-700">
+                        <div className="flex justify-between items-center text-success">
                           <span className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <div className="w-2 h-2 bg-success rounded-full"></div>
                             Discounts Applied
                           </span>
                           <span className="font-semibold">
@@ -795,7 +795,7 @@ export const customerWalkInCartSheet = createSheet(
 
                       {/* Final Total */}
                       <div className="flex justify-between items-center pt-2">
-                        <span className="text-xl font-bold text-gray-900">
+                        <span className="text-xl font-bold text-foreground">
                           Total Amount
                         </span>
                         <span className="text-2xl font-bold text-primary">

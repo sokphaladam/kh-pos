@@ -98,8 +98,8 @@ export function OrderDetailItem({ order, returns, setReturns, id }: Props) {
               {order.title}
               {order.orderModifiers && order.orderModifiers.length > 0 && (
                 <div className="flex items-center gap-1">
-                  <Plus className="h-3 w-3 text-emerald-500" />
-                  <span className="text-xs text-emerald-600 font-normal">
+                  <Plus className="h-3 w-3 text-success" />
+                  <span className="text-xs text-success font-normal">
                     {order.orderModifiers.length} add-on
                     {order.orderModifiers.length !== 1 ? "s" : ""}
                   </span>

@@ -264,7 +264,7 @@ export function OrderTable({
                         <TooltipProvider>
                           <Tooltip delayDuration={300}>
                             <TooltipTrigger asChild>
-                              <span className="inline-flex cursor-default items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                              <span className="inline-flex cursor-default items-center gap-1.5 rounded-full bg-info/15 px-2.5 py-1 text-xs font-medium text-info">
                                 <UserCircle className="h-3.5 w-3.5" />
                                 {order.customerLoader?.customerName ||
                                   "Customer"}
@@ -276,7 +276,7 @@ export function OrderTable({
                             >
                               <div className="flex flex-col min-w-[180px]">
                                 <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-                                  <UserCircle className="h-4 w-4 text-blue-500" />
+                                  <UserCircle className="h-4 w-4 text-info" />
                                   <span className="text-sm font-semibold">
                                     Customer Order
                                   </span>
@@ -378,7 +378,7 @@ export function OrderTable({
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="inline-flex cursor-default items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                            <span className="inline-flex cursor-default items-center gap-1 rounded-full bg-info/15 px-2 py-0.5 text-xs font-medium text-info">
                               <UserCircle className="h-3 w-3" />
                               {order.customerLoader?.customerName || "Customer"}
                             </span>
@@ -389,7 +389,7 @@ export function OrderTable({
                           >
                             <div className="flex flex-col min-w-[180px]">
                               <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-                                <UserCircle className="h-4 w-4 text-blue-500" />
+                                <UserCircle className="h-4 w-4 text-info" />
                                 <span className="text-sm font-semibold">
                                   Customer Order
                                 </span>

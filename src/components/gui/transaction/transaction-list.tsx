@@ -91,22 +91,22 @@ export function TransactionList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-nowrap text-xs font-semibold text-gray-600 dark:text-gray-300">
+                <TableHead className="text-nowrap text-xs font-semibold text-muted-foreground">
                   Product
                 </TableHead>
-                <TableHead className="text-nowrap text-xs font-semibold text-gray-600 dark:text-gray-300">
+                <TableHead className="text-nowrap text-xs font-semibold text-muted-foreground">
                   Transaction
                 </TableHead>
-                <TableHead className="text-nowrap text-xs font-semibold text-gray-600 dark:text-gray-300">
+                <TableHead className="text-nowrap text-xs font-semibold text-muted-foreground">
                   Slot
                 </TableHead>
-                <TableHead className="text-nowrap text-xs font-semibold text-gray-600 dark:text-gray-300">
+                <TableHead className="text-nowrap text-xs font-semibold text-muted-foreground">
                   Date
                 </TableHead>
-                <TableHead className="text-nowrap text-xs font-semibold text-gray-600 dark:text-gray-300">
+                <TableHead className="text-nowrap text-xs font-semibold text-muted-foreground">
                   Quantity
                 </TableHead>
-                <TableHead className="text-nowrap text-xs font-semibold text-gray-600 dark:text-gray-300">
+                <TableHead className="text-nowrap text-xs font-semibold text-muted-foreground">
                   Amount
                 </TableHead>
               </TableRow>
@@ -125,7 +125,7 @@ export function TransactionList() {
                           alt={
                             transaction.variant.basicProduct.title || "Product"
                           }
-                          className="w-8 h-8 rounded border object-cover bg-white mr-2"
+                          className="w-8 h-8 rounded border object-cover bg-card mr-2"
                           height={32}
                           width={32}
                           title={
@@ -145,7 +145,7 @@ export function TransactionList() {
                         {transaction.variant?.basicProduct?.title}
                       </span>
                     </TableCell>
-                    <TableCell className="text-gray-700 dark:text-gray-200 font-semibold text-nowrap">
+                    <TableCell className="text-foreground/80 font-semibold text-nowrap">
                       {transactionStatus}
                     </TableCell>
                     <TableCell
@@ -155,27 +155,27 @@ export function TransactionList() {
                         (transaction.slot?.posSlot ? " (POS)" : "")
                       }
                     >
-                      <span className="font-semibold text-gray-700 dark:text-gray-200">
+                      <span className="font-semibold text-foreground/80">
                         {transaction.slot?.name}{" "}
                         {transaction.slot?.posSlot ? "(POS)" : ""}
                       </span>
                       <br />
                       <small
-                        className="text-gray-400"
+                        className="text-muted-foreground/70"
                         title={transaction.slot?.warehouse.name}
                       >
                         {transaction.slot?.warehouse.name}
                       </small>
                     </TableCell>
-                    <TableCell className="text-nowrap text-gray-500 dark:text-gray-400">
+                    <TableCell className="text-nowrap text-muted-foreground">
                       {moment(transaction.createdAt).format("MMM DD, YYYY")}
                     </TableCell>
-                    <TableCell className="font-semibold text-blue-700 dark:text-blue-300 text-center">
+                    <TableCell className="font-semibold text-info text-center">
                       {transaction.transactionType === "SALE"
                         ? Math.abs(transaction.qty)
                         : transaction.qty}
                     </TableCell>
-                    <TableCell className="font-semibold text-green-700 dark:text-green-300 text-center">
+                    <TableCell className="font-semibold text-success text-center">
                       {transaction.transactionType === "SALE"
                         ? `$${Math.abs(
                             Number(transaction.productLot?.costPerUnit) *

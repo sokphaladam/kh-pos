@@ -35,11 +35,11 @@ interface Props {
 }
 
 const statusOptions = [
-  { value: "confirmed", label: "Confirmed", color: "bg-green-500" },
-  { value: "pending", label: "Pending", color: "bg-yellow-500" },
-  { value: "cancelled", label: "Cancelled", color: "bg-red-500" },
-  { value: "checked_in", label: "Checked In", color: "bg-blue-500" },
-  { value: "no_show", label: "No Show", color: "bg-gray-500" },
+  { value: "confirmed", label: "Confirmed", color: "bg-success" },
+  { value: "pending", label: "Pending", color: "bg-warning" },
+  { value: "cancelled", label: "Cancelled", color: "bg-destructive" },
+  { value: "checked_in", label: "Checked In", color: "bg-info" },
+  { value: "no_show", label: "No Show", color: "bg-muted-foreground" },
 ];
 
 export function TicketReservationFilter({
@@ -118,7 +118,7 @@ export function TicketReservationFilter({
               variant="ghost"
               size="sm"
               onClick={handleReset}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-muted-foreground hover:text-foreground"
             >
               <RotateCcw className="h-4 w-4 mr-1" />
               Reset
@@ -135,7 +135,7 @@ export function TicketReservationFilter({
               Search
             </Label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/70 h-4 w-4" />
               <Input
                 id="search"
                 placeholder="Search by customer phone"
@@ -212,7 +212,7 @@ export function TicketReservationFilter({
                     {statusOptions.map((status) => (
                       <div
                         key={status.value}
-                        className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer"
+                        className="flex items-center space-x-3 p-2 hover:bg-muted/40 rounded-md cursor-pointer"
                         onClick={() => handleStatusToggle(status.value)}
                       >
                         <Checkbox
@@ -231,7 +231,7 @@ export function TicketReservationFilter({
 
                   {selectedStatuses.length > 0 && (
                     <div className="mt-3 pt-3 border-t">
-                      <div className="text-xs text-gray-500 mb-2">
+                      <div className="text-xs text-muted-foreground mb-2">
                         Selected:
                       </div>
                       <div className="flex flex-wrap gap-1">
@@ -251,7 +251,7 @@ export function TicketReservationFilter({
                                   e.stopPropagation();
                                   handleStatusToggle(statusValue);
                                 }}
-                                className="ml-1 hover:bg-gray-300 rounded-sm"
+                                className="ml-1 hover:bg-border rounded-sm"
                               >
                                 <X className="h-3 w-3" />
                               </button>
@@ -271,14 +271,14 @@ export function TicketReservationFilter({
         {activeFiltersCount > 0 && (
           <div className="pt-4 border-t">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-gray-600 font-medium">
+              <span className="text-sm text-muted-foreground font-medium">
                 Active Filters:
               </span>
 
               {filters.search && (
                 <Badge
                   variant="outline"
-                  className="text-blue-700 border-blue-300"
+                  className="text-info border-info/30"
                 >
                   Search: &quot;{filters.search}&quot;
                   <button
@@ -286,7 +286,7 @@ export function TicketReservationFilter({
                       setSearchValue("");
                       onFiltersChange({ search: undefined });
                     }}
-                    className="ml-1 hover:bg-gray-300 rounded-sm"
+                    className="ml-1 hover:bg-border rounded-sm"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -296,7 +296,7 @@ export function TicketReservationFilter({
               {filters.date && (
                 <Badge
                   variant="outline"
-                  className="text-blue-700 border-blue-300"
+                  className="text-info border-info/30"
                 >
                   Date: {format(new Date(filters.date), "MMM dd, yyyy")}
                   <button
@@ -304,7 +304,7 @@ export function TicketReservationFilter({
                       setSelectedDate(undefined);
                       onFiltersChange({ date: undefined });
                     }}
-                    className="ml-1 hover:bg-gray-300 rounded-sm"
+                    className="ml-1 hover:bg-border rounded-sm"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -314,12 +314,12 @@ export function TicketReservationFilter({
               {selectedStatuses.length > 0 && (
                 <Badge
                   variant="outline"
-                  className="text-blue-700 border-blue-300"
+                  className="text-info border-info/30"
                 >
                   Status: {selectedStatuses.length} selected
                   <button
                     onClick={handleStatusClearAll}
-                    className="ml-1 hover:bg-gray-300 rounded-sm"
+                    className="ml-1 hover:bg-border rounded-sm"
                   >
                     <X className="h-3 w-3" />
                   </button>

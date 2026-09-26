@@ -66,14 +66,14 @@ function getStatusConfig(status: string) {
       return {
         variant: "default" as const,
         className:
-          "bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500",
+          "bg-success hover:bg-success/90 text-white border-success",
         icon: "🟢",
       };
     case "maintenance":
       return {
         variant: "destructive" as const,
         className:
-          "bg-amber-500 hover:bg-amber-600 text-white border-amber-500",
+          "bg-warning hover:bg-warning/90 text-white border-warning",
         icon: "🔧",
       };
     case "inactive":
@@ -226,7 +226,7 @@ export function HallList({ halls, isLoading, mutate }: Props) {
                             className={cn(
                               "h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold",
                               statusConfig.className.includes("emerald")
-                                ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                ? "bg-success/15 text-success border border-success/20"
                                 : "bg-muted text-muted-foreground border",
                             )}
                           >
@@ -269,7 +269,7 @@ export function HallList({ halls, isLoading, mutate }: Props) {
                           <div className="font-medium text-sm">
                             {blocks > 0 ? (
                               <div className="flex flex-row gap-1 items-center">
-                                <div className="line-through text-red-500">
+                                <div className="line-through text-destructive">
                                   {hall.totalSeats || 0}
                                 </div>
                                 <div>{hall.totalSeats - blocks}</div>

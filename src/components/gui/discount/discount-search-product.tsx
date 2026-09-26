@@ -109,16 +109,16 @@ export function DiscountSearchProduct(props: Props) {
               e.stopPropagation(); // Prevent closing the dropdown
               loadMoreResults();
             }}
-            className="text-center py-3 border-t border-gray-100 bg-gray-50 cursor-pointer"
+            className="text-center py-3 border-t border-border bg-muted/40 cursor-pointer"
           >
             <button
               type="button"
               disabled={loading}
               className={`w-[90%] py-2 text-sm rounded-md border ${
-                loading
-                  ? "bg-gray-100 text-gray-400 border-gray-200"
-                  : "bg-white text-blue-700 border-blue-200 hover:bg-blue-50"
-              } transition-colors duration-150`}
+ loading
+ ? "bg-muted text-muted-foreground/70 border-border"
+ : "bg-card text-info border-info/20 hover:bg-info/10"
+ } transition-colors duration-150`}
             >
               {loading && page > 0
                 ? "Loading more items..."
@@ -130,7 +130,7 @@ export function DiscountSearchProduct(props: Props) {
 
       const renderNoMoreItems = () => {
         return (
-          <div className="text-center text-gray-500 text-sm py-4 border-t border-gray-100 bg-gray-50 font-medium">
+          <div className="text-center text-muted-foreground text-sm py-4 border-t border-border bg-muted/40 font-medium">
             No more items to load
           </div>
         );
@@ -166,7 +166,7 @@ export function DiscountSearchProduct(props: Props) {
             hover:bg-blue-50 transition-colors duration-150 cursor-pointer"
         >
           {image ? (
-            <div className="w-14 h-14 flex items-center justify-center overflow-hidden rounded-md border border-gray-200 bg-white shadow-sm">
+            <div className="w-14 h-14 flex items-center justify-center overflow-hidden rounded-md border border-border bg-card shadow-sm">
               <ImageWithFallback
                 src={image.url}
                 alt={item.title || ""}
@@ -175,7 +175,7 @@ export function DiscountSearchProduct(props: Props) {
               />
             </div>
           ) : (
-            <div className="w-14 h-14 bg-gray-50 rounded-md flex items-center justify-center text-gray-400 border border-gray-200">
+            <div className="w-14 h-14 bg-muted/40 rounded-md flex items-center justify-center text-muted-foreground/70 border border-border">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-6 h-6"
@@ -193,15 +193,15 @@ export function DiscountSearchProduct(props: Props) {
             </div>
           )}
           <div className="text-sm flex-1 min-w-0 flex flex-col">
-            <span className="truncate font-medium text-gray-800">
+            <span className="truncate font-medium text-foreground">
               {item.title || ""}
             </span>
             <div className="flex flex-row gap-2 items-center mt-0.5">
-              <span className="text-xs text-gray-500 truncate">
+              <span className="text-xs text-muted-foreground truncate">
                 SKU: {item.productVariants.length}
               </span>
-              <div className="h-3 w-px bg-gray-300"></div>
-              <span className="text-xs font-semibold text-emerald-700">
+              <div className="h-3 w-px bg-border"></div>
+              <span className="text-xs font-semibold text-success">
                 {priceRange}
               </span>
             </div>
@@ -209,12 +209,12 @@ export function DiscountSearchProduct(props: Props) {
           <Badge
             variant={stock > 0 ? "secondary" : "outline"}
             className={`text-xs rounded-full h-[22px] min-w-[70px] px-3 font-medium whitespace-nowrap flex items-center justify-center ${
-              stock <= 0
-                ? "bg-red-50 text-red-600 border-red-200"
-                : stock < 5
-                ? "bg-amber-50 text-amber-700 border-amber-200"
-                : "bg-emerald-50 text-emerald-700 border-emerald-200"
-            }`}
+ stock <= 0
+ ? "bg-destructive/10 text-destructive border-destructive/20"
+ : stock < 5
+ ? "bg-warning/10 text-warning border-warning/20"
+ : "bg-success/10 text-success border-success/20"
+ }`}
           >
             {stock > 0 ? `${stock} in stock` : "Out of stock"}
           </Badge>

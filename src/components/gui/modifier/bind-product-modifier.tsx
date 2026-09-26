@@ -105,7 +105,7 @@ export const bindProductModifier = createSheet<{ id: string }>(({ id }) => {
             hover:bg-blue-50 transition-colors duration-150 cursor-pointer"
                 >
                   {image ? (
-                    <div className="w-14 h-14 flex items-center justify-center overflow-hidden rounded-md border border-gray-200 bg-white shadow-sm">
+                    <div className="w-14 h-14 flex items-center justify-center overflow-hidden rounded-md border border-border bg-card shadow-sm">
                       <ImageWithFallback
                         src={image.url}
                         alt={item.title || ""}
@@ -114,7 +114,7 @@ export const bindProductModifier = createSheet<{ id: string }>(({ id }) => {
                       />
                     </div>
                   ) : (
-                    <div className="w-14 h-14 bg-gray-50 rounded-md flex items-center justify-center text-gray-400 border border-gray-200">
+                    <div className="w-14 h-14 bg-muted/40 rounded-md flex items-center justify-center text-muted-foreground/70 border border-border">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="w-6 h-6"
@@ -132,15 +132,15 @@ export const bindProductModifier = createSheet<{ id: string }>(({ id }) => {
                     </div>
                   )}
                   <div className="text-sm flex-1 min-w-0 flex flex-col">
-                    <span className="truncate font-medium text-gray-800">
+                    <span className="truncate font-medium text-foreground">
                       {item.title || ""}
                     </span>
                     <div className="flex flex-row gap-2 items-center mt-0.5">
-                      <span className="text-xs text-gray-500 truncate">
+                      <span className="text-xs text-muted-foreground truncate">
                         SKU: {item.productVariants.length}
                       </span>
-                      <div className="h-3 w-px bg-gray-300"></div>
-                      <span className="text-xs font-semibold text-emerald-700">
+                      <div className="h-3 w-px bg-border"></div>
+                      <span className="text-xs font-semibold text-success">
                         {priceRange}
                       </span>
                     </div>
@@ -149,12 +149,12 @@ export const bindProductModifier = createSheet<{ id: string }>(({ id }) => {
                     <Badge
                       variant={stock > 0 ? "secondary" : "outline"}
                       className={`text-xs rounded-full h-[22px] min-w-[70px] px-3 font-medium whitespace-nowrap flex items-center justify-center ${
-                        stock <= 0
-                          ? "bg-red-50 text-red-600 border-red-200"
-                          : stock < 5
-                          ? "bg-amber-50 text-amber-700 border-amber-200"
-                          : "bg-emerald-50 text-emerald-700 border-emerald-200"
-                      }`}
+ stock <= 0
+ ? "bg-destructive/10 text-destructive border-destructive/20"
+ : stock < 5
+ ? "bg-warning/10 text-warning border-warning/20"
+ : "bg-success/10 text-success border-success/20"
+ }`}
                     >
                       {stock > 0 ? `${stock} in stock` : "Out of stock"}
                     </Badge>

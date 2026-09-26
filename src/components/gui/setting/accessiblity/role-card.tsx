@@ -26,16 +26,16 @@ export const RolePermissionToggle: React.FC<RolePermissionToggleProps> = ({
   isEnabled,
   onChange,
 }) => (
-  <div className="flex items-center justify-between py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors">
+  <div className="flex items-center justify-between py-3 px-4 hover:bg-muted/40 rounded-lg transition-colors">
     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-        <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+        <div className="w-3 h-3 rounded-full bg-muted-foreground"></div>
       </div>
       <div>
-        <div className="text-sm font-medium text-gray-900 capitalize">
+        <div className="text-sm font-medium text-foreground capitalize">
           Allow {action.replace("-", " ")}
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-muted-foreground">
           Allow {action.replace("-", " ")} operations
         </div>
       </div>
@@ -78,14 +78,14 @@ export const RolePermissionSection: React.FC<RolePermissionSectionProps> = ({
   <div className="mb-8">
     <div className="flex items-center justify-between mb-4 px-4">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-info/10 flex items-center justify-center">
           {getResourceIcon(resource)}
         </div>
         <div>
-          <h3 className="font-semibold text-gray-900 capitalize text-lg">
+          <h3 className="font-semibold text-foreground capitalize text-lg">
             {resource.replace(/-/g, " ")}
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             {getResourceDescription(resource)}
           </p>
         </div>
@@ -95,13 +95,13 @@ export const RolePermissionSection: React.FC<RolePermissionSectionProps> = ({
         size="sm"
         variant="ghost"
         onClick={() => onRemoveResource(resource)}
-        className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg p-2"
+        className="text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg p-2"
         title={`Remove ${resource.replace(/-/g, " ")} permissions`}
       >
         <X className="h-4 w-4" />
       </Button>
     </div>
-    <div className="bg-white rounded-xl border border-gray-200">
+    <div className="bg-card rounded-xl border border-border">
       {actions.map((action, index) => (
         <div key={action}>
           <RolePermissionToggle
@@ -112,7 +112,7 @@ export const RolePermissionSection: React.FC<RolePermissionSectionProps> = ({
             onChange={onPermissionChange}
           />
           {index < actions.length - 1 && (
-            <div className="mx-4 border-b border-gray-100"></div>
+            <div className="mx-4 border-b border-border"></div>
           )}
         </div>
       ))}
@@ -151,7 +151,7 @@ export const AddPermissionForm: React.FC<AddPermissionFormProps> = ({
 
   return (
     <div className="mb-8">
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-card rounded-xl border border-border p-4">
         <ResourceSelector
           selectedResource={selectedResource}
           onResourceChange={setSelectedResource}
@@ -181,18 +181,17 @@ export const RoleActions: React.FC<RoleActionsProps> = ({
   if (!hasChanges) return null;
 
   return (
-    <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 rounded-b-xl">
+    <div className="sticky bottom-0 bg-card border-t border-border p-4 rounded-b-xl">
       <div className="flex justify-end gap-3">
         <Button
           variant="outline"
           onClick={() => onCancel(roleId)}
-          className="border-gray-300 text-gray-700 hover:bg-gray-50"
+          className="border-border text-foreground/80 hover:bg-muted/40"
         >
           Cancel
         </Button>
         <Button
           onClick={() => onSave(roleId)}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
         >
           <Save className="h-4 w-4 mr-2" />
           Save Changes
@@ -237,18 +236,18 @@ export const RoleCard: React.FC<RoleCardProps> = ({
   getResourceIcon,
   getResourceDescription,
 }) => (
-  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+  <div className="bg-card rounded-2xl border border-border overflow-hidden">
     {/* Header */}
-    <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+    <div className="px-6 py-4 border-b border-border bg-muted/40">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-            <Shield className="h-6 w-6 text-blue-600" />
+          <div className="w-12 h-12 rounded-xl bg-info/15 flex items-center justify-center">
+            <Shield className="h-6 w-6 text-info" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">{role.role}</h2>
+            <h2 className="text-xl font-semibold text-foreground">{role.role}</h2>
             {hasChanges && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-info/15 text-info mt-1">
                 Modified
               </span>
             )}
@@ -258,12 +257,12 @@ export const RoleCard: React.FC<RoleCardProps> = ({
           variant="ghost"
           size="sm"
           onClick={onToggleCollapse}
-          className="p-3 hover:bg-white rounded-xl"
+          className="p-3 hover:bg-card rounded-xl"
         >
           {isCollapsed ? (
-            <ChevronDown className="h-5 w-5 text-gray-600" />
+            <ChevronDown className="h-5 w-5 text-muted-foreground" />
           ) : (
-            <ChevronUp className="h-5 w-5 text-gray-600" />
+            <ChevronUp className="h-5 w-5 text-muted-foreground" />
           )}
         </Button>
       </div>
@@ -291,13 +290,13 @@ export const RoleCard: React.FC<RoleCardProps> = ({
             ))
         ) : (
           <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <Shield className="h-8 w-8 text-gray-400" />
+            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+              <Shield className="h-8 w-8 text-muted-foreground/70" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-foreground mb-2">
               No permissions assigned
             </h3>
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               Add permissions below to get started
             </p>
           </div>

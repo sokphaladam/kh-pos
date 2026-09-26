@@ -129,14 +129,14 @@ export const createDialogProductVariant = createDialog<
                 <div
                   key={idx}
                   className={`p-3 border rounded space-y-2 ${
-                    hasNameError || hasDuplicateName || hasValueError
-                      ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
-                      : "bg-gray-50/30 dark:bg-gray-900/30"
-                  }`}
+ hasNameError || hasDuplicateName || hasValueError
+ ? "bg-destructive/50 border-destructive/20 "
+ : "bg-muted/30 "
+ }`}
                 >
                   {/* Option Header with Actions */}
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <h4 className="text-sm font-medium text-foreground/80">
                       Option #{idx + 1}
                     </h4>
                     <BasicMenuAction
@@ -170,19 +170,19 @@ export const createDialogProductVariant = createDialog<
                         );
                       }}
                       className={`h-8 text-sm ${
-                        hasNameError || hasDuplicateName
-                          ? "border-red-300 focus:border-red-500"
-                          : ""
-                      }`}
+ hasNameError || hasDuplicateName
+ ? "border-destructive/30 focus:border-destructive"
+ : ""
+ }`}
                       placeholder="e.g., Size, Color, Material"
                     />
                     {hasNameError && (
-                      <p className="text-xs text-red-600 flex items-center gap-1 mt-1">
+                      <p className="text-xs text-destructive flex items-center gap-1 mt-1">
                         <span>⚠️</span> Option name is required
                       </p>
                     )}
                     {hasDuplicateName && !hasNameError && (
-                      <p className="text-xs text-red-600 flex items-center gap-1 mt-1">
+                      <p className="text-xs text-destructive flex items-center gap-1 mt-1">
                         <span>⚠️</span> Option name &quot;{option.name}&quot;
                         already exists
                       </p>
@@ -191,7 +191,7 @@ export const createDialogProductVariant = createDialog<
 
                   {/* Option Values */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-xs font-medium text-foreground/80 mb-1">
                       Values
                     </label>
                     <TagsInput
@@ -243,12 +243,12 @@ export const createDialogProductVariant = createDialog<
                       }}
                     />
                     {hasValueError && (
-                      <p className="text-xs text-red-600 flex items-center gap-1 mt-1">
+                      <p className="text-xs text-destructive flex items-center gap-1 mt-1">
                         <span>⚠️</span> Add at least one value
                       </p>
                     )}
                     {!hasValueError && option.values.length > 0 && (
-                      <p className="text-xs text-green-600 flex items-center gap-1 mt-1">
+                      <p className="text-xs text-success flex items-center gap-1 mt-1">
                         <span>✅</span> {option.values.length} value
                         {option.values.length !== 1 ? "s" : ""} added
                       </p>

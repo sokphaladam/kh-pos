@@ -66,13 +66,13 @@ function ProductHoverCard({ item }: { item: PurchaseOrderItem }) {
                 <span
                   className={cn(
                     "font-medium text-sm line-clamp-1",
-                    isFullyReceived ? "text-gray-500" : "text-gray-900",
+                    isFullyReceived ? "text-muted-foreground" : "text-foreground",
                   )}
                 >
                   {item.name}
                 </span>
               </div>
-              <div className="text-xs text-gray-500">{item.sku}</div>
+              <div className="text-xs text-muted-foreground">{item.sku}</div>
             </div>
           </div>
         </TooltipTrigger>
@@ -92,28 +92,28 @@ function ProductHoverCard({ item }: { item: PurchaseOrderItem }) {
                 <h4 className="font-semibold text-sm line-clamp-2 mb-1">
                   {item.name}
                 </h4>
-                <p className="text-xs text-gray-500 mb-2">SKU: {item.sku}</p>
+                <p className="text-xs text-muted-foreground mb-2">SKU: {item.sku}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <span className="text-gray-500">Ordered:</span>
+                <span className="text-muted-foreground">Ordered:</span>
                 <span className="ml-1 font-medium">{item.qty || 0}</span>
               </div>
               <div>
-                <span className="text-gray-500">Received:</span>
+                <span className="text-muted-foreground">Received:</span>
                 <span className="ml-1 font-medium">
                   {item.receivedQty || 0}
                 </span>
               </div>
               <div>
-                <span className="text-gray-500">Unit Cost:</span>
+                <span className="text-muted-foreground">Unit Cost:</span>
                 <span className="ml-1 font-medium">
                   {formatForDisplay(item.purchaseCost ?? 0)}
                 </span>
               </div>
               <div>
-                <span className="text-gray-500">Remaining:</span>
+                <span className="text-muted-foreground">Remaining:</span>
                 <span className="ml-1 font-medium">{maxQty}</span>
               </div>
             </div>
@@ -149,13 +149,13 @@ function MobileProductCard({ item }: { item: PurchaseOrderItem }) {
                 <span
                   className={cn(
                     "font-medium text-sm line-clamp-2",
-                    isFullyReceived ? "text-gray-500" : "text-gray-900",
+                    isFullyReceived ? "text-muted-foreground" : "text-foreground",
                   )}
                 >
                   {item.name}
                 </span>
               </div>
-              <div className="text-xs text-gray-500 mt-1">{item.sku}</div>
+              <div className="text-xs text-muted-foreground mt-1">{item.sku}</div>
             </div>
           </div>
         </TooltipTrigger>
@@ -175,28 +175,28 @@ function MobileProductCard({ item }: { item: PurchaseOrderItem }) {
                 <h4 className="font-semibold text-sm line-clamp-2 mb-1">
                   {item.name}
                 </h4>
-                <p className="text-xs text-gray-500 mb-2">SKU: {item.sku}</p>
+                <p className="text-xs text-muted-foreground mb-2">SKU: {item.sku}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <span className="text-gray-500">Ordered:</span>
+                <span className="text-muted-foreground">Ordered:</span>
                 <span className="ml-1 font-medium">{item.qty || 0}</span>
               </div>
               <div>
-                <span className="text-gray-500">Received:</span>
+                <span className="text-muted-foreground">Received:</span>
                 <span className="ml-1 font-medium">
                   {item.receivedQty || 0}
                 </span>
               </div>
               <div>
-                <span className="text-gray-500">Unit Cost:</span>
+                <span className="text-muted-foreground">Unit Cost:</span>
                 <span className="ml-1 font-medium">
                   {formatForDisplay(item.purchaseCost ?? 0)}
                 </span>
               </div>
               <div>
-                <span className="text-gray-500">Remaining:</span>
+                <span className="text-muted-foreground">Remaining:</span>
                 <span className="ml-1 font-medium">{maxQty}</span>
               </div>
             </div>
@@ -245,7 +245,7 @@ export function ItemsTable({
                 key={item.id}
                 className={cn(
                   "border rounded-lg p-4 space-y-3 transition-colors",
-                  isFullyReceived && "opacity-60 bg-gray-50",
+                  isFullyReceived && "opacity-60 bg-muted/40",
                 )}
               >
                 {/* Header with checkbox and product info */}
@@ -262,26 +262,26 @@ export function ItemsTable({
                     <MobileProductCard item={item} />
 
                     {/* Progress and status */}
-                    <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                       <span>
                         {item.receivedQty || 0} / {item.qty || 0}
                       </span>
                       <span
                         className={cn(
                           "font-medium",
-                          maxQty === 0 ? "text-green-600" : "text-gray-900",
+                          maxQty === 0 ? "text-success" : "text-foreground",
                         )}
                       >
                         {maxQty} remaining
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5 mb-3">
+                    <div className="w-full bg-muted rounded-full h-1.5 mb-3">
                       <div
                         className={cn(
                           "h-1.5 rounded-full transition-all",
                           progressPercent === 100
-                            ? "bg-green-500"
-                            : "bg-blue-500",
+                            ? "bg-success"
+                            : "bg-info",
                         )}
                         style={{
                           width: `${Math.min(100, progressPercent)}%`,
@@ -296,7 +296,7 @@ export function ItemsTable({
                   <div className="space-y-3 pt-3 border-t">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-700">
+                        <label className="text-xs font-medium text-foreground/80">
                           Quantity
                         </label>
                         <MaterialInput
@@ -317,7 +317,7 @@ export function ItemsTable({
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-700">
+                        <label className="text-xs font-medium text-foreground/80">
                           Cost ()
                         </label>
                         <MaterialInput
@@ -338,7 +338,7 @@ export function ItemsTable({
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-gray-700">
+                      <label className="text-xs font-medium text-foreground/80">
                         Slot
                       </label>
                       <SearchSlotPicker
@@ -359,7 +359,7 @@ export function ItemsTable({
                     {showAdvanced && (
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-xs font-medium text-gray-700">
+                          <label className="text-xs font-medium text-foreground/80">
                             Lot #
                           </label>
                           <MaterialInput
@@ -378,7 +378,7 @@ export function ItemsTable({
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-xs font-medium text-gray-700">
+                          <label className="text-xs font-medium text-foreground/80">
                             Expiry
                           </label>
                           <DatePicker
@@ -410,7 +410,7 @@ export function ItemsTable({
         <div className="hidden md:block border rounded-lg">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
+              <TableRow className="bg-muted/40">
                 <TableHead className="w-8">
                   <Checkbox
                     checked={allSelected}
@@ -466,7 +466,7 @@ export function ItemsTable({
                     key={item.id}
                     className={cn(
                       "transition-colors",
-                      isFullyReceived && "opacity-60 bg-gray-50",
+                      isFullyReceived && "opacity-60 bg-muted/40",
                     )}
                   >
                     <TableCell>
@@ -487,16 +487,16 @@ export function ItemsTable({
 
                     <TableCell>
                       <div className="space-y-1">
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-muted-foreground">
                           {item.receivedQty || 0} / {item.qty || 0}
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div className="w-full bg-muted rounded-full h-1.5">
                           <div
                             className={cn(
                               "h-1.5 rounded-full transition-all",
                               progressPercent === 100
-                                ? "bg-green-500"
-                                : "bg-blue-500",
+                                ? "bg-success"
+                                : "bg-info",
                             )}
                             style={{
                               width: `${Math.min(100, progressPercent)}%`,
@@ -510,7 +510,7 @@ export function ItemsTable({
                       <span
                         className={cn(
                           "text-sm font-medium",
-                          maxQty === 0 ? "text-green-600" : "text-gray-900",
+                          maxQty === 0 ? "text-success" : "text-foreground",
                         )}
                       >
                         {maxQty}
@@ -559,7 +559,7 @@ export function ItemsTable({
 
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            <span className="text-sm font-medium text-gray-500">
+                            <span className="text-sm font-medium text-muted-foreground">
                               {getSymbol()}
                             </span>
                             <MaterialInput
@@ -625,13 +625,13 @@ export function ItemsTable({
         </div>
 
         {selectedItems.size > 0 && (
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="mt-4 p-4 bg-info/10 rounded-lg border border-info/20">
             <Table>
               <TableBody>
                 <TableRow className="border-none hover:bg-transparent">
                   <TableCell className="w-8"></TableCell>
                   <TableCell className="w-56 p-1">
-                    <span className="font-medium text-blue-900">
+                    <span className="font-medium text-info">
                       {selectedItems.size} items selected
                     </span>
                   </TableCell>
@@ -639,10 +639,10 @@ export function ItemsTable({
                   <TableCell className="w-20 p-1"></TableCell>
                   <TableCell className="w-24 p-1 text-center">
                     <div className="text-sm">
-                      <div className="font-medium text-gray-700">
+                      <div className="font-medium text-foreground/80">
                         Total Quantity
                       </div>
-                      <div className="font-semibold text-blue-900">
+                      <div className="font-semibold text-info">
                         {Array.from(selectedItems).reduce((sum, itemId) => {
                           const data = receiveData[itemId];
                           return sum + (data?.qty || 0);
@@ -653,10 +653,10 @@ export function ItemsTable({
                   <TableCell className="w-32 p-1"></TableCell>
                   <TableCell className="w-24 p-1 text-center">
                     <div className="text-sm">
-                      <div className="font-medium text-gray-700">
+                      <div className="font-medium text-foreground/80">
                         Total Cost
                       </div>
-                      <div className="font-semibold text-blue-900">
+                      <div className="font-semibold text-info">
                         {formatForDisplay(
                           Array.from(selectedItems).reduce((sum, itemId) => {
                             const data = receiveData[itemId];

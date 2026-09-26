@@ -20,7 +20,7 @@ export function ShiftStatus(props: Props) {
   if (currentShift) {
     return (
       <div className="ml-4 flex items-center gap-2">
-        <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+        <Badge className="bg-success/15 text-success hover:bg-success/15">
           <CheckCircleIcon className="mr-1 h-3 w-3" />
           Shift Active
         </Badge>
@@ -39,7 +39,7 @@ export function ShiftStatus(props: Props) {
     <div className="ml-4 flex items-center gap-2">
       <Badge
         variant="destructive"
-        className="bg-red-100 text-red-800 hover:bg-red-100"
+        className="bg-destructive/15 text-destructive hover:bg-destructive/15"
       >
         <AlertCircleIcon className="mr-1 h-3 w-3" />
         No Active Shift

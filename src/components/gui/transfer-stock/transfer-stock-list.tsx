@@ -32,11 +32,11 @@ export function TransferStockList() {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row bg-gray-50">
-      <div className="flex-1 lg:w-2/3 p-4 lg:p-6 bg-white lg:border-r">
+    <div className="flex flex-col lg:flex-row bg-muted/40">
+      <div className="flex-1 lg:w-2/3 p-4 lg:p-6 bg-card lg:border-r">
         <div className="mb-4 lg:mb-6">
-          <h1 className="text-2xl font-bold mb-2">Stock Finding</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Stock Finding</h1>
+          <p className="text-muted-foreground">
             Look for the draft order product in non-POS slots and move it to the
             POS slot for checkout.
           </p>
@@ -45,7 +45,7 @@ export function TransferStockList() {
         {/* Search and Filter Controls */}
         <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 mb-4 lg:mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/70 h-4 w-4" />
             <Input
               placeholder="Search invoice no..."
               value={searchTerm}
@@ -159,13 +159,13 @@ export function TransferStockList() {
                               </div>
                               <div>
                                 {x.transferBy && (
-                                  <Badge className="bg-emerald-600">
+                                  <Badge className="bg-success">
                                     Transferred
                                   </Badge>
                                 )}
                               </div>
                             </div>
-                            <div className="text-xs lg:text-sm text-gray-600 space-y-1">
+                            <div className="text-xs lg:text-sm text-muted-foreground space-y-1">
                               <div>
                                 <p>Date: {x.createdAt}</p>
                               </div>

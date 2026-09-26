@@ -100,8 +100,8 @@ export function ProductForm() {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-7 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-blue-600 transition-all"></div>
-                  <div className="absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
+                  <div className="w-7 h-4 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-info rounded-full peer peer-checked:bg-info transition-all"></div>
+                  <div className="absolute left-0.5 top-0.5 bg-card w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
                 </label>
               </div>
               <div className="md:col-span-2 flex items-center gap-2">
@@ -119,8 +119,8 @@ export function ProductForm() {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-7 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-blue-600 transition-all"></div>
-                  <div className="absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
+                  <div className="w-7 h-4 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-info rounded-full peer peer-checked:bg-info transition-all"></div>
+                  <div className="absolute left-0.5 top-0.5 bg-card w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
                 </label>
               </div>
             </div>

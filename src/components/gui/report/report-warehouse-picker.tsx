@@ -79,7 +79,7 @@ export function ReportWarehousePicker({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between min-h-10 h-auto border-t-0 border-x-0 bg-transparent rounded-none border-b-[1px] dark:border-gray-600 focus:border-primary text-base md:text-sm text-gray-900 focus:outline-none dark:text-white dark:focus:border-primary transition-colors duration-200"
+          className="w-full justify-between min-h-10 h-auto border-t-0 border-x-0 bg-transparent rounded-none border-b-[1px] focus:border-primary text-base md:text-sm text-foreground focus:outline-none dark:focus:border-primary transition-colors duration-200"
         >
           <div className="flex items-center gap-2 flex-1 overflow-hidden">
             <Warehouse className="h-4 w-4 shrink-0" />
@@ -137,10 +137,10 @@ export function ReportWarehousePicker({
                 >
                   <div
                     className={`w-4 h-4 border rounded-sm flex items-center justify-center ${
-                      isSelected
-                        ? "bg-primary border-primary text-primary-foreground"
-                        : "border-gray-300"
-                    }`}
+ isSelected
+ ? "bg-primary border-primary text-primary-foreground"
+ : "border-border"
+ }`}
                   >
                     {isSelected && (
                       <svg

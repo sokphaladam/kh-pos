@@ -37,8 +37,8 @@ export function ShowtimeSelection({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <CardTitle className="flex items-center gap-3 text-xl">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Calendar className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-info/15 rounded-lg">
+                  <Calendar className="h-5 w-5 text-info" />
                 </div>
                 Select Showtime
               </CardTitle>
@@ -77,8 +77,8 @@ export function ShowtimeSelection({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Calendar className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-info/15 rounded-lg">
+                <Calendar className="h-5 w-5 text-info" />
               </div>
               Select Showtime
             </CardTitle>
@@ -112,18 +112,18 @@ export function ShowtimeSelection({
             {hallShowtimes.map((showtime) => (
               <Card
                 key={showtime.showtimeId}
-                className="group cursor-pointer transition-all duration-200 hover:shadow-lg border-2 hover:border-blue-200 active:scale-95"
+                className="group cursor-pointer transition-all duration-200 hover:shadow-lg border-2 hover:border-info/20 active:scale-95"
                 onClick={() => onShowtimeSelect(showtime)}
               >
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 bg-blue-50 group-hover:bg-blue-100 rounded-lg transition-colors">
-                          <Clock className="h-5 w-5 text-blue-600" />
+                        <div className="p-2 bg-info/10 group-hover:bg-info/15 rounded-lg transition-colors">
+                          <Clock className="h-5 w-5 text-info" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg group-hover:text-blue-700 transition-colors">
+                          <h3 className="font-semibold text-lg group-hover:text-info transition-colors">
                             {moment(showtime.startTime).format("HH:mm")}
                             {" - "}
                             {moment(showtime.endTime).format("HH:mm")}
@@ -136,19 +136,19 @@ export function ShowtimeSelection({
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div className="bg-green-50 p-3 rounded-lg">
-                          <div className="font-medium text-green-700">
+                        <div className="bg-success/10 p-3 rounded-lg">
+                          <div className="font-medium text-success">
                             Available Seats
                           </div>
-                          <div className="text-2xl font-bold text-green-600">
+                          <div className="text-2xl font-bold text-success">
                             {showtime.availableSeats}
                           </div>
                         </div>
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <div className="font-medium text-gray-700">
+                        <div className="bg-muted/40 p-3 rounded-lg">
+                          <div className="font-medium text-foreground/80">
                             Total Seats
                           </div>
-                          <div className="text-2xl font-bold text-gray-600">
+                          <div className="text-2xl font-bold text-muted-foreground">
                             {showtime.totalSeats}
                           </div>
                         </div>
@@ -160,13 +160,13 @@ export function ShowtimeSelection({
                         className={cn(
                           "capitalize text-sm",
                           showtime.status === "selling" &&
-                            "bg-green-50 text-green-700 border-green-200",
+                            "bg-success/10 text-success border-success/20",
                           showtime.status === "scheduled" &&
-                            "bg-blue-50 text-blue-700 border-blue-200",
+                            "bg-info/10 text-info border-info/20",
                           showtime.status === "started" &&
-                            "bg-orange-50 text-orange-700 border-orange-200",
+                            "bg-warning/10 text-warning border-warning/20",
                           showtime.status === "sold_out" &&
-                            "bg-red-50 text-red-700 border-red-200",
+                            "bg-destructive/10 text-destructive border-destructive/20",
                         )}
                       >
                         {showtime.status.replace("_", " ")}

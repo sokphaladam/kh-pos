@@ -49,11 +49,11 @@ export function POSItemQty({
   return (
     <div>
       <div className="md:hidden">
-        <div className="flex items-center bg-gray-50 rounded-lg border">
+        <div className="flex items-center bg-muted/40 rounded-lg border">
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 hover:bg-gray-100 rounded-l-lg rounded-r-none active:scale-95 transition-transform"
+            className="h-8 w-8 hover:bg-muted rounded-l-lg rounded-r-none active:scale-95 transition-transform"
             onClick={() => handleChange(qty - 1)}
             disabled={qty === 1 || disabled}
           >
@@ -75,7 +75,7 @@ export function POSItemQty({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 hover:bg-gray-100 rounded-r-lg rounded-l-none active:scale-95 transition-transform"
+            className="h-8 w-8 hover:bg-muted rounded-r-lg rounded-l-none active:scale-95 transition-transform"
             onClick={() => handleChange(qty + 1)}
             disabled={disabled}
           >

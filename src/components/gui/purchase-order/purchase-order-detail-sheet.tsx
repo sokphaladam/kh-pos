@@ -103,14 +103,14 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
     return (
       <>
         {/* Modern Header */}
-        <SheetHeader className="border-b border-gray-100 pb-6 mt-6">
+        <SheetHeader className="border-b border-border pb-6 mt-6">
           <div className="flex items-start justify-between">
             <div>
-              <SheetTitle className="text-2xl font-bold text-gray-900 mb-2">
+              <SheetTitle className="text-2xl font-bold text-foreground mb-2">
                 Purchase Order Details
               </SheetTitle>
               <div className="flex items-center gap-3">
-                <span className="text-lg font-semibold text-gray-700">
+                <span className="text-lg font-semibold text-foreground/80">
                   {data?.poIncrement}
                 </span>
                 <Badge
@@ -118,13 +118,13 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
                   className={cn(
                     "px-3 py-1 text-sm font-medium uppercase tracking-wide",
                     data?.status === "approved" &&
-                      "bg-blue-50 text-blue-700 border-blue-200",
+                      "bg-info/10 text-info border-info/20",
                     data?.status === "draft" &&
-                      "bg-gray-50 text-gray-700 border-gray-200",
+                      "bg-muted/40 text-foreground/80 border-border",
                     data?.status === "completed" &&
-                      "bg-green-50 text-green-700 border-green-200",
+                      "bg-success/10 text-success border-success/20",
                     data?.status === "closed" &&
-                      "bg-red-50 text-red-700 border-red-200",
+                      "bg-destructive/10 text-destructive border-destructive/20",
                   )}
                 >
                   {data?.status}
@@ -132,13 +132,13 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-500 mb-1">Progress</div>
-              <div className="text-lg font-semibold text-gray-900">
+              <div className="text-sm text-muted-foreground mb-1">Progress</div>
+              <div className="text-lg font-semibold text-foreground">
                 {data?.received ?? "0"} of {data?.totalQty}
               </div>
-              <div className="w-24 bg-gray-200 rounded-full h-2 mt-2">
+              <div className="w-24 bg-muted rounded-full h-2 mt-2">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-info h-2 rounded-full transition-all duration-300"
                   style={{
                     width: `${Math.min(
                       100,
@@ -156,45 +156,45 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
           {/* Order Information Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Basic Information Card */}
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-white">
+            <Card className="border-0 shadow-sm">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <div className="w-2 h-2 bg-info rounded-full"></div>
                   Order Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-gray-600">
+                  <span className="text-sm font-medium text-muted-foreground">
                     Date:
                   </span>
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold text-foreground">
                     {Formatter.date(data?.createdAt)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-gray-600">
+                  <span className="text-sm font-medium text-muted-foreground">
                     Expected Date:
                   </span>
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold text-foreground">
                     {data?.expectedAt
                       ? Formatter.date(data?.expectedAt)
                       : "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-gray-600">
+                  <span className="text-sm font-medium text-muted-foreground">
                     Ordered By:
                   </span>
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold text-foreground">
                     {isOwner ? "Owner" : data?.createdBy?.username}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-gray-600">
+                  <span className="text-sm font-medium text-muted-foreground">
                     Store:
                   </span>
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold text-foreground">
                     {data?.warehouse?.name}
                   </span>
                 </div>
@@ -202,58 +202,58 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
             </Card>
 
             {/* Supplier Information Card */}
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-green-50 to-white">
+            <Card className="border-0 shadow-sm">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <div className="w-2 h-2 bg-success rounded-full"></div>
                   Supplier Details
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <div className="text-sm font-medium text-gray-600 mb-1">
+                  <div className="text-sm font-medium text-muted-foreground mb-1">
                     Company
                   </div>
-                  <div className="text-base font-semibold text-gray-900">
+                  <div className="text-base font-semibold text-foreground">
                     {data?.supplier?.name}
                   </div>
                 </div>
                 {data?.supplier?.contactName && (
                   <div>
-                    <div className="text-sm font-medium text-gray-600 mb-1">
+                    <div className="text-sm font-medium text-muted-foreground mb-1">
                       Contact Person
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-foreground">
                       {data?.supplier?.contactName}
                     </div>
                   </div>
                 )}
                 {data?.supplier?.contactPhone && (
                   <div>
-                    <div className="text-sm font-medium text-gray-600 mb-1">
+                    <div className="text-sm font-medium text-muted-foreground mb-1">
                       Phone
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-foreground">
                       {data?.supplier?.contactPhone}
                     </div>
                   </div>
                 )}
                 {data?.supplier?.contactEmail && (
                   <div>
-                    <div className="text-sm font-medium text-gray-600 mb-1">
+                    <div className="text-sm font-medium text-muted-foreground mb-1">
                       Email
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-foreground">
                       {data?.supplier?.contactEmail}
                     </div>
                   </div>
                 )}
                 {data?.supplier?.address && (
                   <div>
-                    <div className="text-sm font-medium text-gray-600 mb-1">
+                    <div className="text-sm font-medium text-muted-foreground mb-1">
                       Address
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-foreground">
                       {data?.supplier?.address}
                     </div>
                   </div>
@@ -264,15 +264,15 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
 
           {/* Notes Section */}
           {data?.note && (
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-amber-50 to-white">
+            <Card className="border-0 shadow-sm">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                  <div className="w-2 h-2 bg-warning rounded-full"></div>
                   Notes
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm text-gray-700 leading-relaxed bg-white p-4 rounded-lg border border-amber-100">
+                <div className="text-sm text-foreground/80 leading-relaxed bg-card p-4 rounded-lg border border-warning/20">
                   {data?.note}
                 </div>
               </CardContent>
@@ -284,17 +284,17 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
-                    <TableHead className="w-auto text-nowrap text-sm font-semibold text-gray-900">
+                  <TableRow className="bg-muted/40">
+                    <TableHead className="w-auto text-nowrap text-sm font-semibold text-foreground">
                       Item
                     </TableHead>
-                    <TableHead className="w-[100px] text-right text-nowrap text-sm font-semibold text-gray-900">
+                    <TableHead className="w-[100px] text-right text-nowrap text-sm font-semibold text-foreground">
                       Quantity
                     </TableHead>
-                    <TableHead className="w-[120px] text-right text-nowrap text-sm font-semibold text-gray-900">
+                    <TableHead className="w-[120px] text-right text-nowrap text-sm font-semibold text-foreground">
                       Purchase cost
                     </TableHead>
-                    <TableHead className="w-[100px] text-right text-nowrap text-sm font-semibold text-gray-900">
+                    <TableHead className="w-[100px] text-right text-nowrap text-sm font-semibold text-foreground">
                       Amount
                     </TableHead>
                     <TableHead className="w-[50px] text-right text-nowrap text-sm">
@@ -307,7 +307,7 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
                     return (
                       <TableRow
                         key={item.id}
-                        className="px-0 hover:bg-gray-50 transition-colors duration-150"
+                        className="px-0 hover:bg-muted/40 transition-colors duration-150"
                       >
                         <TableCell className="table-cell text-nowrap text-sm py-4">
                           <div className="flex gap-2">
@@ -321,10 +321,10 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
                               fallbackClassName="w-18 h-18 flex-shrink-0"
                             />
                             <div className="space-y-1">
-                              <div className="font-medium text-gray-900">
+                              <div className="font-medium text-foreground">
                                 {item.name}
                               </div>
-                              <div className="text-xs text-gray-500">
+                              <div className="text-xs text-muted-foreground">
                                 {item.sku}
                               </div>
                             </div>
@@ -333,11 +333,11 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
                         <TableCell className="table-cell text-right text-nowrap text-sm py-4">
                           <div className="space-y-1">
                             <div className="font-medium">
-                              <span className="text-green-600">
+                              <span className="text-success">
                                 {item.receivedQty || 0}
                               </span>
-                              <span className="text-gray-400">/</span>
-                              <span className="text-gray-900">
+                              <span className="text-muted-foreground/70">/</span>
+                              <span className="text-foreground">
                                 {item.qty || 0}
                               </span>
                             </div>
@@ -348,13 +348,13 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
                         </TableCell>
                         <TableCell className="table-cell text-right text-nowrap text-sm py-4">
                           <div className="space-y-1">
-                            <div className="font-semibold text-green-600">
+                            <div className="font-semibold text-success">
                               {formatForDisplay(
                                 Number(item.receivedQty) *
                                   Number(item.purchaseCost),
                               )}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-muted-foreground">
                               {formatForDisplay(item.amount ?? 0)}
                             </div>
                           </div>
@@ -367,16 +367,16 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
 
               {additionalCosts.length > 0 && (
                 <div className="mt-8">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h4 className="text-lg font-semibold text-foreground mb-4">
                     Additional Costs
                   </h4>
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-gray-50">
-                        <TableHead className="w-auto text-nowrap text-sm font-semibold text-gray-900">
+                      <TableRow className="bg-muted/40">
+                        <TableHead className="w-auto text-nowrap text-sm font-semibold text-foreground">
                           Additional Cost
                         </TableHead>
-                        <TableHead className="w-[120px] text-right text-nowrap text-sm font-semibold text-gray-900">
+                        <TableHead className="w-[120px] text-right text-nowrap text-sm font-semibold text-foreground">
                           Amount
                         </TableHead>
                       </TableRow>
@@ -386,9 +386,9 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
                         return (
                           <TableRow
                             key={item.id}
-                            className="hover:bg-gray-50 transition-colors duration-150"
+                            className="hover:bg-muted/40 transition-colors duration-150"
                           >
-                            <TableCell className="table-cell h-12 text-nowrap text-sm py-4 font-medium text-gray-900">
+                            <TableCell className="table-cell h-12 text-nowrap text-sm py-4 font-medium text-foreground">
                               {item.name}
                             </TableCell>
                             <TableCell className="table-cell h-12 text-right text-nowrap text-sm py-4 font-semibold">
@@ -404,33 +404,33 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
             </CardContent>
 
             {/* Modern Summary Footer */}
-            <CardFooter className="bg-gray-50 border-t border-gray-100 p-6">
+            <CardFooter className="bg-muted/40 border-t border-border p-6">
               <div className="w-full">
                 <div className="flex justify-end">
                   <div className="space-y-4 min-w-[300px]">
                     <div className="flex justify-between items-center text-base">
-                      <span className="font-medium text-gray-700">
+                      <span className="font-medium text-foreground/80">
                         Order Total:
                       </span>
-                      <span className="font-bold text-gray-900 text-lg">
+                      <span className="font-bold text-foreground text-lg">
                         {formatForDisplay(data?.total ?? 0)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center text-base border-t border-gray-200 pt-4">
-                      <span className="font-medium text-gray-700">
+                    <div className="flex justify-between items-center text-base border-t border-border pt-4">
+                      <span className="font-medium text-foreground/80">
                         Total Received:
                       </span>
-                      <span className="font-bold text-green-600 text-lg">
+                      <span className="font-bold text-success text-lg">
                         {formatForDisplay(totalReceived + totalAddional)}
                       </span>
                     </div>
                     {totalReceived + totalAddional <
                       (Number(data?.total) || 0) && (
                       <div className="flex justify-between items-center text-sm">
-                        <span className="font-medium text-gray-600">
+                        <span className="font-medium text-muted-foreground">
                           Remaining:
                         </span>
-                        <span className="font-semibold text-orange-600">
+                        <span className="font-semibold text-warning">
                           {formatForDisplay(
                             (Number(data?.total) || 0) -
                               (totalReceived + totalAddional),
@@ -446,13 +446,13 @@ export const purchaseOrderDetailSheet = createSheet<{ id: string }, undefined>(
         </div>
 
         {/* Professional Action Footer */}
-        <SheetFooter className="border-t border-gray-100 pt-6 mt-6 bg-gradient-to-r from-gray-50 to-white">
+        <SheetFooter className="border-t border-border pt-6 mt-6">
           <div className="flex flex-row gap-4 justify-end w-full">
             {data?.status === "draft" && (
               <Button
                 onClick={onApprove}
                 disabled={updateMutating}
-                className="bg-blue-600 hover:bg-blue-700 font-medium shadow-sm hover:shadow-md transition-all duration-200 px-6"
+                className="px-6"
               >
                 Approve Order
                 {updateMutating && (

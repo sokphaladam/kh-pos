@@ -290,12 +290,12 @@ export function DateRangePicker({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="capitalize flex items-center gap-2 px-4 py-2 rounded-lg border border-cyan-400 shadow-sm hover:bg-cyan-50 dark:hover:bg-cyan-900 transition-colors"
+          className="capitalize flex items-center gap-2 px-4 py-2 rounded-lg border border-info/50 shadow-sm hover:bg-info/10 transition-colors"
           aria-label="Select date range"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="w-4 h-4 text-cyan-500"
+            className="w-4 h-4 text-info"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -304,12 +304,12 @@ export function DateRangePicker({
             <rect x="3" y="4" width="18" height="18" rx="2" />
             <path d="M16 2v4M8 2v4M3 10h18" />
           </svg>
-          <span className="font-medium text-gray-700 dark:text-gray-200 text-sm">
+          <span className="font-medium text-foreground/80 text-sm">
             {formatDateRangeDisplay(dateRange)}
           </span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto min-w-[340px] p-4 rounded-lg border border-cyan-200 dark:border-cyan-800 shadow-lg animate-fade-in">
+      <PopoverContent className="w-auto min-w-[340px] p-4 rounded-lg border border-info/20 shadow-lg animate-fade-in">
         <div className={cn("space-y-4", className)}>
           {/* Quick Presets */}
           <div className="flex flex-wrap gap-2 mb-2">
@@ -328,8 +328,8 @@ export function DateRangePicker({
                   variant={isActive ? "default" : "outline"}
                   className={
                     isActive
-                      ? "bg-cyan-500 text-white border-cyan-500 hover:bg-cyan-600"
-                      : "border-cyan-200 dark:border-cyan-800"
+                      ? "bg-info text-white border-info hover:bg-info/90"
+                      : "border-info/20"
                   }
                   onClick={() => onChange?.(preset.range)}
                 >
@@ -345,7 +345,7 @@ export function DateRangePicker({
                 handlePeriodTypeChange(value as PeriodType | "custom")
               }
             >
-              <SelectTrigger className="w-[110px] rounded-md border-cyan-300">
+              <SelectTrigger className="w-[110px] rounded-md border-info/30">
                 <SelectValue placeholder="Period" />
               </SelectTrigger>
               <SelectContent>
@@ -361,7 +361,7 @@ export function DateRangePicker({
                   handlePeriodUnitChange(value as PeriodUnit)
                 }
               >
-                <SelectTrigger className="w-[110px] rounded-md border-cyan-300">
+                <SelectTrigger className="w-[110px] rounded-md border-info/30">
                   <SelectValue placeholder="Unit" />
                 </SelectTrigger>
                 <SelectContent>
@@ -374,7 +374,7 @@ export function DateRangePicker({
             )}
           </div>
           {/* Selected Range Summary */}
-          <div className="text-xs text-cyan-700 dark:text-cyan-300 font-medium mb-2">
+          <div className="text-xs text-info font-medium mb-2">
             {formatDateRangeDisplay(dateRange)}
           </div>
           <div className="flex flex-col items-center mt-4">
@@ -384,7 +384,7 @@ export function DateRangePicker({
               onSelect={(range, day) => handleCalendarSelect(range, day)}
               numberOfMonths={2}
               initialFocus
-              className="rounded-lg border border-cyan-200 dark:border-cyan-800 shadow-sm animate-fade-in"
+              className="rounded-lg border border-info/20 shadow-sm animate-fade-in"
             />
           </div>
         </div>

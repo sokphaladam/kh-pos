@@ -34,7 +34,7 @@ export function OrderHeader({ inZone }: OrderHeaderProps) {
   }, []);
 
   return (
-    <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-3 sm:p-4">
+    <div className="sticky top-0 z-20 bg-card/95 backdrop-blur-sm border-b border-border p-3 sm:p-4">
       <div className="flex items-center justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
           <div className="flex items-center gap-2">

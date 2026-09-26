@@ -21,7 +21,7 @@ export const SettingFieldWrapper: React.FC<SettingFieldWrapperProps> = ({
 }) => (
   <div className={`space-y-3 ${className}`}>
     {children}
-    {description && <p className="text-xs text-gray-500">{description}</p>}
+    {description && <p className="text-xs text-muted-foreground">{description}</p>}
   </div>
 );
 

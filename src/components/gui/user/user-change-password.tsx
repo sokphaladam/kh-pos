@@ -53,10 +53,10 @@ export const userChangePassword = createDialog<unknown, unknown>(
       const validations =
         Object.values(passwordValidation).filter(Boolean).length;
       if (validations === 0) return { label: "", color: "" };
-      if (validations <= 2) return { label: "Weak", color: "text-red-500" };
+      if (validations <= 2) return { label: "Weak", color: "text-destructive" };
       if (validations <= 4)
-        return { label: "Medium", color: "text-yellow-500" };
-      return { label: "Strong", color: "text-green-500" };
+        return { label: "Medium", color: "text-warning" };
+      return { label: "Strong", color: "text-success" };
     }, [passwordValidation]);
 
     const isPasswordMatch = useMemo(() => {
@@ -100,12 +100,12 @@ export const userChangePassword = createDialog<unknown, unknown>(
     }) => (
       <div className="flex items-center gap-2 text-sm">
         {valid ? (
-          <CheckCircle2 className="h-4 w-4 text-green-500" />
+          <CheckCircle2 className="h-4 w-4 text-success" />
         ) : (
           <XCircle className="h-4 w-4 text-muted-foreground" />
         )}
         <span
-          className={cn(valid ? "text-green-600" : "text-muted-foreground")}
+          className={cn(valid ? "text-success" : "text-muted-foreground")}
         >
           {text}
         </span>
@@ -233,8 +233,8 @@ export const userChangePassword = createDialog<unknown, unknown>(
                   "pr-10",
                   confirmPassword &&
                     (isPasswordMatch
-                      ? "border-green-500 focus-visible:ring-green-500"
-                      : "border-red-500 focus-visible:ring-red-500")
+                      ? "border-success focus-visible:ring-success"
+                      : "border-destructive focus-visible:ring-destructive")
                 )}
               />
               <button
@@ -251,10 +251,10 @@ export const userChangePassword = createDialog<unknown, unknown>(
               </button>
             </div>
             {confirmPassword && !isPasswordMatch && (
-              <p className="text-sm text-red-500">Passwords do not match</p>
+              <p className="text-sm text-destructive">Passwords do not match</p>
             )}
             {confirmPassword && isPasswordMatch && (
-              <p className="text-sm text-green-600 flex items-center gap-1">
+              <p className="text-sm text-success flex items-center gap-1">
                 <CheckCircle2 className="h-4 w-4" />
                 Passwords match
               </p>

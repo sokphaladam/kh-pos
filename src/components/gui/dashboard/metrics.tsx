@@ -84,18 +84,18 @@ export function Metrics(props: Props) {
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
-      <Card className="shadow-md hover:shadow-xl transition border-0 bg-gradient-to-br from-blue-50 to-white dark:from-[#23272f] dark:to-[#18181b]">
+      <Card className="shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             Total Sales
-            <DollarSign className="h-4 w-4 text-blue-500" />
+            <DollarSign className="h-4 w-4 text-info" />
           </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-6 w-[120px] rounded" />
           ) : (
-            <div className="text-2xl font-extrabold text-blue-700 dark:text-blue-300">
+            <div className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
               {formatForDisplay(total.sale)}
             </div>
           )}
@@ -104,42 +104,42 @@ export function Metrics(props: Props) {
           ) : (
             <p className="text-xs flex items-center gap-1 mt-1">
               {saleDiff > 0 && (
-                <TrendingUp className="inline h-4 w-4 text-green-500" />
+                <TrendingUp className="inline h-4 w-4 text-success" />
               )}
               {saleDiff < 0 && (
-                <TrendingDown className="inline h-4 w-4 text-red-500" />
+                <TrendingDown className="inline h-4 w-4 text-destructive" />
               )}
               <span
                 className={
                   saleDiff > 0
-                    ? "text-green-600"
+                    ? "text-success"
                     : saleDiff < 0
-                    ? "text-red-600"
-                    : "text-gray-500"
+                    ? "text-destructive"
+                    : "text-muted-foreground"
                 }
               >
                 {saleDirection}
                 {Math.abs(salePercentChange).toFixed(2)}%
               </span>
-              <span className="text-gray-400 ml-1">
+              <span className="text-muted-foreground/70 ml-1">
                 from previous {getTimePeriodText()}
               </span>
             </p>
           )}
         </CardContent>
       </Card>
-      <Card className="shadow-md hover:shadow-xl transition border-0 bg-gradient-to-br from-pink-50 to-white dark:from-[#23272f] dark:to-[#18181b]">
+      <Card className="shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             Total Costs
-            <TrendingDown className="h-4 w-4 text-pink-500" />
+            <TrendingDown className="h-4 w-4 text-destructive" />
           </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-6 w-[120px] rounded" />
           ) : (
-            <div className="text-2xl font-extrabold text-pink-700 dark:text-pink-300">
+            <div className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
               {formatForDisplay(total.cost)}
             </div>
           )}
@@ -148,42 +148,42 @@ export function Metrics(props: Props) {
           ) : (
             <p className="text-xs flex items-center gap-1 mt-1">
               {costDiff > 0 && (
-                <TrendingUp className="inline h-4 w-4 text-green-500" />
+                <TrendingUp className="inline h-4 w-4 text-success" />
               )}
               {costDiff < 0 && (
-                <TrendingDown className="inline h-4 w-4 text-red-500" />
+                <TrendingDown className="inline h-4 w-4 text-destructive" />
               )}
               <span
                 className={
                   costDiff > 0
-                    ? "text-green-600"
+                    ? "text-success"
                     : costDiff < 0
-                    ? "text-red-600"
-                    : "text-gray-500"
+                    ? "text-destructive"
+                    : "text-muted-foreground"
                 }
               >
                 {costDirection}
                 {Math.abs(costPercentChange).toFixed(2)}%
               </span>
-              <span className="text-gray-400 ml-1">
+              <span className="text-muted-foreground/70 ml-1">
                 from previous {getTimePeriodText()}
               </span>
             </p>
           )}
         </CardContent>
       </Card>
-      <Card className="shadow-md hover:shadow-xl transition border-0 bg-gradient-to-br from-green-50 to-white dark:from-[#23272f] dark:to-[#18181b]">
+      <Card className="shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             Profit
-            <BarChart className="h-4 w-4 text-green-500" />
+            <BarChart className="h-4 w-4 text-success" />
           </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-6 w-[120px] rounded" />
           ) : (
-            <div className="text-2xl font-extrabold text-green-700 dark:text-green-300">
+            <div className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
               {formatForDisplay(total.profit)}
             </div>
           )}
@@ -192,42 +192,42 @@ export function Metrics(props: Props) {
           ) : (
             <p className="text-xs flex items-center gap-1 mt-1">
               {profitDiff > 0 && (
-                <TrendingUp className="inline h-4 w-4 text-green-500" />
+                <TrendingUp className="inline h-4 w-4 text-success" />
               )}
               {profitDiff < 0 && (
-                <TrendingDown className="inline h-4 w-4 text-red-500" />
+                <TrendingDown className="inline h-4 w-4 text-destructive" />
               )}
               <span
                 className={
                   profitDiff > 0
-                    ? "text-green-600"
+                    ? "text-success"
                     : profitDiff < 0
-                    ? "text-red-600"
-                    : "text-gray-500"
+                    ? "text-destructive"
+                    : "text-muted-foreground"
                 }
               >
                 {profitDirection}
                 {Math.abs(profitPercentChange).toFixed(2)}%
               </span>
-              <span className="text-gray-400 ml-1">
+              <span className="text-muted-foreground/70 ml-1">
                 from previous {getTimePeriodText()}
               </span>
             </p>
           )}
         </CardContent>
       </Card>
-      <Card className="shadow-md hover:shadow-xl transition border-0 bg-gradient-to-br from-yellow-50 to-white dark:from-[#23272f] dark:to-[#18181b]">
+      <Card className="shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
             Profit Margin
-            <LineChart className="h-4 w-4 text-yellow-500" />
+            <LineChart className="h-4 w-4 text-warning" />
           </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-6 w-[120px] rounded" />
           ) : (
-            <div className="text-2xl font-extrabold text-yellow-700 dark:text-yellow-300">
+            <div className="text-2xl font-semibold tabular-nums tracking-tight text-foreground">
               {profit_margin.toFixed(2)}%
             </div>
           )}
@@ -236,24 +236,24 @@ export function Metrics(props: Props) {
           ) : (
             <p className="text-xs flex items-center gap-1 mt-1">
               {marginDiff > 0 && (
-                <TrendingUp className="inline h-4 w-4 text-green-500" />
+                <TrendingUp className="inline h-4 w-4 text-success" />
               )}
               {marginDiff < 0 && (
-                <TrendingDown className="inline h-4 w-4 text-red-500" />
+                <TrendingDown className="inline h-4 w-4 text-destructive" />
               )}
               <span
                 className={
                   marginDiff > 0
-                    ? "text-green-600"
+                    ? "text-success"
                     : marginDiff < 0
-                    ? "text-red-600"
-                    : "text-gray-500"
+                    ? "text-destructive"
+                    : "text-muted-foreground"
                 }
               >
                 {marginDirection}
                 {Math.abs(marginDiff).toFixed(2)}%
               </span>
-              <span className="text-gray-400 ml-1">
+              <span className="text-muted-foreground/70 ml-1">
                 from previous {getTimePeriodText()}
               </span>
             </p>

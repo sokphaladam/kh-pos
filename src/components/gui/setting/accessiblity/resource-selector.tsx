@@ -48,13 +48,13 @@ export const ResourceSelector: React.FC<ResourceSelectorProps> = ({
   return (
     <div className="space-y-4">
       <div>
-        <h4 className="text-lg font-semibold text-gray-900">{title}</h4>
-        <p className="text-sm text-gray-500 mt-1">{description}</p>
+        <h4 className="text-lg font-semibold text-foreground">{title}</h4>
+        <p className="text-sm text-muted-foreground mt-1">{description}</p>
       </div>
 
       <div className="space-y-4">
         <Select value={selectedResource} onValueChange={handleResourceSelect}>
-          <SelectTrigger className="h-12 text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+          <SelectTrigger className="h-12 text-base border-border focus:border-info focus:ring-info">
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent>
@@ -64,14 +64,14 @@ export const ResourceSelector: React.FC<ResourceSelectorProps> = ({
               .map((resource) => (
                 <SelectItem key={resource} value={resource}>
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-lg bg-info/10 flex items-center justify-center">
                       {getResourceIcon(resource)}
                     </div>
                     <div>
                       <div className="font-medium capitalize text-left">
                         {resource.replace(/-/g, " ")}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         {getResourceDescription(resource)}
                       </div>
                     </div>

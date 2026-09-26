@@ -56,18 +56,18 @@ function IconUpload({
 
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+      <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
         <ImageIcon className="h-3 w-3" /> Icon
       </label>
       {value ? (
-        <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex items-center gap-2 p-2 bg-muted/40 rounded-lg border border-border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
             alt="icon preview"
-            className="w-8 h-8 object-contain rounded border bg-white flex-shrink-0"
+            className="w-8 h-8 object-contain rounded border bg-card flex-shrink-0"
           />
-          <span className="flex-1 text-xs text-gray-500 truncate font-mono">
+          <span className="flex-1 text-xs text-muted-foreground truncate font-mono">
             {value.startsWith("blob:") ? "Uploading…" : value.split("/").pop()}
           </span>
           <Button
@@ -76,7 +76,7 @@ function IconUpload({
             size="sm"
             disabled={isUploading}
             onClick={() => onChange("")}
-            className="h-6 w-6 p-0 text-gray-400 hover:text-red-600 hover:bg-red-50"
+            className="h-6 w-6 p-0 text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10"
           >
             <X className="h-3 w-3" />
           </Button>
@@ -86,13 +86,13 @@ function IconUpload({
           className={cn(
             "flex items-center gap-2 p-3 rounded-lg border-2 border-dashed cursor-pointer transition-colors",
             isUploading
-              ? "opacity-60 pointer-events-none border-gray-200"
-              : "border-gray-300 hover:border-gray-400 hover:bg-gray-50",
+              ? "opacity-60 pointer-events-none border-border"
+              : "border-border hover:border-input hover:bg-muted/40",
           )}
           onClick={() => fileInputRef.current?.click()}
         >
-          <Upload className="h-4 w-4 text-gray-400 flex-shrink-0" />
-          <span className="text-xs text-gray-500">
+          <Upload className="h-4 w-4 text-muted-foreground/70 flex-shrink-0" />
+          <span className="text-xs text-muted-foreground">
             {isUploading ? "Uploading…" : "Click to upload icon"}
           </span>
         </div>
@@ -137,33 +137,33 @@ export function BrandSetting({ value, onChange }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Tag className="h-4 w-4 text-gray-500" />
-        <h4 className="text-sm font-semibold text-gray-900">Brand</h4>
+        <Tag className="h-4 w-4 text-muted-foreground" />
+        <h4 className="text-sm font-semibold text-foreground">Brand</h4>
       </div>
 
-      <Card className="border border-gray-200">
+      <Card className="border border-border">
         <CardContent className="p-4 space-y-3">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+            <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
               <Tag className="h-3 w-3" /> Title
             </label>
             <Input
               placeholder="e.g. My Brand"
               value={item.title}
               onChange={(e) => update({ title: e.target.value })}
-              className="text-sm border-gray-200 focus:border-gray-400"
+              className="text-sm border-border focus:border-input"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+            <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
               <AlignLeft className="h-3 w-3" /> Description
             </label>
             <Input
               placeholder="Short description"
               value={item.description}
               onChange={(e) => update({ description: e.target.value })}
-              className="text-sm border-gray-200 focus:border-gray-400"
+              className="text-sm border-border focus:border-input"
             />
           </div>
 

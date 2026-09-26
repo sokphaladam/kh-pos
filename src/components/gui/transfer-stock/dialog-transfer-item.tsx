@@ -54,12 +54,12 @@ export const dialogTransferItem = createDialog<Props, unknown>(
         <DialogHeader>
           <DialogTitle>Process Transfer</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-row gap-3 text-gray-400 text-xs mb-3">
+        <div className="flex flex-row gap-3 text-muted-foreground/70 text-xs mb-3">
           <div className="flex flex-row gap-3">
             From: {currentSlot.slot?.name}
           </div>
           <div>
-            <ArrowRight className="h-4 w-4 text-gray-400" />
+            <ArrowRight className="h-4 w-4 text-muted-foreground/70" />
           </div>
           <div className="flex flex-row gap-3">POS Slot</div>
         </div>

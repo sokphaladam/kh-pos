@@ -1,3 +1,6 @@
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { useQueryOrderList } from "@/app/hooks/use-query-order";
 import { useAuthentication } from "contexts/authentication-context";
 import { OrderFilters } from "./components/order-filters";
@@ -36,22 +39,13 @@ export function OrderLayoutImproved() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-muted/50">
       <div className="max-w-7xl mx-auto space-y-6 p-4 sm:p-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-              Order Management
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Manage and track your customer orders
-            </p>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="flex gap-2">
-            <button
+        <PageHeader
+          title="Order Management"
+          description="Manage and track your customer orders"
+          actions={
+            <Button
               onClick={() =>
                 window.open(
                   POS.system_type === "RESTAURANT"
@@ -60,12 +54,12 @@ export function OrderLayoutImproved() {
                   "_blank",
                 )
               }
-              className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
             >
+              <Plus className="size-4" />
               New Order
-            </button>
-          </div>
-        </div>
+            </Button>
+          }
+        />
 
         {/* Order Summary */}
         <OrderSummary

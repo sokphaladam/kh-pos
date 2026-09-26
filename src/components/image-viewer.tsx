@@ -167,7 +167,7 @@ export default function ImageViewer({
       }}
     >
       {/* Header Controls */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent p-4">
+      <div className="absolute top-0 left-0 right-0 z-10 p-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-2">
             <span className="text-white text-sm font-medium">
@@ -182,7 +182,7 @@ export default function ImageViewer({
               size="icon"
               onClick={handleZoomOut}
               disabled={scale <= 0.5}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-card/20"
               title="Zoom Out (-)"
             >
               <ZoomOut className="h-4 w-4" />
@@ -195,7 +195,7 @@ export default function ImageViewer({
               size="icon"
               onClick={handleZoomIn}
               disabled={scale >= 5}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-card/20"
               title="Zoom In (+)"
             >
               <ZoomIn className="h-4 w-4" />
@@ -207,7 +207,7 @@ export default function ImageViewer({
                 variant="ghost"
                 size="icon"
                 onClick={handleRotate}
-                className="text-white hover:bg-white/20"
+                className="text-white hover:bg-card/20"
                 title="Rotate (R)"
               >
                 <RotateCw className="h-4 w-4" />
@@ -219,7 +219,7 @@ export default function ImageViewer({
               variant="ghost"
               size="sm"
               onClick={handleReset}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-card/20"
               title="Reset View"
             >
               Reset
@@ -230,7 +230,7 @@ export default function ImageViewer({
               variant="ghost"
               size="icon"
               onClick={toggleFullscreen}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-card/20"
               title="Toggle Fullscreen"
             >
               <Maximize2 className="h-4 w-4" />
@@ -241,7 +241,7 @@ export default function ImageViewer({
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-card/20"
               title="Close (Esc)"
             >
               <X className="h-4 w-4" />
@@ -259,7 +259,7 @@ export default function ImageViewer({
               variant="ghost"
               size="icon"
               onClick={handlePrevious}
-              className="absolute left-4 z-10 text-white hover:bg-white/20 h-12 w-12"
+              className="absolute left-4 z-10 text-white hover:bg-card/20 h-12 w-12"
               title="Previous (←)"
             >
               <ChevronLeft className="h-8 w-8" />
@@ -268,7 +268,7 @@ export default function ImageViewer({
               variant="ghost"
               size="icon"
               onClick={handleNext}
-              className="absolute right-4 z-10 text-white hover:bg-white/20 h-12 w-12"
+              className="absolute right-4 z-10 text-white hover:bg-card/20 h-12 w-12"
               title="Next (→)"
             >
               <ChevronRight className="h-8 w-8" />
@@ -309,7 +309,7 @@ export default function ImageViewer({
 
       {/* Thumbnails */}
       {showThumbnails && images.length > 1 && (
-        <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/80 to-transparent p-4">
+        <div className="absolute bottom-0 left-0 right-0 z-10 p-4">
           <div className="flex items-center justify-center gap-2 overflow-x-auto max-w-7xl mx-auto">
             {images.map((image, index) => (
               <button
@@ -318,8 +318,8 @@ export default function ImageViewer({
                 className={cn(
                   "flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all relative",
                   currentIndex === index
-                    ? "border-white scale-110"
-                    : "border-transparent hover:border-white/50 opacity-60 hover:opacity-100"
+                    ? "border-card scale-110"
+                    : "border-transparent hover:border-card/50 opacity-60 hover:opacity-100"
                 )}
               >
                 <Image

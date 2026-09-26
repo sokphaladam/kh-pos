@@ -614,7 +614,7 @@ export function CalendarViewTimeline({
     >
       <div className={cn("min-w-[3600px] w-full relative")} ref={containerRef}>
         {/* Timeline Header */}
-        <div className="flex border-b-2 border-border sticky top-0 bg-card/98 backdrop-blur-md z-50 shadow-xl shadow-border/20 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-gradient-to-r after:from-transparent after:via-primary/30 after:to-transparent">
+        <div className="flex border-b-2 border-border sticky top-0 bg-card/98 backdrop-blur-md z-50 shadow-xl shadow-border/20 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:via-primary/30">
           <div className="w-48 min-w-48 border-r-2 border-border p-6 font-bold text-sm uppercase tracking-wider text-primary bg-gradient-to-br from-card/99 to-primary/5 backdrop-blur-md sticky left-0 z-50 shadow-r-xl flex items-center justify-center border-b-0">
             <div className="text-center">
               <div className="font-black text-lg text-primary mb-1">
@@ -647,7 +647,7 @@ export function CalendarViewTimeline({
                   </span>
                 </div>
                 {hour % 6 === 0 && (
-                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0.5 h-3 bg-gradient-to-b from-primary/60 to-transparent rounded-b"></div>
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-0.5 h-3 from-primary/60 rounded-b"></div>
                 )}
                 {hour === 12 && (
                   <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 text-[8px] text-primary/80 font-semibold bg-primary/10 px-1 py-0.5 rounded">
@@ -672,13 +672,13 @@ export function CalendarViewTimeline({
             >
               <div className="relative h-full">
                 {/* Top indicator */}
-                <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full shadow-lg border-2 border-white animate-pulse"></div>
+                <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-destructive rounded-full shadow-lg border-2 border-card animate-pulse"></div>
 
                 {/* Vertical line in header */}
-                <div className="absolute top-0 bottom-0 left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-red-500/80 shadow-sm"></div>
+                <div className="absolute top-0 bottom-0 left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-destructive/80 shadow-sm"></div>
 
                 {/* NOW label */}
-                <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded shadow-md whitespace-nowrap">
+                <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-destructive text-white text-xs font-bold px-2 py-1 rounded shadow-md whitespace-nowrap">
                   {format(currentTime, "HH:mm")}
                 </div>
               </div>
@@ -752,13 +752,13 @@ export function CalendarViewTimeline({
                 key={hall.id}
                 className="flex border-b-2 border-border/60 group hover:bg-gradient-to-r hover:from-muted/8 hover:to-primary/5 transition-all duration-300 relative"
               >
-                <div className="w-48 min-w-48 border-r-2 border-border p-6 flex flex-col justify-center bg-gradient-to-br from-card/99 to-muted/5 backdrop-blur-md sticky left-0 z-40 shadow-r-lg group-hover:bg-gradient-to-br group-hover:from-primary/10 group-hover:to-primary/5 transition-all duration-300 before:absolute before:inset-y-0 before:right-0 before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border/80 before:to-transparent">
+                <div className="w-48 min-w-48 border-r-2 border-border p-6 flex flex-col justify-center from-card/99 to-muted/5 backdrop-blur-md sticky left-0 z-40 shadow-r-lg group-hover:from-primary/10 group-hover:to-primary/5 transition-all duration-300 before:absolute before:inset-y-0 before:right-0 before:w-0.5 before:via-border/80">
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <div
                         className={cn(
                           "w-3 h-3 rounded-full animate-pulse shadow-lg",
-                          "bg-gradient-to-r from-green-400 to-green-500",
+                          "bg-success",
                         )}
                       ></div>
                       <span className="font-bold text-base tracking-tight capitalize text-primary">
@@ -788,7 +788,7 @@ export function CalendarViewTimeline({
                 </div>
 
                 <div
-                  className="flex-1 relative h-40 flex items-center cursor-crosshair bg-gradient-to-r from-muted/8 via-transparent to-muted/8 hover:from-primary/8 hover:via-primary/3 hover:to-primary/8 transition-all duration-300 group-hover:shadow-inner min-w-0 border-t border-border/20"
+                  className="flex-1 relative h-40 flex items-center cursor-crosshair from-muted/8 to-muted/8 hover:from-primary/8 hover:via-primary/3 hover:to-primary/8 transition-all duration-300 group-hover:shadow-inner min-w-0 border-t border-border/20"
                   onClick={(e) => handleTimelineClick(hall.id, e)}
                   title="💡 Click anywhere to schedule a new showtime for this hall"
                 >
@@ -799,7 +799,7 @@ export function CalendarViewTimeline({
                       className={cn(
                         "w-[140px] h-full border-r pointer-events-none relative flex-shrink-0 transition-colors duration-200",
                         hour % 3 === 0
-                          ? "border-border/50 bg-gradient-to-b from-transparent to-primary/3"
+                          ? "border-border/50 to-primary/3"
                           : "border-border/20",
                         index === 0 && "border-l-2 border-border/30",
                       )}
@@ -812,7 +812,7 @@ export function CalendarViewTimeline({
                           </span>
                         </div>
                       )}
-                      <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+                      <div className="absolute inset-x-0 bottom-0 h-0.5 via-border/30" />
                       {/* 15-minute markers for better precision */}
                       <div className="absolute top-1/4 bottom-1/4 left-1/4 w-px bg-border/15" />
                       <div className="absolute top-1/4 bottom-1/4 left-1/2 w-px bg-border/20" />
@@ -827,7 +827,7 @@ export function CalendarViewTimeline({
                       style={{ left: `${currentTimePosition + 0}px` }} // 160px is the hall name column width
                     >
                       <div className="relative h-full">
-                        <div className="absolute top-0 -bottom-0 left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-red-500 shadow-sm z-10"></div>
+                        <div className="absolute top-0 -bottom-0 left-1/2 transform -translate-x-1/2 w-[1px] h-full bg-destructive shadow-sm z-10"></div>
                       </div>
                     </div>
                   )}

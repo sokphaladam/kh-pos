@@ -24,9 +24,9 @@ export default function ExpirySummaryCards({
       label: "Expired",
       icon: "⚠️",
       bgGradient: "from-red-50 to-red-100",
-      borderColor: "border-red-200",
-      textColor: "text-red-700",
-      valueColor: "text-red-600",
+      borderColor: "border-destructive/20",
+      textColor: "text-destructive",
+      valueColor: "text-destructive",
       description: "Products past expiry date",
       timeFrame: "expired",
     },
@@ -34,9 +34,9 @@ export default function ExpirySummaryCards({
       label: "Urgent",
       icon: "🔥",
       bgGradient: "from-orange-50 to-orange-100",
-      borderColor: "border-orange-200",
-      textColor: "text-orange-700",
-      valueColor: "text-orange-600",
+      borderColor: "border-warning/20",
+      textColor: "text-warning",
+      valueColor: "text-warning",
       description: `Expiring within ${frames.urgent} day${
         frames.urgent !== 1 ? "s" : ""
       }`,
@@ -46,9 +46,9 @@ export default function ExpirySummaryCards({
       label: "Critical",
       icon: "⏰",
       bgGradient: "from-yellow-50 to-yellow-100",
-      borderColor: "border-yellow-200",
-      textColor: "text-yellow-700",
-      valueColor: "text-yellow-600",
+      borderColor: "border-warning/20",
+      textColor: "text-warning",
+      valueColor: "text-warning",
       description: `Expiring within ${frames.critical} day${
         frames.critical !== 1 ? "s" : ""
       }`,
@@ -58,9 +58,9 @@ export default function ExpirySummaryCards({
       label: "Warning",
       icon: "📅",
       bgGradient: "from-blue-50 to-blue-100",
-      borderColor: "border-blue-200",
-      textColor: "text-blue-700",
-      valueColor: "text-blue-600",
+      borderColor: "border-info/20",
+      textColor: "text-info",
+      valueColor: "text-info",
       description: `Expiring within ${frames.warning} day${
         frames.warning !== 1 ? "s" : ""
       }`,
@@ -70,13 +70,13 @@ export default function ExpirySummaryCards({
 
   if (!dashboard || dashboard.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div className="bg-card rounded-xl shadow-sm border border-border p-8">
         <div className="text-center">
-          <div className="text-gray-400 text-6xl mb-4">📊</div>
-          <div className="text-gray-500 text-lg font-medium">
+          <div className="text-muted-foreground/70 text-6xl mb-4">📊</div>
+          <div className="text-muted-foreground text-lg font-medium">
             No expiry summary data available
           </div>
-          <div className="text-gray-400 text-sm mt-1">
+          <div className="text-muted-foreground/70 text-sm mt-1">
             Data will appear here once products are loaded
           </div>
         </div>
@@ -90,10 +90,10 @@ export default function ExpirySummaryCards({
   return (
     <div className="space-y-6">
       {/* Overview Stats */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+      <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+        <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center">
           <svg
-            className="w-5 h-5 mr-2 text-blue-600"
+            className="w-5 h-5 mr-2 text-info"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -108,25 +108,25 @@ export default function ExpirySummaryCards({
           Inventory Overview
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
-            <div className="text-sm font-medium text-blue-600 mb-1">
+          <div className="rounded-lg p-4 border border-info/20">
+            <div className="text-sm font-medium text-info mb-1">
               Total Items
             </div>
-            <div className="text-2xl font-bold text-blue-700">
+            <div className="text-2xl font-bold text-info">
               {totalProducts.toLocaleString()}
             </div>
-            <div className="text-xs text-blue-500 mt-1">
+            <div className="text-xs text-info mt-1">
               Units requiring attention
             </div>
           </div>
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
-            <div className="text-sm font-medium text-green-600 mb-1">
+          <div className="rounded-lg p-4 border border-success/20">
+            <div className="text-sm font-medium text-success mb-1">
               Total Value
             </div>
-            <div className="text-2xl font-bold text-green-700">
+            <div className="text-2xl font-bold text-success">
               ${totalValue.toLocaleString()}
             </div>
-            <div className="text-xs text-green-500 mt-1">Inventory at risk</div>
+            <div className="text-xs text-success mt-1">Inventory at risk</div>
           </div>
         </div>
       </div>
@@ -170,7 +170,7 @@ export default function ExpirySummaryCards({
                 <div className="text-2xl">{config.icon}</div>
                 <div className="flex items-center space-x-2">
                   <div
-                    className={`text-xs font-medium px-2 py-1 rounded-full bg-white ${config.textColor}`}
+                    className={`text-xs font-medium px-2 py-1 rounded-full bg-card ${config.textColor}`}
                   >
                     {percentage}%
                   </div>
@@ -195,18 +195,18 @@ export default function ExpirySummaryCards({
                 {item.qty.toLocaleString()}
               </div>
 
-              <div className="text-base text-gray-600 mb-2 font-medium">
+              <div className="text-base text-muted-foreground mb-2 font-medium">
                 ${item.value.toLocaleString()}
               </div>
 
-              <div className="flex items-center text-xs text-gray-600 mb-2">
+              <div className="flex items-center text-xs text-muted-foreground mb-2">
                 <span className="mr-1 text-sm">📦</span>
                 <span className="font-medium">
                   {item.uniqueProductCount.toLocaleString()} products
                 </span>
               </div>
 
-              <div className="text-xs text-gray-500 leading-tight">
+              <div className="text-xs text-muted-foreground leading-tight">
                 {config.description}
               </div>
             </div>

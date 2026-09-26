@@ -212,7 +212,7 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
     const getTableStatusBadge = (status: string, hasOrder: boolean) => {
       if (hasOrder) {
         return (
-          <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
+          <Badge variant="default" className="bg-info hover:bg-info/90">
             Occupied
           </Badge>
         );
@@ -223,7 +223,7 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
           return (
             <Badge
               variant="default"
-              className="bg-green-500 hover:bg-green-600"
+              className="bg-success hover:bg-success/90"
             >
               Available
             </Badge>
@@ -232,14 +232,14 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
           return (
             <Badge
               variant="default"
-              className="bg-amber-500 hover:bg-amber-600"
+              className="bg-warning hover:bg-warning/90"
             >
               Cleaning
             </Badge>
           );
         case "order_taken":
           return (
-            <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
+            <Badge variant="default" className="bg-info hover:bg-info/90">
               Occupied
             </Badge>
           );
@@ -369,8 +369,8 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
                   )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-                    <div className="bg-blue-50 rounded-lg p-2">
-                      <div className="text-lg font-bold text-blue-600">
+                    <div className="bg-info/10 rounded-lg p-2">
+                      <div className="text-lg font-bold text-info">
                         {transferInfo.selectedItemsCount}
                       </div>
                       <div className="text-xs text-muted-foreground">
@@ -380,8 +380,8 @@ export const transferTable = createSheet<{ data: RestaurantTable }, unknown>(
                     <div className="flex items-center justify-center">
                       <ArrowRight className="h-4 w-4 text-muted-foreground" />
                     </div>
-                    <div className="bg-green-50 rounded-lg p-2">
-                      <div className="text-lg font-bold text-green-600 truncate">
+                    <div className="bg-success/10 rounded-lg p-2">
+                      <div className="text-lg font-bold text-success truncate">
                         {selectedTable.table_name}
                       </div>
                       <div className="text-xs text-muted-foreground">

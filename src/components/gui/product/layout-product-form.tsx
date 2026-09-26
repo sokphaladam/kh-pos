@@ -32,7 +32,7 @@ function ProductFormContent({
 
   return (
     <div className="w-full flex flex-col flex-1 relative -mt-4">
-      <div className="py-4 flex flex-row items-center justify-between sticky top-16 left-0 right-0 z-[49] bg-white px-6 -mx-4">
+      <div className="py-4 flex flex-row items-center justify-between sticky top-16 left-0 right-0 z-[49] bg-card px-6 -mx-4">
         <h2 className="text-lg font-semibold text-foreground">
           {params.productId ? "Edit" : "Create"} Product
         </h2>

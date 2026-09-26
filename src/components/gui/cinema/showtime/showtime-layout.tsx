@@ -28,17 +28,17 @@ import { posterPreviewDialog } from "./poster/poster-preview-dialog";
 
 export const SHOWTIME_TYPE = {
   scheduled:
-    "bg-blue-500/60 text-white border-blue-500/70 focus:ring-blue-400 shadow-blue-500/20",
+    "bg-info/60 text-white border-info/70 focus:ring-info/50 shadow-info/20",
   selling:
-    "bg-green-500/60 text-white border-green-500/70 focus:ring-green-400 shadow-green-500/20",
+    "bg-success/60 text-white border-success/70 focus:ring-success/50 shadow-success/20",
   sold_out:
-    "bg-red-500/60 text-white border-red-500/70 focus:ring-red-400 shadow-red-500/20",
+    "bg-destructive/60 text-white border-destructive/70 focus:ring-destructive/50 shadow-destructive/20",
   started:
-    "bg-yellow-500/60 text-white border-yellow-500/70 focus:ring-yellow-400 shadow-yellow-500/20",
+    "bg-warning/60 text-white border-warning/70 focus:ring-warning/50 shadow-warning/20",
   ended:
-    "bg-slate-500/60 text-white border-slate-500/70 focus:ring-slate-400 shadow-slate-500/20",
+    "bg-muted-foreground/60 text-white border-input/70 focus:ring-input shadow-slate-500/20",
   cancelled:
-    "bg-rose-800/60 text-white border-rose-800/70 focus:ring-rose-400 shadow-rose-800/20 opacity-75 line-through",
+    "bg-destructive/60 text-white border-destructive/70 focus:ring-destructive/50 shadow-destructive/20 opacity-75 line-through",
 };
 
 export function ShowttimeLayout() {
@@ -261,7 +261,7 @@ export function ShowttimeLayout() {
                 <div className="space-y-0.5">
                   <h1
                     id="showtime-title"
-                    className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text"
+                    className="text-2xl font-semibold tracking-tight text-foreground"
                   >
                     Cinema Showtime
                   </h1>

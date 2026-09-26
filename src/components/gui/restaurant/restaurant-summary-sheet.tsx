@@ -49,10 +49,10 @@ export const RestaurantSummarySheet = createSheet<
                 suppressHydrationWarning
                 className="flex items-center justify-between"
               >
-                <h3 className="font-semibold text-base text-gray-800">
+                <h3 className="font-semibold text-base text-foreground">
                   Order Summary
                 </h3>
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
                   {currentTable?.orders?.items.length || 0} items
                 </span>
               </div>
@@ -70,7 +70,7 @@ export const RestaurantSummarySheet = createSheet<
           >
             {currentOrder.length === 0 ? (
               <div className="flex-1 flex items-center justify-center">
-                <p className="text-gray-500 text-center">No items added yet</p>
+                <p className="text-muted-foreground text-center">No items added yet</p>
               </div>
             ) : (
               <>
@@ -90,7 +90,7 @@ export const RestaurantSummarySheet = createSheet<
             )}
           </div>
           {/* Fixed Bottom Section */}
-          <div className="space-y-3 text-base sticky bottom-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 p-4 z-10">
+          <div className="space-y-3 text-base sticky bottom-0 bg-card/95 backdrop-blur-sm border-b border-border p-4 z-10">
             <div className="flex flex-row gap-2 items-center justify-center">
               <div>
                 <Button
@@ -119,7 +119,7 @@ export const RestaurantSummarySheet = createSheet<
                         sendAllToKitchent(currentTable?.tables);
                       }
                     }}
-                    className="w-full text-sm font-semibold bg-orange-600 hover:bg-orange-700"
+                    className="w-full text-sm font-semibold bg-warning hover:bg-warning/90"
                     disabled={allow === 0 || loading || isRequest}
                     size={"sm"}
                   >
@@ -135,7 +135,7 @@ export const RestaurantSummarySheet = createSheet<
                       serverAllItems(currentTable.tables);
                     }
                   }}
-                  className="w-full text-sm font-semibold bg-emerald-600 hover:bg-emerald-700"
+                  className="w-full text-sm font-semibold bg-success hover:bg-success/90"
                   disabled={allowServeItems === 0 || loading || isRequest}
                   size={"sm"}
                 >

@@ -296,7 +296,7 @@ export default function AdminCinemaShowtimeReportPage() {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
       {!!isMutating && (
-        <div className="fixed top-0 bottom-0 left-0 right-0 bg-gray-500/80 text-white flex items-center justify-center z-50">
+        <div className="fixed top-0 bottom-0 left-0 right-0 bg-muted-foreground/80 text-white flex items-center justify-center z-50">
           <div className="flex flex-col items-center justify-center animate-bounce">
             <Send className="h-8 w-8 mb-4" />
             <span className="text-lg">Preparing send to email...</span>
@@ -304,13 +304,13 @@ export default function AdminCinemaShowtimeReportPage() {
         </div>
       )}
       {/* Header and Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-card rounded-xl shadow-sm border border-border p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               Cinema Sales Report
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Sales breakdown by movie and showtime
             </p>
           </div>
@@ -346,7 +346,7 @@ export default function AdminCinemaShowtimeReportPage() {
         <div className="space-y-6">
           {/* Date Range Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground/80 mb-2">
               Date Range
             </label>
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
@@ -363,7 +363,7 @@ export default function AdminCinemaShowtimeReportPage() {
             <div>
               <Label
                 htmlFor="search-movie"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground/80"
               >
                 Search Movie
               </Label>
@@ -380,7 +380,7 @@ export default function AdminCinemaShowtimeReportPage() {
             <div>
               <Label
                 htmlFor="min-tickets"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground/80"
               >
                 Min Tickets
               </Label>
@@ -398,7 +398,7 @@ export default function AdminCinemaShowtimeReportPage() {
             <div>
               <Label
                 htmlFor="min-amount"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-foreground/80"
               >
                 Min Amount
               </Label>
@@ -415,7 +415,7 @@ export default function AdminCinemaShowtimeReportPage() {
             </div>
 
             <div>
-              <Label className="text-sm font-medium text-gray-700">
+              <Label className="text-sm font-medium text-foreground/80">
                 Sort By
               </Label>
               <div className="flex gap-2 mt-1">
@@ -456,30 +456,30 @@ export default function AdminCinemaShowtimeReportPage() {
             filterMinAmount ||
             sortBy !== "showtime" ||
             sortOrder !== "desc") && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="bg-info/10 border border-info/20 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-2">
-                <Filter className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-900">
+                <Filter className="h-4 w-4 text-info" />
+                <span className="text-sm font-medium text-info">
                   Active Filters & Sorting
                 </span>
               </div>
-              <div className="flex flex-wrap gap-2 text-xs text-blue-700">
+              <div className="flex flex-wrap gap-2 text-xs text-info">
                 {searchMovie && (
-                  <span className="bg-white px-2 py-1 rounded border">
+                  <span className="bg-card px-2 py-1 rounded border">
                     Movie: &quot;{searchMovie}&quot;
                   </span>
                 )}
                 {filterMinTickets && (
-                  <span className="bg-white px-2 py-1 rounded border">
+                  <span className="bg-card px-2 py-1 rounded border">
                     Min Tickets: {filterMinTickets}
                   </span>
                 )}
                 {filterMinAmount && (
-                  <span className="bg-white px-2 py-1 rounded border">
+                  <span className="bg-card px-2 py-1 rounded border">
                     Min Amount: {filterMinAmount}
                   </span>
                 )}
-                <span className="bg-white px-2 py-1 rounded border">
+                <span className="bg-card px-2 py-1 rounded border">
                   Sort:{" "}
                   {sortBy === "showtime"
                     ? "Showtime Count"
@@ -498,7 +498,7 @@ export default function AdminCinemaShowtimeReportPage() {
                     setSortBy("showtime");
                     setSortOrder("desc");
                   }}
-                  className="h-6 px-2 text-blue-600 hover:text-blue-800"
+                  className="h-6 px-2 text-info hover:text-info"
                 >
                   Clear All
                 </Button>
@@ -511,15 +511,15 @@ export default function AdminCinemaShowtimeReportPage() {
       {/* Loading State */}
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <span className="ml-2 text-gray-600">Loading report data...</span>
+          <span className="ml-2 text-muted-foreground">Loading report data...</span>
         </div>
       )}
 
       {/* Grand Total Summary */}
       {!isLoading && reportData.grand && (
-        <Card className="border-2 border-blue-200 bg-blue-50">
+        <Card className="border-2 border-info/20 bg-info/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-900">
+            <CardTitle className="flex items-center gap-2 text-info">
               <DollarSign className="h-5 w-5" />
               Grand Total Summary
             </CardTitle>
@@ -527,34 +527,34 @@ export default function AdminCinemaShowtimeReportPage() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-blue-900">
+                <p className="text-2xl font-bold text-info">
                   {reportData.grand.qty}
                 </p>
-                <p className="text-sm text-blue-700">Total Tickets</p>
+                <p className="text-sm text-info">Total Tickets</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-blue-900">
+                <p className="text-2xl font-bold text-info">
                   {formatForDisplay(reportData.grand.totalPrice)}
                 </p>
-                <p className="text-sm text-blue-700">Total Price</p>
+                <p className="text-sm text-info">Total Price</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-blue-900">
+                <p className="text-2xl font-bold text-info">
                   {formatForDisplay(reportData.grand.modifier)}
                 </p>
-                <p className="text-sm text-blue-700">Modifiers</p>
+                <p className="text-sm text-info">Modifiers</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-blue-900">
+                <p className="text-2xl font-bold text-info">
                   {formatForDisplay(reportData.grand.discount)}
                 </p>
-                <p className="text-sm text-blue-700">Discounts</p>
+                <p className="text-sm text-info">Discounts</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-blue-900">
+                <p className="text-2xl font-bold text-info">
                   {formatForDisplay(reportData.grand.amount)}
                 </p>
-                <p className="text-sm text-blue-700">Final Amount</p>
+                <p className="text-sm text-info">Final Amount</p>
               </div>
             </div>
           </CardContent>
@@ -565,10 +565,10 @@ export default function AdminCinemaShowtimeReportPage() {
       {!isLoading && movieEntries.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-foreground">
               Sales by Movie ({movieEntries.length} movies)
             </h2>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-muted-foreground">
               Sorted by{" "}
               {sortBy === "showtime"
                 ? "Showtime Count"
@@ -589,13 +589,13 @@ export default function AdminCinemaShowtimeReportPage() {
                     onClick={() => toggleMovieExpansion(movieTitle)}
                     className="w-full"
                   >
-                    <CardHeader className="hover:bg-gray-50 transition-colors cursor-pointer">
+                    <CardHeader className="hover:bg-muted/40 transition-colors cursor-pointer">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           {isExpanded ? (
-                            <ChevronDown className="h-5 w-5 text-gray-400" />
+                            <ChevronDown className="h-5 w-5 text-muted-foreground/70" />
                           ) : (
-                            <ChevronRight className="h-5 w-5 text-gray-400" />
+                            <ChevronRight className="h-5 w-5 text-muted-foreground/70" />
                           )}
                           <CardTitle className="text-left flex flex-row  items-center gap-4">
                             <ImageWithFallback
@@ -613,13 +613,13 @@ export default function AdminCinemaShowtimeReportPage() {
                             <p className="font-bold">
                               {typedMovieData.showtimes.length}
                             </p>
-                            <p className="text-sm text-gray-500">Showtimes</p>
+                            <p className="text-sm text-muted-foreground">Showtimes</p>
                           </div>
                           <div>
                             <p className="font-bold">
                               {typedMovieData.totals.qty}
                             </p>
-                            <p className="text-sm text-gray-500">Tickets</p>
+                            <p className="text-sm text-muted-foreground">Tickets</p>
                           </div>
                           <div>
                             <p className="font-bold">
@@ -627,19 +627,19 @@ export default function AdminCinemaShowtimeReportPage() {
                                 typedMovieData.totals.totalPrice,
                               )}
                             </p>
-                            <p className="text-sm text-gray-500">Total Price</p>
+                            <p className="text-sm text-muted-foreground">Total Price</p>
                           </div>
                           <div className="hidden md:block">
                             <p className="font-bold">
                               {formatForDisplay(typedMovieData.totals.discount)}
                             </p>
-                            <p className="text-sm text-gray-500">Discounts</p>
+                            <p className="text-sm text-muted-foreground">Discounts</p>
                           </div>
                           <div>
                             <p className="font-bold">
                               {formatForDisplay(typedMovieData.totals.amount)}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted-foreground">
                               Final Amount
                             </p>
                           </div>
@@ -651,7 +651,7 @@ export default function AdminCinemaShowtimeReportPage() {
                   <CollapsibleContent>
                     <CardContent className="pt-0">
                       <div className="border-t pt-4">
-                        <h4 className="font-medium mb-3 text-gray-900">
+                        <h4 className="font-medium mb-3 text-foreground">
                           Showtime Details
                         </h4>
                         <Table>
@@ -682,18 +682,18 @@ export default function AdminCinemaShowtimeReportPage() {
                               <TableRow
                                 key={index}
                                 className={
-                                  showtime.qty > 0 ? "bg-green-50" : ""
+                                  showtime.qty > 0 ? "bg-success/10" : ""
                                 }
                               >
                                 <TableCell className="font-medium">
                                   <div className="flex items-center gap-1">
-                                    <Calendar className="h-4 w-4 text-gray-400" />
+                                    <Calendar className="h-4 w-4 text-muted-foreground/70" />
                                     {moment(showtime.showDate).format("MM/DD")}
                                   </div>
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex items-center gap-1">
-                                    <Clock className="h-4 w-4 text-gray-400" />
+                                    <Clock className="h-4 w-4 text-muted-foreground/70" />
                                     {moment(showtime.startTime).format("HH:mm")}
                                   </div>
                                 </TableCell>
@@ -733,7 +733,7 @@ export default function AdminCinemaShowtimeReportPage() {
       {!isLoading && movieEntries.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
-            <div className="text-gray-500">
+            <div className="text-muted-foreground">
               <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p className="text-lg font-medium mb-2">No sales data found</p>
               <p className="text-sm">

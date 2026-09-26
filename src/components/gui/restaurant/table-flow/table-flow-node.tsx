@@ -71,50 +71,48 @@ interface StatusStyle {
   text: string;
 }
 
-const NEUTRAL_CARD =
-  "bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-700 border border-gray-200";
+const NEUTRAL_CARD = "bg-card text-foreground border border-border";
 
 const STATUS_STYLES: Record<string, StatusStyle> = {
   printed: {
     cardGradient: NEUTRAL_CARD,
-    barColor: "bg-red-400",
-    compactColor: "bg-red-50 text-red-700 border-red-400",
+    barColor: "bg-destructive/70",
+    compactColor: "bg-destructive/10 text-destructive border-destructive",
     Icon: PrinterCheck,
-    iconColor: "text-red-500",
+    iconColor: "text-destructive",
     text: "Receipt Printed",
   },
   available: {
     cardGradient: NEUTRAL_CARD,
-    barColor: "bg-green-400",
-    compactColor: "bg-green-50 text-green-700 border-green-400",
+    barColor: "bg-success/70",
+    // Available is the resting state: keep it neutral so busy tables stand out
+    compactColor: "bg-card text-foreground border-border [&_.status-label]:text-success",
     Icon: CircleCheckBig,
-    iconColor: "text-green-500",
+    iconColor: "text-success",
     text: "Available",
   },
   order_taken: {
-    cardGradient:
-      "bg-gradient-to-br from-blue-50 via-blue-25 to-white text-blue-700 border border-blue-200",
-    barColor: "bg-blue-400",
-    compactColor: "bg-blue-50 text-blue-700 border-blue-400",
+    cardGradient: "bg-info/5 text-foreground border border-info/40",
+    barColor: "bg-info/70",
+    compactColor: "bg-info/10 text-info border-info",
     Icon: HandPlatter,
-    iconColor: "text-blue-500",
+    iconColor: "text-info",
     text: "Occupied",
   },
   cleaning: {
-    cardGradient:
-      "bg-gradient-to-br from-amber-50 via-amber-25 to-white text-amber-700 border border-amber-200",
-    barColor: "bg-amber-400",
-    compactColor: "bg-amber-50 text-amber-700 border-amber-400",
+    cardGradient: "bg-warning/5 text-foreground border border-warning/40",
+    barColor: "bg-warning/70",
+    compactColor: "bg-warning/10 text-warning border-warning",
     Icon: BellRing,
-    iconColor: "text-amber-500",
+    iconColor: "text-warning",
     text: "Cleaning",
   },
   unknown: {
     cardGradient: NEUTRAL_CARD,
-    barColor: "bg-gray-400",
-    compactColor: "bg-gray-50 text-gray-700 border-gray-400",
+    barColor: "bg-muted-foreground",
+    compactColor: "bg-muted/40 text-muted-foreground border-input",
     Icon: CircleCheckBig,
-    iconColor: "text-gray-500",
+    iconColor: "text-muted-foreground",
     text: "Unknown",
   },
 };
@@ -164,8 +162,8 @@ function TableFlowNodeComponent({ data, selected }: NodeProps) {
   // Fallback if data is invalid
   if (!tableData || !tableData.table_name) {
     return (
-      <div className="w-48 h-32 bg-red-100 border-2 border-red-300 rounded-lg flex items-center justify-center">
-        <div className="text-red-600 text-sm">Invalid table data</div>
+      <div className="w-48 h-32 bg-destructive/15 border-2 border-destructive/30 rounded-lg flex items-center justify-center">
+        <div className="text-destructive text-sm">Invalid table data</div>
       </div>
     );
   }
@@ -225,10 +223,10 @@ function CompactTableCard({ tableData, status, selected, onClick }: CardProps) {
   return (
     <div
       className={cn(
-        "w-[200px] h-[120px] rounded-xl border-4 cursor-pointer select-none flex flex-col items-center justify-center px-2",
+        "w-[200px] h-[120px] rounded-xl border-[3px] cursor-pointer select-none flex flex-col items-center justify-center gap-1 px-2",
         status.compactColor,
-        selected && "ring-4 ring-blue-500",
-        tableData.hasOverdueCooking && "border-orange-500 bg-orange-100",
+        selected && "ring-4 ring-ring/40",
+        tableData.hasOverdueCooking && "border-warning bg-warning/15 text-warning",
       )}
       onClick={onClick}
     >
@@ -240,7 +238,9 @@ function CompactTableCard({ tableData, status, selected, onClick }: CardProps) {
           {formatForDisplay(total)}
         </div>
       ) : (
-        <div className="font-medium text-lg leading-tight">{status.text}</div>
+        <div className="status-label font-medium text-lg leading-tight">
+          {status.text}
+        </div>
       )}
     </div>
   );
@@ -262,7 +262,7 @@ function DetailedTableCard({
         "overflow-hidden w-full rounded-xl cursor-pointer select-none min-w-[180px] max-w-[220px]",
         status.cardGradient,
         showMenu && "transition-shadow duration-200",
-        selected && "ring-2 ring-blue-500 ring-opacity-50 shadow-lg",
+        selected && "ring-2 ring-info ring-opacity-50 shadow-lg",
         tableData.status === "available"
           ? "hover:shadow-md"
           : "hover:shadow-lg",
@@ -289,7 +289,7 @@ function DetailedTableCard({
                 {tableData.table_name}
               </h3>
             </div>
-            <div className="flex items-center gap-1 text-xs text-gray-500">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Users className="h-3 w-3" />
               <span>{tableData.customer} customers</span>
             </div>
@@ -316,12 +316,12 @@ function DetailedTableCard({
         {tableData.hasOverdueCooking && (
           <div
             className={cn(
-              "flex items-center gap-1 mb-2 px-1.5 py-0.5 rounded-md bg-orange-100 border border-orange-300",
+              "flex items-center gap-1 mb-2 px-1.5 py-0.5 rounded-md bg-warning/15 border border-warning/30",
               showMenu && "animate-pulse",
             )}
           >
-            <Timer className="h-3 w-3 text-orange-600 shrink-0" />
-            <span className="text-[10px] font-semibold text-orange-700 leading-tight">
+            <Timer className="h-3 w-3 text-warning shrink-0" />
+            <span className="text-[10px] font-semibold text-warning leading-tight">
               Item cooking &gt;5 min
             </span>
           </div>
@@ -346,7 +346,7 @@ function DetailedTableCard({
               {tableData.totalOrder && (
                 <div className="flex flex-col items-end gap-0.5">
                   {tableData.totalDiscount && tableData.totalDiscount > 0 ? (
-                    <div className="flex items-center gap-1 text-orange-600 text-[10px]">
+                    <div className="flex items-center gap-1 text-warning text-[10px]">
                       <TicketPercent className="h-2.5 w-2.5" />
                       <span>-{formatForDisplay(tableData.totalDiscount)}</span>
                     </div>
@@ -360,12 +360,12 @@ function DetailedTableCard({
                           Number(tableData.serviceChargeAmount),
                         )}
                       </span>
-                      <span className="text-gray-400">
+                      <span className="text-muted-foreground/70">
                         (SC {tableData.serviceChargePercentage}%)
                       </span>
                     </div>
                   ) : null}
-                  <div className="flex items-center gap-1 text-green-600 font-medium">
+                  <div className="flex items-center gap-1 text-success font-medium">
                     <span>
                       {formatForDisplay(
                         tableData.totalOrder +
@@ -376,7 +376,7 @@ function DetailedTableCard({
                 </div>
               )}
               {tableData.orderElapsedTime && (
-                <div className="text-gray-500 mt-0.5">
+                <div className="text-muted-foreground mt-0.5">
                   {tableData.orderElapsedTime}
                 </div>
               )}
@@ -386,9 +386,9 @@ function DetailedTableCard({
 
         {/* Special features indicator (full detail only) */}
         {showMenu && tableData.special_features && (
-          <div className="mt-2 pt-2 border-t border-gray-200/50">
+          <div className="mt-2 pt-2 border-t border-border/50">
             <div
-              className="text-xs text-gray-500 truncate"
+              className="text-xs text-muted-foreground truncate"
               title={tableData.special_features}
             >
               {tableData.special_features}

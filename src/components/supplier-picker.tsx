@@ -172,7 +172,7 @@ export default function SupplierPicker({
           <div className="flex flex-row items-center gap-2">
             {item.name}
             {item.isConsignment && (
-              <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-medium">
+              <span className="text-xs bg-info/15 text-info px-1.5 py-0.5 rounded font-medium">
                 CONG
               </span>
             )}
@@ -199,9 +199,9 @@ export default function SupplierPicker({
     );
 
   const createButton = showCreateButton ? (
-    <div className="border-t bg-gray-50 p-3">
+    <div className="border-t bg-muted/40 p-3">
       <div className="space-y-3">
-        <div className="text-sm font-medium text-gray-700">
+        <div className="text-sm font-medium text-foreground/80">
           Create new supplier: &ldquo;{search.trim()}&rdquo;
         </div>
 
@@ -210,15 +210,15 @@ export default function SupplierPicker({
             type="checkbox"
             checked={isConsignmentCreate}
             onChange={(e) => setIsConsignmentCreate(e.target.checked)}
-            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            className="w-4 h-4 text-info border-border rounded focus:ring-info"
           />
-          <span className="text-gray-600">Consignment supplier</span>
+          <span className="text-muted-foreground">Consignment supplier</span>
         </label>
 
         <button
           onClick={handleCreateSupplier}
           disabled={isCreating}
-          className="w-full py-2 px-3 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full py-2 px-3 bg-info text-white text-sm rounded hover:bg-info/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" />
           {isCreating ? "Creating..." : "Create Supplier"}

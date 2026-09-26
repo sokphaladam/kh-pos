@@ -88,7 +88,7 @@ export const userResetPassword = createDialog<{ userId: string }, unknown>(
                 required
               />
               {errors.newPassword && (
-                <p className="text-sm text-red-500 mt-1">
+                <p className="text-sm text-destructive mt-1">
                   {errors.newPassword}
                 </p>
               )}
@@ -108,7 +108,7 @@ export const userResetPassword = createDialog<{ userId: string }, unknown>(
                 required
               />
               {errors.confirmPassword && (
-                <p className="text-sm text-red-500 mt-1">
+                <p className="text-sm text-destructive mt-1">
                   {errors.confirmPassword}
                 </p>
               )}

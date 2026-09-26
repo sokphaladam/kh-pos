@@ -373,7 +373,7 @@ export const restaurantDiscountSheet = createDialog<
                       )}
                       <span
                         className={
-                          manual > 0 ? "text-red-600" : "text-muted-foreground"
+                          manual > 0 ? "text-destructive" : "text-muted-foreground"
                         }
                       >
                         {manual > 0
@@ -400,7 +400,7 @@ export const restaurantDiscountSheet = createDialog<
                 <span className="text-muted-foreground">
                   Existing discounts:
                 </span>
-                <span className="font-medium text-red-600">
+                <span className="font-medium text-destructive">
                   -{formatForDisplay(existingTotal)}
                 </span>
               </div>
@@ -409,7 +409,7 @@ export const restaurantDiscountSheet = createDialog<
               <>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Cart discount:</span>
-                  <span className="font-medium text-red-600">
+                  <span className="font-medium text-destructive">
                     -{formatForDisplay(discountPreview.totalManual)}
                   </span>
                 </div>

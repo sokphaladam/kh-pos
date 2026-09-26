@@ -75,25 +75,25 @@ export function BrandIntegrateSetting({
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Link className="h-4 w-4 text-gray-500" />
-            <h4 className="text-sm font-semibold text-gray-900">
+            <Link className="h-4 w-4 text-muted-foreground" />
+            <h4 className="text-sm font-semibold text-foreground">
               Brand Integrations
             </h4>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             Configure external integrations with URL and token
           </p>
         </div>
         <Badge
           variant="outline"
-          className="text-xs font-medium text-gray-700 border-gray-300"
+          className="text-xs font-medium text-foreground/80 border-border"
         >
           {items.length} {items.length === 1 ? "entry" : "entries"}
         </Badge>
       </div>
 
       {items.length > 0 && (
-        <Card className="border border-gray-200">
+        <Card className="border border-border">
           <CardContent className="p-4 space-y-3">
             {items.map((item, index) => (
               <div
@@ -102,15 +102,15 @@ export function BrandIntegrateSetting({
                   "group relative",
                   "flex items-center gap-3 p-3 rounded-lg border transition-all duration-200",
                   editingIndex === index
-                    ? "bg-gray-50 border-gray-300 shadow-sm"
-                    : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm",
+                    ? "bg-muted/40 border-border shadow-sm"
+                    : "bg-card border-border hover:border-border hover:shadow-sm",
                 )}
               >
                 {editingIndex === index ? (
                   <div className="flex-1 flex gap-3">
                     <div className="flex-1 space-y-2">
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                        <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                           <Tag className="h-3 w-3" /> Brand Name
                         </label>
                         <Input
@@ -126,11 +126,11 @@ export function BrandIntegrateSetting({
                               return next;
                             })
                           }
-                          className="text-sm border-gray-200 focus:border-gray-400"
+                          className="text-sm border-border focus:border-input"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                        <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                           <Link className="h-3 w-3" /> URL
                         </label>
                         <Input
@@ -146,11 +146,11 @@ export function BrandIntegrateSetting({
                               return next;
                             })
                           }
-                          className="text-sm border-gray-200 focus:border-gray-400"
+                          className="text-sm border-border focus:border-input"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                        <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                           <KeyRound className="h-3 w-3" /> Token
                         </label>
                         <Input
@@ -166,7 +166,7 @@ export function BrandIntegrateSetting({
                               return next;
                             })
                           }
-                          className="text-sm font-mono border-gray-200 focus:border-gray-400"
+                          className="text-sm font-mono border-border focus:border-input"
                         />
                       </div>
                     </div>
@@ -184,19 +184,19 @@ export function BrandIntegrateSetting({
                 ) : (
                   <>
                     <div className="flex-1 min-w-0 space-y-1">
-                      <div className="flex items-center gap-1 text-xs text-gray-700 font-semibold">
+                      <div className="flex items-center gap-1 text-xs text-foreground/80 font-semibold">
                         <Tag className="h-3 w-3 shrink-0" />
                         <span className="truncate">{item.name}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Link className="h-3 w-3 shrink-0" />
-                        <span className="truncate font-mono bg-gray-50 px-2 py-0.5 rounded border w-full">
+                        <span className="truncate font-mono bg-muted/40 px-2 py-0.5 rounded border w-full">
                           {item.url}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <KeyRound className="h-3 w-3 shrink-0" />
-                        <span className="truncate font-mono bg-gray-50 px-2 py-0.5 rounded border w-full tracking-widest">
+                        <span className="truncate font-mono bg-muted/40 px-2 py-0.5 rounded border w-full tracking-widest">
                           {"•".repeat(Math.min(item.token.length, 24))}
                         </span>
                       </div>
@@ -206,7 +206,7 @@ export function BrandIntegrateSetting({
                         variant="ghost"
                         size="sm"
                         onClick={() => setEditingIndex(index)}
-                        className="h-8 px-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                        className="h-8 px-2 text-muted-foreground hover:text-foreground/80 hover:bg-muted"
                       >
                         <Edit3 className="h-3 w-3" />
                       </Button>
@@ -214,7 +214,7 @@ export function BrandIntegrateSetting({
                         variant="ghost"
                         size="sm"
                         onClick={() => removeItem(index)}
-                        className="h-8 px-2 text-gray-500 hover:text-red-600 hover:bg-red-50"
+                        className="h-8 px-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                       >
                         <X className="h-3 w-3" />
                       </Button>
@@ -227,20 +227,20 @@ export function BrandIntegrateSetting({
         </Card>
       )}
 
-      <Card className="border-2 border-dashed border-gray-300 bg-gray-50/30">
+      <Card className="border-2 border-dashed border-border bg-muted/30">
         <CardContent className="p-4">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <div className="p-1 bg-gray-100 rounded">
-                <Plus className="h-3 w-3 text-gray-600" />
+              <div className="p-1 bg-muted rounded">
+                <Plus className="h-3 w-3 text-muted-foreground" />
               </div>
-              <label className="text-sm font-medium text-gray-800">
+              <label className="text-sm font-medium text-foreground">
                 Add Integration
               </label>
             </div>
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                   <Tag className="h-3 w-3" /> Brand Name
                 </label>
                 <Input
@@ -249,11 +249,11 @@ export function BrandIntegrateSetting({
                   onChange={(e) =>
                     setNewItem((prev) => ({ ...prev, name: e.target.value }))
                   }
-                  className="text-sm border-gray-200 focus:border-gray-400 bg-white"
+                  className="text-sm border-border focus:border-input bg-card"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                   <Link className="h-3 w-3" /> URL
                 </label>
                 <Input
@@ -262,11 +262,11 @@ export function BrandIntegrateSetting({
                   onChange={(e) =>
                     setNewItem((prev) => ({ ...prev, url: e.target.value }))
                   }
-                  className="text-sm border-gray-200 focus:border-gray-400 bg-white"
+                  className="text-sm border-border focus:border-input bg-card"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                <label className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                   <KeyRound className="h-3 w-3" /> Token
                 </label>
                 <Input
@@ -275,7 +275,7 @@ export function BrandIntegrateSetting({
                   onChange={(e) =>
                     setNewItem((prev) => ({ ...prev, token: e.target.value }))
                   }
-                  className="text-sm font-mono border-gray-200 focus:border-gray-400 bg-white"
+                  className="text-sm font-mono border-border focus:border-input bg-card"
                 />
               </div>
               <Button
@@ -302,9 +302,9 @@ export function BrandIntegrateSetting({
       </Card>
 
       {items.length === 0 && (
-        <div className="text-center py-6 px-4 text-gray-400">
+        <div className="text-center py-6 px-4 text-muted-foreground/70">
           <Link className="h-8 w-8 mx-auto mb-2 opacity-40" />
-          <p className="text-sm font-medium text-gray-500">
+          <p className="text-sm font-medium text-muted-foreground">
             No integrations yet
           </p>
           <p className="text-xs mt-1">

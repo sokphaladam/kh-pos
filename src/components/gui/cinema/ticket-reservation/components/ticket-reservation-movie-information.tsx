@@ -18,7 +18,7 @@ export function TicketReservationMovieInformation(props: Props) {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Movie Poster */}
           <div className="flex-shrink-0 mx-auto lg:mx-0">
-            <div className="w-48 h-72 bg-slate-200 rounded-lg overflow-hidden shadow-md">
+            <div className="w-48 h-72 bg-muted rounded-lg overflow-hidden shadow-md">
               {props.variant.movie?.posterUrl ? (
                 <img
                   src={props.variant.movie.posterUrl}
@@ -26,8 +26,8 @@ export function TicketReservationMovieInformation(props: Props) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-slate-200">
-                  <span className="text-slate-500 text-sm">No Poster</span>
+                <div className="w-full h-full flex items-center justify-center bg-muted">
+                  <span className="text-muted-foreground text-sm">No Poster</span>
                 </div>
               )}
             </div>
@@ -36,7 +36,7 @@ export function TicketReservationMovieInformation(props: Props) {
           {/* Movie Details */}
           <div className="flex-1 space-y-4">
             <div>
-              <h2 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-2">
+              <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
                 {props.variant.basicProduct?.title}
               </h2>
               <div className="flex flex-wrap gap-2 mb-3">
@@ -56,19 +56,19 @@ export function TicketReservationMovieInformation(props: Props) {
                     </Badge>
                   ))}
               </div>
-              <div className="text-sm text-slate-600 mb-2">
+              <div className="text-sm text-muted-foreground mb-2">
                 <strong>Release Date:</strong>{" "}
                 {moment(props.variant.movie?.releaseDate).format(
                   "MMMM DD, YYYY"
                 )}
               </div>
               {props.variant.movie?.director && (
-                <div className="text-sm text-slate-600 mb-2">
+                <div className="text-sm text-muted-foreground mb-2">
                   <strong>Director:</strong> {props.variant.movie.director}
                 </div>
               )}
               {props.variant.movie?.cast && (
-                <div className="text-sm text-slate-600 mb-3">
+                <div className="text-sm text-muted-foreground mb-3">
                   <strong>Cast:</strong>{" "}
                   {Array.isArray(props.variant.movie.cast)
                     ? props.variant.movie.cast.join(", ")
@@ -79,10 +79,10 @@ export function TicketReservationMovieInformation(props: Props) {
 
             {props.variant.movie?.synopsis && (
               <div>
-                <h3 className="text-lg font-semibold text-slate-700 mb-2">
+                <h3 className="text-lg font-semibold text-foreground/80 mb-2">
                   Synopsis
                 </h3>
-                <p className="text-slate-600 text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   {props.variant.movie.synopsis}
                 </p>
               </div>

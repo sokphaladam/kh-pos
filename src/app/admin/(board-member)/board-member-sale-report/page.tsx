@@ -1,4 +1,6 @@
 "use client";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { LatticeLoader } from "@/components/ui/lattice-loader";
 import {
   useQueryReportSaleBreakdownByCategory,
   useQueryReportSaleBreakdownByCategoryWithIntegration,
@@ -15,7 +17,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useAuthentication } from "contexts/authentication-context";
 import { endOfDay, startOfDay } from "date-fns";
 import { BarChart3, Filter, List, RefreshCw } from "lucide-react";
@@ -124,15 +125,15 @@ export default function BoardMemberSaleReportPage() {
         />
         <SidebarInset className="flex-1 -ml-[16%]">
           {/* Header */}
-          <div className="bg-white border-b border-gray-200 p-4">
+          <div className="bg-card border-b border-border p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <SidebarTrigger />
                 <div>
-                  <h1 className="text-xl font-semibold text-gray-900">
+                  <h1 className="text-xl font-semibold tracking-tight text-foreground">
                     Sales Reports - {warehouseName || "All Branches"}
                   </h1>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     Analyze your sales performance with detailed insights for{" "}
                     {warehouseName || "All Branches"}. From{" "}
                     {filterParams.startDate || "N/A"} to{" "}
@@ -142,30 +143,25 @@ export default function BoardMemberSaleReportPage() {
               </div>
 
               {/* View Mode Toggle */}
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-gray-700">View:</span>
-                <ToggleGroup
-                  type="single"
+              <div className="flex items-center gap-2">
+                <SegmentedControl
+                  aria-label="View mode"
+                  size="sm"
                   value={viewMode}
-                  onValueChange={(value) =>
-                    value && setViewMode(value as "list" | "graph")
-                  }
-                >
-                  <ToggleGroupItem
-                    value="list"
-                    className="flex items-center gap-2"
-                  >
-                    <List className="w-4 h-4" />
-                    List
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value="graph"
-                    className="flex items-center gap-2"
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    Chart
-                  </ToggleGroupItem>
-                </ToggleGroup>
+                  onChange={(value) => setViewMode(value as "list" | "graph")}
+                  items={[
+                    {
+                      value: "list",
+                      label: "List",
+                      icon: <List className="size-3.5" />,
+                    },
+                    {
+                      value: "graph",
+                      label: "Chart",
+                      icon: <BarChart3 className="size-3.5" />,
+                    },
+                  ]}
+                />
                 <Button variant="outline" size="sm" onClick={() => mutate()}>
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Refresh
@@ -186,17 +182,17 @@ export default function BoardMemberSaleReportPage() {
 
             {/* Active Filters Summary */}
             {activeFiltersCount > 0 && (
-              <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="mt-3 p-2 bg-info/10 rounded-lg border border-info/20">
                 <div className="flex items-center gap-2 text-sm">
-                  <Filter className="w-4 h-4 text-blue-600" />
-                  <span className="font-medium text-blue-900">
+                  <Filter className="w-4 h-4 text-info" />
+                  <span className="font-medium text-info">
                     Active Filters:
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {filters.dateRange && (
                       <Badge
                         variant="outline"
-                        className="text-blue-700 border-blue-300"
+                        className="text-info border-info/30"
                       >
                         Date Range: {filterParams.startDate || "N/A"} -{" "}
                         {filterParams.endDate || "N/A"}
@@ -207,7 +203,7 @@ export default function BoardMemberSaleReportPage() {
                       user?.role?.role === "OWNER" && (
                         <Badge
                           variant="outline"
-                          className="text-blue-700 border-blue-300"
+                          className="text-info border-info/30"
                         >
                           {filters.warehouseIds.length} Branches
                         </Badge>
@@ -215,7 +211,7 @@ export default function BoardMemberSaleReportPage() {
                     {filters.userIds.length > 0 && (
                       <Badge
                         variant="outline"
-                        className="text-blue-700 border-blue-300"
+                        className="text-info border-info/30"
                       >
                         {filters.userIds.length} Users
                       </Badge>
@@ -223,7 +219,7 @@ export default function BoardMemberSaleReportPage() {
                     {filters.categoryId.length > 0 && (
                       <Badge
                         variant="outline"
-                        className="text-blue-700 border-blue-300"
+                        className="text-info border-info/30"
                       >
                         Category
                       </Badge>
@@ -231,7 +227,7 @@ export default function BoardMemberSaleReportPage() {
                     {filters.groupBy && (
                       <Badge
                         variant="outline"
-                        className="text-blue-700 border-blue-300"
+                        className="text-info border-info/30"
                       >
                         Group By: {filters.groupBy}
                       </Badge>
@@ -239,7 +235,7 @@ export default function BoardMemberSaleReportPage() {
                     {filters.productId && (
                       <Badge
                         variant="outline"
-                        className="text-blue-700 border-blue-300"
+                        className="text-info border-info/30"
                       >
                         Product
                       </Badge>
@@ -255,8 +251,7 @@ export default function BoardMemberSaleReportPage() {
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <div className="flex flex-col items-center gap-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                  <p className="text-gray-600">Loading report data...</p>
+                  <LatticeLoader label="Loading report data" />
                 </div>
               </div>
             ) : viewMode === "list" ? (

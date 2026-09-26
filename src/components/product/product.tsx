@@ -56,8 +56,8 @@ const VARIANT_BADGE_CHIPS: {
   label: string;
   activeClass: string;
 }[] = [
-  { key: "isPopular", label: "Popular", activeClass: "bg-amber-500 text-white border-amber-500" },
-  { key: "isNew", label: "New", activeClass: "bg-emerald-500 text-white border-emerald-500" },
+  { key: "isPopular", label: "Popular", activeClass: "bg-warning text-white border-warning" },
+  { key: "isNew", label: "New", activeClass: "bg-success text-white border-success" },
   {
     key: "isMostOrder",
     label: "Best Seller",
@@ -90,7 +90,7 @@ function VariantBadgeToggles({
             "text-[10px] font-medium px-1.5 py-0.5 rounded-full border transition-colors",
             state[chip.key]
               ? chip.activeClass
-              : "bg-white text-gray-400 border-gray-200",
+              : "bg-card text-muted-foreground/70 border-border",
           )}
         >
           {chip.label}
@@ -392,7 +392,7 @@ export function Product({
 
   // Mobile Card View
   const renderMobileCard = (
-    <Card className="mb-4 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-blue-500 card-hover">
+    <Card className="mb-4 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-info card-hover">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -408,7 +408,7 @@ export function Product({
               >
                 <ImageWithFallback
                   alt="Product image"
-                  className="w-12 h-12 border border-gray-200 rounded-lg object-contain"
+                  className="w-12 h-12 border border-border rounded-lg object-contain"
                   height={48}
                   src={product.productImages[0]?.url}
                   width={48}
@@ -416,7 +416,7 @@ export function Product({
               </div>
             </div>
             <div>
-              <CardTitle className="text-sm font-semibold text-gray-900 mb-1 truncate max-w-[200px]">
+              <CardTitle className="text-sm font-semibold text-foreground mb-1 truncate max-w-[200px]">
                 {product.title}
               </CardTitle>
               <div className="flex items-center gap-2 mb-2">
@@ -436,13 +436,13 @@ export function Product({
                   <Switch
                     checked={isForSaleState}
                     disabled={setForSaleMutation.isMutating}
-                    className="h-4 w-8 data-[state=checked]:bg-green-500"
+                    className="h-4 w-8 data-[state=checked]:bg-success"
                     onCheckedChange={onToggleForSale}
                   />
                   <span
                     className={cn(
                       "text-xs font-medium flex items-center gap-0.5",
-                      isForSaleState ? "text-green-600" : "text-gray-400",
+                      isForSaleState ? "text-success" : "text-muted-foreground/70",
                     )}
                   >
                     <ShoppingCart className="w-3 h-3" />
@@ -470,43 +470,43 @@ export function Product({
 
       <CardContent className="pt-0">
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="flex items-center text-sm text-gray-600">
-            <BarChart3 className="w-4 h-4 mr-2 text-blue-600" />
+          <div className="flex items-center text-sm text-muted-foreground">
+            <BarChart3 className="w-4 h-4 mr-2 text-info" />
             <span className="text-xs">Stock: </span>
             <span
               className={cn(
                 "font-medium ml-1 text-xs",
-                hasLowStock ? "text-red-600" : "text-gray-900",
+                hasLowStock ? "text-destructive" : "text-foreground",
               )}
             >
               {hasConversion ? "N/A" : totalStock}
             </span>
           </div>
 
-          <div className="flex items-center text-sm text-gray-600">
-            <DollarSign className="w-4 h-4 mr-2 text-green-600" />
+          <div className="flex items-center text-sm text-muted-foreground">
+            <DollarSign className="w-4 h-4 mr-2 text-success" />
             <span className="text-xs">Price: </span>
-            <span className="font-medium ml-1 text-xs text-gray-900">
+            <span className="font-medium ml-1 text-xs text-foreground">
               {product.productVariants?.every((v) => v.price === price)
                 ? `${currency}${price}`
                 : "Varies"}
             </span>
           </div>
 
-          <div className="flex items-center text-sm text-gray-600">
+          <div className="flex items-center text-sm text-muted-foreground">
             <Tag className="w-4 h-4 mr-2 text-purple-600" />
             <span className="text-xs">Category: </span>
-            <span className="font-medium ml-1 text-xs text-gray-900 truncate">
+            <span className="font-medium ml-1 text-xs text-foreground truncate">
               {product.productCategories?.length > 0
                 ? product.productCategories.map((x) => x.title).join(", ")
                 : "N/A"}
             </span>
           </div>
 
-          <div className="flex items-center text-sm text-gray-600">
-            <Calendar className="w-4 h-4 mr-2 text-orange-600" />
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Calendar className="w-4 h-4 mr-2 text-warning" />
             <span className="text-xs">Created: </span>
-            <span className="font-medium ml-1 text-xs text-gray-900 truncate">
+            <span className="font-medium ml-1 text-xs text-foreground truncate">
               {product.createdAt
                 ? new Date(product.createdAt).toLocaleDateString("en-US", {
                     month: "short",
@@ -519,7 +519,7 @@ export function Product({
         </div>
 
         {product.productVariants?.length > 0 && (
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+          <div className="flex items-center justify-between pt-2 border-t border-border">
             <Button
               size="sm"
               variant="outline"
@@ -546,10 +546,10 @@ export function Product({
 
   // Desktop Table View
   const renderDesktopRow = (
-    <TableRow className="hover:bg-gray-50 transition-colors h-12">
+    <TableRow className="hover:bg-muted/40 transition-colors h-12">
       <TableCell className="font-medium text-xs py-2 h-12 w-[140px]">
         <div className="flex flex-row items-center gap-2 h-full">
-          <div className="text-xs w-5 text-center text-gray-500">
+          <div className="text-xs w-5 text-center text-muted-foreground">
             {index + 1}
           </div>
           <Button
@@ -579,7 +579,7 @@ export function Product({
             >
               <ImageWithFallback
                 alt="Product image"
-                className="w-8 h-8 border border-gray-200 rounded-md object-contain"
+                className="w-8 h-8 border border-border rounded-md object-contain"
                 height={32}
                 src={product.productImages[0]?.url}
                 width={32}
@@ -593,7 +593,7 @@ export function Product({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="font-medium text-gray-900 truncate cursor-help">
+                <span className="font-medium text-foreground truncate cursor-help">
                   {product.title}
                 </span>
               </TooltipTrigger>
@@ -619,13 +619,13 @@ export function Product({
                     <Switch
                       checked={isForSaleState}
                       disabled={setForSaleMutation.isMutating}
-                      className="h-3.5 w-7 data-[state=checked]:bg-green-500"
+                      className="h-3.5 w-7 data-[state=checked]:bg-success"
                       onCheckedChange={onToggleForSale}
                     />
                     <span
                       className={cn(
                         "text-xs font-medium",
-                        isForSaleState ? "text-green-600" : "text-gray-400",
+                        isForSaleState ? "text-success" : "text-muted-foreground/70",
                       )}
                     >
                       {isForSaleState ? "For Sale" : "Not For Sale"}
@@ -652,7 +652,7 @@ export function Product({
       <TableCell
         className={cn(
           "text-sm font-medium text-center w-[80px]",
-          hasLowStock ? "text-red-600" : "text-gray-900",
+          hasLowStock ? "text-destructive" : "text-foreground",
         )}
       >
         {hasConversion ? (
@@ -660,7 +660,7 @@ export function Product({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <ArrowLeftRight className="w-3 h-3 text-blue-600 cursor-help" />
+                  <ArrowLeftRight className="w-3 h-3 text-info cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Has unit conversion</p>
@@ -673,7 +673,7 @@ export function Product({
         )}
       </TableCell>
       <TableCell className="text-sm font-medium text-center w-[80px]">
-        <span className="text-green-600">
+        <span className="text-success">
           {product.productVariants?.every((v) => v.price === price) ? (
             `${currency}${price}`
           ) : (
@@ -692,7 +692,7 @@ export function Product({
               </Badge>
             ))
           ) : (
-            <span className="text-gray-400 text-xs">No category</span>
+            <span className="text-muted-foreground/70 text-xs">No category</span>
           )}
           {product.productCategories?.length > 1 && (
             <Badge variant="outline" className="text-xs">
@@ -701,7 +701,7 @@ export function Product({
           )}
         </div>
       </TableCell>
-      <TableCell className="text-sm text-gray-600 w-[100px]">
+      <TableCell className="text-sm text-muted-foreground w-[100px]">
         {Formatter.date(product.createdAt)}
       </TableCell>
       <TableCell>
@@ -739,24 +739,24 @@ export function Product({
             return (
               <Card
                 key={variant.id}
-                className="ml-4 mr-4 mb-2 shadow-sm border-l-4 border-l-gray-300 product-variant-expand"
+                className="ml-4 mr-4 mb-2 shadow-sm border-l-4 border-l-border product-variant-expand"
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <ImageWithFallback
                         src={images[0]?.url}
-                        className="border border-gray-200 object-contain rounded-sm bg-gray-50 product-image-hover"
+                        className="border border-border object-contain rounded-sm bg-muted/40 product-image-hover"
                         alt="Variant"
                         width={32}
                         height={32}
                       />
 
                       <div>
-                        <div className="text-xs font-medium text-gray-600">
+                        <div className="text-xs font-medium text-muted-foreground">
                           {variant.barcode}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-muted-foreground">
                           {variant.optionValues.map((x) => x.value).join(" / ")}
                         </div>
                       </div>
@@ -791,15 +791,15 @@ export function Product({
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex items-center text-xs">
-                      <BarChart3 className="w-3 h-3 mr-2 text-blue-600" />
-                      <span className="text-gray-600">Stock: </span>
+                      <BarChart3 className="w-3 h-3 mr-2 text-info" />
+                      <span className="text-muted-foreground">Stock: </span>
                       <span
                         className={cn(
                           "font-medium ml-1",
                           Number(variant.stock || 0) <
                             Number(variant.lowStockQty || 0)
-                            ? "text-red-600"
-                            : "text-gray-900",
+                            ? "text-destructive"
+                            : "text-foreground",
                         )}
                       >
                         {variant.stock}
@@ -807,23 +807,23 @@ export function Product({
                     </div>
 
                     <div className="flex items-center text-xs">
-                      <DollarSign className="w-3 h-3 mr-2 text-green-600" />
-                      <span className="text-gray-600">Price: </span>
-                      <span className="font-medium ml-1 text-gray-900">
+                      <DollarSign className="w-3 h-3 mr-2 text-success" />
+                      <span className="text-muted-foreground">Price: </span>
+                      <span className="font-medium ml-1 text-foreground">
                         {currency}
                         {variant.price}
                       </span>
                     </div>
 
                     {isSubWarehouseWithGroups && (
-                      <div className="col-span-2 flex items-center gap-1.5 pt-1 border-t border-gray-100">
+                      <div className="col-span-2 flex items-center gap-1.5 pt-1 border-t border-border">
                         <Switch
                           checked={
                             variantVisibilityState[variant.id] ??
                             variant.visible
                           }
                           disabled={setVisibilityMutation.isMutating}
-                          className="h-4 w-8 data-[state=checked]:bg-blue-500"
+                          className="h-4 w-8 data-[state=checked]:bg-info"
                           onCheckedChange={(val) =>
                             onToggleVariantVisibility(
                               variant.id,
@@ -836,12 +836,12 @@ export function Product({
                         />
                         {(variantVisibilityState[variant.id] ??
                         variant.visible) ? (
-                          <span className="text-xs font-medium text-blue-600 flex items-center gap-0.5">
+                          <span className="text-xs font-medium text-info flex items-center gap-0.5">
                             <Eye className="w-3 h-3" />
                             Visible in branch
                           </span>
                         ) : (
-                          <span className="text-xs font-medium text-gray-400 flex items-center gap-0.5">
+                          <span className="text-xs font-medium text-muted-foreground/70 flex items-center gap-0.5">
                             <EyeOff className="w-3 h-3" />
                             Hidden in branch
                           </span>
@@ -874,11 +874,11 @@ export function Product({
             return (
               <TableRow
                 key={variant.id}
-                className="bg-gray-50 hover:bg-gray-100 transition-all duration-200 border-l-4 border-l-gray-300 h-10"
+                className="bg-muted/40 hover:bg-muted transition-all duration-200 border-l-4 border-l-border h-10"
               >
                 <TableCell className="font-medium text-xs py-1 h-10 w-[140px]">
                   <div className="flex flex-row items-center gap-2 h-full">
-                    <div className="text-xs w-5 text-center text-gray-400">
+                    <div className="text-xs w-5 text-center text-muted-foreground/70">
                       ↳
                     </div>
                     <div className="h-6 w-6 p-0"></div>
@@ -886,7 +886,7 @@ export function Product({
                       {images?.length > 0 && (
                         <ImageWithFallback
                           src={images[0].url}
-                          className="border border-gray-200 object-contain rounded-md bg-white"
+                          className="border border-border object-contain rounded-md bg-card"
                           alt="Variant"
                           width={32}
                           height={32}
@@ -900,7 +900,7 @@ export function Product({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="cursor-help truncate block font-medium text-gray-900">
+                          <span className="cursor-help truncate block font-medium text-foreground">
                             {variant.optionValues
                               .map((x) => x.value)
                               .join(" / ")}
@@ -915,7 +915,7 @@ export function Product({
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                       SKU: {variant.barcode || "N/A"}
                     </span>
                     {isSubWarehouseWithGroups && (
@@ -932,7 +932,7 @@ export function Product({
                                   variant.visible
                                 }
                                 disabled={setVisibilityMutation.isMutating}
-                                className="h-3.5 w-7 data-[state=checked]:bg-blue-500"
+                                className="h-3.5 w-7 data-[state=checked]:bg-info"
                                 onCheckedChange={(val) =>
                                   onToggleVariantVisibility(
                                     variant.id,
@@ -945,12 +945,12 @@ export function Product({
                               />
                               {(variantVisibilityState[variant.id] ??
                               variant.visible) ? (
-                                <span className="text-xs font-medium text-blue-600 flex items-center gap-0.5">
+                                <span className="text-xs font-medium text-info flex items-center gap-0.5">
                                   <Eye className="w-3 h-3" />
                                   Visible
                                 </span>
                               ) : (
-                                <span className="text-xs font-medium text-gray-400 flex items-center gap-0.5">
+                                <span className="text-xs font-medium text-muted-foreground/70 flex items-center gap-0.5">
                                   <EyeOff className="w-3 h-3" />
                                   Hidden
                                 </span>
@@ -1001,13 +1001,13 @@ export function Product({
                     "text-xs font-medium text-center w-[80px]",
                     Number(variant.stock || 0) <
                       Number(variant.lowStockQty || 0)
-                      ? "text-red-600"
-                      : "text-gray-900",
+                      ? "text-destructive"
+                      : "text-foreground",
                   )}
                 >
                   {variant.stock}
                 </TableCell>
-                <TableCell className="text-xs font-medium text-center text-green-600 w-[80px]">
+                <TableCell className="text-xs font-medium text-center text-success w-[80px]">
                   {currency}
                   {variant.price}
                 </TableCell>

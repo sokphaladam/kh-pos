@@ -23,27 +23,27 @@ export function POSPaymentCurrencySelect(props: Props) {
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel className="text-xs text-gray-500">
+          <SelectLabel className="text-xs text-muted-foreground">
             Select Currency
           </SelectLabel>
           <SelectItem value={"USD"} className="font-medium">
             <div className="flex items-center gap-2">
-              <span className="text-green-600">
+              <span className="text-success">
                 {currencyCode === "USD" ? "$" : "៛"}
               </span>
               <span>{currencyCode === "USD" ? "USD" : "KHR"}</span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-muted-foreground">
                 {currencyCode === "USD" ? "US Dollar" : "Cambodian Riel"}
               </span>
             </div>
           </SelectItem>
           <SelectItem value={"KHR"} className="font-medium">
             <div className="flex items-center gap-2">
-              <span className="text-blue-600">
+              <span className="text-info">
                 {currencyCode === "USD" ? "៛" : "$"}
               </span>
               <span>{currencyCode === "USD" ? "KHR" : "USD"}</span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-muted-foreground">
                 {currencyCode === "USD" ? "Cambodian Riel" : "US Dollar"}
               </span>
             </div>

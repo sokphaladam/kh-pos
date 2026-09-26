@@ -82,38 +82,38 @@ export function HotHour(props: Props) {
 
   // Get intensity color class
   const getIntensityColor = (intensity: number) => {
-    if (intensity === 0) return "bg-gray-50 dark:bg-gray-800";
-    if (intensity <= 0.2) return "bg-emerald-100 dark:bg-emerald-900/30";
-    if (intensity <= 0.4) return "bg-emerald-200 dark:bg-emerald-800/40";
-    if (intensity <= 0.6) return "bg-emerald-300 dark:bg-emerald-700/50";
-    if (intensity <= 0.8) return "bg-emerald-400 dark:bg-emerald-600/60";
-    return "bg-emerald-500 dark:bg-emerald-500/70";
+    if (intensity === 0) return "bg-muted/40";
+    if (intensity <= 0.2) return "bg-success/15";
+    if (intensity <= 0.4) return "bg-success/25";
+    if (intensity <= 0.6) return "bg-success/40";
+    if (intensity <= 0.8) return "bg-success/70";
+    return "bg-success";
   };
 
   if (isLoading) {
     return (
-      <div className="bg-white">
+      <div className="bg-card">
         <div className="mb-4 flex items-center gap-2">
-          <Clock className="h-5 w-5 text-emerald-600" />
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+          <Clock className="h-5 w-5 text-success" />
+          <h3 className="text-lg font-semibold text-foreground">
             Hot Hour
           </h3>
         </div>
-        <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+        <div className="h-64 bg-muted rounded animate-pulse"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white">
+      <div className="bg-card">
         <div className="mb-4 flex items-center gap-2">
-          <Clock className="h-5 w-5 text-emerald-600" />
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+          <Clock className="h-5 w-5 text-success" />
+          <h3 className="text-lg font-semibold text-foreground">
             Hot Hour
           </h3>
         </div>
-        <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
+        <div className="h-64 flex items-center justify-center text-muted-foreground">
           Failed to load data
         </div>
       </div>
@@ -121,15 +121,15 @@ export function HotHour(props: Props) {
   }
 
   return (
-    <div className="bg-white">
+    <div className="bg-card">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-emerald-600" />
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+          <Clock className="h-5 w-5 text-success" />
+          <h3 className="text-lg font-semibold text-foreground">
             Hot Hour
           </h3>
         </div>
-        <div className="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+        <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
           <span>Less</span>
           <div className="flex gap-0.5">
             {[0, 0.2, 0.4, 0.6, 0.8, 1].map((intensity) => (
@@ -151,7 +151,7 @@ export function HotHour(props: Props) {
             {dayLabels.map((day) => (
               <div
                 key={day}
-                className="flex-1 min-w-0 text-center text-[10px] sm:text-xs font-medium text-gray-600 dark:text-gray-300 py-1"
+                className="flex-1 min-w-0 text-center text-[10px] sm:text-xs font-medium text-muted-foreground py-1"
               >
                 {day}
               </div>
@@ -163,7 +163,7 @@ export function HotHour(props: Props) {
             {activeHours.map((hour) => (
               <div key={hour} className="flex items-center">
                 {/* Hour label */}
-                <div className="w-8 sm:w-10 text-[10px] sm:text-xs text-gray-600 dark:text-gray-300 text-right pr-1 sm:pr-2 flex-shrink-0">
+                <div className="w-8 sm:w-10 text-[10px] sm:text-xs text-muted-foreground text-right pr-1 sm:pr-2 flex-shrink-0">
                   {String(hour).padStart(2, "0")}:00
                 </div>
 
@@ -185,25 +185,25 @@ export function HotHour(props: Props) {
                       tooltipPosition =
                         "left-full top-1/2 transform -translate-y-1/2 ml-2";
                       arrowPosition =
-                        "absolute right-full top-1/2 transform -translate-y-1/2 border-2 border-transparent border-r-gray-900 dark:border-r-gray-100";
+                        "absolute right-full top-1/2 transform -translate-y-1/2 border-2 border-transparent border-r-input";
                     } else if (isRightSide) {
                       // Show tooltip to the left for right-side cells
                       tooltipPosition =
                         "right-full top-1/2 transform -translate-y-1/2 mr-2";
                       arrowPosition =
-                        "absolute left-full top-1/2 transform -translate-y-1/2 border-2 border-transparent border-l-gray-900 dark:border-l-gray-100";
+                        "absolute left-full top-1/2 transform -translate-y-1/2 border-2 border-transparent border-l-input";
                     } else if (isFirstHalf) {
                       // Show tooltip below for top cells
                       tooltipPosition =
                         "top-full left-1/2 transform -translate-x-1/2 mt-2";
                       arrowPosition =
-                        "absolute bottom-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-b-gray-900 dark:border-b-gray-100";
+                        "absolute bottom-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-b-input";
                     } else {
                       // Show tooltip above for bottom cells (default)
                       tooltipPosition =
                         "bottom-full left-1/2 transform -translate-x-1/2 mb-2";
                       arrowPosition =
-                        "absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-gray-900 dark:border-t-gray-100";
+                        "absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-input";
                     }
 
                     return (
@@ -224,9 +224,9 @@ export function HotHour(props: Props) {
                         {/* Dynamic positioned tooltip */}
                         <div
                           className={`absolute ${tooltipPosition}
-                          bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-[10px] sm:text-xs rounded py-1 px-2
-                          opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none
-                          whitespace-nowrap z-20`}
+ bg-gray-900 text-white text-[10px] sm:text-xs rounded py-1 px-2
+ opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none
+ whitespace-nowrap z-20`}
                         >
                           <div className="font-semibold">
                             {dayLabels[day]} {String(hour).padStart(2, "0")}:00
@@ -245,13 +245,13 @@ export function HotHour(props: Props) {
 
           {/* Statistics */}
           {hotHourData && hotHourData.length > 0 && (
-            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center">
-                  <span className="text-gray-600 dark:text-gray-400">
+                  <span className="text-muted-foreground">
                     Peak Hour:
                   </span>
-                  <span className="sm:ml-2 font-semibold text-emerald-600">
+                  <span className="sm:ml-2 font-semibold text-success">
                     {(() => {
                       const peak = hotHourData.reduce((max, item) =>
                         item.total_qty > max.total_qty ? item : max
@@ -263,10 +263,10 @@ export function HotHour(props: Props) {
                   </span>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center">
-                  <span className="text-gray-600 dark:text-gray-400">
+                  <span className="text-muted-foreground">
                     Total Items:
                   </span>
-                  <span className="sm:ml-2 font-semibold text-gray-900 dark:text-white">
+                  <span className="sm:ml-2 font-semibold text-foreground">
                     {hotHourData
                       .reduce((sum, item) => sum + item.total_qty, 0)
                       .toLocaleString()}
@@ -278,7 +278,7 @@ export function HotHour(props: Props) {
 
           {/* No data state */}
           {(!hotHourData || hotHourData.length === 0) && (
-            <div className="mt-6 sm:mt-8 text-center text-gray-500 dark:text-gray-400">
+            <div className="mt-6 sm:mt-8 text-center text-muted-foreground">
               <Clock className="h-8 sm:h-12 w-8 sm:w-12 mx-auto mb-2 opacity-50" />
               <p className="text-xs sm:text-sm">
                 No activity data available for this period

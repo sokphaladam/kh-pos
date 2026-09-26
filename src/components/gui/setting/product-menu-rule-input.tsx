@@ -172,7 +172,7 @@ export function ProductMenuRuleInput(props: Props) {
                 src={currentValue.bannerUrl}
                 alt="Menu Banner"
                 title="Menu Banner"
-                className="w-24 h-16 object-cover rounded-lg border bg-white flex-shrink-0"
+                className="w-24 h-16 object-cover rounded-lg border bg-card flex-shrink-0"
                 width={96}
                 height={64}
               />
@@ -257,7 +257,7 @@ export function ProductMenuRuleInput(props: Props) {
         <CardContent className="space-y-4">
           <div className="flex flex-col md:flex-row gap-6 items-start">
             <div
-              className="bg-white p-4 rounded-lg border border-border/30 shadow-sm"
+              className="bg-card p-4 rounded-lg border border-border/30 shadow-sm"
               ref={qrRef}
             >
               <QRCode

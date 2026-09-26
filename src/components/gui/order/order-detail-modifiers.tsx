@@ -20,9 +20,9 @@ export function OrderDetailModifiers({
   }
 
   return (
-    <div className="bg-slate-50/50 rounded-md border border-slate-200/60">
-      <div className="px-2.5 py-1.5 border-b border-slate-200/60 bg-slate-100/70 rounded-t-md">
-        <h4 className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+    <div className="bg-muted/50 rounded-md border border-border/60">
+      <div className="px-2.5 py-1.5 border-b border-border/60 bg-muted/70 rounded-t-md">
+        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Add-ons
         </h4>
       </div>
@@ -59,14 +59,14 @@ function OrderModifierItem({
   // Handle notes/custom modifiers
   if (modifier.modifierItemId === "notes") {
     return modifier.notes ? (
-      <div className="flex items-center justify-between py-1 px-2 bg-white/80 rounded border border-slate-100 hover:bg-white hover:border-slate-200 transition-all duration-150">
+      <div className="flex items-center justify-between py-1 px-2 bg-card/80 rounded border border-border hover:bg-card hover:border-border transition-all duration-150">
         <div className="flex items-center gap-1.5 flex-1 min-w-0">
-          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0"></div>
-          <span className="text-xs text-slate-700 font-medium truncate">
+          <div className="w-1.5 h-1.5 bg-info rounded-full flex-shrink-0"></div>
+          <span className="text-xs text-foreground/80 font-medium truncate">
             Note: {modifier.notes}
           </span>
         </div>
-        <div className="text-xs font-semibold text-slate-800 ml-2 flex-shrink-0">
+        <div className="text-xs font-semibold text-foreground ml-2 flex-shrink-0">
           {modifier.price && Number(modifier.price) > 0
             ? `+${formatForDisplay(Number(modifier.price) * quantity)}`
             : ""}
@@ -92,17 +92,17 @@ function OrderModifierItem({
   const displayPrice = modifier.price ? Number(modifier.price) * quantity : 0;
 
   return (
-    <div className="flex items-center justify-between py-1 px-2 bg-white/80 rounded border border-slate-100 hover:bg-white hover:border-slate-200 transition-all duration-150">
+    <div className="flex items-center justify-between py-1 px-2 bg-card/80 rounded border border-border hover:bg-card hover:border-border transition-all duration-150">
       <div className="flex items-center gap-1.5 flex-1 min-w-0">
-        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full flex-shrink-0"></div>
-        <span className="text-xs text-slate-700 font-medium truncate">
+        <div className="w-1.5 h-1.5 bg-success rounded-full flex-shrink-0"></div>
+        <span className="text-xs text-foreground/80 font-medium truncate">
           {displayName}
         </span>
         {!modifierItem && (
-          <span className="text-xs text-slate-400 ml-1">(unavailable)</span>
+          <span className="text-xs text-muted-foreground/70 ml-1">(unavailable)</span>
         )}
       </div>
-      <div className="text-xs font-semibold text-slate-800 ml-2 flex-shrink-0">
+      <div className="text-xs font-semibold text-foreground ml-2 flex-shrink-0">
         {displayPrice > 0 ? `+${formatForDisplay(displayPrice)}` : "Free"}
       </div>
     </div>

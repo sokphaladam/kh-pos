@@ -94,7 +94,7 @@ export function DeleteOrderButton(props: DeleteOrderButtonProps) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-red-500">Remove Order</DialogTitle>
+            <DialogTitle className="text-destructive">Remove Order</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -102,7 +102,7 @@ export function DeleteOrderButton(props: DeleteOrderButtonProps) {
               This action cannot be undone. To confirm, enter the code below.
             </p>
             <div className="flex items-center justify-center">
-              <span className="text-3xl font-bold tracking-[0.4em] text-red-500 bg-red-50 border border-red-200 rounded-lg px-6 py-3 select-none">
+              <span className="text-3xl font-bold tracking-[0.4em] text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-6 py-3 select-none">
                 {code}
               </span>
             </div>
@@ -115,11 +115,11 @@ export function DeleteOrderButton(props: DeleteOrderButtonProps) {
                 setError("");
               }}
               className={
-                error ? "border-red-500 focus-visible:ring-red-500" : ""
+                error ? "border-destructive focus-visible:ring-destructive" : ""
               }
               autoFocus
             />
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
 
           <DialogFooter>

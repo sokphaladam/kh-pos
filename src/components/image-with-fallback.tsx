@@ -28,7 +28,7 @@ export function ImageWithFallback({
 
   return (
     <div
-      className="relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200/50 shadow-sm"
+      className="relative flex items-center justify-center overflow-hidden rounded-lg border border-border/50 shadow-sm"
       style={{ width, height }}
     >
       {hasImage ? (
@@ -56,7 +56,7 @@ export function ImageWithFallback({
           aria-label={alt}
         >
           <Package
-            className="w-6 h-6 mb-2 opacity-40 text-gray-400"
+            className="w-6 h-6 mb-2 opacity-40 text-muted-foreground/70"
             strokeWidth={1.5}
           />
         </div>

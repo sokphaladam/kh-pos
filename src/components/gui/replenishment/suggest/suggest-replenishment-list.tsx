@@ -90,7 +90,7 @@ export function ReplenishmentItemList(props: ReplenishmentItemListProps) {
   return (
     <TableRow
       key={item.id}
-      className={cn(item.sourceStock === 0 && "bg-gray-100")}
+      className={cn(item.sourceStock === 0 && "bg-muted")}
     >
       <TableCell className="table-cell text-nowrap text-xs">
         <ImageWithFallback
@@ -203,7 +203,7 @@ export function ReplenishmentItemList(props: ReplenishmentItemListProps) {
           <DropdownMenuTrigger asChild>
             <div className="group relative">
               <Checkbox
-                className="cursor-pointer data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 h-5 w-5"
+                className="cursor-pointer data-[state=checked]:bg-info data-[state=checked]:border-info h-5 w-5"
                 onCheckedChange={onToggleSelecte}
                 checked={isSelected}
                 disabled={item.sourceStock === 0}
@@ -385,7 +385,7 @@ export default function ReplenishmentProductList({
             })}
           </TableBody>
         </Table>
-        <CardFooter className="border-t bg-gray-50 p-4 flex justify-between items-center">
+        <CardFooter className="border-t bg-muted/40 p-4 flex justify-between items-center">
           <div>
             <p className="font-medium">
               Total qty to send: {totalSent} • Total Cost: ${totalCost}

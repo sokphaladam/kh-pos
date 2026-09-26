@@ -136,9 +136,9 @@ export default function PickingList({
                     </TableCell>
                   </TableRow>
                   {!!item.message && (
-                    <TableRow className=" hover:bg-white">
+                    <TableRow className=" hover:bg-card">
                       <TableCell colSpan={4} className="text-xs">
-                        <div className="text-sm text-red-500">
+                        <div className="text-sm text-destructive">
                           {item.message}
                         </div>
                       </TableCell>

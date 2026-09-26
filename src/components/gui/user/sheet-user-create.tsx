@@ -173,7 +173,7 @@ function EditUserSheet({
         />
       </div>
       <SheetFooter>
-        {error && <small className="text-rose-600">{error}</small>}
+        {error && <small className="text-destructive">{error}</small>}
         <Button onClick={onSave} size="sm" disabled={isSaving}>
           {isSaving ? "Saving…" : "Save"}
         </Button>
@@ -223,7 +223,7 @@ function CreateUserSheet({ close }: { close: (v: UserInput | null) => void }) {
         />
       </div>
       <SheetFooter>
-        {error && <small className="text-rose-600">{error}</small>}
+        {error && <small className="text-destructive">{error}</small>}
         <Button onClick={onCreate} size="sm" disabled={createLoading}>
           {createLoading ? "Creating…" : "Create"}
         </Button>

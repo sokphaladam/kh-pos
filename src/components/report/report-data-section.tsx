@@ -13,21 +13,21 @@ interface ReportDataSectionProps {
 export function ReportDataSection({
   title,
   icon: Icon,
-  iconColor = "text-blue-600",
+  iconColor = "text-info",
   recordCount,
   recordLabel = "records",
   children,
 }: ReportDataSectionProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+    <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+      <div className="px-6 py-4 border-b border-border bg-muted/40">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+          <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
             <Icon className={`w-5 h-5 ${iconColor}`} />
             {title}
           </h2>
           {recordCount !== undefined && (
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               {recordCount}{" "}
               {recordCount === 1 ? recordLabel.slice(0, -1) : recordLabel}
             </div>

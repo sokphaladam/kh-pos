@@ -18,7 +18,7 @@ export function SaleBreakdownTable({ data }: SaleBreakdownTableProps) {
     return (
       <div className="text-center py-12">
         <svg
-          className="mx-auto h-12 w-12 text-gray-400"
+          className="mx-auto h-12 w-12 text-muted-foreground/70"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -30,10 +30,10 @@ export function SaleBreakdownTable({ data }: SaleBreakdownTableProps) {
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <h3 className="mt-2 text-sm font-medium text-gray-900">
+        <h3 className="mt-2 text-sm font-medium text-foreground">
           No data available
         </h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Try selecting a different date range.
         </p>
       </div>
@@ -55,11 +55,11 @@ export function SaleBreakdownTable({ data }: SaleBreakdownTableProps) {
   const getRowStyle = (row: SaleByCategoryReportRow) => {
     switch (row.type) {
       case "total":
-        return "bg-blue-50 font-bold border-t-2 border-b-2 border-blue-300";
+        return "bg-info/10 font-bold border-t-2 border-b-2 border-info/30";
       case "category":
-        return "bg-gray-100 font-semibold";
+        return "bg-muted font-semibold";
       case "detail":
-        return "hover:bg-gray-50";
+        return "hover:bg-muted/40";
       default:
         return "";
     }
@@ -70,7 +70,7 @@ export function SaleBreakdownTable({ data }: SaleBreakdownTableProps) {
       case "total":
         return (
           <svg
-            className="w-4 h-4 text-blue-600"
+            className="w-4 h-4 text-info"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -80,7 +80,7 @@ export function SaleBreakdownTable({ data }: SaleBreakdownTableProps) {
       case "category":
         return (
           <svg
-            className="w-4 h-4 text-gray-600"
+            className="w-4 h-4 text-muted-foreground"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -96,37 +96,37 @@ export function SaleBreakdownTable({ data }: SaleBreakdownTableProps) {
     <div className="overflow-x-auto">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="font-bold text-gray-700">
+          <TableRow className="bg-muted/40">
+            <TableHead className="font-bold text-foreground/80">
               Product Code
             </TableHead>
-            <TableHead className="font-bold text-gray-700">
+            <TableHead className="font-bold text-foreground/80">
               Product Name
             </TableHead>
             {showOrderedAt && (
-              <TableHead className="font-bold text-gray-700">
+              <TableHead className="font-bold text-foreground/80">
                 Ordered At
               </TableHead>
             )}
-            <TableHead className="font-bold text-gray-700 text-right">
+            <TableHead className="font-bold text-foreground/80 text-right">
               Quantity
             </TableHead>
-            <TableHead className="font-bold text-gray-700 text-right">
+            <TableHead className="font-bold text-foreground/80 text-right">
               Supply Price
             </TableHead>
-            <TableHead className="font-bold text-gray-700 text-right">
+            <TableHead className="font-bold text-foreground/80 text-right">
               Total Price
             </TableHead>
-            <TableHead className="font-bold text-gray-700 text-right">
+            <TableHead className="font-bold text-foreground/80 text-right">
               Modifier
             </TableHead>
-            <TableHead className="font-bold text-gray-700 text-right">
+            <TableHead className="font-bold text-foreground/80 text-right">
               Discount
             </TableHead>
-            <TableHead className="font-bold text-gray-700 text-right">
+            <TableHead className="font-bold text-foreground/80 text-right">
               Revenue
             </TableHead>
-            <TableHead className="font-bold text-gray-700 text-right">
+            <TableHead className="font-bold text-foreground/80 text-right">
               Profit
             </TableHead>
           </TableRow>
@@ -142,13 +142,13 @@ export function SaleBreakdownTable({ data }: SaleBreakdownTableProps) {
               </TableCell>
               <TableCell>
                 <div className="flex flex-col">
-                  <span className={row.type === "total" ? "text-blue-900" : ""}>
+                  <span className={row.type === "total" ? "text-info" : ""}>
                     {row.name || (row.type === "total" ? "GRAND TOTAL" : "-")}
                   </span>
                 </div>
               </TableCell>
               {showOrderedAt && (
-                <TableCell className="text-sm text-gray-600">
+                <TableCell className="text-sm text-muted-foreground">
                   {row.orderedAt || "-"}
                 </TableCell>
               )}
@@ -167,13 +167,13 @@ export function SaleBreakdownTable({ data }: SaleBreakdownTableProps) {
               <TableCell className="text-right">
                 {formatCurrency(row.discount)}
               </TableCell>
-              <TableCell className="text-right font-medium text-green-700">
+              <TableCell className="text-right font-medium text-success">
                 {formatCurrency(row.revenue)}
               </TableCell>
               <TableCell
                 className={`text-right font-medium ${
-                  row.profit >= 0 ? "text-green-700" : "text-red-700"
-                }`}
+ row.profit >= 0 ? "text-success" : "text-destructive"
+ }`}
               >
                 {formatCurrency(row.profit)}
               </TableCell>

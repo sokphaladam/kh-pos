@@ -56,7 +56,7 @@ const ProductImage = ({ item }: { item: ProductSearchResult }) => {
 
   if (image) {
     return (
-      <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded border border-gray-200 bg-white">
+      <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded border border-border bg-card">
         <ImageWithFallback
           src={image.url}
           alt={item.productTitle}
@@ -68,7 +68,7 @@ const ProductImage = ({ item }: { item: ProductSearchResult }) => {
   }
 
   return (
-    <div className="w-8 h-8 bg-gray-50 rounded flex items-center justify-center text-gray-400 border border-gray-200">
+    <div className="w-8 h-8 bg-muted/40 rounded flex items-center justify-center text-muted-foreground/70 border border-border">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="w-4 h-4"
@@ -89,9 +89,9 @@ const ProductImage = ({ item }: { item: ProductSearchResult }) => {
 
 const StockBadge = ({ stock }: { stock: number }) => {
   const getStockVariant = () => {
-    if (stock <= 0) return "bg-red-50 text-red-600 border-red-200";
-    if (stock < 5) return "bg-amber-50 text-amber-700 border-amber-200";
-    return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    if (stock <= 0) return "bg-destructive/10 text-destructive border-destructive/20";
+    if (stock < 5) return "bg-warning/10 text-warning border-warning/20";
+    return "bg-success/10 text-success border-success/20";
   };
 
   return (
@@ -119,16 +119,16 @@ const LoadMoreButton = ({
       e.stopPropagation();
       onLoadMore();
     }}
-    className="text-center py-2 border-t border-gray-100 bg-gray-50 cursor-pointer"
+    className="text-center py-2 border-t border-border bg-muted/40 cursor-pointer"
   >
     <button
       type="button"
       disabled={loading}
       className={`w-[90%] py-1.5 text-sm rounded-md border ${
-        loading
-          ? "bg-gray-100 text-gray-400 border-gray-200"
-          : "bg-white text-blue-700 border-blue-200 hover:bg-blue-50"
-      } transition-colors`}
+ loading
+ ? "bg-muted text-muted-foreground/70 border-border"
+ : "bg-card text-info border-info/20 hover:bg-info/10"
+ } transition-colors`}
     >
       {loading && page > 0 ? "Loading..." : "Load more"}
     </button>
@@ -136,7 +136,7 @@ const LoadMoreButton = ({
 );
 
 const NoMoreItems = () => (
-  <div className="text-center text-gray-500 text-xs py-3 border-t border-gray-100 bg-gray-50">
+  <div className="text-center text-muted-foreground text-xs py-3 border-t border-border bg-muted/40">
     No more items
   </div>
 );
@@ -160,29 +160,29 @@ const ProductItem = ({
 
   return (
     <div
-      className={`w-full flex items-center gap-2 py-1 px-3 border-b border-gray-100 last:border-b-0 ${
-        isSelected ? "cursor-default opacity-50 bg-gray-50" : "cursor-pointer"
-      }`}
+      className={`w-full flex items-center gap-2 py-1 px-3 border-b border-border last:border-b-0 ${
+ isSelected ? "cursor-default opacity-50 bg-muted/40" : "cursor-pointer"
+ }`}
     >
       <ProductImage item={item} />
 
       <div className="flex-1 min-w-0">
-        <div className="truncate text-sm font-medium text-gray-800">
+        <div className="truncate text-sm font-medium text-foreground">
           {item.productTitle}
         </div>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs text-gray-500 truncate">
+          <span className="text-xs text-muted-foreground truncate">
             SKU: {item.sku}
           </span>
-          <div className="h-2 w-px bg-gray-300"></div>
-          <span className="text-xs font-semibold text-emerald-700">
+          <div className="h-2 w-px bg-border"></div>
+          <span className="text-xs font-semibold text-success">
             {price}
           </span>
         </div>
       </div>
 
       {isSelected && (
-        <span className="text-xs text-blue-600 font-medium whitespace-nowrap">
+        <span className="text-xs text-info font-medium whitespace-nowrap">
           Added
         </span>
       )}
@@ -400,7 +400,7 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
       <div className="relative w-full flex flex-col gap-1">
         <div className="flex items-center gap-2">
           {/* Search mode toggle */}
-          <div className="flex rounded-md border border-gray-300 overflow-hidden text-xs font-medium shrink-0">
+          <div className="flex rounded-md border border-border overflow-hidden text-xs font-medium shrink-0">
             <button
               type="button"
               onMouseDown={(e) => e.preventDefault()}
@@ -412,10 +412,10 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
                 setPage(0);
               }}
               className={`px-2.5 py-1 transition-colors ${
-                searchMode === "title"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
-              }`}
+ searchMode === "title"
+ ? "bg-info text-white"
+ : "bg-card text-muted-foreground hover:bg-muted/40"
+ }`}
             >
               Title
             </button>
@@ -429,11 +429,11 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
                 setAllResults([]);
                 setPage(0);
               }}
-              className={`px-2.5 py-1 border-l border-gray-300 transition-colors ${
-                searchMode === "barcode"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
-              }`}
+              className={`px-2.5 py-1 border-l border-border transition-colors ${
+ searchMode === "barcode"
+ ? "bg-info text-white"
+ : "bg-card text-muted-foreground hover:bg-muted/40"
+ }`}
             >
               Barcode
             </button>
@@ -446,10 +446,10 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
                 <button
                   type="button"
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium transition-colors shrink-0 ${
-                    selectedCategoryIds.length > 0
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600"
-                  }`}
+ selectedCategoryIds.length > 0
+ ? "bg-info text-white border-info"
+ : "bg-card text-muted-foreground border-border hover:border-info/50 hover:text-info"
+ }`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -472,7 +472,7 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
               </PopoverTrigger>
               <PopoverContent align="start" className="w-64 p-2">
                 <div className="flex items-center justify-between px-1 pb-1.5">
-                  <p className="text-xs font-semibold text-gray-500">
+                  <p className="text-xs font-semibold text-muted-foreground">
                     Filter by category
                   </p>
                   {selectedCategoryIds.length > 0 && (
@@ -483,7 +483,7 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
                         setPage(0);
                         setAllResults([]);
                       }}
-                      className="text-xs text-blue-600 hover:underline"
+                      className="text-xs text-info hover:underline"
                     >
                       Clear all
                     </button>
@@ -495,7 +495,7 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
                     return (
                       <label
                         key={cat.id}
-                        className="flex items-center gap-2 px-2 py-1.5 rounded text-sm cursor-pointer hover:bg-gray-100 transition-colors"
+                        className="flex items-center gap-2 px-2 py-1.5 rounded text-sm cursor-pointer hover:bg-muted transition-colors"
                       >
                         <input
                           type="checkbox"
@@ -514,8 +514,8 @@ const SearchProductPicker = forwardRef<MaterialInputRef, Props>(
                         <span
                           className={
                             checked
-                              ? "text-blue-700 font-medium"
-                              : "text-gray-700"
+                              ? "text-info font-medium"
+                              : "text-foreground/80"
                           }
                         >
                           {cat.title}

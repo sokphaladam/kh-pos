@@ -37,7 +37,7 @@ export function ProductListSkeleton() {
               {Array.from({ length: 5 }).map((_, index) => (
                 <Card
                   key={index}
-                  className="mb-4 shadow-sm border-l-4 border-l-blue-500"
+                  className="mb-4 shadow-sm border-l-4 border-l-info"
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
@@ -64,7 +64,7 @@ export function ProductListSkeleton() {
                         </div>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="flex items-center justify-between pt-2 border-t border-border">
                       <Skeleton className="h-8 w-32 rounded" />
                     </div>
                   </CardContent>
@@ -121,7 +121,7 @@ export function ProductListSkeleton() {
           </TableHeader>
           <TableBody>
             {Array.from({ length: 8 }).map((_, index) => (
-              <TableRow key={index} className="hover:bg-gray-50 h-12">
+              <TableRow key={index} className="hover:bg-muted/40 h-12">
                 <TableCell className="w-[140px]">
                   <div className="flex items-center gap-2">
                     <Skeleton className="w-5 h-3" />

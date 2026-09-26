@@ -135,52 +135,52 @@ export const posPaymentDialog = createDialog<
         <div className="space-y-4 py-3">
           {/* Exchange Rate Display */}
           <div className="flex justify-center">
-            <div className="text-sm text-gray-600 bg-blue-50 px-3 py-1 rounded-lg border">
+            <div className="text-sm text-muted-foreground bg-info/10 px-3 py-1 rounded-lg border">
               Exchange Rate: 1 USD = {exchangeRate.toLocaleString()} KHR
             </div>
           </div>
 
           {/* Compact Summary */}
-          <div className="space-y-3 p-3 bg-gray-50 rounded-lg border">
+          <div className="space-y-3 p-3 bg-muted/40 rounded-lg border">
             <div className="flex justify-between items-center">
               <div>
-                <div className="text-sm text-gray-600">Total</div>
+                <div className="text-sm text-muted-foreground">Total</div>
                 <div className="font-bold text-lg">
                   {formatForDisplay(totalOrder || 0)}
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted-foreground">
                   {totalOrderSub.symbol}
                   {totalOrderSub.amount}
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm text-gray-600">Paid</div>
-                <div className="font-semibold text-lg text-green-600">
+                <div className="text-sm text-muted-foreground">Paid</div>
+                <div className="font-semibold text-lg text-success">
                   {formatForDisplay(customerReceived)}
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted-foreground">
                   {totalCustomerReceived.symbol}
                   {totalCustomerReceived.amount}
                 </div>
               </div>
               {remainingBalance > 0 ? (
                 <div className="text-right">
-                  <div className="text-sm text-orange-600">Remaining</div>
-                  <div className="font-semibold text-lg text-orange-600">
+                  <div className="text-sm text-warning">Remaining</div>
+                  <div className="font-semibold text-lg text-warning">
                     {formatForDisplay(remainingBalance)}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {totalRemainingBalance.symbol}
                     {totalRemainingBalance.amount}
                   </div>
                 </div>
               ) : returnToCustomer > 0 ? (
                 <div className="text-right">
-                  <div className="text-sm text-green-600">Change</div>
-                  <div className="font-semibold text-lg text-green-600">
+                  <div className="text-sm text-success">Change</div>
+                  <div className="font-semibold text-lg text-success">
                     {formatForDisplay(returnToCustomer)}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {currencyCode === "USD"
                       ? Formatter.formatCurrencyKH(
                           returnToCustomer * exchangeRate,
@@ -189,7 +189,7 @@ export const posPaymentDialog = createDialog<
                   </div>
                 </div>
               ) : (
-                <CheckCircle2 className="h-6 w-6 text-green-500" />
+                <CheckCircle2 className="h-6 w-6 text-success" />
               )}
             </div>
           </div>
@@ -201,8 +201,8 @@ export const posPaymentDialog = createDialog<
             </div>
 
             {payments.length === 0 ? (
-              <div className="text-center py-6 text-gray-500">
-                <CreditCard className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+              <div className="text-center py-6 text-muted-foreground">
+                <CreditCard className="h-8 w-8 mx-auto mb-2 text-muted-foreground/70" />
                 <p className="text-sm">No payment methods added</p>
               </div>
             ) : (
@@ -210,7 +210,7 @@ export const posPaymentDialog = createDialog<
                 {payments.map((payment, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-3 p-3 border rounded-lg bg-white"
+                    className="flex items-center gap-3 p-3 border rounded-lg bg-card"
                   >
                     <div className="flex-1 grid grid-cols-3 gap-3 items-center">
                       <POSPaymentMehtodSelect
@@ -290,7 +290,7 @@ export const posPaymentDialog = createDialog<
                           autoFocus={idx === 0}
                         />
                         {payment.currency === "KHR" && (
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-muted-foreground">
                             ≈{" "}
                             {currencyCode === "USD"
                               ? format(Number(payment.amountUsd), {
@@ -304,7 +304,7 @@ export const posPaymentDialog = createDialog<
                           </div>
                         )}
                         {payment.currency === "USD" && (
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-muted-foreground">
                             ≈{" "}
                             {currencyCode === "USD"
                               ? Formatter.formatCurrencyKH(

@@ -30,30 +30,30 @@ interface OrderHistoryListProps {
 const getStatusIcon = (status: string) => {
   switch (status?.toUpperCase()) {
     case "COMPLETED":
-      return <CheckCircle className="h-3 w-3 text-green-600" />;
+      return <CheckCircle className="h-3 w-3 text-success" />;
     case "CANCELLED":
-      return <XCircle className="h-3 w-3 text-red-600" />;
+      return <XCircle className="h-3 w-3 text-destructive" />;
     case "PROCESSING":
-      return <Truck className="h-3 w-3 text-blue-600" />;
+      return <Truck className="h-3 w-3 text-info" />;
     case "DRAFT":
-      return <Clock className="h-3 w-3 text-gray-600" />;
+      return <Clock className="h-3 w-3 text-muted-foreground" />;
     default:
-      return <Package className="h-3 w-3 text-gray-600" />;
+      return <Package className="h-3 w-3 text-muted-foreground" />;
   }
 };
 
 const getStatusColor = (status: string) => {
   switch (status?.toUpperCase()) {
     case "COMPLETED":
-      return "text-green-600 bg-green-50 border-green-200";
+      return "text-success bg-success/10 border-success/20";
     case "CANCELLED":
-      return "text-red-600 bg-red-50 border-red-200";
+      return "text-destructive bg-destructive/10 border-destructive/20";
     case "PROCESSING":
-      return "text-blue-600 bg-blue-50 border-blue-200";
+      return "text-info bg-info/10 border-info/20";
     case "DRAFT":
-      return "text-gray-600 bg-gray-50 border-gray-200";
+      return "text-muted-foreground bg-muted/40 border-border";
     default:
-      return "text-gray-600 bg-gray-50 border-gray-200";
+      return "text-muted-foreground bg-muted/40 border-border";
   }
 };
 
@@ -72,15 +72,15 @@ export function OrderHistoryList({
   }
 
   return (
-    <Card className={`border-blue-200 bg-blue-50/30 ${className}`}>
+    <Card className={`border-info/20 bg-info/30 ${className}`}>
       {showTitle && (
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between text-base">
             <div className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5 text-blue-600" />
+              <ShoppingCart className="h-5 w-5 text-info" />
               Order History
             </div>
-            <Badge variant="outline" className="text-blue-700 border-blue-300">
+            <Badge variant="outline" className="text-info border-info/30">
               {orders.length} order{orders.length !== 1 ? "s" : ""}
             </Badge>
           </CardTitle>
@@ -104,22 +104,22 @@ export function OrderHistoryList({
                   <div
                     key={order.orderId || index}
                     className={cn(
-                      "flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 transition-colors",
+                      "flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:border-info/30 transition-colors",
                       booking.length > 0 ? "cursor-pointer" : ""
                     )}
                     onClick={() => onClickAction && onClickAction(order)}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-info/15 flex items-center justify-center flex-shrink-0">
                         {booking.length > 0 ? (
-                          <Ticket className="h-4 w-4 text-green-600" />
+                          <Ticket className="h-4 w-4 text-success" />
                         ) : (
-                          <Receipt className="h-4 w-4 text-blue-600" />
+                          <Receipt className="h-4 w-4 text-info" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium text-gray-900 text-sm">
+                          <p className="font-medium text-foreground text-sm">
                             #{order.invoiceNo || "N/A"}
                           </p>
                           <div
@@ -131,7 +131,7 @@ export function OrderHistoryList({
                             {order.orderStatus || "Unknown"}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Calendar className="h-3 w-3" />
                           <span>
                             {order.paidAt
@@ -145,7 +145,7 @@ export function OrderHistoryList({
                     </div>
 
                     <div className="text-right flex-shrink-0">
-                      <div className="flex items-center gap-1 text-green-600">
+                      <div className="flex items-center gap-1 text-success">
                         <DollarSign className="h-3 w-3" />
                         <span className="font-medium text-sm">
                           {order.totalAmount
@@ -153,7 +153,7 @@ export function OrderHistoryList({
                             : "0.00"}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {order.items?.length || 0} item
                         {(order.items?.length || 0) !== 1 ? "s" : ""}
                       </p>
@@ -164,8 +164,8 @@ export function OrderHistoryList({
             </div>
 
             {orders.length > maxItems && (
-              <div className="text-center py-2 border-t border-blue-200">
-                <p className="text-sm text-gray-600">
+              <div className="text-center py-2 border-t border-info/20">
+                <p className="text-sm text-muted-foreground">
                   + {orders.length - maxItems} more order
                   {orders.length - maxItems !== 1 ? "s" : ""}
                 </p>
@@ -174,11 +174,11 @@ export function OrderHistoryList({
           </>
         ) : (
           <div className="text-center py-6">
-            <ShoppingCart className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-600 font-medium">
+            <ShoppingCart className="h-8 w-8 text-muted-foreground/70 mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground font-medium">
               No order history
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               This customer hasn&apos;t made any purchases yet
             </p>
           </div>

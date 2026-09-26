@@ -79,17 +79,17 @@ export function RestaurantHeader() {
 
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center justify-between px-4 sm:px-6 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200 shadow-sm">
+      <header className="flex h-16 shrink-0 items-center justify-between px-4 sm:px-6 border-b border-border shadow-sm">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 sm:p-2 bg-blue-600 rounded-lg">
+            <div className="p-1.5 sm:p-2 bg-info rounded-lg">
               <Store className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-slate-900">
+              <h1 className="text-xl font-bold text-foreground">
                 Point of Sale
               </h1>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 L-POS - Restaurant Management ({currentTable?.orders?.invoiceNo}
                 )
               </p>
@@ -104,7 +104,7 @@ export function RestaurantHeader() {
                 variant="ghost"
                 size="sm"
                 onClick={() => onRefetch?.()}
-                className="h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                className="h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-info/10 hover:text-info transition-colors"
               >
                 <RefreshCcw
                   className={cn(
@@ -124,7 +124,7 @@ export function RestaurantHeader() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-auto px-4 text-xs sm:text-sm border-none py-0 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                className="h-8 w-auto px-4 text-xs sm:text-sm border-none py-0 hover:bg-info/10 hover:text-info transition-colors"
               >
                 {currentTable?.tables?.id ? (
                   // Show icon with table name when specific table is selected
@@ -153,7 +153,7 @@ export function RestaurantHeader() {
               <DropdownMenuItem
                 onClick={() => handleViewAllTables()}
                 className={
-                  !currentTable?.tables?.id ? "bg-blue-50 text-blue-700" : ""
+                  !currentTable?.tables?.id ? "bg-info/10 text-info" : ""
                 }
               >
                 <Grid3X3 className="h-4 w-4 mr-2" />
@@ -167,7 +167,7 @@ export function RestaurantHeader() {
                   }
                   className={
                     currentTable?.tables?.id === x.tables?.id
-                      ? "bg-blue-50 text-blue-700"
+                      ? "bg-info/10 text-info"
                       : ""
                   }
                 >
@@ -184,7 +184,7 @@ export function RestaurantHeader() {
                 variant="ghost"
                 size="sm"
                 onClick={handleOrderList}
-                className="h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                className="h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-info/10 hover:text-info transition-colors"
               >
                 <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
@@ -200,7 +200,7 @@ export function RestaurantHeader() {
                 variant="ghost"
                 size="sm"
                 onClick={() => {}}
-                className="h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-green-50 hover:text-green-700 transition-colors"
+                className="h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-success/10 hover:text-success transition-colors"
               >
                 <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
@@ -210,7 +210,7 @@ export function RestaurantHeader() {
             </TooltipContent>
           </Tooltip>
 
-          <div className="h-4 sm:h-6 w-px bg-slate-300 mx-0.5 sm:mx-1" />
+          <div className="h-4 sm:h-6 w-px bg-border mx-0.5 sm:mx-1" />
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -218,13 +218,13 @@ export function RestaurantHeader() {
                 variant="ghost"
                 size="sm"
                 onClick={currentShift ? onCloseShift : onOpenShift}
-                className="h-8 w-8 sm:h-9 sm:w-9 p-0 relative hover:bg-slate-50 transition-colors"
+                className="h-8 w-8 sm:h-9 sm:w-9 p-0 relative hover:bg-muted/40 transition-colors"
               >
                 <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <div
-                  className={`absolute top-0 right-0 h-2 w-2 rounded-full border border-white ${
-                    currentShift ? "bg-green-500" : "bg-red-500"
-                  }`}
+                  className={`absolute top-0 right-0 h-2 w-2 rounded-full border border-card ${
+ currentShift ? "bg-success" : "bg-destructive"
+ }`}
                 />
               </Button>
             </TooltipTrigger>
@@ -252,13 +252,13 @@ export function RestaurantHeader() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 sm:h-9 px-2 sm:px-3 gap-2 hover:bg-slate-50 transition-colors"
+                className="h-8 sm:h-9 px-2 sm:px-3 gap-2 hover:bg-muted/40 transition-colors"
               >
                 <Avatar className="h-6 w-6 sm:h-7 sm:w-7">
                   {user?.profile && (
                     <AvatarImage src={user.profile} alt={user.fullname} />
                   )}
-                  <AvatarFallback className="bg-blue-600 text-white text-xs">
+                  <AvatarFallback className="bg-info text-white text-xs">
                     {user?.fullname
                       ?.split(" ")
                       .map((n) => n.charAt(0).toUpperCase())
@@ -278,7 +278,7 @@ export function RestaurantHeader() {
                     {user?.fullname}
                   </p>
                   {user?.role?.role && (
-                    <p className="text-xs leading-none text-blue-600 mt-1">
+                    <p className="text-xs leading-none text-info mt-1">
                       {user.role.role}
                     </p>
                   )}
@@ -287,7 +287,7 @@ export function RestaurantHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={logout}
-                className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>

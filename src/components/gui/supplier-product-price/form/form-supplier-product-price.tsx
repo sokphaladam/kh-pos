@@ -112,9 +112,9 @@ export function FormSupplierProductPrice({
         <CardContent className="space-y-4 pt-2">
           {/* Product Information (Compact) */}
           {hasSelectedProduct && (
-            <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+            <div className="mt-2 p-2 bg-info/10 rounded border border-info/20">
               <div className="flex items-center gap-2 text-xs">
-                <div className="w-8 h-8 flex items-center justify-center overflow-hidden rounded border border-gray-200 bg-white">
+                <div className="w-8 h-8 flex items-center justify-center overflow-hidden rounded border border-border bg-card">
                   {productImage ? (
                     <ImageWithFallback
                       src={productImage}
@@ -122,17 +122,17 @@ export function FormSupplierProductPrice({
                       className="max-w-full max-h-full object-contain"
                     />
                   ) : (
-                    <Package className="w-4 h-4 text-gray-400" />
+                    <Package className="w-4 h-4 text-muted-foreground/70" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div
-                    className="font-medium text-gray-900 truncate text-xs"
+                    className="font-medium text-foreground truncate text-xs"
                     title={productTitle}
                   >
                     {productTitle}
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     {productSku && (
                       <span className="font-mono">{productSku}</span>
                     )}
@@ -142,14 +142,14 @@ export function FormSupplierProductPrice({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs text-gray-600">Price</div>
-                  <div className="text-sm font-semibold text-green-600">
+                  <div className="text-xs text-muted-foreground">Price</div>
+                  <div className="text-sm font-semibold text-success">
                     {currency}
                     {Number(productPrice || 0).toFixed(2)}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs text-gray-600">Stock</div>
+                  <div className="text-xs text-muted-foreground">Stock</div>
                   <div className="flex items-center gap-1">
                     <Badge
                       variant={stockStatus.variant}
@@ -189,7 +189,7 @@ export function FormSupplierProductPrice({
                   includeProductNotForSale
                 />
                 {errors.productVariantId && (
-                  <p className="text-red-500 text-xs flex items-center gap-1">
+                  <p className="text-destructive text-xs flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
                     {errors.productVariantId.message}
                   </p>
@@ -323,7 +323,7 @@ export function FormSupplierProductPrice({
             >
               {isSubmitting || loading ? (
                 <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3 h-3 border-2 border-card border-t-transparent rounded-full animate-spin" />
                   Saving...
                 </div>
               ) : (

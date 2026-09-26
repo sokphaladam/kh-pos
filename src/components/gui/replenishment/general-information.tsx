@@ -46,7 +46,7 @@ export function GeneralInformationReplenishment(props: Props) {
             variant="outline"
             className={cn(
               "uppercase mt-1",
-              info?.status === "completed" ? "border-green-500" : ""
+              info?.status === "completed" ? "border-success" : ""
             )}
           >
             {info?.status}

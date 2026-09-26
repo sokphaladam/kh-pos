@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/ui/state";
 import {
   requestShiftReceipt,
   useCloseShift,
@@ -114,12 +115,7 @@ export const shiftDialog = createDialog<
             </DialogTitle>
           </DialogHeader>
           <div className="flex items-center justify-center py-8">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">
-                Loading shift details...
-              </p>
-            </div>
+            <LoadingState label="Loading shift details" />
           </div>
         </>
       );
@@ -137,12 +133,12 @@ export const shiftDialog = createDialog<
         <div className="space-y-6 py-4">
           {/* Exchange Rate Display */}
           <div className="flex justify-center">
-            <div className="flex items-center gap-2 text-sm bg-blue-50 dark:bg-blue-950/50 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
-              <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <span className="font-medium text-blue-700 dark:text-blue-300">
+            <div className="flex items-center gap-2 text-sm bg-info/10 px-4 py-2 rounded-lg border border-info/20">
+              <DollarSign className="h-4 w-4 text-info" />
+              <span className="font-medium text-info">
                 Exchange Rate:
               </span>
-              <span className="font-mono font-semibold text-blue-800 dark:text-blue-200">
+              <span className="font-mono font-semibold text-info">
                 1 USD = {exchangeRate.toLocaleString()} KHR
               </span>
             </div>
@@ -150,14 +146,14 @@ export const shiftDialog = createDialog<
 
           {/* Cash Input Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <h3 className="text-sm font-medium text-foreground/80 mb-3">
               {status === "OPEN" ? "Starting Cash Amount" : "Cash Count"}
             </h3>
 
             {/* USD Section */}
             <div className="space-y-6">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <div className="w-2 h-2 bg-success rounded-full"></div>
                 <span>
                   {currencyCode === "USD"
                     ? "US Dollar (USD)"
@@ -170,7 +166,7 @@ export const shiftDialog = createDialog<
               >
                 {id && (
                   <div className="space-y-1">
-                    {/* <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    {/* <label className="text-xs font-medium text-muted-foreground">
                       Expected Amount
                     </label> */}
                     <MaterialInput
@@ -181,12 +177,12 @@ export const shiftDialog = createDialog<
                       readOnly
                       disabled
                       variant="standard"
-                      className="bg-gray-50 dark:bg-gray-900"
+                      className="bg-muted/40"
                     />
                   </div>
                 )}
                 <div className="space-y-1">
-                  {/* <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {/* <label className="text-xs font-medium text-muted-foreground">
                     {id ? "Actual Amount" : "Starting Amount"}
                   </label> */}
                   <MaterialInput
@@ -218,8 +214,8 @@ export const shiftDialog = createDialog<
 
             {/* KHR Section */}
             <div className="space-y-6">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <div className="w-2 h-2 bg-info rounded-full"></div>
                 <span>
                   {currencyCode === "USD"
                     ? "Cambodian Riel (KHR)"
@@ -232,7 +228,7 @@ export const shiftDialog = createDialog<
               >
                 {id && (
                   <div className="space-y-1">
-                    {/* <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    {/* <label className="text-xs font-medium text-muted-foreground">
                       Expected Amount
                     </label> */}
                     <MaterialInput
@@ -243,12 +239,12 @@ export const shiftDialog = createDialog<
                       readOnly
                       disabled
                       variant="standard"
-                      className="bg-gray-50 dark:bg-gray-900"
+                      className="bg-muted/40"
                     />
                   </div>
                 )}
                 <div className="space-y-1">
-                  {/* <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {/* <label className="text-xs font-medium text-muted-foreground">
                     {id ? "Actual Amount" : "Starting Amount"}
                   </label> */}
                   <MaterialInput
@@ -291,13 +287,13 @@ export const shiftDialog = createDialog<
 
                 if (hasDiscrepancy) {
                   return (
-                    <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
-                      <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-3 p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                      <AlertCircle className="h-5 w-5 text-warning mt-0.5 flex-shrink-0" />
                       <div className="space-y-1">
-                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                        <p className="text-sm font-medium text-warning">
                           Cash Discrepancy Detected
                         </p>
-                        <div className="text-xs text-amber-700 dark:text-amber-300 space-y-1">
+                        <div className="text-xs text-warning space-y-1">
                           {usdDiff > 0.01 && (
                             <div>
                               {currencyCode === "USD"

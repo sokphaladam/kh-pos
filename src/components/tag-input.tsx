@@ -92,7 +92,7 @@ export default function TagsInput(props: Props) {
                   props.setTags([...props.tags, tag]);
                 }
               }}
-              className="text-xs px-2 py-1 rounded border border-gray-300 hover:bg-gray-100 transition-colors"
+              className="text-xs px-2 py-1 rounded border border-border hover:bg-muted transition-colors"
             >
               {tag}
             </button>

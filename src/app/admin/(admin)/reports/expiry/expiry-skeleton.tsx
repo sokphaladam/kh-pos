@@ -19,18 +19,18 @@ export const HeaderSkeleton = () => (
 export const SummaryCardsSkeleton = () => (
   <div className="space-y-6 mb-8">
     {/* Overview Stats Skeleton */}
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="bg-card rounded-xl shadow-sm border border-border p-6">
       <div className="flex items-center mb-4">
         <Skeleton className="h-5 w-5 mr-2" />
         <Skeleton className="h-6 w-40" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+        <div className="rounded-lg p-4 border border-info/20">
           <Skeleton className="h-4 w-20 mb-1" />
           <Skeleton className="h-8 w-16 mb-1" />
           <Skeleton className="h-3 w-32" />
         </div>
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
+        <div className="rounded-lg p-4 border border-success/20">
           <Skeleton className="h-4 w-20 mb-1" />
           <Skeleton className="h-8 w-24 mb-1" />
           <Skeleton className="h-3 w-28" />
@@ -43,7 +43,7 @@ export const SummaryCardsSkeleton = () => (
       {[1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-sm border border-gray-200 p-6"
+          className="rounded-xl shadow-sm border border-border p-6"
         >
           <div className="flex items-center justify-between mb-3">
             <Skeleton className="h-8 w-8 rounded" />
@@ -63,7 +63,7 @@ export const SummaryCardsSkeleton = () => (
 
 export const FiltersSkeleton = () => (
   <div className="mb-8">
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="bg-card rounded-xl shadow-sm border border-border p-6">
       <div className="flex items-center mb-4">
         <Skeleton className="h-5 w-5 mr-2" />
         <Skeleton className="h-6 w-32" />
@@ -87,8 +87,8 @@ export const FiltersSkeleton = () => (
 );
 
 export const ProductTableSkeleton = () => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-    <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+  <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+    <div className="px-6 py-4 border-b border-border bg-muted/40">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <Skeleton className="h-5 w-5 mr-2" />

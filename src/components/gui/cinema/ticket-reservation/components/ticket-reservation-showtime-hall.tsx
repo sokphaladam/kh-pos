@@ -19,7 +19,7 @@ interface Props {
 
 export function TicketReservationShowtimeHall(props: Props) {
   return (
-    <div className="bg-white/70 px-6 py-4">
+    <div className="bg-card/70 px-6 py-4">
       <div className="pb-4">
         <div className="flex items-center gap-2 text-lg font-semibold">
           <Clock className="h-5 w-5" />
@@ -46,11 +46,11 @@ export function TicketReservationShowtimeHall(props: Props) {
             return (
               <div
                 key={hall.id}
-                className="p-4 border border-slate-200 rounded-xl bg-white/50 hover:bg-white/70 transition-colors"
+                className="p-4 border border-border rounded-xl bg-card/50 hover:bg-card/70 transition-colors"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0">
-                    <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
+                    <Avatar className="h-12 w-12 border-2 border-card shadow-sm">
                       <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-white font-bold">
                         {hall.name
                           .split(" ")
@@ -62,10 +62,10 @@ export function TicketReservationShowtimeHall(props: Props) {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold text-slate-800 capitalize">
+                      <h3 className="text-lg font-semibold text-foreground capitalize">
                         {hall.name}
                       </h3>
-                      <MapPin className="h-4 w-4 text-slate-500" />
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-4">
@@ -88,8 +88,8 @@ export function TicketReservationShowtimeHall(props: Props) {
 
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-slate-500" />
-                        <span className="text-sm font-medium text-slate-600">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-muted-foreground">
                           Available Times
                         </span>
                       </div>
@@ -145,12 +145,12 @@ export function TicketReservationShowtimeHall(props: Props) {
                                 {availableSeats} seats
                               </span>
                               {availableSeats < 10 && availableSeats > 0 && (
-                                <Badge className="absolute -top-2 -right-2 text-xs bg-orange-500">
+                                <Badge className="absolute -top-2 -right-2 text-xs bg-warning">
                                   Few left
                                 </Badge>
                               )}
                               {availableSeats === 0 && (
-                                <Badge className="absolute -top-2 -right-2 text-xs bg-red-500">
+                                <Badge className="absolute -top-2 -right-2 text-xs bg-destructive">
                                   Full
                                 </Badge>
                               )}

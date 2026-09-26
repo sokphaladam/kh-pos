@@ -139,10 +139,10 @@ export const deliverySheet = createSheet<Props, unknown>(
             placeholder="Enter delivery name"
             disabled={isLoading}
             required
-            className={errors.customerName ? "border-red-500" : ""}
+            className={errors.customerName ? "border-destructive" : ""}
           />
           {errors.customerName && (
-            <p className="text-sm text-red-500 mt-1">{errors.customerName}</p>
+            <p className="text-sm text-destructive mt-1">{errors.customerName}</p>
           )}
           <LabelInput
             label="Address"
@@ -152,10 +152,10 @@ export const deliverySheet = createSheet<Props, unknown>(
             disabled={isLoading}
             required
             multiple
-            className={errors.address ? "border-red-500" : ""}
+            className={errors.address ? "border-destructive" : ""}
           />
           {errors.address && (
-            <p className="text-sm text-red-500 mt-1">{errors.address}</p>
+            <p className="text-sm text-destructive mt-1">{errors.address}</p>
           )}
 
           <LabelInput
@@ -167,10 +167,10 @@ export const deliverySheet = createSheet<Props, unknown>(
             disabled={isLoading}
             min="0"
             step="0.01"
-            className={errors.extraPrice ? "border-red-500" : ""}
+            className={errors.extraPrice ? "border-destructive" : ""}
           />
           {errors.extraPrice && (
-            <p className="text-sm text-red-500 mt-1">{errors.extraPrice}</p>
+            <p className="text-sm text-destructive mt-1">{errors.extraPrice}</p>
           )}
         </div>
 

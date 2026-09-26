@@ -79,8 +79,8 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
               className={cn(
                 "text-xs font-medium",
                 isOpen
-                  ? "bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400"
-                  : "bg-gray-100 text-gray-800 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300"
+                  ? "bg-success/15 text-success hover:bg-success/15"
+                  : "bg-muted text-foreground hover:bg-muted"
               )}
             >
               {isOpen ? (
@@ -103,7 +103,7 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <Calendar className="h-4 w-4 text-info" />
                 Shift Information
               </CardTitle>
             </CardHeader>
@@ -121,8 +121,8 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
 
               {/* Opened Information */}
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-400">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="flex items-center gap-2 text-sm font-medium text-success">
+                  <div className="w-2 h-2 bg-success rounded-full"></div>
                   Opened
                 </div>
                 <div className="grid grid-cols-2 gap-4 pl-4">
@@ -152,8 +152,8 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
 
                   {/* Closed Information */}
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm font-medium text-red-700 dark:text-red-400">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <div className="flex items-center gap-2 text-sm font-medium text-destructive">
+                      <div className="w-2 h-2 bg-destructive rounded-full"></div>
                       Closed
                     </div>
                     <div className="grid grid-cols-2 gap-4 pl-4">
@@ -186,11 +186,11 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                   <Separator />
 
                   {/* Duration */}
-                  <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-950/30 px-3 py-2 rounded-lg">
-                    <span className="text-sm text-blue-700 dark:text-blue-300">
+                  <div className="flex items-center justify-between bg-info/10 px-3 py-2 rounded-lg">
+                    <span className="text-sm text-info">
                       Duration
                     </span>
-                    <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                    <span className="text-sm font-semibold text-info">
                       {data.opened_at && data.closed_at
                         ? moment(data.closed_at).diff(
                             moment(data.opened_at),
@@ -217,7 +217,7 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Wallet className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <Wallet className="h-4 w-4 text-success" />
                 Cash Flow
               </CardTitle>
               <CardDescription className="text-xs">
@@ -228,41 +228,41 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
               {/* Opening Cash */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
-                  <ArrowRight className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <ArrowRight className="h-4 w-4 text-success" />
                   Opening Cash
                 </div>
                 <div className="grid grid-cols-2 gap-3 pl-6">
-                  <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                  <div className="bg-success/10 rounded-lg p-3 border border-success/20">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-green-700 dark:text-green-300">
+                      <span className="text-xs text-success">
                         {currencyCode === "USD" ? "USD" : "KHR"}
                       </span>
                       {currencyCode === "USD" ? (
-                        <DollarSign className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                        <DollarSign className="h-3.5 w-3.5 text-success" />
                       ) : (
-                        <span className="text-xs text-green-600 dark:text-green-400">
+                        <span className="text-xs text-success">
                           ៛
                         </span>
                       )}
                     </div>
-                    <p className="text-lg font-bold text-green-800 dark:text-green-200">
+                    <p className="text-lg font-bold text-success">
                       {formatForDisplay(openedCashUsd)}
                     </p>
                   </div>
-                  <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                  <div className="bg-success/10 rounded-lg p-3 border border-success/20">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-green-700 dark:text-green-300">
+                      <span className="text-xs text-success">
                         {currencyCode === "USD" ? "KHR" : "USD"}
                       </span>
                       {currencyCode === "USD" ? (
-                        <span className="text-xs text-green-600 dark:text-green-400">
+                        <span className="text-xs text-success">
                           ៛
                         </span>
                       ) : (
-                        <DollarSign className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                        <DollarSign className="h-3.5 w-3.5 text-success" />
                       )}
                     </div>
-                    <p className="text-lg font-bold text-green-800 dark:text-green-200">
+                    <p className="text-lg font-bold text-success">
                       {openedCashKhr.toLocaleString()}
                     </p>
                   </div>
@@ -276,35 +276,35 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                   {/* Expected Closing Cash */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-sm font-medium">
-                      <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <TrendingUp className="h-4 w-4 text-info" />
                       Expected Closing Cash
                     </div>
                     <div className="grid grid-cols-2 gap-3 pl-6">
-                      <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                      <div className="bg-info/10 rounded-lg p-3 border border-info/20">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-blue-700 dark:text-blue-300">
+                          <span className="text-xs text-info">
                             {currencyCode === "USD" ? "USD" : "KHR"}
                           </span>
-                          <DollarSign className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                          <DollarSign className="h-3.5 w-3.5 text-info" />
                         </div>
-                        <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
+                        <p className="text-lg font-bold text-info">
                           {formatForDisplay(closedCashUsd)}
                         </p>
                       </div>
-                      <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                      <div className="bg-info/10 rounded-lg p-3 border border-info/20">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-blue-700 dark:text-blue-300">
+                          <span className="text-xs text-info">
                             {currencyCode === "USD" ? "KHR" : "USD"}
                           </span>
                           {currencyCode === "USD" ? (
-                            <span className="text-xs text-blue-600 dark:text-blue-400">
+                            <span className="text-xs text-info">
                               ៛
                             </span>
                           ) : (
-                            <DollarSign className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                            <DollarSign className="h-3.5 w-3.5 text-info" />
                           )}
                         </div>
-                        <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
+                        <p className="text-lg font-bold text-info">
                           {closedCashKhr.toLocaleString()}
                         </p>
                       </div>
@@ -361,8 +361,8 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                             className={cn(
                               "h-4 w-4",
                               varianceUsd < 0 || varianceKhr < 0
-                                ? "text-red-600 dark:text-red-400"
-                                : "text-amber-600 dark:text-amber-400"
+                                ? "text-destructive"
+                                : "text-warning"
                             )}
                           />
                           Variance (Actual - Expected)
@@ -372,10 +372,10 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                             className={cn(
                               "rounded-lg p-3 border",
                               varianceUsd < 0
-                                ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800"
+                                ? "bg-destructive/10 border-destructive/20"
                                 : varianceUsd > 0
-                                ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800"
-                                : "bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+                                ? "bg-warning/10 border-warning/20"
+                                : "bg-muted/40 border-border"
                             )}
                           >
                             <div className="flex items-center justify-between mb-1">
@@ -383,10 +383,10 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                                 className={cn(
                                   "text-xs",
                                   varianceUsd < 0
-                                    ? "text-red-700 dark:text-red-300"
+                                    ? "text-destructive"
                                     : varianceUsd > 0
-                                    ? "text-amber-700 dark:text-amber-300"
-                                    : "text-gray-700 dark:text-gray-300"
+                                    ? "text-warning"
+                                    : "text-foreground/80"
                                 )}
                               >
                                 {currencyCode === "USD" ? "USD" : "KHR"}
@@ -396,10 +396,10 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                                   className={cn(
                                     "h-3.5 w-3.5",
                                     varianceUsd < 0
-                                      ? "text-red-600 dark:text-red-400"
+                                      ? "text-destructive"
                                       : varianceUsd > 0
-                                      ? "text-amber-600 dark:text-amber-400"
-                                      : "text-gray-600 dark:text-gray-400"
+                                      ? "text-warning"
+                                      : "text-muted-foreground"
                                   )}
                                 />
                               ) : (
@@ -407,10 +407,10 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                                   className={cn(
                                     "text-xs",
                                     varianceKhr < 0
-                                      ? "text-red-600 dark:text-red-400"
+                                      ? "text-destructive"
                                       : varianceKhr > 0
-                                      ? "text-amber-600 dark:text-amber-400"
-                                      : "text-gray-600 dark:text-gray-400"
+                                      ? "text-warning"
+                                      : "text-muted-foreground"
                                   )}
                                 >
                                   ៛
@@ -421,10 +421,10 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                               className={cn(
                                 "text-lg font-bold",
                                 varianceUsd < 0
-                                  ? "text-red-800 dark:text-red-200"
+                                  ? "text-destructive"
                                   : varianceUsd > 0
-                                  ? "text-amber-800 dark:text-amber-200"
-                                  : "text-gray-800 dark:text-gray-200"
+                                  ? "text-warning"
+                                  : "text-foreground"
                               )}
                             >
                               {varianceUsd > 0 && "+"}
@@ -435,10 +435,10 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                             className={cn(
                               "rounded-lg p-3 border",
                               varianceKhr < 0
-                                ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800"
+                                ? "bg-destructive/10 border-destructive/20"
                                 : varianceKhr > 0
-                                ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800"
-                                : "bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+                                ? "bg-warning/10 border-warning/20"
+                                : "bg-muted/40 border-border"
                             )}
                           >
                             <div className="flex items-center justify-between mb-1">
@@ -446,10 +446,10 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                                 className={cn(
                                   "text-xs",
                                   varianceKhr < 0
-                                    ? "text-red-700 dark:text-red-300"
+                                    ? "text-destructive"
                                     : varianceKhr > 0
-                                    ? "text-amber-700 dark:text-amber-300"
-                                    : "text-gray-700 dark:text-gray-300"
+                                    ? "text-warning"
+                                    : "text-foreground/80"
                                 )}
                               >
                                 {currencyCode === "USD" ? "KHR" : "USD"}
@@ -459,10 +459,10 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                                   className={cn(
                                     "h-3.5 w-3.5",
                                     varianceUsd < 0
-                                      ? "text-red-600 dark:text-red-400"
+                                      ? "text-destructive"
                                       : varianceUsd > 0
-                                      ? "text-amber-600 dark:text-amber-400"
-                                      : "text-gray-600 dark:text-gray-400"
+                                      ? "text-warning"
+                                      : "text-muted-foreground"
                                   )}
                                 />
                               ) : (
@@ -470,10 +470,10 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                                   className={cn(
                                     "text-xs",
                                     varianceKhr < 0
-                                      ? "text-red-600 dark:text-red-400"
+                                      ? "text-destructive"
                                       : varianceKhr > 0
-                                      ? "text-amber-600 dark:text-amber-400"
-                                      : "text-gray-600 dark:text-gray-400"
+                                      ? "text-warning"
+                                      : "text-muted-foreground"
                                   )}
                                 >
                                   ៛
@@ -484,10 +484,10 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                               className={cn(
                                 "text-lg font-bold",
                                 varianceKhr < 0
-                                  ? "text-red-800 dark:text-red-200"
+                                  ? "text-destructive"
                                   : varianceKhr > 0
-                                  ? "text-amber-800 dark:text-amber-200"
-                                  : "text-gray-800 dark:text-gray-200"
+                                  ? "text-warning"
+                                  : "text-foreground"
                               )}
                             >
                               {varianceKhr > 0 && "+"}
@@ -539,7 +539,7 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3 pl-4">
-                          <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-900 rounded-lg p-2">
+                          <div className="flex items-center justify-between bg-muted/40 rounded-lg p-2">
                             <span className="text-xs text-muted-foreground">
                               {currencyCode === "USD" ? "USD" : "KHR"}
                             </span>
@@ -547,7 +547,7 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                               {formatForDisplay(Number(methodData.usd || 0))}
                             </span>
                           </div>
-                          <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-900 rounded-lg p-2">
+                          <div className="flex items-center justify-between bg-muted/40 rounded-lg p-2">
                             <span className="text-xs text-muted-foreground">
                               {currencyCode === "USD" ? "KHR" : "USD"}
                             </span>
@@ -573,7 +573,7 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <BarChart3 className="h-4 w-4 text-info" />
                   Sales & Statistics
                 </CardTitle>
               </CardHeader>
@@ -581,14 +581,14 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                 <div className="grid grid-cols-2 gap-4">
                   {/* Sales */}
                   {receipt.sales !== undefined && (
-                    <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                    <div className="bg-success/10 rounded-lg p-3 border border-success/20">
                       <div className="flex items-center gap-2 mb-1">
-                        <ShoppingCart className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                        <span className="text-xs text-green-700 dark:text-green-300">
+                        <ShoppingCart className="h-3.5 w-3.5 text-success" />
+                        <span className="text-xs text-success">
                           Total Sales
                         </span>
                       </div>
-                      <p className="text-lg font-bold text-green-800 dark:text-green-200">
+                      <p className="text-lg font-bold text-success">
                         {formatForDisplay(Number(receipt.sales || 0))}
                       </p>
                     </div>
@@ -596,14 +596,14 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
 
                   {/* Returns */}
                   {receipt.amountReturned !== undefined && (
-                    <div className="bg-red-50 dark:bg-red-950/30 rounded-lg p-3 border border-red-200 dark:border-red-800">
+                    <div className="bg-destructive/10 rounded-lg p-3 border border-destructive/20">
                       <div className="flex items-center gap-2 mb-1">
-                        <RotateCcw className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-                        <span className="text-xs text-red-700 dark:text-red-300">
+                        <RotateCcw className="h-3.5 w-3.5 text-destructive" />
+                        <span className="text-xs text-destructive">
                           Returns
                         </span>
                       </div>
-                      <p className="text-lg font-bold text-red-800 dark:text-red-200">
+                      <p className="text-lg font-bold text-destructive">
                         {formatForDisplay(Number(receipt.amountReturned || 0))}
                       </p>
                     </div>
@@ -611,14 +611,14 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
 
                   {/* Total Customers */}
                   {receipt.totalCustomer !== undefined && (
-                    <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                    <div className="bg-info/10 rounded-lg p-3 border border-info/20">
                       <div className="flex items-center gap-2 mb-1">
-                        <Users className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                        <span className="text-xs text-blue-700 dark:text-blue-300">
+                        <Users className="h-3.5 w-3.5 text-info" />
+                        <span className="text-xs text-info">
                           Total Customers
                         </span>
                       </div>
-                      <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
+                      <p className="text-lg font-bold text-info">
                         {Number(receipt.totalCustomer || 0)}
                       </p>
                     </div>
@@ -645,8 +645,8 @@ export const shiftDetailDialog = createDialog<ShiftType, unknown>(
                   <>
                     <Separator />
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                        <FileText className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      <div className="flex items-center gap-2 text-sm font-medium text-foreground/80">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
                         Other Statistics
                       </div>
                       <div className="grid grid-cols-2 gap-3 pl-6">

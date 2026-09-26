@@ -89,7 +89,7 @@ export function POSTab() {
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="flex-1 justify-between text-left bg-white/80 border rounded-lg shadow-sm"
+            className="flex-1 justify-between text-left bg-card/80 border rounded-lg shadow-sm"
           >
             <div className="flex items-center gap-2 min-w-0">
               <ShoppingBag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -102,7 +102,7 @@ export function POSTab() {
             <ChevronDown className="h-4 w-4 flex-shrink-0" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-[calc(100vw-2rem)] bg-white/90 rounded-lg shadow-lg border mt-2">
+        <DropdownMenuContent className="w-[calc(100vw-2rem)] bg-card/90 rounded-lg shadow-lg border mt-2">
           {tabs.map((tab) => (
             <DropdownMenuItem
               key={tab.id}
@@ -156,7 +156,7 @@ export function POSTab() {
   );
 
   return (
-    <div className="w-full h-[90vh] bg-white text-gray-900 flex flex-col">
+    <div className="w-full h-[90vh] bg-card text-foreground flex flex-col">
       {mobileTab}
       {/* Tab Bar */}
       <div className="hidden bg-[#f3f3f3] border-b border-[#e5e5e5] relative md:flex">
@@ -166,7 +166,7 @@ export function POSTab() {
             onClick={() => scrollTabs("left")}
             className="flex-shrink-0 w-8 h-full flex items-center justify-center bg-[#f3f3f3] hover:bg-[#e8e8e8] border-r border-[#e5e5e5] z-10"
           >
-            <ChevronLeft className="w-4 h-4 text-gray-600" />
+            <ChevronLeft className="w-4 h-4 text-muted-foreground" />
           </button>
         )}
 
@@ -190,13 +190,13 @@ export function POSTab() {
                     "flex items-center gap-2 px-3 py-2 border-r border-[#e5e5e5] cursor-pointer group min-w-0 flex-shrink-0",
                     "w-[180px]", // Fixed width for consistent tab sizes
                     currentActive?.id === tab.id
-                      ? "bg-white text-gray-900 border-t-2 border-t-blue-500"
-                      : "bg-[#f3f3f3] text-gray-600 hover:bg-[#e8e8e8]"
+                      ? "bg-card text-foreground border-t-2 border-t-info"
+                      : "bg-[#f3f3f3] text-muted-foreground hover:bg-[#e8e8e8]"
                   )}
                   onClick={() => onActiveTab(tab.id)}
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="flex-shrink-0 text-gray-500">
+                    <div className="flex-shrink-0 text-muted-foreground">
                       {tab.isDraft ? (
                         <Save className="h-4 w-4 flex-shrink-0" />
                       ) : (
@@ -244,7 +244,7 @@ export function POSTab() {
         {/* New Tab Button */}
         <button
           onClick={onNewTab}
-          className="flex-shrink-0 w-8 h-full flex items-center justify-center bg-[#f3f3f3] hover:bg-[#e8e8e8] border-r border-[#e5e5e5] text-gray-600 hover:text-gray-800"
+          className="flex-shrink-0 w-8 h-full flex items-center justify-center bg-[#f3f3f3] hover:bg-[#e8e8e8] border-r border-[#e5e5e5] text-muted-foreground hover:text-foreground"
           title="New Tab"
         >
           <Plus className="w-4 h-4" />
@@ -256,7 +256,7 @@ export function POSTab() {
             onClick={() => scrollTabs("right")}
             className="flex-shrink-0 w-8 h-full flex items-center justify-center bg-[#f3f3f3] hover:bg-[#e8e8e8] border-l border-[#e5e5e5] z-10"
           >
-            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
         )}
       </div>
@@ -264,7 +264,7 @@ export function POSTab() {
       <div className="flex-1 flex">
         {!sleep && (
           <div
-            className="rounded-b-xl p-2 flex-1 relative overflow-hidden bg-white/90"
+            className="rounded-b-xl p-2 flex-1 relative overflow-hidden bg-card/90"
             style={{
               contentVisibility: "auto",
             }}

@@ -289,7 +289,7 @@ export function HallSeatForm(props: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
+    <div className="min-h-screen p-4 md:p-6">
       <div className="mx-auto max-w-7xl space-y-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Hall Information Card */}
@@ -314,7 +314,7 @@ export function HallSeatForm(props: Props) {
 
           {/* Seat Layout */}
           {seats.length > 0 && showPreview && (
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -323,7 +323,7 @@ export function HallSeatForm(props: Props) {
                   </div>
                   <Badge
                     variant="secondary"
-                    className="bg-slate-100 text-slate-700"
+                    className="bg-muted text-foreground/80"
                   >
                     {seats.length} Total Seats
                   </Badge>
@@ -345,14 +345,14 @@ export function HallSeatForm(props: Props) {
           )}
 
           {/* Action Buttons */}
-          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
             <CardContent className="pt-6">
               <div className="flex flex-col sm:flex-row gap-4 justify-between">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
                     type="submit"
                     disabled={!isValid || seats.length === 0 || props.loading}
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-2"
+                    className="px-6"
                   >
                     <SaveIcon className="h-4 w-4 mr-2" />
                     Save Layout
@@ -368,7 +368,7 @@ export function HallSeatForm(props: Props) {
                       !watchedColumns ||
                       props.loading
                     }
-                    className="border-slate-300 hover:bg-slate-50 transition-all duration-200 px-6 py-2"
+                    className="border-border hover:bg-muted/40 transition-all duration-200 px-6 py-2"
                   >
                     <RotateCcwIcon
                       className={`h-4 w-4 mr-2 ${
@@ -383,16 +383,16 @@ export function HallSeatForm(props: Props) {
                   type="button"
                   variant="ghost"
                   onClick={resetConfiguration}
-                  className="text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200"
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
                 >
                   🗑️ Clear All
                 </Button>
               </div>
 
               {(!isValid || seats.length === 0) && (
-                <Alert className="mt-4 border-amber-200 bg-amber-50/50">
-                  <InfoIcon className="h-4 w-4 text-amber-600" />
-                  <AlertDescription className="text-amber-700">
+                <Alert className="mt-4 border-warning/20 bg-warning/50">
+                  <InfoIcon className="h-4 w-4 text-warning" />
+                  <AlertDescription className="text-warning">
                     {!isValid
                       ? "⚠️ Please fill in all required fields correctly."
                       : "⚠️ Please configure the seat layout before saving."}

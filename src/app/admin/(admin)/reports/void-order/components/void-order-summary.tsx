@@ -24,8 +24,8 @@ export function VoidOrderSummary({ data }: VoidOrderSummaryProps) {
       title: "Total Issues",
       value: data.length,
       icon: AlertTriangle,
-      color: "text-red-600",
-      bgColor: "bg-red-100",
+      color: "text-destructive",
+      bgColor: "bg-destructive/15",
       description: "Total discrepancies found",
     },
     {
@@ -33,24 +33,24 @@ export function VoidOrderSummary({ data }: VoidOrderSummaryProps) {
       value: new Set(voidedOrders.map((item) => item.orderId).filter(Boolean))
         .size,
       icon: FileX,
-      color: "text-red-600",
-      bgColor: "bg-red-100",
+      color: "text-destructive",
+      bgColor: "bg-destructive/15",
       description: "Completely voided orders",
     },
     {
       title: "Abnormal Orders",
       value: abnormalOrders.length,
       icon: Package,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-100",
+      color: "text-warning",
+      bgColor: "bg-warning/15",
       description: "Orders with discrepancies",
     },
     {
       title: "Price Discrepancy",
       value: `${formatForDisplay(totalPriceDiscrepancy)}`,
       icon: DollarSign,
-      color: "text-orange-600",
-      bgColor: "bg-orange-100",
+      color: "text-warning",
+      bgColor: "bg-warning/15",
       description: "Total price difference",
     },
   ];
@@ -60,16 +60,16 @@ export function VoidOrderSummary({ data }: VoidOrderSummaryProps) {
       {summaryCards.map((card, index) => (
         <div
           key={index}
-          className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+          className="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow duration-200"
         >
           <div className="flex items-center">
             <div className={`p-2 ${card.bgColor} rounded-lg`}>
               <card.icon className={`h-5 w-5 ${card.color}`} />
             </div>
             <div className="ml-4 flex-1">
-              <p className="text-sm font-medium text-gray-600">{card.title}</p>
-              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-              <p className="text-xs text-gray-500 mt-1">{card.description}</p>
+              <p className="text-sm font-medium text-muted-foreground">{card.title}</p>
+              <p className="text-2xl font-bold text-foreground">{card.value}</p>
+              <p className="text-xs text-muted-foreground mt-1">{card.description}</p>
             </div>
           </div>
         </div>

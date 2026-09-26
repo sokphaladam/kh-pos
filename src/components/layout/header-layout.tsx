@@ -41,7 +41,7 @@ export function HeaderLayout() {
   const allowPath = ["pos"];
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 sticky top-0 bg-white z-[49]">
+    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 sticky top-0 bg-card z-[49]">
       <div className="flex gap-2 justify-between w-full px-4">
         <div className="flex items-center gap-2">
           {!allowPath.includes(path[path.length - 1]) && (

@@ -165,7 +165,7 @@ export const restaurantCustomFoodDelivery = createSheet<Props, unknown>(
 
         <div className="p-4 space-y-6">
           {/* Order Info */}
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             <span className="font-medium">Invoice No:</span>{" "}
             {currentTable?.orders?.invoiceNo}
           </div>
@@ -229,7 +229,7 @@ export const restaurantCustomFoodDelivery = createSheet<Props, unknown>(
                 </Label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <Truck className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Truck className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
                     <Input
                       id="phone-search"
                       type="text"
@@ -273,7 +273,7 @@ export const restaurantCustomFoodDelivery = createSheet<Props, unknown>(
 
                 <ScrollArea className="h-[200px] border rounded-md">
                   {deliveryCustomers.length === 0 ? (
-                    <div className="p-4 text-center text-gray-500 text-sm">
+                    <div className="p-4 text-center text-muted-foreground text-sm">
                       {searchPhone
                         ? "No customers found for this phone number"
                         : "No delivery customers available"}
@@ -284,23 +284,23 @@ export const restaurantCustomFoodDelivery = createSheet<Props, unknown>(
                         <div
                           key={customer.id}
                           className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                            selectedCustomer?.id === customer.id
-                              ? "border-blue-500 bg-blue-50"
-                              : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                          }`}
+ selectedCustomer?.id === customer.id
+ ? "border-info bg-info/10"
+ : "border-border hover:border-border hover:bg-muted/40"
+ }`}
                           onClick={() => setSelectedCustomer(customer)}
                         >
                           <div className="font-medium text-sm">
                             {customer.customerName}
                           </div>
                           {customer.address && (
-                            <div className="flex items-center gap-1 text-xs text-gray-600">
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
                               <MapPin className="h-3 w-3" />
                               <span>{customer.address}</span>
                             </div>
                           )}
                           {Number(customer.extraPrice) > 0 && (
-                            <div className="flex items-center gap-1 text-xs text-green-600">
+                            <div className="flex items-center gap-1 text-xs text-success">
                               <DollarSign className="h-3 w-3" />
                               <span>Extra: ${customer.extraPrice}</span>
                             </div>
@@ -367,21 +367,21 @@ export const restaurantCustomFoodDelivery = createSheet<Props, unknown>(
               {selectedCustomer && (
                 <>
                   <Separator />
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="text-sm font-medium text-blue-800 mb-1">
+                  <div className="p-3 bg-info/10 border border-info/20 rounded-lg">
+                    <div className="text-sm font-medium text-info mb-1">
                       Selected Customer
                     </div>
-                    <div className="text-sm text-blue-700">
+                    <div className="text-sm text-info">
                       {selectedCustomer.customerName}
                     </div>
                     {selectedCustomer.address && (
-                      <div className="text-xs text-blue-600">
+                      <div className="text-xs text-info">
                         {selectedCustomer.address}
                       </div>
                     )}
                     {selectedCustomer.extraPrice &&
                       Number(selectedCustomer.extraPrice) > 0 && (
-                        <div className="text-xs text-green-600 font-medium">
+                        <div className="text-xs text-success font-medium">
                           Extra Delivery Fee: ${selectedCustomer.extraPrice}
                         </div>
                       )}

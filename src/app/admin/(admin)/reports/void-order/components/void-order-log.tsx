@@ -60,7 +60,7 @@ export const voidOrderLog = createDialog<{ content: any[] }>(
             </Table>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              <div className="w-12 h-12 mx-auto mb-4 text-gray-300">
+              <div className="w-12 h-12 mx-auto mb-4 text-muted-foreground/70">
                 <svg
                   fill="none"
                   stroke="currentColor"

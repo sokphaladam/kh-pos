@@ -153,7 +153,7 @@ export function TicketReservationScanLayout() {
           className={cn(
             "flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
             currentStep === "hall"
-              ? "bg-blue-50 border border-blue-200 text-blue-700"
+              ? "bg-info/10 border border-info/20 text-info"
               : "bg-muted/50 text-muted-foreground",
           )}
         >
@@ -161,7 +161,7 @@ export function TicketReservationScanLayout() {
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium",
               currentStep === "hall"
-                ? "bg-blue-100 text-blue-700"
+                ? "bg-info/15 text-info"
                 : "bg-muted text-muted-foreground",
             )}
           >
@@ -180,7 +180,7 @@ export function TicketReservationScanLayout() {
           className={cn(
             "flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
             currentStep === "showtime"
-              ? "bg-blue-50 border border-blue-200 text-blue-700"
+              ? "bg-info/10 border border-info/20 text-info"
               : selectedHall
                 ? "bg-muted/50 text-foreground"
                 : "bg-muted/30 text-muted-foreground",
@@ -190,7 +190,7 @@ export function TicketReservationScanLayout() {
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium",
               currentStep === "showtime"
-                ? "bg-blue-100 text-blue-700"
+                ? "bg-info/15 text-info"
                 : selectedHall
                   ? "bg-muted text-foreground"
                   : "bg-muted text-muted-foreground",
@@ -219,7 +219,7 @@ export function TicketReservationScanLayout() {
           className={cn(
             "flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
             currentStep === "scan"
-              ? "bg-blue-50 border border-blue-200 text-blue-700"
+              ? "bg-info/10 border border-info/20 text-info"
               : selectedShowtime
                 ? "bg-muted/50 text-foreground"
                 : "bg-muted/30 text-muted-foreground",
@@ -229,7 +229,7 @@ export function TicketReservationScanLayout() {
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium",
               currentStep === "scan"
-                ? "bg-blue-100 text-blue-700"
+                ? "bg-info/15 text-info"
                 : selectedShowtime
                   ? "bg-muted text-foreground"
                   : "bg-muted text-muted-foreground",
@@ -254,7 +254,7 @@ export function TicketReservationScanLayout() {
           className={cn(
             "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
             currentStep === "hall"
-              ? "bg-blue-50 border border-blue-200 text-blue-700 shadow-sm"
+              ? "bg-info/10 border border-info/20 text-info shadow-sm"
               : "bg-muted/50 text-muted-foreground",
           )}
         >
@@ -262,7 +262,7 @@ export function TicketReservationScanLayout() {
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium",
               currentStep === "hall"
-                ? "bg-blue-100 text-blue-700"
+                ? "bg-info/15 text-info"
                 : "bg-muted text-muted-foreground",
             )}
           >
@@ -282,7 +282,7 @@ export function TicketReservationScanLayout() {
           className={cn(
             "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
             currentStep === "showtime"
-              ? "bg-blue-50 border border-blue-200 text-blue-700 shadow-sm"
+              ? "bg-info/10 border border-info/20 text-info shadow-sm"
               : selectedHall
                 ? "bg-muted/50 text-foreground"
                 : "bg-muted/30 text-muted-foreground",
@@ -292,7 +292,7 @@ export function TicketReservationScanLayout() {
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium",
               currentStep === "showtime"
-                ? "bg-blue-100 text-blue-700"
+                ? "bg-info/15 text-info"
                 : selectedHall
                   ? "bg-muted text-foreground"
                   : "bg-muted text-muted-foreground",
@@ -322,7 +322,7 @@ export function TicketReservationScanLayout() {
           className={cn(
             "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
             currentStep === "scan"
-              ? "bg-blue-50 border border-blue-200 text-blue-700 shadow-sm"
+              ? "bg-info/10 border border-info/20 text-info shadow-sm"
               : selectedShowtime
                 ? "bg-muted/50 text-foreground"
                 : "bg-muted/30 text-muted-foreground",
@@ -332,7 +332,7 @@ export function TicketReservationScanLayout() {
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium",
               currentStep === "scan"
-                ? "bg-blue-100 text-blue-700"
+                ? "bg-info/15 text-info"
                 : selectedShowtime
                   ? "bg-muted text-foreground"
                   : "bg-muted text-muted-foreground",

@@ -204,15 +204,15 @@ export function ProductGrid({
   return (
     <div className="w-full h-full flex flex-col">
       {/* Fixed Search Header with Close Button */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-200 p-3 shadow-sm">
+      <div className="sticky top-0 z-20 bg-card border-b border-border p-3 shadow-sm">
         <div className="relative flex items-center gap-2">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/70 h-4 w-4 pointer-events-none" />
           <Input
             type="text"
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full border-gray-300 focus:border-primary focus:ring-primary rounded-lg"
+            className="pl-10 pr-4 py-2 w-full border-border focus:border-primary focus:ring-primary rounded-lg"
             disabled={disabled}
           />
           <Button
@@ -235,7 +235,7 @@ export function ProductGrid({
         )}
       >
         {/* Desktop Sidebar Categories - Hidden on mobile */}
-        <div className="hidden md:block w-48 lg:w-56 border-r border-gray-200 bg-gray-50">
+        <div className="hidden md:block w-48 lg:w-56 border-r border-border bg-muted/40">
           <ScrollArea className="h-full">
             <div className="p-3 space-y-1">
               <Button
@@ -251,7 +251,7 @@ export function ProductGrid({
                   "w-full justify-start text-sm font-medium",
                   selectedCategory === "All"
                     ? "bg-primary text-primary-foreground"
-                    : "hover:bg-gray-100",
+                    : "hover:bg-muted",
                 )}
               >
                 All Categories
@@ -260,7 +260,7 @@ export function ProductGrid({
                 ? Array.from({ length: 5 }).map((_, index) => (
                     <div
                       key={`skeleton-${index}`}
-                      className="h-9 bg-gray-200 animate-pulse rounded-md"
+                      className="h-9 bg-muted animate-pulse rounded-md"
                     />
                   ))
                 : sortedCategories.map((category) => {
@@ -283,8 +283,8 @@ export function ProductGrid({
                           selectedCategory === category.id
                             ? "bg-primary text-primary-foreground"
                             : isMovieCategory
-                              ? "hover:bg-orange-50 border border-orange-200 bg-orange-50/50 text-orange-800 font-semibold"
-                              : "hover:bg-gray-100",
+                              ? "hover:bg-warning/10 border border-warning/20 bg-warning/50 text-warning font-semibold"
+                              : "hover:bg-muted",
                         )}
                       >
                         {category.title}
@@ -312,7 +312,7 @@ export function ProductGrid({
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Mobile Category Tabs - Visible only on mobile */}
-            <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 px-3 py-2">
+            <div className="md:hidden sticky top-0 z-10 bg-card border-b border-border px-3 py-2">
               <div className="overflow-x-auto scrollbar-hide">
                 <div className="flex gap-2 min-w-fit">
                   <Button
@@ -325,7 +325,7 @@ export function ProductGrid({
                       "whitespace-nowrap flex-shrink-0 text-xs",
                       selectedCategory === "All"
                         ? "bg-primary text-primary-foreground"
-                        : "hover:bg-gray-50",
+                        : "hover:bg-muted/40",
                     )}
                   >
                     All
@@ -349,8 +349,8 @@ export function ProductGrid({
                           selectedCategory === category.id
                             ? "bg-primary text-primary-foreground"
                             : isMovieCategory
-                              ? "hover:bg-orange-50 border-orange-300 bg-orange-50/50 text-orange-800 font-semibold"
-                              : "hover:bg-gray-50",
+                              ? "hover:bg-warning/10 border-warning/30 bg-warning/50 text-warning font-semibold"
+                              : "hover:bg-muted/40",
                         )}
                       >
                         {category.title}
@@ -370,7 +370,7 @@ export function ProductGrid({
                   ? Array.from({ length: 12 }).map((_, index) => (
                       <Card
                         key={`skeleton-${index}`}
-                        className="overflow-hidden border-0 shadow-sm bg-white rounded-xl h-full"
+                        className="overflow-hidden border-0 shadow-sm bg-card rounded-xl h-full"
                       >
                         <div className="aspect-[5/5] w-full bg-muted animate-pulse rounded-t-xl" />
                         <div className="p-1.5 sm:p-2 flex justify-center">
@@ -427,7 +427,7 @@ export function ProductGrid({
                         <Card
                           key={`${item.variantId}-${index}`}
                           className={cn(
-                            "overflow-hidden border shadow-sm transition-all duration-200 bg-white rounded-lg h-full flex flex-col relative group",
+                            "overflow-hidden border shadow-sm transition-all duration-200 bg-card rounded-lg h-full flex flex-col relative group",
                             disabled
                               ? "cursor-not-allowed opacity-60"
                               : "cursor-pointer hover:shadow-lg hover:border-primary/50 active:scale-95",
@@ -485,11 +485,11 @@ export function ProductGrid({
               {/* Empty State */}
               {!loading && !isLoading && displayProducts.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-12 px-4">
-                  <Search className="h-12 w-12 text-gray-400 mb-3" />
-                  <h3 className="text-base font-medium text-gray-900 mb-1">
+                  <Search className="h-12 w-12 text-muted-foreground/70 mb-3" />
+                  <h3 className="text-base font-medium text-foreground mb-1">
                     No products found
                   </h3>
-                  <p className="text-sm text-gray-500 text-center">
+                  <p className="text-sm text-muted-foreground text-center">
                     {searchQuery
                       ? `No products match "${searchQuery}"`
                       : "No products available"}

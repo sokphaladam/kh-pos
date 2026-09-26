@@ -29,23 +29,23 @@ import moment from "moment";
 
 const STATUS_STYLES: Record<string, { badge: string; label: string }> = {
   confirmed: {
-    badge: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    badge: "bg-success/15 text-success border-success/20",
     label: "Confirmed",
   },
   pending: {
-    badge: "bg-amber-100 text-amber-700 border-amber-200",
+    badge: "bg-warning/15 text-warning border-warning/20",
     label: "Pending",
   },
   admitted: {
-    badge: "bg-blue-100 text-blue-700 border-blue-200",
+    badge: "bg-info/15 text-info border-info/20",
     label: "Admitted",
   },
   cancelled: {
-    badge: "bg-red-100 text-red-700 border-red-200",
+    badge: "bg-destructive/15 text-destructive border-destructive/20",
     label: "Cancelled",
   },
   expired: {
-    badge: "bg-gray-100 text-gray-600 border-gray-200",
+    badge: "bg-muted text-muted-foreground border-border",
     label: "Expired",
   },
 };
@@ -245,13 +245,13 @@ export function DigitalTicketLayout() {
 
           {/* Inline status feedback */}
           {processingStatus === "searching" && (
-            <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-3 py-2 rounded-md">
+            <div className="flex items-center gap-2 text-sm text-info bg-info/10 px-3 py-2 rounded-md">
               <Loader2 className="h-3.5 w-3.5 animate-spin flex-shrink-0" />
               Searching for reservations…
             </div>
           )}
           {processingStatus === "error" && (
-            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">
+            <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
               <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
               No reservations found for &quot;{lastProcessed}&quot;. Check the{" "}
               {searchType === "code" ? "ticket code" : "phone number"} and try
@@ -259,7 +259,7 @@ export function DigitalTicketLayout() {
             </div>
           )}
           {processingStatus === "success" && selectedReservation && (
-            <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 px-3 py-2 rounded-md">
+            <div className="flex items-center gap-2 text-sm text-success bg-success/10 px-3 py-2 rounded-md">
               <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
               Ticket{" "}
               <span className="font-mono font-medium">

@@ -27,7 +27,7 @@ export function CompositeCard({
     ? variant
     : [];
   return (
-    <div className="bg-white border-l-4 border-blue-400 rounded-r-lg shadow-sm ml-8 my-2 p-3 relative">
+    <div className="bg-card border-l-4 border-info/50 rounded-r-lg shadow-sm ml-8 my-2 p-3 relative">
       <div className="mb-3 flex gap-2 items-end relative">
         <div className="flex-1">
           <SearchProductPicker
@@ -47,7 +47,7 @@ export function CompositeCard({
             {compositeVariants.map((comp: CompositeComponent, i: number) => (
               <tr key={comp.id || i} className="border-b last:border-b-0">
                 <td className="p-2">
-                  <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded border border-gray-200 bg-white">
+                  <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded border border-border bg-card">
                     <ImageWithFallback
                       src={comp.image}
                       alt={comp.title || comp.variantId}
@@ -63,7 +63,7 @@ export function CompositeCard({
                   <div className="flex items-center justify-end gap-1">
                     <button
                       type="button"
-                      className="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 text-xs"
+                      className="px-2 py-1 rounded bg-muted hover:bg-border text-xs"
                       onClick={() => {
                         const qty = Math.max(1, comp.quantity - 1);
                         onAddComponent(
@@ -97,7 +97,7 @@ export function CompositeCard({
                     />
                     <button
                       type="button"
-                      className="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 text-xs"
+                      className="px-2 py-1 rounded bg-muted hover:bg-border text-xs"
                       onClick={() => {
                         const qty = comp.quantity + 1;
                         onAddComponent(
@@ -117,12 +117,12 @@ export function CompositeCard({
                 <td className="p-2 align-middle w-1">
                   <div className="flex justify-end">
                     <button
-                      className="ml-2 flex items-center justify-center rounded-full bg-gray-100 hover:bg-red-100 transition-colors w-7 h-7"
+                      className="ml-2 flex items-center justify-center rounded-full bg-muted hover:bg-destructive/15 transition-colors w-7 h-7"
                       onClick={() => onRemoveComponent(i)}
                       aria-label="Remove"
                       type="button"
                     >
-                      <X className="w-4 h-4 text-gray-400 hover:text-red-500 transition-colors" />
+                      <X className="w-4 h-4 text-muted-foreground/70 hover:text-destructive transition-colors" />
                     </button>
                   </div>
                 </td>

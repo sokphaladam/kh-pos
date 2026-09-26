@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
+import { HoldButton } from "./ui/hold-button";
 import { Loader, LucideProps } from "lucide-react";
 import { Toaster } from "sonner";
 
@@ -57,6 +58,31 @@ export function CommonDialogProvider({ children }: PropsWithChildren) {
     setDialogOption(null);
   }, []);
 
+  const runAction = useCallback(
+    (action: NonNullable<ShowDialogProps["actions"]>[number]) => {
+      setLoading(true);
+      action
+        .onClick()
+        .then(() => {
+          hideDialog();
+          if (action.onComplete) {
+            action.onComplete();
+          }
+        })
+        .catch((e) => {
+          if (e instanceof Error) {
+            setErrorMessage(e.message);
+          } else {
+            setErrorMessage("An error occurred");
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [hideDialog],
+  );
+
   return (
     <CommonDialogContext.Provider value={{ showDialog: setDialogOption }}>
       {children}
@@ -72,13 +98,13 @@ export function CommonDialogProvider({ children }: PropsWithChildren) {
         >
           <DialogContent>
             <DialogHeader
-              className={dialogOption?.destructive ? "text-red-500" : ""}
+              className={dialogOption?.destructive ? "text-destructive" : ""}
             >
               <DialogTitle>{dialogOption.title}</DialogTitle>
             </DialogHeader>
 
             {errorMessage && (
-              <div className="text-sm text-red-500 font-mono flex gap-4 items-end">
+              <div className="text-sm text-destructive font-mono flex gap-4 items-end">
                 <p>{errorMessage}</p>
               </div>
             )}
@@ -87,54 +113,53 @@ export function CommonDialogProvider({ children }: PropsWithChildren) {
 
             <DialogDescription className="flex flex-col gap-2"></DialogDescription>
 
-            <DialogFooter>
-              {dialogOption.actions?.map((action) => (
-                <Button
-                  key={action.text}
-                  className={
-                    dialogOption.destructive ? "bg-red-500 text-white" : ""
-                  }
-                  disabled={loading}
-                  onClick={() => {
-                    setLoading(true);
-
-                    action
-                      .onClick()
-                      .then(() => {
-                        hideDialog();
-                        if (action.onComplete) {
-                          action.onComplete();
-                        }
-                      })
-                      .catch((e) => {
-                        if (e instanceof Error) {
-                          setErrorMessage(e.message);
-                        } else {
-                          setErrorMessage("An error occurred");
-                        }
-                      })
-                      .finally(() => {
-                        setLoading(false);
-                      });
-                  }}
-                >
-                  {loading && <Loader className="w-4 h-4 mr-2 animate-spin" />}
-                  {action.icon && !loading && (
-                    <action.icon className="w-4 h-4 mr-2" />
-                  )}
-                  {action.text}
-                </Button>
-              ))}
-
+            <DialogFooter className="gap-2 sm:items-center">
+              {dialogOption.destructive ? (
+                <p className="mr-auto text-xs text-muted-foreground">
+                  Press and hold to confirm
+                </p>
+              ) : null}
               <Button
                 disabled={loading}
-                variant={"secondary"}
+                variant="outline"
                 onClick={() => {
                   hideDialog();
                 }}
               >
-                Close
+                Cancel
               </Button>
+
+              {dialogOption.actions?.map((action) =>
+                dialogOption.destructive ? (
+                  // Destructive actions need a deliberate press-and-hold
+                  <HoldButton
+                    key={action.text}
+                    variant="destructive"
+                    disabled={loading}
+                    resetAfter={0}
+                    icon={
+                      action.icon ? <action.icon className="size-4" /> : undefined
+                    }
+                    doneIcon={<Loader className="size-4 animate-spin" />}
+                    doneLabel="Working…"
+                    onHold={() => runAction(action)}
+                  >
+                    {action.text}
+                  </HoldButton>
+                ) : (
+                  <Button
+                    key={action.text}
+                    disabled={loading}
+                    onClick={() => runAction(action)}
+                  >
+                    {loading && <Loader className="w-4 h-4 mr-2 animate-spin" />}
+                    {action.icon && !loading && (
+                      <action.icon className="w-4 h-4 mr-2" />
+                    )}
+                    {action.text}
+                  </Button>
+                ),
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>

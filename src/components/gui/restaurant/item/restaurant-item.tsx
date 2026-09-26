@@ -137,21 +137,21 @@ export function RestaurantItem({
   return (
     <div
       className={cn(
-        "p-4 bg-white transition-all duration-500",
+        "p-4 bg-card transition-all duration-500",
         loading || loadingInput
           ? "cursor-not-allowed opacity-60"
           : "cursor-pointer",
-        isQtyAnimating && "bg-green-50 border-green-200 shadow-md",
-        isKitchenAlert && !isQtyAnimating && "bg-orange-50 border-orange-300",
+        isQtyAnimating && "bg-success/10 border-success/20 shadow-md",
+        isKitchenAlert && !isQtyAnimating && "bg-warning/10 border-warning/30",
         !viewOnly && "border-b",
       )}
       onClick={handleOpenEdit}
     >
       {/* Kitchen check-progress alert banner */}
       {isKitchenAlert && (
-        <div className="flex items-center gap-1.5 mb-2 px-2 py-1 rounded bg-orange-100 border border-orange-300 animate-pulse">
-          <ChefHat className="w-3.5 h-3.5 text-orange-600 shrink-0" />
-          <span className="text-xs font-semibold text-orange-700">
+        <div className="flex items-center gap-1.5 mb-2 px-2 py-1 rounded bg-warning/15 border border-warning/30 animate-pulse">
+          <ChefHat className="w-3.5 h-3.5 text-warning shrink-0" />
+          <span className="text-xs font-semibold text-warning">
             Check progress — {kitchenMinutesAgo} min in kitchen
           </span>
         </div>
@@ -175,7 +175,7 @@ export function RestaurantItem({
             className={cn(
               "absolute -top-1 -left-1 w-4 h-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center transition-all duration-700 ease-out",
               isQtyAnimating &&
-                "animate-bounce scale-150 bg-gradient-to-r from-green-400 to-green-600 shadow-2xl shadow-green-500/70 border-2 border-white ring-2 ring-green-300",
+                "animate-bounce scale-150 bg-success shadow-2xl shadow-success/70 border-2 border-card ring-2 ring-success/30",
             )}
           >
             <span
@@ -228,7 +228,7 @@ export function RestaurantItem({
           <div className="flex flex-col gap-0.5">
             <RestaurantItemStatus status={item.status} />
             {kitchenMinutesAgo !== null && (
-              <div className="flex items-center gap-1 text-xs text-orange-500">
+              <div className="flex items-center gap-1 text-xs text-warning">
                 <ChefHat className="w-3 h-3" />
                 <span>
                   {kitchenMinutesAgo === 0
@@ -246,7 +246,7 @@ export function RestaurantItem({
                     Number(item.totalAmount) + Number(item.discountAmount),
                   )}
                 </span>
-                <span className="font-bold text-sm text-green-600">
+                <span className="font-bold text-sm text-success">
                   {formatForDisplay(item.totalAmount)}
                 </span>
               </div>

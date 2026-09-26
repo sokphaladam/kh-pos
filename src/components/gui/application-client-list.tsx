@@ -23,7 +23,7 @@ export function ApplicationClientList() {
                 <Warehouse
                   className={cn(
                     "h-4 w-4",
-                    `${item.isMain ? "text-amber-500" : ""}`
+                    `${item.isMain ? "text-warning" : ""}`
                   )}
                 />
               )}

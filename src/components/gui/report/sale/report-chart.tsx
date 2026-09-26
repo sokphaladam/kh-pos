@@ -44,9 +44,9 @@ function CustomTooltip({ active, payload, viewMode }: CustomTooltipProps) {
   if (active && payload && payload.length) {
     const data = payload[0].payload as ChartDataItem;
     return (
-      <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-        <p className="font-medium text-gray-900 mb-1">{data.fullName}</p>
-        <p className="text-blue-600 font-semibold">
+      <div className="bg-card p-3 border border-border rounded-lg shadow-lg">
+        <p className="font-medium text-foreground mb-1">{data.fullName}</p>
+        <p className="text-info font-semibold">
           {viewMode === "revenue"
             ? formatWithSymbol(data.value)
             : `${data.value.toLocaleString()}`}
@@ -193,7 +193,7 @@ export function ReportChart({ data, type, viewValue }: ReportListProps) {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-4 text-xs text-gray-500 text-center">
+          <div className="mt-4 text-xs text-muted-foreground text-center">
             {chartData.length === 20
               ? `Showing top 20 products by ${viewValue}`
               : `Showing ${chartData.length} products by ${viewValue}`}

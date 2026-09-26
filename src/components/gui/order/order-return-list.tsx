@@ -25,7 +25,7 @@ export function OrderReturnList(props: Props) {
           !!props.show
             ? "collapsible-content-open"
             : "collapsible-content-close",
-          "text-red-500 bg-rose-50"
+          "text-destructive bg-destructive/10"
         )}
       >
         <TableCell
@@ -59,7 +59,7 @@ export function OrderReturnList(props: Props) {
           <Tooltip delayDuration={1000}>
             <TooltipTrigger>
               <div className="bg-secondary rounded-full shadow-sm">
-                <InfoIcon className="text-sky-600 w-4 h-4" />
+                <InfoIcon className="text-info w-4 h-4" />
               </div>
             </TooltipTrigger>
             <TooltipContent>

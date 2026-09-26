@@ -160,7 +160,7 @@ export const proofSettlementDialog = createDialog<Props, unknown>(
               <div className="border rounded-lg p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    <CheckCircle2 className="h-5 w-5 text-success" />
                     <span className="text-sm font-medium">
                       File uploaded successfully
                     </span>

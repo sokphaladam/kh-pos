@@ -59,7 +59,7 @@ export default function EndofDayReportPage() {
     value: string | number,
     subtitle: string,
     Icon: React.ElementType,
-    colorClass: string = "text-blue-600",
+    colorClass: string = "text-info",
   ) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -81,7 +81,7 @@ export default function EndofDayReportPage() {
     const entries = Object.entries(data || {});
     if (entries.length === 0) {
       return (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           No data available for {title.toLowerCase()}
         </div>
       );
@@ -100,7 +100,7 @@ export default function EndofDayReportPage() {
                   {key === "dine_in" ? "Walk In" : key}
                 </div>
                 {showQuantity && (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-muted-foreground">
                     {value.qty} transaction{value.qty !== 1 ? "s" : ""}
                   </div>
                 )}
@@ -130,8 +130,8 @@ export default function EndofDayReportPage() {
               : ""
           }`}
           icon={Calendar}
-          iconBgColor="bg-blue-100"
-          iconColor="text-blue-600"
+          iconBgColor="bg-info/15"
+          iconColor="text-info"
           dateRange={dateRange}
           onDateRangeChange={setDateRange}
           onRefresh={() => mutate()}
@@ -161,14 +161,14 @@ export default function EndofDayReportPage() {
               formatForDisplay(data.result.totalSale),
               "Gross revenue",
               DollarSign,
-              "text-green-600",
+              "text-success",
             )}
             {renderSummaryCard(
               "Transactions",
               data.result.transactionCount,
               "Total orders",
               ShoppingCart,
-              "text-blue-600",
+              "text-info",
             )}
             {renderSummaryCard(
               "Avg. Order Value",
@@ -190,7 +190,7 @@ export default function EndofDayReportPage() {
               ),
               "Given to customers",
               Percent,
-              "text-orange-600",
+              "text-warning",
             )}
           </div>
 
@@ -198,7 +198,7 @@ export default function EndofDayReportPage() {
           <ReportDataSection
             title="Payment Methods"
             icon={CreditCard}
-            iconColor="text-green-600"
+            iconColor="text-success"
             recordCount={Object.keys(data.result.paymentSummary || {}).length}
             recordLabel="methods"
           >
@@ -220,7 +220,7 @@ export default function EndofDayReportPage() {
           <ReportDataSection
             title="Category Performance"
             icon={BarChart3}
-            iconColor="text-blue-600"
+            iconColor="text-info"
             recordCount={Object.keys(data.result.categorySummary || {}).length}
             recordLabel="categories"
           >
@@ -232,7 +232,7 @@ export default function EndofDayReportPage() {
             <ReportDataSection
               title="Discounts Applied"
               icon={Percent}
-              iconColor="text-orange-600"
+              iconColor="text-warning"
               recordCount={
                 Object.keys(data.result.discountSummary || {}).length - 1
               } // Subtract 1 for "Total" entry
@@ -253,7 +253,7 @@ export default function EndofDayReportPage() {
           <ReportDataSection
             title="Customer Summary"
             icon={Users}
-            iconColor="text-indigo-600"
+            iconColor="text-info"
             recordCount={Object.keys(data.result.customerSummary || {}).length}
             recordLabel="customers"
           >
@@ -268,7 +268,7 @@ export default function EndofDayReportPage() {
                   >
                     <div className="flex-1">
                       <div className="font-medium">{customerName}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-muted-foreground">
                         {data.qty} order{data.qty !== 1 ? "s" : ""}
                       </div>
                     </div>
@@ -281,7 +281,7 @@ export default function EndofDayReportPage() {
                   </div>
                 ))}
               {Object.keys(data.result.customerSummary || {}).length > 10 && (
-                <div className="text-center text-sm text-gray-500 pt-4">
+                <div className="text-center text-sm text-muted-foreground pt-4">
                   Showing top 10 customers out of{" "}
                   {Object.keys(data.result.customerSummary || {}).length} total
                 </div>
@@ -293,23 +293,23 @@ export default function EndofDayReportPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-green-600" />
+                <DollarSign className="h-5 w-5 text-success" />
                 Report Summary
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-2xl font-bold text-success">
                     {formatForDisplay(data.result.totalSale)}
                   </div>
-                  <div className="text-sm text-gray-500">Total Revenue</div>
+                  <div className="text-sm text-muted-foreground">Total Revenue</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-2xl font-bold text-info">
                     {data.result.transactionCount}
                   </div>
-                  <div className="text-sm text-gray-500">Total Orders</div>
+                  <div className="text-sm text-muted-foreground">Total Orders</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-600">
@@ -319,7 +319,7 @@ export default function EndofDayReportPage() {
                         )
                       : formatForDisplay(0)}
                   </div>
-                  <div className="text-sm text-gray-500">Average Order</div>
+                  <div className="text-sm text-muted-foreground">Average Order</div>
                 </div>
               </div>
             </CardContent>

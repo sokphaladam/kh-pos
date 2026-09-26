@@ -1,4 +1,5 @@
 "use client";
+import { LoadingState } from "@/components/ui/state";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -60,7 +61,7 @@ export function POSSecondWindow({ data, onClosed }: Props) {
   const { setting, currency } = useAuthentication();
 
   if (setting?.isLoading || setting?.isValidating) {
-    return <div>Loading...</div>;
+    return <LoadingState fullScreen />;
   }
 
   const exchangeRate = Number(
@@ -201,7 +202,7 @@ export function POSSecondWindow({ data, onClosed }: Props) {
         <div className="w-full md:w-[400px] p-4 bg-background">
           <div className="h-full flex-1 flex flex-col justify-between">
             <div
-              className="flex flex-col justify-between bg-white/80 rounded-xl gap-4"
+              className="flex flex-col justify-between bg-card/80 rounded-xl gap-4"
               // style={{ height: width < 765 ? "auto" : height - 160 }}
             >
               <div className="w-full hidden md:flex flex-col gap-2 text-sm pb-3 mb-2">
@@ -224,7 +225,7 @@ export function POSSecondWindow({ data, onClosed }: Props) {
                     {subtotal.toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-end font-semibold text-xs text-gray-500">
+                <div className="flex justify-end font-semibold text-xs text-muted-foreground">
                   <span>
                     ({Formatter.formatCurrencyKH(subtotal * exchangeRate)})
                   </span>
@@ -240,7 +241,7 @@ export function POSSecondWindow({ data, onClosed }: Props) {
                     {totalDiscount.toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-end font-semibold text-xs text-gray-500">
+                <div className="flex justify-end font-semibold text-xs text-muted-foreground">
                   <span>
                     (
                     {Formatter.formatCurrencyKH(
@@ -257,7 +258,7 @@ export function POSSecondWindow({ data, onClosed }: Props) {
                     {totalAfterDiscount.toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-end font-semibold text-xs text-gray-500">
+                <div className="flex justify-end font-semibold text-xs text-muted-foreground">
                   <span>
                     (
                     {Formatter.formatCurrencyKH(
@@ -268,11 +269,11 @@ export function POSSecondWindow({ data, onClosed }: Props) {
                 </div>
                 <Separator className="my-2" />
                 <div className="flex flex-row justify-center gap-6">
-                  <div className="bg-white p-6 rounded-md shadow-sm flex flex-col items-center">
+                  <div className="bg-card p-6 rounded-md shadow-sm flex flex-col items-center">
                     <h2 className="text-lg font-semibold mb-4">Scan to Pay</h2>
                     {totalAfterDiscount > 0 ? (
                       <>
-                        <div className="bg-white p-3 rounded-lg border-2 border-gray-200 mb-3">
+                        <div className="bg-card p-3 rounded-lg border-2 border-border mb-3">
                           {QR && (
                             <Image
                               src={QR || ""}
@@ -283,13 +284,13 @@ export function POSSecondWindow({ data, onClosed }: Props) {
                             />
                           )}
                         </div>
-                        <p className="text-sm text-gray-500 text-center mt-1">
+                        <p className="text-sm text-muted-foreground text-center mt-1">
                           Scan with your mobile payment app
                         </p>
                       </>
                     ) : (
-                      <div className="h-[200px] w-[200px] flex items-center justify-center bg-gray-100 rounded-lg">
-                        <p className="text-gray-500 text-center">
+                      <div className="h-[200px] w-[200px] flex items-center justify-center bg-muted rounded-lg">
+                        <p className="text-muted-foreground text-center">
                           Add items to generate payment QR
                         </p>
                       </div>

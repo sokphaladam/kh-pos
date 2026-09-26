@@ -6,33 +6,33 @@ import { JSX } from "react";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function TableNode({ data }: any) {
   let cardGradient =
-    "bg-gradient-to-br from-white to-gray-100 text-gray-900 border border-gray-200";
+    "text-foreground border border-border";
   let icon: JSX.Element | undefined = (
-    <CircleCheckBig className="h-4 w-4 text-emerald-500" />
+    <CircleCheckBig className="h-4 w-4 text-success" />
   );
   if (data.status === "Attend table") {
     cardGradient =
-      "bg-gradient-to-br from-rose-100 via-rose-50 to-white text-rose-700 border border-rose-100";
-    icon = <BellRing className="h-4 w-4 text-rose-500" />;
+      "text-destructive border border-destructive/20";
+    icon = <BellRing className="h-4 w-4 text-destructive" />;
   }
   if (data.status === "Approved order") {
     cardGradient =
-      "bg-gradient-to-br from-amber-100 via-amber-50 to-white text-amber-700 border border-amber-100";
-    icon = <HandPlatter className="h-4 w-4 text-amber-500" />;
+      "text-warning border border-warning/20";
+    icon = <HandPlatter className="h-4 w-4 text-warning" />;
   }
   if (data.status === "Food delivered") {
     cardGradient =
-      "bg-gradient-to-br from-green-100 via-green-50 to-white text-green-700 border border-green-100";
-    icon = <Salad className="h-4 w-4 text-green-500" />;
+      "text-success border border-success/20";
+    icon = <Salad className="h-4 w-4 text-success" />;
   }
   if (data.status === "Check payment") {
     cardGradient =
-      "bg-gradient-to-br from-emerald-100 via-emerald-50 to-white text-emerald-700 border border-emerald-100";
-    icon = <CircleCheckBig className="h-4 w-4 text-emerald-500" />;
+      "text-success border border-success/20";
+    icon = <CircleCheckBig className="h-4 w-4 text-success" />;
   }
   if (data.status === "Available table") {
     cardGradient =
-      "bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-400 border border-gray-100";
+      "text-muted-foreground/70 border border-border";
     icon = undefined;
   }
   return (
@@ -57,7 +57,7 @@ export function TableNode({ data }: any) {
         </div>
         <div className="flex flex-col items-center md:items-end gap-4 justify-between">
           {data.status !== "Available table" ? (
-            <div className="invisible md:visible bg-white/70 text-gray-500 text-xs font-light px-2 py-1 rounded-lg text-nowrap shadow-sm border border-gray-200">
+            <div className="invisible md:visible bg-card/70 text-muted-foreground text-xs font-light px-2 py-1 rounded-lg text-nowrap shadow-sm border border-border">
               {data.elapsed}
             </div>
           ) : (

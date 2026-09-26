@@ -22,14 +22,14 @@ interface Props {
 export function TicketReservationDateSection(props: Props) {
   if (props.selectedSeats.length === 0 || !props.selectedShowtime) return <></>;
   return (
-    <div className="py-4 px-6 border-0 shadow-lg bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 sticky bottom-0">
+    <div className="py-4 px-6 border-0 shadow-lg border-success/20 sticky bottom-0">
       <div className="py-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-green-800">
+            <h3 className="text-lg font-semibold text-success">
               Booking Summary
             </h3>
-            <div className="text-sm text-green-700">
+            <div className="text-sm text-success">
               <p>
                 <strong>Hall:</strong> {props.selectedShowtime.hall?.name}
               </p>
@@ -60,7 +60,7 @@ export function TicketReservationDateSection(props: Props) {
               onClick={() => {
                 props.setSelectedSeats([]);
               }}
-              className="border-green-300 text-green-700 hover:bg-green-50"
+              className="border-success/30 text-success hover:bg-success/10"
             >
               Clear Selection
             </Button>
@@ -100,7 +100,7 @@ export function TicketReservationDateSection(props: Props) {
                   }),
                 );
               }}
-              className="bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8"
+              className="bg-success hover:bg-success/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8"
             >
               Confirm Booking ({props.selectedSeats.length} seat
               {props.selectedSeats.length !== 1 ? "s" : ""})

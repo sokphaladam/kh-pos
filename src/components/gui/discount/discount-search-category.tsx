@@ -111,16 +111,16 @@ export function DiscountSearchCategory(props: Props) {
               e.stopPropagation(); // Prevent closing the dropdown
               loadMoreResults();
             }}
-            className="text-center py-3 border-t border-gray-100 bg-gray-50 cursor-pointer"
+            className="text-center py-3 border-t border-border bg-muted/40 cursor-pointer"
           >
             <button
               type="button"
               disabled={loading}
               className={`w-[90%] py-2 text-sm rounded-md border ${
-                loading
-                  ? "bg-gray-100 text-gray-400 border-gray-200"
-                  : "bg-white text-blue-700 border-blue-200 hover:bg-blue-50"
-              } transition-colors duration-150`}
+ loading
+ ? "bg-muted text-muted-foreground/70 border-border"
+ : "bg-card text-info border-info/20 hover:bg-info/10"
+ } transition-colors duration-150`}
             >
               {loading && page > 0
                 ? "Loading more items..."
@@ -132,7 +132,7 @@ export function DiscountSearchCategory(props: Props) {
 
       const renderNoMoreItems = () => {
         return (
-          <div className="text-center text-gray-500 text-sm py-4 border-t border-gray-100 bg-gray-50 font-medium">
+          <div className="text-center text-muted-foreground text-sm py-4 border-t border-border bg-muted/40 font-medium">
             No more items to load
           </div>
         );
@@ -157,7 +157,7 @@ export function DiscountSearchCategory(props: Props) {
             hover:bg-blue-50 transition-colors duration-150 cursor-pointer"
         >
           {image ? (
-            <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-md border border-gray-200 bg-white shadow-sm">
+            <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-md border border-border bg-card shadow-sm">
               <ImageWithFallback
                 src={image}
                 alt={item.title || ""}
@@ -168,7 +168,7 @@ export function DiscountSearchCategory(props: Props) {
               />
             </div>
           ) : (
-            <div className="w-10 h-10 bg-gray-50 rounded-md flex items-center justify-center text-gray-400 border border-gray-200">
+            <div className="w-10 h-10 bg-muted/40 rounded-md flex items-center justify-center text-muted-foreground/70 border border-border">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-6 h-6"
@@ -186,7 +186,7 @@ export function DiscountSearchCategory(props: Props) {
             </div>
           )}
           <div className="text-sm flex-1 min-w-0 flex flex-col">
-            <span className="truncate font-medium text-gray-800">
+            <span className="truncate font-medium text-foreground">
               {item.title || ""}
             </span>
           </div>

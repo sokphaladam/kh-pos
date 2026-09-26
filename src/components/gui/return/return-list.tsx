@@ -146,8 +146,8 @@ export function ReturnList() {
                           className={cn(
                             "text-xs",
                             x.status === "stock_in"
-                              ? "bg-emerald-200 border-emerald-400"
-                              : "bg-amber-200 border-amber-400"
+                              ? "bg-success/25 border-success/50"
+                              : "bg-warning/25 border-warning/50"
                           )}
                         >
                           {x.status === "stock_in" ? "Stock In" : "Returned"}

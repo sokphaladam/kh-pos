@@ -43,16 +43,19 @@ const TABLE_HEIGHT = 120;
 const TABLE_SPACING = 40;
 const OVERDUE_COOKING_MINUTES = 5;
 
+// Mirrors the table node colors: available stays neutral, busy tables stand out
+// (SVG fill attributes can't read CSS variables, so these are literal values)
 const minimapNodeColor = (node: Node) => {
+  if (Number(node.data?.printCount || 0) > 0) return "#ef4444";
   switch (node.data?.status) {
     case "available":
-      return "#10b981";
+      return "#d4d4d8";
     case "order_taken":
-      return "#3b82f6";
+      return "#2563eb";
     case "cleaning":
-      return "#f59e0b";
+      return "#d97706";
     default:
-      return "#6b7280";
+      return "#a1a1aa";
   }
 };
 
@@ -163,16 +166,22 @@ function TableFlowLayoutContent(
 
   const handleTableDelete = useCallback(
     (table: table_restaurant_tables) => {
-      if (
-        window.confirm(
-          `Are you sure you want to delete table ${table.table_name}?`,
-        )
-      ) {
-        removeTable(table);
-        toast.success(`Table ${table.table_name} deleted`);
-      }
+      showDialog({
+        title: `Delete table ${table.table_name}?`,
+        content: "The table will be removed from the floor layout.",
+        destructive: true,
+        actions: [
+          {
+            text: "Delete table",
+            onClick: async () => {
+              removeTable(table);
+              toast.success(`Table ${table.table_name} deleted`);
+            },
+          },
+        ],
+      });
     },
-    [removeTable],
+    [removeTable, showDialog],
   );
 
   const handleTableReset = useCallback(
@@ -470,12 +479,12 @@ function TableFlowLayoutContent(
   // Show loading or empty state if no tables
   if (!state || !state.tables || state.tables.length === 0) {
     return (
-      <div className="h-full w-full flex items-center justify-center bg-gray-50">
+      <div className="h-full w-full flex items-center justify-center bg-muted/40">
         <div className="text-center max-w-md mx-auto p-8">
           <div className="mb-4">
-            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <div className="mx-auto w-16 h-16 bg-info/15 rounded-full flex items-center justify-center mb-4">
               <svg
-                className="w-8 h-8 text-blue-600"
+                className="w-8 h-8 text-info"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -489,10 +498,10 @@ function TableFlowLayoutContent(
               </svg>
             </div>
           </div>
-          <div className="text-xl font-semibold text-gray-900 mb-2">
+          <div className="text-xl font-semibold text-foreground mb-2">
             {!state ? "Loading..." : "No Tables Found"}
           </div>
-          <div className="text-sm text-gray-500 mb-6">
+          <div className="text-sm text-muted-foreground mb-6">
             {!state
               ? "Please wait while we load your restaurant data."
               : "Create your first table to start managing your restaurant layout."}
@@ -500,7 +509,7 @@ function TableFlowLayoutContent(
           {state && (
             <button
               onClick={handleAddTable}
-              className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+              className="px-6 py-3 bg-info text-white font-medium rounded-lg hover:bg-info/90 transition-colors shadow-md"
             >
               Add First Table
             </button>
@@ -583,8 +592,8 @@ export default function TableFlowLayout(
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <p className="text-red-500 mb-2">Restaurant context not available</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-destructive mb-2">Restaurant context not available</p>
+          <p className="text-sm text-muted-foreground">
             Please check restaurant provider setup
           </p>
         </div>
@@ -597,8 +606,8 @@ export default function TableFlowLayout(
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <p className="text-red-500 mb-2">Restaurant dispatch not available</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-destructive mb-2">Restaurant dispatch not available</p>
+          <p className="text-sm text-muted-foreground">
             Please check restaurant provider setup
           </p>
         </div>

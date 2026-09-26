@@ -16,10 +16,10 @@ export const MobileSettingHeader: React.FC<MobileSettingHeaderProps> = ({
   const currentCategory = categories.find((c) => c.id === selectedCategory);
 
   return (
-    <div className="md:hidden bg-white border-b border-gray-200">
+    <div className="md:hidden bg-card border-b border-border">
       <div className="flex items-center justify-between p-4">
         <button
-          className="flex items-center justify-center w-10 h-10 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200"
+          className="flex items-center justify-center w-10 h-10 text-foreground/80 hover:bg-muted rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-border"
           onClick={onToggleSidebar}
           aria-label="Open categories"
         >
@@ -29,7 +29,7 @@ export const MobileSettingHeader: React.FC<MobileSettingHeaderProps> = ({
         <div className="flex-1 text-center px-4">
           <div className="flex items-center justify-center gap-2">
             {currentCategory?.icon}
-            <span className="font-semibold text-lg text-gray-900 truncate">
+            <span className="font-semibold text-lg text-foreground truncate">
               {currentCategory?.label || "Settings"}
             </span>
           </div>

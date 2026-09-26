@@ -66,7 +66,7 @@ export function JsonInput({ value, onChange }: Props) {
           {properties.map(([key, val]) => (
             <div
               key={key}
-              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border group"
+              className="flex items-center gap-3 p-3 bg-muted/40 rounded-lg border group"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
@@ -88,7 +88,7 @@ export function JsonInput({ value, onChange }: Props) {
                 variant="ghost"
                 size="sm"
                 onClick={() => removeProperty(key)}
-                className="h-7 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <X className="h-3 w-3" />
               </Button>
@@ -98,14 +98,14 @@ export function JsonInput({ value, onChange }: Props) {
       )}
 
       {/* Add New Property */}
-      <Card className="border-2 border-dashed border-gray-300 bg-gray-50/30">
+      <Card className="border-2 border-dashed border-border bg-muted/30">
         <CardContent className="p-4">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <div className="p-1 bg-gray-100 rounded">
-                <Plus className="h-3 w-3 text-gray-600" />
+              <div className="p-1 bg-muted rounded">
+                <Plus className="h-3 w-3 text-muted-foreground" />
               </div>
-              <label className="text-sm font-medium text-gray-800">
+              <label className="text-sm font-medium text-foreground">
                 Add New Item
               </label>
             </div>
@@ -113,31 +113,31 @@ export function JsonInput({ value, onChange }: Props) {
             <div className="space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-gray-600">
+                  <label className="text-xs font-medium text-muted-foreground">
                     Label
                   </label>
                   <Input
                     placeholder="e.g., urgent"
                     value={newKey}
                     onChange={(e) => setNewKey(e.target.value)}
-                    className="text-sm font-mono border-gray-200 focus:border-gray-400 bg-white"
+                    className="text-sm font-mono border-border focus:border-input bg-card"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-gray-600">
+                  <label className="text-xs font-medium text-muted-foreground">
                     Value
                   </label>
                   <Input
                     placeholder="e.g., 1"
                     value={newValue}
                     onChange={(e) => setNewValue(e.target.value)}
-                    className="text-sm border-gray-200 focus:border-gray-400 bg-white"
+                    className="text-sm border-border focus:border-input bg-card"
                   />
                 </div>
               </div>
 
               {newKey.trim() && jsonObject.hasOwnProperty(newKey.trim()) && (
-                <p className="text-xs text-red-600">
+                <p className="text-xs text-destructive">
                   Property key already exists
                 </p>
               )}
@@ -167,8 +167,8 @@ export function JsonInput({ value, onChange }: Props) {
 
       {/* Empty State */}
       {properties.length === 0 && (
-        <div className="text-center py-6 text-gray-500">
-          <Settings className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+        <div className="text-center py-6 text-muted-foreground">
+          <Settings className="h-8 w-8 mx-auto mb-2 text-muted-foreground/70" />
           <p className="text-sm">No properties configured</p>
           <p className="text-xs">Add properties using the form above</p>
         </div>

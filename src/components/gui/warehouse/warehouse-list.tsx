@@ -106,7 +106,7 @@ export function WarehouseList(props: Props) {
                         width={48}
                         height={48}
                         className="rounded-md"
-                        fallbackClassName="bg-gray-100"
+                        fallbackClassName="bg-muted"
                       />
                     </TableCell>
                     <TableCell className="font-medium text-nowrap text-xs">

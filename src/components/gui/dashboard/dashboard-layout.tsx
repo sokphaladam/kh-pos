@@ -74,27 +74,27 @@ export function DashboardLayout() {
     return (
       <main
         className={cn(
-          "min-h-screen flex-1 bg-gradient-to-br from-gray-50 to-slate-100 dark:from-[#18181b] dark:to-[#23272f]",
+          "min-h-screen flex-1 dark:from-[#18181b] dark:to-[#23272f]",
           "p-0 md:p-0"
         )}
         suppressHydrationWarning
       >
         <section className="w-full max-w-7xl mx-auto px-4 py-8">
           <div className="flex items-center flex-wrap md:justify-between gap-4 mb-6 border-b pb-4">
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               Dashboard
             </h1>
             <div className="flex items-center gap-4 flex-wrap">
-              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-64"></div>
+              <div className="h-10 bg-muted rounded animate-pulse w-64"></div>
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 mb-8">
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white dark:bg-[#18181b] rounded-xl shadow-lg p-6"
+                className="bg-card dark:bg-[#18181b] rounded-xl shadow-lg p-6"
               >
-                <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-20 bg-muted rounded animate-pulse"></div>
               </div>
             ))}
           </div>
@@ -103,11 +103,11 @@ export function DashboardLayout() {
               <div
                 key={i}
                 className={cn(
-                  "bg-white dark:bg-[#18181b] rounded-xl shadow-lg p-6",
+                  "bg-card dark:bg-[#18181b] rounded-xl shadow-lg p-6",
                   i === 2 ? "md:col-span-2" : ""
                 )}
               >
-                <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-64 bg-muted rounded animate-pulse"></div>
               </div>
             ))}
           </div>
@@ -119,14 +119,14 @@ export function DashboardLayout() {
   return (
     <main
       className={cn(
-        "min-h-screen flex-1 bg-gradient-to-br from-gray-50 to-slate-100 dark:from-[#18181b] dark:to-[#23272f]",
+        "min-h-screen flex-1 dark:from-[#18181b] dark:to-[#23272f]",
         "p-0 md:p-0"
       )}
       suppressHydrationWarning
     >
       <section className="w-full max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center flex-wrap md:justify-between gap-4 mb-6 border-b pb-4">
-          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Dashboard
           </h1>
           <div className="flex items-center gap-4 flex-wrap">
@@ -144,7 +144,7 @@ export function DashboardLayout() {
         />
         <div className="w-full flex-1 h-full mt-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white dark:bg-[#18181b] rounded-xl shadow-lg p-6 transition hover:shadow-2xl">
+            <div className="bg-card dark:bg-[#18181b] rounded-xl shadow-lg p-6 transition hover:shadow-2xl">
               <SaleChart
                 data={(currentMetricsQuery.data?.result as MetricsItem[]) || []}
                 previousData={
@@ -156,10 +156,10 @@ export function DashboardLayout() {
                 onToggleComparison={setShowComparison}
               />
             </div>
-            <div className="bg-white dark:bg-[#18181b] rounded-xl shadow-lg p-6 transition hover:shadow-2xl">
+            <div className="bg-card dark:bg-[#18181b] rounded-xl shadow-lg p-6 transition hover:shadow-2xl">
               <BestSellCategory dateRange={date} />
             </div>
-            <div className="md:col-span-2 bg-white dark:bg-[#18181b] rounded-xl shadow-lg p-6 mt-4 transition hover:shadow-2xl">
+            <div className="md:col-span-2 bg-card dark:bg-[#18181b] rounded-xl shadow-lg p-6 mt-4 transition hover:shadow-2xl">
               <HotHour dateRange={date} />
             </div>
             {/* <div className="md:col-span-2">

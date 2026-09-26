@@ -132,63 +132,63 @@ export function TableItem(props: Props) {
   }, []);
 
   // Simplified card styling with subtle gradients
-  let cardGradient = "bg-white border-gray-200 hover:border-gray-300";
-  let statusIndicator = "bg-blue-500";
+  let cardGradient = "bg-card border-border hover:border-border";
+  let statusIndicator = "bg-info";
   let shadowStyle = "0 1px 3px 0 rgba(0, 0, 0, 0.1)";
   let icon: JSX.Element | undefined = (
-    <CircleCheckBig className="h-3.5 w-3.5 text-blue-500" />
+    <CircleCheckBig className="h-3.5 w-3.5 text-info" />
   );
   let statusText = "Available";
-  let titleTextColor = "text-gray-900";
-  let sectionTextColor = "text-gray-500";
-  let statusTextColor = "text-gray-600";
+  let titleTextColor = "text-foreground";
+  let sectionTextColor = "text-muted-foreground";
+  let statusTextColor = "text-muted-foreground";
 
   // Override icon for delivery tables
   if (isDelivery) {
-    icon = <Truck className="h-3.5 w-3.5 text-blue-600" />;
+    icon = <Truck className="h-3.5 w-3.5 text-info" />;
   }
 
   if (t.status === "available") {
-    cardGradient = "bg-white border-blue-200 hover:border-blue-300";
-    statusIndicator = "bg-blue-500";
+    cardGradient = "bg-card border-info/20 hover:border-info/30";
+    statusIndicator = "bg-info";
     shadowStyle = "0 1px 3px 0 rgba(59, 130, 246, 0.12)";
     icon = isDelivery ? (
-      <Truck className="h-3.5 w-3.5 text-blue-600" />
+      <Truck className="h-3.5 w-3.5 text-info" />
     ) : (
-      <CircleCheckBig className="h-3.5 w-3.5 text-blue-500" />
+      <CircleCheckBig className="h-3.5 w-3.5 text-info" />
     );
     statusText = "Available";
-    titleTextColor = "text-blue-900";
-    sectionTextColor = "text-blue-600";
-    statusTextColor = "text-blue-700";
+    titleTextColor = "text-info";
+    sectionTextColor = "text-info";
+    statusTextColor = "text-info";
   }
   if (t.status === "cleaning") {
-    cardGradient = "bg-white border-rose-200 hover:border-rose-300";
-    statusIndicator = "bg-rose-500";
+    cardGradient = "bg-card border-destructive/20 hover:border-destructive/30";
+    statusIndicator = "bg-destructive";
     shadowStyle = "0 1px 3px 0 rgba(244, 63, 94, 0.12)";
     icon = isDelivery ? (
-      <Truck className="h-3.5 w-3.5 text-rose-600" />
+      <Truck className="h-3.5 w-3.5 text-destructive" />
     ) : (
-      <UtensilsCrossed className="h-3.5 w-3.5 text-rose-500" />
+      <UtensilsCrossed className="h-3.5 w-3.5 text-destructive" />
     );
     statusText = "Cleaning";
-    titleTextColor = "text-rose-900";
-    sectionTextColor = "text-rose-600";
-    statusTextColor = "text-rose-700";
+    titleTextColor = "text-destructive";
+    sectionTextColor = "text-destructive";
+    statusTextColor = "text-destructive";
   }
   if (t.status === "order_taken") {
-    cardGradient = "bg-white border-amber-200 hover:border-amber-300";
-    statusIndicator = "bg-amber-500";
+    cardGradient = "bg-card border-warning/20 hover:border-warning/30";
+    statusIndicator = "bg-warning";
     shadowStyle = "0 1px 3px 0 rgba(245, 158, 11, 0.12)";
     icon = isDelivery ? (
-      <Truck className="h-3.5 w-3.5 text-amber-600" />
+      <Truck className="h-3.5 w-3.5 text-warning" />
     ) : (
-      <HandPlatter className="h-3.5 w-3.5 text-amber-500" />
+      <HandPlatter className="h-3.5 w-3.5 text-warning" />
     );
     statusText = "Order Taken";
-    titleTextColor = "text-amber-900";
-    sectionTextColor = "text-amber-600";
-    statusTextColor = "text-amber-700";
+    titleTextColor = "text-warning";
+    sectionTextColor = "text-warning";
+    statusTextColor = "text-warning";
   }
 
   const activeTable = state.activeTables.find((f) => f.tables?.id === t.id);
@@ -263,7 +263,7 @@ export function TableItem(props: Props) {
               >
                 {t.table_name}{" "}
                 {duration && (
-                  <span className="text-xs font-normal text-gray-400">
+                  <span className="text-xs font-normal text-muted-foreground/70">
                     · {duration}
                   </span>
                 )}
@@ -290,8 +290,8 @@ export function TableItem(props: Props) {
         {/* Table Info */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1">
-            <Users className="w-3 h-3 text-gray-400" />
-            <span className="text-xs text-gray-600">{t.setting_capacity}</span>
+            <Users className="w-3 h-3 text-muted-foreground/70" />
+            <span className="text-xs text-muted-foreground">{t.setting_capacity}</span>
           </div>
           <div className="flex items-center gap-1">
             {getTableShapeIcon(t.table_shape || "")}
@@ -300,7 +300,7 @@ export function TableItem(props: Props) {
         </div>
 
         {/* Status Badge */}
-        <div className="pt-1.5 border-t border-gray-100">
+        <div className="pt-1.5 border-t border-border">
           <div className="flex items-center justify-center flex-nowrap">
             <span
               className={`text-xs font-medium text-center ${statusTextColor} text-nowrap`}

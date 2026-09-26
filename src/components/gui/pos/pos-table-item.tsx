@@ -79,7 +79,7 @@ function POSTableItemMobile({
   } = sharedProps;
 
   return (
-    <div className="p-4 border-b bg-white">
+    <div className="p-4 border-b bg-card">
       {/* First Row: Image with Index Overlay | Product Name, SKU, Price | Three Dots */}
       <div className="flex items-start gap-3 mb-4">
         {/* Product Image with Index Overlay */}
@@ -103,7 +103,7 @@ function POSTableItemMobile({
             <h3 className="font-semibold text-base leading-tight overflow-hidden whitespace-nowrap">
               {title}
             </h3>
-            <div className="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-8 h-full pointer-events-none"></div>
           </div>
           <p className="text-sm text-muted-foreground">
             {cart.sku} • {sku.replace(")", "")}
@@ -195,7 +195,7 @@ function POSTableItemMobile({
               <span className="text-sm text-muted-foreground line-through">
                 ${(Number(cart.price || 0) * cart.qty).toFixed(2)}
               </span>
-              <span className="font-bold text-xl text-green-600">
+              <span className="font-bold text-xl text-success">
                 ${Number(cart.totalAfterDiscount).toFixed(2)}
               </span>
             </div>

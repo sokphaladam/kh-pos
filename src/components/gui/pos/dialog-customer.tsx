@@ -31,10 +31,10 @@ interface DialogCustomerProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  COMPLETED: "bg-green-100 text-green-700 border-green-200",
-  PENDING: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  CANCELLED: "bg-red-100 text-red-700 border-red-200",
-  IN_PROGRESS: "bg-blue-100 text-blue-700 border-blue-200",
+  COMPLETED: "bg-success/15 text-success border-success/20",
+  PENDING: "bg-warning/15 text-warning border-warning/20",
+  CANCELLED: "bg-destructive/15 text-destructive border-destructive/20",
+  IN_PROGRESS: "bg-info/15 text-info border-info/20",
 };
 
 function OrderHistoryList({
@@ -56,7 +56,7 @@ function OrderHistoryList({
     return (
       <div className="space-y-2">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-14 rounded-lg bg-gray-100 animate-pulse" />
+          <div key={i} className="h-14 rounded-lg bg-muted animate-pulse" />
         ))}
       </div>
     );
@@ -64,7 +64,7 @@ function OrderHistoryList({
 
   if (orders.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-6 text-gray-400">
+      <div className="flex flex-col items-center justify-center py-6 text-muted-foreground/70">
         <Receipt className="h-8 w-8 mb-2" />
         <p className="text-sm">No order history found</p>
       </div>
@@ -76,28 +76,28 @@ function OrderHistoryList({
       {orders.map((order) => {
         const statusClass =
           STATUS_COLORS[order.orderStatus] ??
-          "bg-gray-100 text-gray-600 border-gray-200";
+          "bg-muted text-muted-foreground border-border";
         const date = order.paidAt ?? order.createdAt;
         return (
           <button
             key={order.orderId}
             onClick={() => onSelectOrder(order)}
-            className="w-full text-left rounded-lg border border-gray-100 bg-white px-3 py-2.5 hover:border-blue-300 hover:bg-blue-50/40 transition-colors flex items-center justify-between gap-3 shadow-sm"
+            className="w-full text-left rounded-lg border border-border bg-card px-3 py-2.5 hover:border-info/30 hover:bg-info/40 transition-colors flex items-center justify-between gap-3 shadow-sm"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <Receipt className="h-4 w-4 text-gray-400 shrink-0" />
-              <span className="text-sm font-medium text-gray-800 truncate">
+              <Receipt className="h-4 w-4 text-muted-foreground/70 shrink-0" />
+              <span className="text-sm font-medium text-foreground truncate">
                 #{order.invoiceNo}
               </span>
               {date && (
-                <span className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
+                <span className="flex items-center gap-1 text-xs text-muted-foreground/70 shrink-0">
                   <Calendar className="h-3 w-3" />
                   {new Date(date).toLocaleDateString()}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-sm font-semibold text-foreground">
                 ${Number(order.totalAmount).toFixed(2)}
               </span>
               <Badge
@@ -136,7 +136,7 @@ export const dialogOrderCustomer = createSheet<DialogCustomerProps, unknown>(
       <>
         <SheetHeader className="space-y-3">
           <SheetTitle className="flex items-center gap-2 text-xl">
-            <User className="h-6 w-6 text-blue-600" />
+            <User className="h-6 w-6 text-info" />
             Customer Information
           </SheetTitle>
         </SheetHeader>
@@ -158,10 +158,10 @@ export const dialogOrderCustomer = createSheet<DialogCustomerProps, unknown>(
           )}
 
           {selectedCustomer && !selectedOrder && (
-            <Card className="border-gray-200">
+            <Card className="border-border">
               <CardHeader className="pb-2 pt-3 px-4">
-                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <History className="h-4 w-4 text-blue-500" />
+                <CardTitle className="text-sm font-semibold text-foreground/80 flex items-center gap-2">
+                  <History className="h-4 w-4 text-info" />
                   Order History
                 </CardTitle>
               </CardHeader>
@@ -175,13 +175,13 @@ export const dialogOrderCustomer = createSheet<DialogCustomerProps, unknown>(
           )}
 
           {!selectedCustomer && (
-            <Card className="border-gray-200 bg-gray-50/30">
+            <Card className="border-border bg-muted/30">
               <CardContent className="flex flex-col items-center justify-center py-8">
-                <UserX className="h-12 w-12 text-gray-400 mb-3" />
-                <h3 className="text-lg font-medium text-gray-900 mb-1">
+                <UserX className="h-12 w-12 text-muted-foreground/70 mb-3" />
+                <h3 className="text-lg font-medium text-foreground mb-1">
                   No Customer Selected
                 </h3>
-                <p className="text-sm text-gray-600 text-center">
+                <p className="text-sm text-muted-foreground text-center">
                   Search by name or phone number to find a customer, or type a
                   new name to create one.
                 </p>
@@ -207,7 +207,7 @@ export const dialogOrderCustomer = createSheet<DialogCustomerProps, unknown>(
             size="sm"
             variant="default"
             onClick={onSave}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+            className="flex items-center gap-2 bg-info hover:bg-info/90"
           >
             <UserCheck className="h-4 w-4" />
             {selectedCustomer

@@ -158,14 +158,14 @@ export function RestaurantSummary(props: WithLayoutPermissionProps) {
         {/* Desktop Cart Sidebar - More Compact */}
         <div
           ref={scrollContainerRef}
-          className="w-[350px] lg:w-[400px] p-0 hidden md:block overflow-y-auto bg-white border-l border-gray-200 shadow-lg"
+          className="w-[350px] lg:w-[400px] p-0 hidden md:block overflow-y-auto bg-card border-l border-border shadow-lg"
           style={{ height: height - 65 }}
         >
           {/* Compact Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-100 p-3 z-10">
+          <div className="sticky top-0 bg-card border-b border-border p-3 z-10">
             <div className="flex items-center justify-between">
               <div className="flex gap-1">
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
                   {currentTable?.orders?.items.length || 0} items
                 </span>
               </div>
@@ -180,13 +180,13 @@ export function RestaurantSummary(props: WithLayoutPermissionProps) {
                       className={cn(
                         "w-full text-sm font-semibold",
                         currentTable?.orders?.servedType === "dine_in"
-                          ? "bg-red-600 hover:bg-red-700"
+                          ? "bg-destructive hover:bg-destructive/90"
                           : "",
                         currentTable?.orders?.servedType === "take_away"
-                          ? "bg-orange-600 hover:bg-orange-700"
+                          ? "bg-warning hover:bg-warning/90"
                           : "",
                         currentTable?.orders?.servedType === "food_delivery"
-                          ? "bg-green-600 hover:bg-green-700"
+                          ? "bg-success hover:bg-success/90"
                           : "",
                       )}
                       onClick={async () => {
@@ -228,7 +228,7 @@ export function RestaurantSummary(props: WithLayoutPermissionProps) {
                           sendAllToKitchent(currentTable.tables);
                         }
                       }}
-                      className="w-full text-sm font-semibold bg-orange-600 hover:bg-orange-700"
+                      className="w-full text-sm font-semibold bg-warning hover:bg-warning/90"
                       disabled={
                         allowSendToKitchen === 0 || loading || isRequest
                       }
@@ -245,7 +245,7 @@ export function RestaurantSummary(props: WithLayoutPermissionProps) {
                         serverAllItems(currentTable.tables);
                       }
                     }}
-                    className="w-full text-sm font-semibold bg-emerald-600 hover:bg-emerald-700"
+                    className="w-full text-sm font-semibold bg-success hover:bg-success/90"
                     disabled={allowServeItems === 0 || loading || isRequest}
                     size={"sm"}
                   >
@@ -258,9 +258,9 @@ export function RestaurantSummary(props: WithLayoutPermissionProps) {
 
           {currentOrder.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <ChefHat className="h-12 w-12 text-gray-300 mb-3" />
-              <p className="text-gray-500 text-sm">No items added yet</p>
-              <p className="text-gray-400 text-xs">Add items from the menu</p>
+              <ChefHat className="h-12 w-12 text-muted-foreground/70 mb-3" />
+              <p className="text-muted-foreground text-sm">No items added yet</p>
+              <p className="text-muted-foreground/70 text-xs">Add items from the menu</p>
             </div>
           ) : (
             <div className="space-y-2 p-3 pb-20">
@@ -274,7 +274,7 @@ export function RestaurantSummary(props: WithLayoutPermissionProps) {
         </div>
 
         {/* Action Buttons - Fixed at bottom of screen */}
-        <div className="fixed bottom-0 right-0 w-[350px] lg:w-[400px] bg-white border-t border-gray-200 p-3 shadow-lg z-50">
+        <div className="fixed bottom-0 right-0 w-[350px] lg:w-[400px] bg-card border-t border-border p-3 shadow-lg z-50">
           {/* Compact Action Buttons */}
           <div className="flex flex-row gap-2 items-center">
             <div>

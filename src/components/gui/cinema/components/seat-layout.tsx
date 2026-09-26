@@ -46,42 +46,42 @@ interface Props {
 export const SEAT_TYPES = {
   standard: {
     label: "Standard",
-    color: "bg-white border-slate-400 text-slate-600 hover:bg-slate-50",
+    color: "bg-card border-input text-muted-foreground hover:bg-muted/40",
     description: "Regular seating",
   },
   vip: {
     label: "VIP",
-    color: "bg-white border-amber-400 text-amber-700 hover:bg-amber-50",
+    color: "bg-card border-warning/50 text-warning hover:bg-warning/10",
     description: "Premium seating with extra comfort",
   },
   couple: {
     label: "Couple",
-    color: "bg-white border-pink-400 text-pink-700 hover:bg-pink-50",
+    color: "bg-card border-destructive/50 text-destructive hover:bg-destructive/10",
     description: "Double seat for couples",
   },
   wheelchair: {
     label: "Wheelchair",
-    color: "bg-white border-blue-500 text-blue-700 hover:bg-blue-50",
+    color: "bg-card border-info text-info hover:bg-info/10",
     description: "Wheelchair accessible seating",
   },
   blocked: {
     label: "Blocked",
-    color: "bg-slate-100 border-slate-300 text-slate-400",
+    color: "bg-muted border-border text-muted-foreground/70",
     description: "Not available for booking",
   },
   reserved: {
     label: "Reserved",
-    color: "bg-green-50 border-green-500 text-green-800",
+    color: "bg-success/10 border-success text-success",
     description: "Seat is reserved",
   },
   "reserved-selected": {
     label: "Reserved (Selected)",
-    color: "bg-teal-50 border-teal-500 text-teal-800",
+    color: "bg-success/10 border-success text-success",
     description: "Seat is reserved and selected",
   },
   admitted: {
     label: "Admitted",
-    color: "bg-indigo-50 border-indigo-500 text-indigo-800",
+    color: "bg-info/10 border-info text-info",
     description: "Seat is admitted",
   },
 } as const;
@@ -194,7 +194,7 @@ export function SeatLayout({
     <TooltipProvider>
       {/* Cinema Screen */}
       <div className="flex justify-center mb-4 md:mb-8 px-4">
-        <div className="w-full max-w-xs md:max-w-md h-1.5 md:h-2 bg-gradient-to-b from-primary/20 to-transparent rounded-full relative">
+        <div className="w-full max-w-xs md:max-w-md h-1.5 md:h-2 from-primary/20 rounded-full relative">
           <span className="absolute -bottom-5 md:-bottom-6 left-1/2 -translate-x-1/2 text-[8px] md:text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
             Screen
           </span>
@@ -204,11 +204,11 @@ export function SeatLayout({
       {/* Seat Grid Container with Horizontal Scroll */}
       <div className="w-full overflow-x-auto">
         <div className="flex justify-center min-w-fit px-4">
-          <div className="inline-block p-3 md:p-6 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl shadow-inner">
+          <div className="inline-block p-3 md:p-6 rounded-xl shadow-inner">
             {/* Parts Information Display */}
             {parts.length > 0 && !forReservation && (
               <div className="mb-4 text-center">
-                <div className="text-xs text-slate-600 mb-2">Layout Parts:</div>
+                <div className="text-xs text-muted-foreground mb-2">Layout Parts:</div>
                 <div className="flex flex-wrap justify-center gap-2">
                   {parts.map((part) => (
                     <span
@@ -370,7 +370,7 @@ export function SeatLayout({
                                     Row {String.fromCharCode(64 + seat.row)}
                                     {seat.column} - {seatTypeInfo.label}
                                   </p>
-                                  <p className="text-xs text-slate-500">
+                                  <p className="text-xs text-muted-foreground">
                                     {seatTypeInfo.description}
                                   </p>
                                   {seatPartInfo && (

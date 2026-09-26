@@ -81,7 +81,7 @@ export function ShiftLayout(props: WithLayoutPermissionProps) {
         disabled={!props.allowCreate}
       />
       <Card className="shadow-md">
-        <CardHeader className="space-y-1 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+        <CardHeader className="space-y-1 border-b">
           <CardTitle className="text-2xl font-bold">Shift Management</CardTitle>
           <CardDescription className="text-base">
             Manage your shifts and track cash flow performance.
@@ -138,8 +138,8 @@ export function ShiftLayout(props: WithLayoutPermissionProps) {
                         <Badge
                           className={
                             item.status === "CLOSE"
-                              ? "bg-green-600 hover:bg-green-700 text-white font-medium"
-                              : "bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                              ? "bg-success hover:bg-success/90 text-white font-medium"
+                              : "bg-info hover:bg-info/90 text-white font-medium"
                           }
                           variant="default"
                         >
@@ -157,7 +157,7 @@ export function ShiftLayout(props: WithLayoutPermissionProps) {
                       </TableCell>
                       <TableCell className="text-nowrap text-right">
                         <div className="space-y-1">
-                          <div className="text-sm font-semibold text-green-700">
+                          <div className="text-sm font-semibold text-success">
                             {formatForDisplay(
                               Number(item.opened_cash_usd || 0)
                             )}
@@ -175,7 +175,7 @@ export function ShiftLayout(props: WithLayoutPermissionProps) {
                       </TableCell>
                       <TableCell className="text-nowrap text-right">
                         <div className="space-y-1">
-                          <div className="text-sm font-semibold text-blue-700">
+                          <div className="text-sm font-semibold text-info">
                             {Number(item.closed_cash_usd) > 0
                               ? `${formatForDisplay(
                                   Number(item.closed_cash_usd || 0)
@@ -197,7 +197,7 @@ export function ShiftLayout(props: WithLayoutPermissionProps) {
                       </TableCell>
                       <TableCell className="text-nowrap text-right">
                         <div className="space-y-1">
-                          <div className="text-sm font-semibold text-indigo-700">
+                          <div className="text-sm font-semibold text-info">
                             {Number(item.actual_cash_usd || 0) > 0
                               ? `${formatForDisplay(
                                   Number(item.actual_cash_usd || 0)
@@ -219,7 +219,7 @@ export function ShiftLayout(props: WithLayoutPermissionProps) {
                       </TableCell>
                       <TableCell className="text-nowrap text-right">
                         <div className="space-y-1">
-                          <div className="text-sm font-semibold text-indigo-700">
+                          <div className="text-sm font-semibold text-info">
                             {formatForDisplay(Number(item.receipt.sales || 0))}
                           </div>
                           <div className="text-xs text-muted-foreground">
@@ -233,10 +233,10 @@ export function ShiftLayout(props: WithLayoutPermissionProps) {
                             <div
                               className={
                                 Number(cashDiffUsd || 0) < 0
-                                  ? "text-sm font-bold text-red-600"
+                                  ? "text-sm font-bold text-destructive"
                                   : Number(cashDiffUsd || 0) > 0
-                                  ? "text-sm font-bold text-green-600"
-                                  : "text-sm font-semibold text-gray-600"
+                                  ? "text-sm font-bold text-success"
+                                  : "text-sm font-semibold text-muted-foreground"
                               }
                             >
                               {Number(cashDiffUsd || 0) !== 0 &&
@@ -246,9 +246,9 @@ export function ShiftLayout(props: WithLayoutPermissionProps) {
                             <div
                               className={
                                 (cashDiffKhr || 0) < 0
-                                  ? "text-xs font-medium text-red-600"
+                                  ? "text-xs font-medium text-destructive"
                                   : (cashDiffKhr || 0) > 0
-                                  ? "text-xs font-medium text-green-600"
+                                  ? "text-xs font-medium text-success"
                                   : "text-xs text-muted-foreground"
                               }
                             >
@@ -296,7 +296,7 @@ export function ShiftLayout(props: WithLayoutPermissionProps) {
             </div>
           )}
         </CardContent>
-        <CardFooter className="bg-gray-50 border-t">
+        <CardFooter className="bg-muted/40 border-t">
           <Pagination
             limit={limit}
             offset={offset}

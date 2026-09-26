@@ -51,17 +51,17 @@ export function CartItemQty(props: CartItemQtyProps) {
   }, [loading]);
 
   return (
-    <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
+    <div className="flex items-center gap-2 bg-card border border-border rounded-lg p-1">
       <Button
         size="sm"
         variant="ghost"
         onClick={handleDecrement}
-        className="h-8 w-8 p-0 hover:bg-gray-100 rounded-md"
+        className="h-8 w-8 p-0 hover:bg-muted rounded-md"
         disabled={loading || localQty <= 0}
       >
         <Minus className="h-3 w-3" />
       </Button>
-      <span className="w-8 text-center text-sm font-semibold text-gray-900 min-w-[2rem]">
+      <span className="w-8 text-center text-sm font-semibold text-foreground min-w-[2rem]">
         {localQty}
       </span>
       <Button
@@ -69,7 +69,7 @@ export function CartItemQty(props: CartItemQtyProps) {
         variant="ghost"
         onClick={handleIncrement}
         disabled={loading}
-        className="h-8 w-8 p-0 hover:bg-gray-100 rounded-md"
+        className="h-8 w-8 p-0 hover:bg-muted rounded-md"
       >
         <Plus className="h-3 w-3" />
       </Button>

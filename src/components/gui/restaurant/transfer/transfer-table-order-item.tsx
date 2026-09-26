@@ -58,8 +58,8 @@ export function TransferTableOrderItem({
     <div
       key={item.orderDetailId}
       className={cn(
-        "border rounded-xl p-4 bg-white hover:bg-gray-50/70 transition-all duration-200",
-        isAnySelected && "ring-2 ring-blue-500/20 border-blue-200 bg-blue-50/30"
+        "border rounded-xl p-4 bg-card hover:bg-muted/70 transition-all duration-200",
+        isAnySelected && "ring-2 ring-info/20 border-info/20 bg-info/30"
       )}
     >
       <div className="flex flex-col space-y-4">
@@ -68,7 +68,7 @@ export function TransferTableOrderItem({
           <Checkbox
             checked={isAnySelected}
             onCheckedChange={handleSelectAll}
-            className="mt-1 flex-shrink-0 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+            className="mt-1 flex-shrink-0 data-[state=checked]:bg-info data-[state=checked]:border-info"
             aria-label={`Select ${title} for transfer`}
           />
 
@@ -83,11 +83,11 @@ export function TransferTableOrderItem({
                     alt={title}
                     width={48}
                     height={48}
-                    className="w-12 h-12 object-cover rounded-lg border-2 border-gray-100"
+                    className="w-12 h-12 object-cover rounded-lg border-2 border-border"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-lg border-2 border-gray-100 bg-gray-50 flex items-center justify-center">
-                    <ImageIcon className="w-5 h-5 text-gray-400" />
+                  <div className="w-12 h-12 rounded-lg border-2 border-border bg-muted/40 flex items-center justify-center">
+                    <ImageIcon className="w-5 h-5 text-muted-foreground/70" />
                   </div>
                 )}
               </div>
@@ -96,16 +96,16 @@ export function TransferTableOrderItem({
               <div className="flex-1 min-w-0">
                 <div className="space-y-2">
                   <div>
-                    <h3 className="font-semibold text-sm leading-tight text-gray-900">
+                    <h3 className="font-semibold text-sm leading-tight text-foreground">
                       {title}
                     </h3>
 
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-foreground">
                         {formatForDisplay(price)}
                       </span>
                       {variantName && (
-                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                           {variantName}
                         </span>
                       )}
@@ -117,15 +117,15 @@ export function TransferTableOrderItem({
                     <div className="text-right">
                       {discountAmount > 0 ? (
                         <div className="flex flex-col items-end space-y-1">
-                          <span className="text-xs text-gray-400 line-through">
+                          <span className="text-xs text-muted-foreground/70 line-through">
                             {totalAmount + discountAmount}
                           </span>
-                          <span className="font-semibold text-sm text-green-600">
+                          <span className="font-semibold text-sm text-success">
                             {formatForDisplay(totalAmount)}
                           </span>
                         </div>
                       ) : (
-                        <span className="font-semibold text-sm text-gray-900">
+                        <span className="font-semibold text-sm text-foreground">
                           {formatForDisplay(totalAmount)}
                         </span>
                       )}
@@ -135,7 +135,7 @@ export function TransferTableOrderItem({
 
                 {/* Modifiers And Notes Display */}
                 {((item.orderModifiers?.length || 0) > 0 || item.notes) && (
-                  <div className="mt-3 pt-3 border-t border-gray-100">
+                  <div className="mt-3 pt-3 border-t border-border">
                     <RestaurantItemModifier
                       modifiers={item.productVariant?.basicProduct?.modifiers}
                       orderModifier={item.orderModifiers}
@@ -152,17 +152,17 @@ export function TransferTableOrderItem({
         <div className="space-y-3">
           {/* Pending Items */}
           {pendingQty > 0 && (
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+            <div className="bg-muted/40 rounded-lg p-3 border border-border">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Badge
                     variant="outline"
-                    className="text-xs bg-gray-100 text-gray-700 border-gray-300"
+                    className="text-xs bg-muted text-foreground/80 border-border"
                   >
                     <Clock className="w-3 h-3 mr-1" />
                     Pending Items
                   </Badge>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     Available: {pendingQty}
                   </span>
                 </div>
@@ -179,7 +179,7 @@ export function TransferTableOrderItem({
                       )
                     }
                     disabled={item.selectedQtyByStatus.pending <= 0}
-                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-gray-100"
+                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-muted"
                     aria-label="Decrease pending quantity"
                   >
                     -
@@ -216,7 +216,7 @@ export function TransferTableOrderItem({
                       )
                     }
                     disabled={item.selectedQtyByStatus.pending >= pendingQty}
-                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-gray-100"
+                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-muted"
                     aria-label="Increase pending quantity"
                   >
                     +
@@ -228,7 +228,7 @@ export function TransferTableOrderItem({
                     size="sm"
                     onClick={() => handleStatusQtyChange("pending", pendingQty)}
                     disabled={item.selectedQtyByStatus.pending >= pendingQty}
-                    className="ml-2 h-8 text-xs px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300"
+                    className="ml-2 h-8 text-xs px-3 bg-muted hover:bg-muted text-foreground/80 border-border"
                   >
                     All
                   </Button>
@@ -239,17 +239,17 @@ export function TransferTableOrderItem({
 
           {/* Cooking Items */}
           {cookingQty > 0 && (
-            <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
+            <div className="bg-warning/10 rounded-lg p-3 border border-warning/20">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Badge
                     variant="outline"
-                    className="text-xs bg-orange-100 text-orange-700 border-orange-300"
+                    className="text-xs bg-warning/15 text-warning border-warning/30"
                   >
                     <ChefHat className="w-3 h-3 mr-1" />
                     Cooking Items
                   </Badge>
-                  <span className="text-xs text-orange-600">
+                  <span className="text-xs text-warning">
                     Available: {cookingQty}
                   </span>
                 </div>
@@ -266,7 +266,7 @@ export function TransferTableOrderItem({
                       )
                     }
                     disabled={item.selectedQtyByStatus.cooking <= 0}
-                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-orange-100"
+                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-warning/15"
                     aria-label="Decrease cooking quantity"
                   >
                     -
@@ -303,7 +303,7 @@ export function TransferTableOrderItem({
                       )
                     }
                     disabled={item.selectedQtyByStatus.cooking >= cookingQty}
-                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-orange-100"
+                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-warning/15"
                     aria-label="Increase cooking quantity"
                   >
                     +
@@ -315,7 +315,7 @@ export function TransferTableOrderItem({
                     size="sm"
                     onClick={() => handleStatusQtyChange("cooking", cookingQty)}
                     disabled={item.selectedQtyByStatus.cooking >= cookingQty}
-                    className="ml-2 h-8 text-xs px-3 bg-orange-100 hover:bg-orange-200 text-orange-700 border-orange-300"
+                    className="ml-2 h-8 text-xs px-3 bg-warning/15 hover:bg-warning/25 text-warning border-warning/30"
                   >
                     All
                   </Button>
@@ -326,17 +326,17 @@ export function TransferTableOrderItem({
 
           {/* Served Items */}
           {servedQty > 0 && (
-            <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+            <div className="bg-success/10 rounded-lg p-3 border border-success/20">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Badge
                     variant="outline"
-                    className="text-xs bg-green-100 text-green-700 border-green-300"
+                    className="text-xs bg-success/15 text-success border-success/30"
                   >
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Served Items
                   </Badge>
-                  <span className="text-xs text-green-600">
+                  <span className="text-xs text-success">
                     Available: {servedQty}
                   </span>
                 </div>
@@ -353,7 +353,7 @@ export function TransferTableOrderItem({
                       )
                     }
                     disabled={item.selectedQtyByStatus.served <= 0}
-                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-green-100"
+                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-success/15"
                     aria-label="Decrease served quantity"
                   >
                     -
@@ -387,7 +387,7 @@ export function TransferTableOrderItem({
                       )
                     }
                     disabled={item.selectedQtyByStatus.served >= servedQty}
-                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-green-100"
+                    className="h-8 w-8 p-0 flex-shrink-0 hover:bg-success/15"
                     aria-label="Increase served quantity"
                   >
                     +
@@ -399,7 +399,7 @@ export function TransferTableOrderItem({
                     size="sm"
                     onClick={() => handleStatusQtyChange("served", servedQty)}
                     disabled={item.selectedQtyByStatus.served >= servedQty}
-                    className="ml-2 h-8 text-xs px-3 bg-green-100 hover:bg-green-200 text-green-700 border-green-300"
+                    className="ml-2 h-8 text-xs px-3 bg-success/15 hover:bg-success/25 text-success border-success/30"
                   >
                     All
                   </Button>
@@ -410,12 +410,12 @@ export function TransferTableOrderItem({
 
           {/* Summary section when items are selected */}
           {totalSelected > 0 && (
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+            <div className="bg-info/10 rounded-lg p-3 border border-info/20">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-blue-900">
+                <span className="text-sm font-medium text-info">
                   Total Selected for Transfer:
                 </span>
-                <span className="text-sm font-bold text-blue-900">
+                <span className="text-sm font-bold text-info">
                   {totalSelected} item{totalSelected !== 1 ? "s" : ""}
                 </span>
               </div>

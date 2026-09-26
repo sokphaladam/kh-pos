@@ -238,7 +238,7 @@ export const modifierForm = createSheet<{ data?: inputModifierType }, unknown>(
                             />
                             {item.price > 0 && (
                               <div className="absolute -bottom-5 right-0 text-[10px] text-muted-foreground">
-                                <span className="font-mono bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded">
+                                <span className="font-mono bg-success/10 text-success px-1.5 py-0.5 rounded">
                                   {formatForDisplay(item.price)}
                                 </span>
                               </div>
@@ -265,9 +265,9 @@ export const modifierForm = createSheet<{ data?: inputModifierType }, unknown>(
 
           {/* Form Validation Messages */}
           {!isFormValid && value.title.trim() !== "" && (
-            <Card className="border-amber-200 bg-amber-50/50">
+            <Card className="border-warning/20 bg-warning/50">
               <CardContent className="pt-4">
-                <div className="text-sm text-amber-800">
+                <div className="text-sm text-warning">
                   <p className="font-medium mb-1">Complete the form:</p>
                   <ul className="text-xs space-y-0.5 ml-4">
                     {value.items.length === 0 && (

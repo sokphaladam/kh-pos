@@ -525,9 +525,9 @@ export const createReplenishmentSheet = createSheet<
               className={cn(
                 "uppercase text-xs",
                 info.status === "approved" || info.status === "completed"
-                  ? "border-green-500 text-green-600"
+                  ? "border-success text-success"
                   : info.status === "receiving" || info.status === "received"
-                    ? "border-blue-500 text-blue-600"
+                    ? "border-info text-info"
                     : "",
               )}
             >

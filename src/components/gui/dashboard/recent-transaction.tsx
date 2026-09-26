@@ -36,7 +36,7 @@ export function RecentTrasaction(props: Props) {
   return (
     <div className="flex flex-col">
       <div className="mb-2">
-        <span className="font-semibold text-orange-700 dark:text-orange-300 text-lg">
+        <span className="font-semibold text-warning text-lg">
           {props.title || "Recent Transactions"}
         </span>
       </div>
@@ -44,22 +44,22 @@ export function RecentTrasaction(props: Props) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+              <TableHead className="text-xs font-semibold text-muted-foreground">
                 Product
               </TableHead>
-              <TableHead className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+              <TableHead className="text-xs font-semibold text-muted-foreground">
                 Transaction
               </TableHead>
-              <TableHead className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+              <TableHead className="text-xs font-semibold text-muted-foreground">
                 Slot
               </TableHead>
-              <TableHead className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+              <TableHead className="text-xs font-semibold text-muted-foreground">
                 Date
               </TableHead>
-              <TableHead className="text-xs font-semibold text-gray-600 dark:text-gray-300 text-center">
+              <TableHead className="text-xs font-semibold text-muted-foreground text-center">
                 Quantity
               </TableHead>
-              <TableHead className="text-xs font-semibold text-gray-600 dark:text-gray-300 text-center">
+              <TableHead className="text-xs font-semibold text-muted-foreground text-center">
                 Amount
               </TableHead>
             </TableRow>
@@ -105,14 +105,14 @@ export function RecentTrasaction(props: Props) {
               return (
                 <TableRow
                   key={x.id}
-                  className="hover:bg-orange-50 dark:hover:bg-orange-900 transition text-xs align-middle"
+                  className="hover:bg-warning/10 transition text-xs align-middle"
                 >
                   <TableCell className="font-medium flex flex-row items-center gap-2 max-w-[180px] truncate">
                     {x.variant?.basicProduct?.images?.[0]?.url && (
                       <ImageWithFallback
                         src={x.variant.basicProduct.images[0].url}
                         alt={x.variant.basicProduct.title || "Product"}
-                        className="w-8 h-8 rounded border object-cover bg-white mr-2"
+                        className="w-8 h-8 rounded border object-cover bg-card mr-2"
                         height={32}
                         width={32}
                         title={x.variant?.basicProduct?.title || "Product"}
@@ -129,31 +129,31 @@ export function RecentTrasaction(props: Props) {
                       {x.variant?.basicProduct?.title}
                     </span>
                   </TableCell>
-                  <TableCell className="text-gray-700 dark:text-gray-200 font-semibold text-nowrap">
+                  <TableCell className="text-foreground/80 font-semibold text-nowrap">
                     {transaction}
                   </TableCell>
                   <TableCell
                     className="text-nowrap max-w-[120px] truncate"
                     title={x.slot?.name + (x.slot?.posSlot ? " (POS)" : "")}
                   >
-                    <span className="font-semibold text-gray-700 dark:text-gray-200">
+                    <span className="font-semibold text-foreground/80">
                       {x.slot?.name} {x.slot?.posSlot ? "(POS)" : ""}
                     </span>
                     <br />
                     <small
-                      className="text-gray-400"
+                      className="text-muted-foreground/70"
                       title={(x.slot as any).warehouse.name}
                     >
                       {(x.slot as any).warehouse.name}
                     </small>
                   </TableCell>
-                  <TableCell className="text-nowrap text-gray-500 dark:text-gray-400">
+                  <TableCell className="text-nowrap text-muted-foreground">
                     {moment(x.createdAt).format("MMM DD, YYYY")}
                   </TableCell>
-                  <TableCell className="font-semibold text-blue-700 dark:text-blue-300 text-center">
+                  <TableCell className="font-semibold text-info text-center">
                     {x.transactionType === "SALE" ? Math.abs(x.qty) : x.qty}
                   </TableCell>
-                  <TableCell className="font-semibold text-green-700 dark:text-green-300 text-center">
+                  <TableCell className="font-semibold text-success text-center">
                     {x.transactionType === "SALE"
                       ? `${formatForDisplay(
                           Math.abs(Number(x.productLot?.costPerUnit) * x.qty),

@@ -11,8 +11,8 @@ export function OrderErrorState({ error, onRetry }: OrderErrorStateProps) {
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center py-16">
-        <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+        <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
+        <h3 className="text-lg font-medium text-foreground mb-2">
           Something went wrong
         </h3>
         <p className="text-sm text-muted-foreground text-center mb-6 max-w-md">

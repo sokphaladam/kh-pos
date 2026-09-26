@@ -1,3 +1,5 @@
+import { EmptyState } from "@/components/ui/state";
+import { LatticeLoader } from "@/components/ui/lattice-loader";
 import moment from "@/lib/moment";
 import {
   AreaChart,
@@ -65,14 +67,16 @@ export function SaleChart(props: Props) {
     return (
       <div className="h-[340px] min-h-[340px] max-h-[340px] flex flex-col">
         <div className="mb-2">
-          <span className="font-semibold text-cyan-700 dark:text-cyan-300 text-lg">
+          <span className="font-semibold text-foreground text-lg">
             Sale Performance
           </span>
         </div>
-        <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">
-          <div className="animate-pulse text-gray-500 dark:text-gray-400">
-            {isLoading ? "Loading chart data..." : "No data available"}
-          </div>
+        <div className="flex-1 flex items-center justify-center rounded-lg bg-muted/40">
+          {isLoading ? (
+            <LatticeLoader label="Loading chart" />
+          ) : (
+            <EmptyState title="No data available" />
+          )}
         </div>
       </div>
     );
@@ -143,16 +147,16 @@ export function SaleChart(props: Props) {
     <div className="h-[340px] min-h-[340px] max-h-[340px] flex flex-col">
       <div className="mb-2 flex items-center justify-between">
         <div>
-          <span className="font-semibold text-cyan-700 dark:text-cyan-300 text-lg">
+          <span className="font-semibold text-foreground text-lg">
             Sale Performance
           </span>
-          <span className="ml-2 text-gray-500 dark:text-gray-400 text-xs">
+          <span className="ml-2 text-muted-foreground text-xs">
             Past {duration} days performance
             {showComparison && (
-              <span className="block text-xs text-gray-400 mt-1">
-                <span className="inline-block w-3 h-0.5 bg-cyan-500 mr-1"></span>
+              <span className="block text-xs text-muted-foreground/70 mt-1">
+                <span className="inline-block w-3 h-0.5 bg-info mr-1"></span>
                 Current Period
-                <span className="inline-block w-3 h-0.5 bg-gray-500 border-dashed ml-3 mr-1"></span>
+                <span className="inline-block w-3 h-0.5 bg-muted-foreground border-dashed ml-3 mr-1"></span>
                 Previous Period
               </span>
             )}
@@ -163,10 +167,10 @@ export function SaleChart(props: Props) {
             onToggleComparison && onToggleComparison(!showComparison)
           }
           className={`h-8 w-8 rounded border-2 flex items-center justify-center transition-colors ${
-            showComparison
-              ? "bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700"
-              : "bg-white border-gray-300 text-gray-600 hover:border-cyan-600 hover:text-cyan-600"
-          }`}
+ showComparison
+ ? "bg-info border-info text-white hover:bg-info/90"
+ : "bg-card border-border text-muted-foreground hover:border-info hover:text-info"
+ }`}
           title={showComparison ? "Hide comparison" : "Show comparison"}
         >
           <TrendingUp className="h-4 w-4" />

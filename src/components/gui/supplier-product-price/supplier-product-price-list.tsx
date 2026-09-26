@@ -99,11 +99,11 @@ export function SupplierProductPriceList(props: Props) {
                         fallbackClassName="w-18 h-18 flex-shrink-0"
                       />
                       <div className="space-y-1">
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-foreground">
                           {row.variant?.basicProduct?.title} (
                           {row.variant?.name})
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-muted-foreground">
                           {row.variant?.sku}
                         </div>
                       </div>
@@ -111,10 +111,10 @@ export function SupplierProductPriceList(props: Props) {
                   </TableCell>
                   <TableCell className="text-nowrap text-xs">
                     <div className="space-y-1">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-foreground">
                         {row.supplier?.name}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-muted-foreground">
                         {row.supplier?.contactPhone}
                       </div>
                     </div>

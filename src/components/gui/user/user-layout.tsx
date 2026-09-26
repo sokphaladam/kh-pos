@@ -49,7 +49,7 @@ export default function UsersLayout(props: WithLayoutPermissionProps) {
       </Button>
       <Button
         size={"sm"}
-        className="bg-emerald-600 hover:bg-emerald-700"
+        variant="outline"
         onClick={async () => {
           const result = await uploadUserDialog.show({});
           if (result) {

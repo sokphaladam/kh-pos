@@ -81,7 +81,7 @@ export function ReportCategoryPicker({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between min-h-10 h-auto border-t-0 border-x-0 bg-transparent rounded-none border-b-[1px] dark:border-gray-600 focus:border-primary text-base md:text-sm text-gray-900 focus:outline-none dark:text-white dark:focus:border-primary transition-colors duration-200"
+            className="w-full justify-between min-h-10 h-auto border-t-0 border-x-0 bg-transparent rounded-none border-b-[1px] focus:border-primary text-base md:text-sm text-foreground focus:outline-none dark:focus:border-primary transition-colors duration-200"
           >
             <div className="flex items-center gap-2 flex-1 overflow-hidden">
               <Layers className="h-4 w-4 shrink-0" />

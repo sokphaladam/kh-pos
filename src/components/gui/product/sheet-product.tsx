@@ -199,13 +199,13 @@ export const sheetProduct = createSheet<
                 return (
                   <TableRow
                     key={idx}
-                    className={changed.includes(idx) ? "bg-amber-200" : ""}
+                    className={changed.includes(idx) ? "bg-warning/25" : ""}
                   >
                     <TableCell
                       className={cn(
                         "text-xs",
                         changed.includes(idx)
-                          ? "border-l-2 border-amber-500"
+                          ? "border-l-2 border-warning"
                           : ""
                       )}
                     >

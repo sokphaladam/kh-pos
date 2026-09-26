@@ -74,8 +74,8 @@ export function HallFeature({ form }: Props) {
   }) => (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <Icon className="h-4 w-4 text-blue-500" />
-        <h4 className="font-semibold text-sm text-gray-800">{title}</h4>
+        <Icon className="h-4 w-4 text-info" />
+        <h4 className="font-semibold text-sm text-foreground">{title}</h4>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-6">
         {items.map(({ key, label }) => (
@@ -89,7 +89,7 @@ export function HallFeature({ form }: Props) {
             />
             <Label
               htmlFor={`${category}-${key}`}
-              className="text-sm cursor-pointer hover:text-blue-600"
+              className="text-sm cursor-pointer hover:text-info"
             >
               {label}
             </Label>
@@ -103,21 +103,21 @@ export function HallFeature({ form }: Props) {
     <Card>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className="w-full">
-          <CardHeader className="pb-4 hover:bg-gray-50 transition-colors">
+          <CardHeader className="pb-4 hover:bg-muted/40 transition-colors">
             <CardTitle className="flex items-center justify-between text-xl">
               <div className="flex items-center gap-2">
-                <Feather className="h-5 w-5 text-blue-500" />
+                <Feather className="h-5 w-5 text-info" />
                 Hall Features
                 {totalSelectedFeatures > 0 && (
-                  <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
+                  <span className="bg-info/15 text-info text-xs px-2 py-1 rounded-full">
                     {totalSelectedFeatures} selected
                   </span>
                 )}
               </div>
               {isOpen ? (
-                <ChevronUp className="h-5 w-5 text-gray-500" />
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
               ) : (
-                <ChevronDown className="h-5 w-5 text-gray-500" />
+                <ChevronDown className="h-5 w-5 text-muted-foreground" />
               )}
             </CardTitle>
             <CardDescription className="text-left">

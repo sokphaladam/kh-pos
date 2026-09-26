@@ -75,6 +75,14 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Semantic status colors (use via bg-success, text-warning, bg-info/10 ...) */
+    --success: 142 71% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 32 95% 44%;
+    --warning-foreground: 0 0% 100%;
+    --info: 217 91% 53%;
+    --info-foreground: 0 0% 100%;
   }
   .dark {
     --background: 240 10% 3.9%;
@@ -140,6 +148,13 @@
     --sidebar-border: 240 3.7% 15.9%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --success: 142 69% 45%;
+    --success-foreground: 144 61% 10%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 32 81% 12%;
+    --info: 213 94% 62%;
+    --info-foreground: 222 47% 11%;
   }
 }
 

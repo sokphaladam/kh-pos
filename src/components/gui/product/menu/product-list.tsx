@@ -132,21 +132,21 @@ export function ProductList() {
         style={{ minHeight: height ? height - 120 : "80vh" }}
       >
         {/* Search Header */}
-        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-3 sm:p-4">
+        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b border-border p-3 sm:p-4">
           <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/70 h-4 w-4" />
             <Input
               type="text"
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border-gray-300 focus:border-primary focus:ring-primary rounded-lg text-sm sm:text-base"
+              className="pl-10 pr-4 py-2 w-full border-border focus:border-primary focus:ring-primary rounded-lg text-sm sm:text-base"
             />
           </div>
         </div>
 
         {/* Category Tabs */}
-        <div className="sticky top-[68px] sm:top-[76px] z-10 bg-white/95 border-b border-gray-200 px-3 sm:px-4 py-2 sm:py-3">
+        <div className="sticky top-[68px] sm:top-[76px] z-10 bg-card/95 border-b border-border px-3 sm:px-4 py-2 sm:py-3">
           <div className="relative">
             <div className="overflow-x-auto scrollbar-hide">
               <div className="flex gap-1.5 sm:gap-2 min-w-fit scroll-smooth snap-x snap-mandatory pb-1">
@@ -159,7 +159,7 @@ export function ProductList() {
                     "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base px-2 sm:px-3 py-1 sm:py-2",
                     selectedCategory === "All"
                       ? "bg-primary text-primary-foreground shadow-sm"
-                      : "hover:bg-gray-50 border-gray-300",
+                      : "hover:bg-muted/40 border-border",
                   )}
                 >
                   All Categories
@@ -168,7 +168,7 @@ export function ProductList() {
                   ? Array.from({ length: 5 }).map((_, index) => (
                       <div
                         key={`skeleton-${index}`}
-                        className="h-7 w-16 sm:h-8 sm:w-20 bg-gray-200 animate-pulse rounded-md flex-shrink-0"
+                        className="h-7 w-16 sm:h-8 sm:w-20 bg-muted animate-pulse rounded-md flex-shrink-0"
                       />
                     ))
                   : categoryData?.result?.data?.map((category) => (
@@ -185,7 +185,7 @@ export function ProductList() {
                           "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base px-2 sm:px-3 py-1 sm:py-2",
                           selectedCategory === category.id
                             ? "bg-primary text-primary-foreground shadow-sm"
-                            : "hover:bg-gray-50 border-gray-300",
+                            : "hover:bg-muted/40 border-border",
                         )}
                       >
                         {category.title}
@@ -203,7 +203,7 @@ export function ProductList() {
             ? Array.from({ length: 12 }).map((_, index) => (
                 <Card
                   key={`skeleton-${index}`}
-                  className="overflow-hidden border-0 shadow-sm bg-white rounded-xl h-full"
+                  className="overflow-hidden border-0 shadow-sm bg-card rounded-xl h-full"
                 >
                   <div className="aspect-[5/5] w-full bg-muted animate-pulse rounded-t-xl" />
                   <div className="p-1.5 sm:p-2 flex justify-center">
@@ -252,7 +252,7 @@ export function ProductList() {
                   <Card
                     key={`${item.variantId}-${index}`}
                     className={cn(
-                      "overflow-hidden border border-gray-200 shadow-sm transition-all duration-300 bg-white rounded-xl h-full flex flex-col relative",
+                      "overflow-hidden border border-border shadow-sm transition-all duration-300 bg-card rounded-xl h-full flex flex-col relative",
                       loading || isRequest
                         ? "cursor-not-allowed opacity-60"
                         : "cursor-pointer active:scale-95",
@@ -306,13 +306,13 @@ export function ProductList() {
         {/* Empty State */}
         {!loading && !isLoading && displayProducts.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 px-4">
-            <div className="text-gray-400 mb-4">
+            <div className="text-muted-foreground/70 mb-4">
               <Search className="h-16 w-16 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-foreground mb-2">
               No products found
             </h3>
-            <p className="text-gray-500 text-center max-w-md">
+            <p className="text-muted-foreground text-center max-w-md">
               {searchQuery
                 ? `No products match "${searchQuery}". Try adjusting your search terms.`
                 : "No products are available at the moment."}

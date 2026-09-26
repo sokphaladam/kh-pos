@@ -36,17 +36,17 @@ function DialogLayerPanel({
 }: React.PropsWithChildren<{ title: string; onBack: () => void }>) {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 border-b border-gray-200 bg-white px-4 py-3">
+      <div className="flex items-center gap-2 border-b border-border bg-card px-4 py-3">
         <Button
           variant="ghost"
           size="sm"
           onClick={onBack}
-          className="text-gray-600 hover:text-gray-800"
+          className="text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <span className="text-sm font-medium text-gray-900">{title}</span>
+        <span className="text-sm font-medium text-foreground">{title}</span>
       </div>
       <div className="flex-1 overflow-y-auto p-4">{children}</div>
     </div>
@@ -145,14 +145,14 @@ function SettingDialogBody() {
 
         {layer === "hub" && (
           <div className="flex-1 overflow-y-auto p-6">
-            <h2 className="mb-1 text-lg font-semibold text-gray-900">
+            <h2 className="mb-1 text-lg font-semibold text-foreground">
               Settings
             </h2>
-            <p className="mb-6 text-sm text-gray-500">
+            <p className="mb-6 text-sm text-muted-foreground">
               Choose a section to configure
             </p>
             {tiles.length === 0 && (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 Your role doesn&apos;t have access to any settings section.
               </p>
             )}
@@ -161,20 +161,20 @@ function SettingDialogBody() {
                 <button
                   key={tile.key}
                   onClick={() => setLayer(tile.key)}
-                  className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-4 text-left transition-colors hover:border-blue-300 hover:bg-blue-50"
+                  className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 text-left transition-colors hover:border-info/30 hover:bg-info/10"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-600">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
                     <tile.icon className="h-5 w-5" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-medium text-gray-900">
+                    <span className="block text-sm font-medium text-foreground">
                       {tile.title}
                     </span>
-                    <span className="block truncate text-xs text-gray-500">
+                    <span className="block truncate text-xs text-muted-foreground">
                       {tile.description}
                     </span>
                   </span>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-gray-400" />
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/70" />
                 </button>
               ))}
             </div>

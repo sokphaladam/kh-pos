@@ -18,7 +18,7 @@ export function TicketReservationSeatSelection(props: Props) {
   return (
     <div id="seat-selection" className="py-4 px-6">
       {props.selectedShowtime ? (
-        <div className=" bg-white/70 ">
+        <div className=" bg-card/70 ">
           <div className="pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 font-bold">
@@ -26,13 +26,13 @@ export function TicketReservationSeatSelection(props: Props) {
                 Select Your Seats
               </div>
               {props.selectedSeats.length > 0 && (
-                <Badge className="bg-green-500 text-white">
+                <Badge className="bg-success text-white">
                   {props.selectedSeats.length} seat
                   {props.selectedSeats.length !== 1 ? "s" : ""} selected
                 </Badge>
               )}
             </div>
-            <div className="text-sm text-slate-600">
+            <div className="text-sm text-muted-foreground">
               {props.selectedShowtime.hall?.name} •{" "}
               {moment(props.selectedShowtime.startTime).format("HH:mm A")}
             </div>
@@ -121,21 +121,21 @@ export function TicketReservationSeatSelection(props: Props) {
           <div>
             <div className="w-full">
               <div className="border-t pt-4">
-                <h4 className="text-sm font-semibold mb-3 text-slate-700">
+                <h4 className="text-sm font-semibold mb-3 text-foreground/80">
                   Pricing Information
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="bg-slate-50 rounded-lg p-3">
-                    <div className="text-xs text-slate-500 mb-1">
+                  <div className="bg-muted/40 rounded-lg p-3">
+                    <div className="text-xs text-muted-foreground mb-1">
                       Base Price
                     </div>
-                    <div className="text-lg font-semibold text-slate-800">
+                    <div className="text-lg font-semibold text-foreground">
                       ${(props.selectedShowtime?.basePrice || 0).toFixed(2)}
                     </div>
                   </div>
                   {props.selectedShowtime?.pricingTemplate?.extraSeatPrices && (
-                    <div className="bg-slate-50 rounded-lg p-3">
-                      <div className="text-xs text-slate-500 mb-2">
+                    <div className="bg-muted/40 rounded-lg p-3">
+                      <div className="text-xs text-muted-foreground mb-2">
                         Seat Type Extras
                       </div>
                       <div className="space-y-1">
@@ -147,10 +147,10 @@ export function TicketReservationSeatSelection(props: Props) {
                             key={type}
                             className="flex justify-between items-center text-xs"
                           >
-                            <span className="capitalize text-slate-600">
+                            <span className="capitalize text-muted-foreground">
                               {type}:
                             </span>
-                            <span className="font-medium text-slate-800">
+                            <span className="font-medium text-foreground">
                               +${Number(extraPrice || 0).toFixed(2)}
                             </span>
                           </div>
@@ -161,7 +161,7 @@ export function TicketReservationSeatSelection(props: Props) {
                 </div>
                 {props.selectedSeats.length > 0 && (
                   <div className="mt-3 pt-3 border-t">
-                    <div className="text-xs text-slate-500 mb-2">
+                    <div className="text-xs text-muted-foreground mb-2">
                       Selected Seats Breakdown
                     </div>
                     <div className="space-y-1">
@@ -182,20 +182,20 @@ export function TicketReservationSeatSelection(props: Props) {
                         return (
                           <div
                             key={seatId}
-                            className="flex justify-between items-center text-xs bg-blue-50 rounded px-2 py-1"
+                            className="flex justify-between items-center text-xs bg-info/10 rounded px-2 py-1"
                           >
-                            <span className="text-slate-600">
+                            <span className="text-muted-foreground">
                               {seat?.row}
                               {seat?.column} ({seat?.type || "standard"})
                             </span>
                             {extraPrice > 0 ? (
-                              <span className="font-medium text-slate-800">
+                              <span className="font-medium text-foreground">
                                 ${basePrice.toFixed(2)} + $
                                 {extraPrice.toFixed(2)} = $
                                 {totalPrice.toFixed(2)}
                               </span>
                             ) : (
-                              <span className="font-medium text-slate-800">
+                              <span className="font-medium text-foreground">
                                 ${totalPrice.toFixed(2)}
                               </span>
                             )}
@@ -210,9 +210,9 @@ export function TicketReservationSeatSelection(props: Props) {
           </div>
         </div>
       ) : (
-        <div className="border-0 shadow-lg bg-white/70 backdrop-blur-sm">
+        <div className="border-0 shadow-lg bg-card/70 backdrop-blur-sm">
           <div className="py-12">
-            <div className="text-center text-slate-500">
+            <div className="text-center text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-medium mb-2">Select a Showtime</h3>
               <p className="text-sm">

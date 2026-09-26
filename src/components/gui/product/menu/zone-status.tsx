@@ -13,8 +13,8 @@ export function ZoneStatus({ inZone }: ZoneStatusProps) {
       className={cn(
         "flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium",
         inZone
-          ? "bg-green-100 text-green-800 border border-green-200"
-          : "bg-amber-100 text-amber-800 border border-amber-200"
+          ? "bg-success/15 text-success border border-success/20"
+          : "bg-warning/15 text-warning border border-warning/20"
       )}
     >
       <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />

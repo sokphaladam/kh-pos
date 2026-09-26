@@ -346,10 +346,10 @@ export const POSDiscountSheet = createSheet<
         </SheetHeader>
 
         {/* Compact Product Info */}
-        <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+        <div className="flex justify-between items-center bg-muted/40 p-3 rounded-lg">
           <div>
             <p className="text-sm font-medium">Qty: {cart.qty}</p>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-muted-foreground">
               Current: {currency}
               {currentPrice}
             </p>
@@ -359,7 +359,7 @@ export const POSDiscountSheet = createSheet<
               {currency}
               {cart.usd.toFixed(2)}
             </p>
-            <p className="text-xs text-gray-600">Original</p>
+            <p className="text-xs text-muted-foreground">Original</p>
           </div>
         </div>
 
@@ -463,10 +463,10 @@ export const POSDiscountSheet = createSheet<
                       <div
                         key={index}
                         className={`flex items-center justify-between p-2 rounded border transition-colors ${
-                          isApplied
-                            ? "bg-green-50 border-green-200"
-                            : "bg-white border-gray-200"
-                        }`}
+ isApplied
+ ? "bg-success/10 border-success/20"
+ : "bg-card border-border"
+ }`}
                       >
                         <div className="flex items-center gap-2">
                           <Switch
@@ -499,7 +499,7 @@ export const POSDiscountSheet = createSheet<
                 )}
               </div>
             ) : (
-              <div className="text-center py-4 text-gray-500">
+              <div className="text-center py-4 text-muted-foreground">
                 <Tag className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p className="text-xs">No promotions available</p>
               </div>

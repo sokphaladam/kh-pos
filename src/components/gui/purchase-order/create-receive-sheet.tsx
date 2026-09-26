@@ -1,4 +1,5 @@
 "use client";
+import { LoadingState } from "@/components/ui/state";
 import { createSheet } from "@/components/create-sheet";
 import { Button } from "@/components/ui/button";
 import { SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -115,12 +116,12 @@ function ReceiveItemsSheetComponent({
     <>
       <SheetHeader>
         <SheetTitle className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-          <div className="bg-blue-100 p-2 rounded-lg self-start sm:self-center">
-            <Truck className="w-5 h-5 text-blue-600" />
+          <div className="bg-info/15 p-2 rounded-lg self-start sm:self-center">
+            <Truck className="w-5 h-5 text-info" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-lg font-semibold">Receive Purchase Order</div>
-            <div className="text-sm text-gray-500 font-normal">
+            <div className="text-sm text-muted-foreground font-normal">
               <span className="block sm:inline">
                 {itemsByStatus.pending.length} pending
               </span>
@@ -139,18 +140,13 @@ function ReceiveItemsSheetComponent({
 
       {isLoadingPO ? (
         <div className="flex items-center justify-center py-12">
-          <div className="text-center space-y-4">
-            <LoaderIcon className="w-8 h-8 animate-spin mx-auto text-blue-600" />
-            <div className="text-sm text-gray-500">
-              Loading purchase order details...
-            </div>
-          </div>
+          <LoadingState label="Loading purchase order" />
         </div>
       ) : items.length === 0 ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center space-y-4">
-            <Package className="w-12 h-12 mx-auto text-gray-400" />
-            <div className="text-sm text-gray-500">
+            <Package className="w-12 h-12 mx-auto text-muted-foreground/70" />
+            <div className="text-sm text-muted-foreground">
               No items found in this purchase order
             </div>
             <Button variant="outline" onClick={close} disabled={isReceiving}>
@@ -185,7 +181,7 @@ function ReceiveItemsSheetComponent({
         </div>
       )}
 
-      <SheetFooter className="flex-col sm:flex-row gap-3 pt-6 border-t bg-gray-50/50">
+      <SheetFooter className="flex-col sm:flex-row gap-3 pt-6 border-t bg-muted/50">
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:flex-1">
           <Button
             variant="outline"
@@ -227,7 +223,7 @@ function ReceiveItemsSheetComponent({
           disabled={
             formState.selectedItems.size === 0 || isLoadingPO || isReceiving
           }
-          className="bg-green-600 hover:bg-green-700 w-full sm:w-auto sm:flex-1"
+          className="bg-success hover:bg-success/90 w-full sm:w-auto sm:flex-1"
         >
           {isReceiving ? (
             <>
@@ -301,11 +297,11 @@ const cancelPurchaseOrderDialog = createDialog<
         <DialogTitle>Cancel All Remaining Items</DialogTitle>
       </DialogHeader>
       <div className="py-4">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Are you sure you want to cancel all remaining items in this purchase
           order?
         </p>
-        <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-muted-foreground mt-2">
           This action cannot be undone. All pending items will be marked as
           cancelled.
         </p>

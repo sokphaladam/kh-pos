@@ -36,19 +36,19 @@ const getStatusBadge = (status: string) => {
       variant: "secondary" as const,
       icon: "🔥",
       label: "Urgent",
-      className: "bg-orange-100 text-orange-800 hover:bg-orange-200",
+      className: "bg-warning/15 text-warning hover:bg-warning/25",
     },
     critical: {
       variant: "secondary" as const,
       icon: "⏰",
       label: "Critical",
-      className: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+      className: "bg-warning/15 text-warning hover:bg-warning/25",
     },
     warning: {
       variant: "secondary" as const,
       icon: "📅",
       label: "Warning",
-      className: "bg-blue-100 text-blue-800 hover:bg-blue-200",
+      className: "bg-info/15 text-info hover:bg-info/25",
     },
   };
 
@@ -91,7 +91,7 @@ const formatExpiryDate = (dateString: string) => {
     } else if (diffDays === 0) {
       return (
         <div className="text-center">
-          <div className="font-medium text-orange-600">{formattedDate}</div>
+          <div className="font-medium text-warning">{formattedDate}</div>
           <div className="text-xs text-muted-foreground">Today</div>
         </div>
       );
@@ -206,7 +206,7 @@ export const ExpiryProductList: React.FC<Props> = ({ products }) => {
           <TableRow>
             <TableHead className="w-[60px] text-center">#</TableHead>
             <TableHead className="w-[280px]">
-              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Product Details
               </span>
             </TableHead>
@@ -220,7 +220,7 @@ export const ExpiryProductList: React.FC<Props> = ({ products }) => {
               </SortButton>
             </TableHead>
             <TableHead className="w-[120px] text-center">
-              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Status
               </span>
             </TableHead>
@@ -243,12 +243,12 @@ export const ExpiryProductList: React.FC<Props> = ({ products }) => {
               </SortButton>
             </TableHead>
             <TableHead className="w-[140px]">
-              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Location
               </span>
             </TableHead>
             <TableHead className="w-[160px]">
-              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Category
               </span>
             </TableHead>

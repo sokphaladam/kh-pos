@@ -151,37 +151,37 @@ export function BookingLayout() {
 
       {/* P&L Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className=" dark:bg-emerald-950/20 dark:border-emerald-800">
+        <Card className=" ">
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+                <p className="text-xs font-medium text-success uppercase tracking-wide">
                   Total Revenue
                 </p>
-                <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">
+                <p className="text-xl font-bold text-success mt-1">
                   {formatForDisplay(totalRevenue)}
                 </p>
               </div>
-              <div className="rounded-full bg-emerald-100 dark:bg-emerald-900 p-2">
-                <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <div className="rounded-full bg-success/15 p-2">
+                <TrendingUp className="w-5 h-5 text-success" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className=" dark:bg-rose-950/20 dark:border-rose-800">
+        <Card className=" ">
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-rose-600 dark:text-rose-400 uppercase tracking-wide">
+                <p className="text-xs font-medium text-destructive uppercase tracking-wide">
                   Total Expense
                 </p>
-                <p className="text-xl font-bold text-rose-700 dark:text-rose-300 mt-1">
+                <p className="text-xl font-bold text-destructive mt-1">
                   {formatForDisplay(totalExpense)}
                 </p>
               </div>
-              <div className="rounded-full bg-rose-100 dark:bg-rose-900 p-2">
-                <TrendingDown className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+              <div className="rounded-full bg-destructive/15 p-2">
+                <TrendingDown className="w-5 h-5 text-destructive" />
               </div>
             </div>
           </CardContent>
@@ -191,8 +191,8 @@ export function BookingLayout() {
           className={cn(
             "border",
             netProfit >= 0
-              ? "dark:bg-blue-950/20 dark:border-blue-800"
-              : "dark:bg-orange-950/20 dark:border-rose-800",
+              ? ""
+              : "",
           )}
         >
           <CardContent className="pt-5 pb-4">
@@ -202,8 +202,8 @@ export function BookingLayout() {
                   className={cn(
                     "text-xs font-medium uppercase tracking-wide",
                     netProfit >= 0
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-rose-700 dark:text-rose-300",
+                      ? "text-info"
+                      : "text-destructive",
                   )}
                 >
                   {netProfit >= 0 ? "Net Profit" : "Net Loss"}
@@ -212,8 +212,8 @@ export function BookingLayout() {
                   className={cn(
                     "text-xl font-bold mt-1",
                     netProfit >= 0
-                      ? "text-blue-700 dark:text-blue-300"
-                      : "text-rose-700 dark:text-rose-300",
+                      ? "text-info"
+                      : "text-destructive",
                   )}
                 >
                   {formatForDisplay(netProfit)}
@@ -223,16 +223,16 @@ export function BookingLayout() {
                 className={cn(
                   "rounded-full p-2",
                   netProfit >= 0
-                    ? "bg-blue-100 dark:bg-blue-900"
-                    : "bg-rose-100 dark:bg-rose-900",
+                    ? "bg-info/15"
+                    : "bg-destructive/15",
                 )}
               >
                 <Scale
                   className={cn(
                     "w-5 h-5",
                     netProfit >= 0
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-rose-600 dark:text-rose-400",
+                      ? "text-info"
+                      : "text-destructive",
                   )}
                 />
               </div>
@@ -326,8 +326,8 @@ export function BookingLayout() {
                             className={cn(
                               "text-xs font-medium capitalize",
                               isRevenue
-                                ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
-                                : "border-rose-300 bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400",
+                                ? "border-success/30 bg-success/10 text-success"
+                                : "border-destructive/30 bg-destructive/10 text-destructive",
                             )}
                           >
                             {booking.account?.accountType || "—"}
@@ -337,8 +337,8 @@ export function BookingLayout() {
                           className={cn(
                             "text-right text-sm font-mono font-semibold",
                             isRevenue
-                              ? "text-emerald-600 dark:text-emerald-400"
-                              : "text-rose-600 dark:text-rose-400",
+                              ? "text-success"
+                              : "text-destructive",
                           )}
                         >
                           {formatForDisplay(booking.amount)}

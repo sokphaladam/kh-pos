@@ -30,12 +30,12 @@ export const SettingCategorySidebar: React.FC<SettingCategorySidebarProps> = ({
   setSelectedCategory,
   onBack,
 }) => (
-  <div className="w-64 bg-gray-50 border-r border-gray-200">
+  <div className="w-64 bg-muted/40 border-r border-border">
     {onBack ? (
       <Button
         variant="ghost"
         size="sm"
-        className="w-full justify-start text-gray-600 hover:text-gray-800 hover:bg-gray-100 mb-3"
+        className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-muted mb-3"
         onClick={onBack}
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
@@ -46,7 +46,7 @@ export const SettingCategorySidebar: React.FC<SettingCategorySidebarProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+          className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-muted"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard
@@ -62,10 +62,10 @@ export const SettingCategorySidebar: React.FC<SettingCategorySidebarProps> = ({
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
               className={cn(
-                "w-full flex items-center gap-2 px-3 py-2 text-left rounded hover:bg-gray-100 transition-colors text-sm",
+                "w-full flex items-center gap-2 px-3 py-2 text-left rounded hover:bg-muted transition-colors text-sm",
                 selectedCategory === category.id
-                  ? "bg-blue-50 text-blue-700 border-l-2 border-blue-500"
-                  : "text-gray-600"
+                  ? "bg-info/10 text-info border-l-2 border-info"
+                  : "text-muted-foreground"
               )}
             >
               <ChevronRight
