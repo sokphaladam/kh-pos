@@ -41,6 +41,8 @@ export * from "./tables/table_product_option";
 export * from "./tables/table_product_option_value";
 export * from "./tables/table_product_variant";
 export * from "./tables/table_product_variant_conversion";
+export * from "./tables/table_promotion_set";
+export * from "./tables/table_promotion_set_item";
 export * from "./tables/table_product_warehouse_visibility";
 export * from "./tables/table_receive_po_detail";
 export * from "./tables/table_receive_replenishment";

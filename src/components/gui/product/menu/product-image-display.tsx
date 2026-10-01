@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { VariantBadge } from "@/lib/variant-badges";
+import { ProductCardBadges } from "@/components/product-card-badges";
 
 interface ProductImageDisplayProps {
   images: { url: string }[];
@@ -55,27 +56,11 @@ export function ProductImageDisplay({
 
   const overlay = (
     <>
-      {((discounted && discountLabel) || (badges && badges.length > 0)) && (
-        <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
-          {discounted && discountLabel && (
-            <span className="text-[10px] sm:text-xs font-bold text-white bg-destructive px-1.5 py-0.5 rounded-md shadow-sm">
-              {discountLabel}
-            </span>
-          )}
-          {badges?.map((badge) => (
-            <span
-              key={badge.key}
-              className={cn(
-                "text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-md shadow-sm",
-                badge.className
-              )}
-            >
-              {badge.label}
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+      <ProductCardBadges
+        discountLabel={discounted ? discountLabel : undefined}
+        badges={badges}
+      />
+      <div className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 flex items-center justify-between">
         <PriceTag price={price} originalPrice={originalPrice} />
         {stockStatus && (
           <div

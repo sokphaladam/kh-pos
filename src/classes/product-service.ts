@@ -96,6 +96,14 @@ export class ProductService {
       searchQuery.where("product.supplier_id", filter.supplierId);
     }
 
+    if (filter?.productId) {
+      searchQuery.where("product.id", filter.productId);
+    }
+
+    if (filter?.variantIds) {
+      searchQuery.whereIn("product_variant.id", filter.variantIds);
+    }
+
     let warehouse = this.user?.warehouse;
 
     if (!warehouse) {

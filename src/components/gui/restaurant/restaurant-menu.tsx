@@ -21,6 +21,11 @@ import { useRestaurantActions } from "./hooks/use-restaurant-actions";
 import { RestaurantCategory } from "./restaurant-category";
 import { RestaurantFilter } from "./restaurant-filter";
 import { RestaurantSummary } from "./restaurant-summary";
+import {
+  PROMOTIONS_CATEGORY,
+  RestaurantPromotionCards,
+} from "./promotion/restaurant-promotion-cards";
+import { ProductCardBadges } from "@/components/product-card-badges";
 
 // Product Image Slideshow Component
 function ProductImageSlideshow({
@@ -60,26 +65,11 @@ function ProductImageSlideshow({
       </span>
     </span>
   );
-  const topBadges = ((discounted && discountLabel) ||
-    (badges && badges.length > 0)) && (
-    <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
-      {discounted && discountLabel && (
-        <span className="text-[10px] sm:text-xs font-bold text-white bg-destructive px-1.5 py-0.5 rounded-md shadow-sm">
-          {discountLabel}
-        </span>
-      )}
-      {badges?.map((badge) => (
-        <span
-          key={badge.key}
-          className={cn(
-            "text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-md shadow-sm",
-            badge.className,
-          )}
-        >
-          {badge.label}
-        </span>
-      ))}
-    </div>
+  const topBadges = (
+    <ProductCardBadges
+      discountLabel={discounted ? discountLabel : undefined}
+      badges={badges}
+    />
   );
   if (!images || images.length === 0) {
     return (
@@ -95,7 +85,7 @@ function ProductImageSlideshow({
 
           {topBadges}
           {/* Price and Stock Status Overlay */}
-          <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+          <div className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 flex items-center justify-between">
             {priceTag}
             {stockStatus && (
               <div
@@ -143,7 +133,7 @@ function ProductImageSlideshow({
 
         {topBadges}
         {/* Price and Stock Status Overlay */}
-        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+        <div className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 flex items-center justify-between">
           {priceTag}
           {stockStatus && (
             <div
@@ -224,6 +214,12 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
     useLazyQuerySearchProduct(filter);
 
   const current = state.activeTables.find((f) => f.tables?.id === id);
+  // "Promotions" shows only promotion-set cards; "All" (no search) shows them
+  // first, ahead of the products.
+  const isPromotions = selectedCategory === PROMOTIONS_CATEGORY;
+  const showPromotionCards =
+    isPromotions ||
+    (selectedCategory === "All" && !debouncedSearchQuery.trim());
   // Reset products when search or category changes
   useEffect(() => {
     setPage(0);
@@ -258,6 +254,8 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
 
   // Trigger initial search when search/category changes (only when page is reset to 0)
   useEffect(() => {
+    // The Promotions tab is not a product category: nothing to search.
+    if (selectedCategory === PROMOTIONS_CATEGORY) return;
     setLoading(true);
     triggerSearch().finally(() => setLoading(false));
   }, [debouncedSearchQuery, selectedCategory, triggerSearch, setLoading]);
@@ -366,7 +364,12 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
             // style={{ height: height - 400 }}
           >
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 pb-4">
-              {(isLoading || loading) &&
+              {showPromotionCards && (
+                <RestaurantPromotionCards allowCreate={props.allowCreate} />
+              )}
+              {isPromotions
+                ? null
+                : (isLoading || loading) &&
               (page === 0 || displayProducts.length === 0)
                 ? // Loading skeleton
                   Array.from({ length: 12 }).map((_, index) => (
@@ -416,7 +419,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                       >
                         {/* Quantity Badge */}
                         {quantityInOrder > 0 && (
-                          <div className="absolute top-2 right-2 z-10">
+                          <div className="absolute right-3.5 top-3.5 sm:right-4 sm:top-4 z-10">
                             <div className="bg-success text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
                               {quantityInOrder}
                             </div>
@@ -439,7 +442,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
             </div>
 
             {/* Load More Button */}
-            {hasMore && displayProducts.length > 0 && (
+            {!isPromotions && hasMore && displayProducts.length > 0 && (
               <div className="flex justify-center p-6">
                 <Button
                   onClick={loadMoreProducts}
@@ -486,7 +489,12 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
 
           {/* Menu Items Grid */}
           <div className="p-2 sm:p-4 pt-4 sm:pt-6 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 md:gap-4 pb-20 lg:pb-0">
-            {(isLoading || loading) &&
+            {showPromotionCards && (
+              <RestaurantPromotionCards allowCreate={props.allowCreate} />
+            )}
+            {isPromotions
+              ? null
+              : (isLoading || loading) &&
             (page === 0 || displayProducts.length === 0)
               ? // Loading skeleton
                 Array.from({ length: 12 }).map((_, index) => (
@@ -536,7 +544,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                     >
                       {/* Quantity Badge */}
                       {quantityInOrder > 0 && (
-                        <div className="absolute top-2 right-2 z-10">
+                        <div className="absolute right-3.5 top-3.5 sm:right-4 sm:top-4 z-10">
                           <div className="bg-success text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
                             {quantityInOrder}
                           </div>
@@ -559,7 +567,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
           </div>
 
           {/* Load More Button */}
-          {hasMore && displayProducts.length > 0 && (
+          {!isPromotions && hasMore && displayProducts.length > 0 && (
             <div className="flex justify-center p-6">
               <Button
                 onClick={loadMoreProducts}

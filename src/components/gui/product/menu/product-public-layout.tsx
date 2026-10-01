@@ -17,6 +17,7 @@ import { useProgress } from "@bprogress/next";
 import { ChevronDown, Loader2, Search, Store, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ProductCardBadges } from "@/components/product-card-badges";
 
 // Product Image Component
 function ProductImageDisplay({
@@ -52,26 +53,11 @@ function ProductImageDisplay({
       <span className={cn(discounted && "text-success/80")}>{price}</span>
     </span>
   );
-  const topBadges = ((discounted && discountLabel) ||
-    (badges && badges.length > 0)) && (
-    <div className="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
-      {discounted && discountLabel && (
-        <span className="text-[10px] sm:text-xs font-bold text-white bg-destructive px-1.5 py-0.5 rounded-md shadow-sm">
-          {discountLabel}
-        </span>
-      )}
-      {badges?.map((badge) => (
-        <span
-          key={badge.key}
-          className={cn(
-            "text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-md shadow-sm",
-            badge.className,
-          )}
-        >
-          {badge.label}
-        </span>
-      ))}
-    </div>
+  const topBadges = (
+    <ProductCardBadges
+      discountLabel={discounted ? discountLabel : undefined}
+      badges={badges}
+    />
   );
   if (!images || images.length === 0) {
     return (
@@ -87,7 +73,7 @@ function ProductImageDisplay({
 
           {topBadges}
           {/* Price and Stock Status Overlay */}
-          <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+          <div className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 flex items-center justify-between">
             {priceTag}
             {stockStatus && (
               <div
@@ -135,7 +121,7 @@ function ProductImageDisplay({
 
         {topBadges}
         {/* Price and Stock Status Overlay */}
-        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+        <div className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 flex items-center justify-between">
           {priceTag}
         </div>
       </div>

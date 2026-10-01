@@ -13,6 +13,7 @@ export interface VariantBadge {
 /**
  * Admin-set menu badges (popular / new / most-order) shown on the public menu
  * and POS restaurant screen. A variant can carry more than one at once.
+ * Colours are theme tokens (globals.css), so they follow light / dark mode.
  */
 export function getVariantBadges(flags: VariantBadgeFlags): VariantBadge[] {
   const badges: VariantBadge[] = [];
@@ -21,21 +22,21 @@ export function getVariantBadges(flags: VariantBadgeFlags): VariantBadge[] {
     badges.push({
       key: "popular",
       label: "Popular",
-      className: "bg-amber-500 text-white",
+      className: "bg-warning text-warning-foreground",
     });
   }
   if (flags.isNew) {
     badges.push({
       key: "new",
       label: "New",
-      className: "bg-emerald-500 text-white",
+      className: "bg-success text-success-foreground",
     });
   }
   if (flags.isMostOrder) {
     badges.push({
       key: "mostOrder",
       label: "Best Seller",
-      className: "bg-purple-500 text-white",
+      className: "bg-info text-info-foreground",
     });
   }
 

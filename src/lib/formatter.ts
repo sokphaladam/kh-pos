@@ -40,6 +40,14 @@ export class Formatter {
   /**
    * Get the current time in +7 timezone
    */
+  static toDbDateTime(value: unknown): string | null {
+    // DATETIME columns may come back from mysql2 as strings or Date objects;
+    // normalise to the "YYYY-MM-DD HH:mm:ss" strings we store and compare.
+    if (!value) return null;
+    if (typeof value === "string") return value;
+    return moment(value as Date).format("YYYY-MM-DD HH:mm:ss");
+  }
+
   static getNowDateTime(): string {
     return moment().tz("Asia/Phnom_Penh").format("YYYY-MM-DD HH:mm:ss");
   }

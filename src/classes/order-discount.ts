@@ -14,8 +14,17 @@ import {
   resolveVariantUnitCapByLine,
   variantMaxQtyFromRules,
 } from "@/lib/order-discount-rules";
+import {
+  PromotionOrderLine,
+  PromotionSetDefinition,
+  applyPromotionSets,
+  isPromotionDiscountId,
+  promotionDiscountId,
+  PROMOTION_DISCOUNT_PREFIX,
+} from "@/lib/promotion-set";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import { Knex } from "knex";
+import { PromotionSetService } from "./promotion-set";
 import {
   getOrderDetail,
   recalculateCustomerOrder,
@@ -326,18 +335,21 @@ export async function applyDiscountToOrderItem(
     knex,
   );
 
-  // Apply order: auto/product discounts first (variant menu discount, applied
+  // Apply order: promotion sets first (they price whole units, e.g. "2 beers
+  // free"), then auto/product discounts (variant menu discount, applied
   // promotions), then the manual cart discount on top of the already-reduced
   // price, then the auto order-level slice last. This keeps a manual "% off"
   // stacking on the discounted price and matches the client cart math
   // (RestaurantaAction.calculateItemTotals).
   existingDiscounts.sort((a, b) => {
     const rank = (d: table_discount_log) =>
-      d.discount_id === ORDER_LEVEL_DISCOUNT_ID
-        ? 2
-        : d.is_manual_discount === 1
-          ? 1
-          : 0;
+      isPromotionDiscountId(d.discount_id)
+        ? -1
+        : d.discount_id === ORDER_LEVEL_DISCOUNT_ID
+          ? 2
+          : d.is_manual_discount === 1
+            ? 1
+            : 0;
     return rank(a) - rank(b);
   });
 
@@ -359,6 +371,19 @@ export async function applyDiscountToOrderItem(
       // Skip it here so this per-line pass always yields the line net *before*
       // the order-level slice.
       if (discount.discount_id === ORDER_LEVEL_DISCOUNT_ID) {
+        continue;
+      }
+
+      // Promotion-set slice. Its amount depends on sibling lines, so it is
+      // resolved across the whole order by syncPromotionSetLogs; trust the
+      // stored amount here.
+      if (isPromotionDiscountId(discount.discount_id)) {
+        const discountValue = Math.min(
+          Number(discount.discount_amount || 0),
+          orderItemAmount,
+        );
+        totalDiscount += discountValue;
+        orderItemAmount -= discountValue;
         continue;
       }
 
@@ -463,11 +488,24 @@ export async function recalculateOrderLevelDiscount(
   trx: Knex,
   rules: OrderDiscountRules,
   createdBy: string | null,
+  /** The order's warehouse; looked up when omitted. */
+  warehouseId?: string | null,
 ): Promise<void> {
   const lines = await trx
     .table<table_customer_order_detail>("customer_order_detail")
     .where({ order_id: orderId });
   if (lines.length === 0) return;
+
+  if (warehouseId === undefined) {
+    const order = await trx
+      .table("customer_order")
+      .where({ order_id: orderId })
+      .first("warehouse_id");
+    warehouseId = (order?.warehouse_id as string | null) ?? null;
+  }
+  const promotions = await new PromotionSetService(trx).getActive(
+    warehouseId ?? null,
+  );
 
   const existingOrderLogs = await trx
     .table<table_discount_log>("discount_log")
@@ -504,7 +542,10 @@ export async function recalculateOrderLevelDiscount(
 
   let productByVariant = new Map<string, string>();
   const categoryByProduct = new Map<string, string>();
-  if (rules.maxQtyPerLine.countBy !== "VARIANT") {
+  const needsCategory =
+    rules.maxQtyPerLine.countBy === "CATEGORY" ||
+    promotions.some((p) => p.items.some((i) => i.matchType === "CATEGORY"));
+  if (rules.maxQtyPerLine.countBy !== "VARIANT" || promotions.length > 0) {
     const variantIds = [
       ...new Set(
         orderedLines.map((l) => l.variant_id).filter((v): v is string => !!v),
@@ -521,7 +562,7 @@ export async function recalculateOrderLevelDiscount(
           pv.map((r) => r.product_id).filter((v): v is string => !!v),
         ),
       ];
-      if (productIds.length > 0 && rules.maxQtyPerLine.countBy === "CATEGORY") {
+      if (productIds.length > 0 && needsCategory) {
         const pc = await trx
           .table<{ product_id: string; category_id: string }>(
             "product_categories",
@@ -553,6 +594,30 @@ export async function recalculateOrderLevelDiscount(
           : null,
       };
     }),
+  );
+
+  // Promotion sets look at the whole order, so resolve them here, before the
+  // per-line rebuild below picks the stored slices up.
+  await syncPromotionSetLogs(
+    lines.map((l) => {
+      const productId = l.variant_id
+        ? (productByVariant.get(l.variant_id) ?? null)
+        : null;
+      return {
+        orderDetailId: l.order_detail_id!,
+        variantId: l.variant_id,
+        productId,
+        categoryId: productId
+          ? (categoryByProduct.get(productId) ?? null)
+          : null,
+        unitPrice: Number(l.price || 0),
+        qty: Number(l.qty || 0),
+        orderedAt: Formatter.toDbDateTime(l.created_at),
+      };
+    }),
+    promotions,
+    trx,
+    createdBy,
   );
 
   // Rebuild each line from gross (modifiers + line discounts, but NOT the
@@ -636,4 +701,81 @@ export async function recalculateOrderLevelDiscount(
   }
 
   await updateOrderTotalAmount(orderId, trx);
+}
+
+/**
+ * Re-evaluate every active promotion set against the order and persist the
+ * result as per-line `discount_log` rows (`discount_id = "promo:<setId>"`,
+ * AMOUNT type, `value` = `discount_amount` = money off the line). Idempotent:
+ * rows that no longer apply are removed.
+ */
+async function syncPromotionSetLogs(
+  lines: PromotionOrderLine[],
+  promotions: PromotionSetDefinition[],
+  trx: Knex,
+  createdBy: string | null,
+): Promise<void> {
+  const existing: table_discount_log[] = await trx
+    .table<table_discount_log>("discount_log")
+    .whereIn(
+      "order_detail_id",
+      lines.map((l) => l.orderDetailId),
+    )
+    .where("discount_id", "like", `${PROMOTION_DISCOUNT_PREFIX}%`);
+  if (promotions.length === 0 && existing.length === 0) return;
+
+  const now = Formatter.getNowDateTime();
+  const { lines: results } = applyPromotionSets(promotions, lines, now);
+
+  const keyOf = (discountId: string, orderDetailId: string) =>
+    `${discountId}|${orderDetailId}`;
+  const existingByKey = new Map(
+    existing.map((e) => [keyOf(e.discount_id!, e.order_detail_id!), e] as const),
+  );
+  const keep = new Set<string>();
+
+  for (const r of results) {
+    const discountId = promotionDiscountId(r.promotionId);
+    const key = keyOf(discountId, r.orderDetailId);
+    keep.add(key);
+    const row = {
+      discount_amount: String(r.amount),
+      discount_title: r.title,
+      discount_type: "AMOUNT" as const,
+      value: String(r.amount),
+      is_manual_discount: 0,
+    };
+    const found = existingByKey.get(key);
+    if (!found) {
+      await trx.table<table_discount_log>("discount_log").insert({
+        ...row,
+        id: generateId(),
+        order_detail_id: r.orderDetailId,
+        discount_id: discountId,
+        created_at: now,
+        created_by: createdBy,
+      });
+    } else if (
+      Number(found.discount_amount || 0) !== r.amount ||
+      found.discount_title !== r.title
+    ) {
+      await trx
+        .table<table_discount_log>("discount_log")
+        .where("id", found.id)
+        .update(row);
+    }
+  }
+
+  const stale = existing.filter(
+    (e) => !keep.has(keyOf(e.discount_id!, e.order_detail_id!)),
+  );
+  if (stale.length > 0) {
+    await trx
+      .table<table_discount_log>("discount_log")
+      .whereIn(
+        "id",
+        stale.map((e) => e.id),
+      )
+      .delete();
+  }
 }

@@ -20,6 +20,10 @@ export interface ProductSearchFilter {
   type?: "all" | "pos";
   includeProductNotForSale?: boolean;
   compositeOnly?: boolean;
+  /** Only variants of this product (promotion-set "any variant" slots). */
+  productId?: string;
+  /** Only these variants (promotion-set item slots). */
+  variantIds?: string[];
 }
 
 export interface ProductSearchResult {

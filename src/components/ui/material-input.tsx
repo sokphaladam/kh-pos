@@ -288,12 +288,17 @@ const MaterialInput = React.forwardRef<
                         {(data ?? []).map((item, index) => (
                           <CommandItem
                             key={index}
+                            // cmdk only needs a unique key here (filtering is
+                            // off). Never JSON.stringify the item: search rows
+                            // can carry large nested data (e.g. every variant of
+                            // a product), and serialising it on each render
+                            // froze the page on multi-variant results.
                             value={
                               typeof item === "string"
                                 ? item
                                 : targetValue
-                                  ? item[targetValue]
-                                  : JSON.stringify(item)
+                                  ? String(item[targetValue])
+                                  : `item-${index}`
                             }
                             onMouseDown={(e) => e.preventDefault()}
                             onSelect={() => handleSelectItem(item)}

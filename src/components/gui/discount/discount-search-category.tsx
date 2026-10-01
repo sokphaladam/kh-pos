@@ -16,6 +16,7 @@ interface Props {
   onChange: (item: Category) => void;
   clearInput?: boolean;
   disabled?: boolean;
+  label?: string;
 }
 
 interface ExtendedCategorySearchResult extends Category {
@@ -292,7 +293,7 @@ export function DiscountSearchCategory(props: Props) {
       `}</style>
       <MaterialInput
         ref={innerRef}
-        label="Search Category"
+        label={props.label ?? "Search Category"}
         data={extendedResults}
         error={error}
         animate="none"

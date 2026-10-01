@@ -8,6 +8,12 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRestaurant } from "./contexts/restaurant-context";
+import { Gift } from "lucide-react";
+import { useTranslations } from "next-intl";
+import {
+  PROMOTIONS_CATEGORY,
+  useRunningPromotionSets,
+} from "./promotion/restaurant-promotion-cards";
 
 interface Props {
   selectedCategory: string;
@@ -19,6 +25,8 @@ interface Props {
 export function RestaurantCategory(props: Props) {
   const { variant = "horizontal", className } = props;
   const { state, loading } = useRestaurant();
+  const tPromo = useTranslations("discount.promotionSet.pos");
+  const hasPromotions = useRunningPromotionSets().length > 0;
   const categories = useMemo(
     () => state.categories.filter((f) => (f.forSaleCount || 0) > 0) || [],
     [state.categories],
@@ -181,6 +189,29 @@ export function RestaurantCategory(props: Props) {
             All Categories
           </Button>
 
+          {/* Promotion sets running now */}
+          {hasPromotions && (
+            <Button
+              key={PROMOTIONS_CATEGORY}
+              variant={
+                props.selectedCategory === PROMOTIONS_CATEGORY
+                  ? "default"
+                  : "ghost"
+              }
+              size="sm"
+              onClick={() => props.setSelectedCategory(PROMOTIONS_CATEGORY)}
+              className={cn(
+                "w-full justify-start gap-2 transition-all duration-200 text-base",
+                props.selectedCategory === PROMOTIONS_CATEGORY
+                  ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                  : "text-primary hover:bg-primary/10",
+              )}
+            >
+              <Gift className="h-4 w-4" />
+              {tPromo("category")}
+            </Button>
+          )}
+
           {/* Category Buttons */}
           {categories.map((category) => (
             <Button
@@ -264,6 +295,29 @@ export function RestaurantCategory(props: Props) {
             >
               All Categories
             </Button>
+
+            {/* Promotion sets running now */}
+            {hasPromotions && (
+              <Button
+                key={PROMOTIONS_CATEGORY}
+                variant={
+                  props.selectedCategory === PROMOTIONS_CATEGORY
+                    ? "default"
+                    : "outline"
+                }
+                size="sm"
+                onClick={() => props.setSelectedCategory(PROMOTIONS_CATEGORY)}
+                className={cn(
+                  "whitespace-nowrap transition-all duration-200 flex-shrink-0 relative text-base gap-1.5",
+                  props.selectedCategory === PROMOTIONS_CATEGORY
+                    ? "bg-primary text-primary-foreground shadow-sm border-primary hover:bg-primary/90"
+                    : "border-primary/40 text-primary hover:bg-primary/10",
+                )}
+              >
+                <Gift className="h-4 w-4" />
+                {tPromo("category")}
+              </Button>
+            )}
 
             {/* Category Buttons */}
             {categories.map((category) => (

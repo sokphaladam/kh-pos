@@ -1,6 +1,7 @@
 "use client";
 import { LoadingState } from "@/components/ui/state";
 import { useQueryCategory } from "@/app/hooks/use-query-category";
+import { useQueryActivePromotionSets } from "@/app/hooks/use-query-promotion-set";
 import { useQueryPOSInfo } from "@/app/hooks/use-query-order";
 import { useQueryTable } from "@/app/hooks/use-query-table";
 import { CommonDialogProvider } from "@/components/common-dialog";
@@ -121,6 +122,7 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
   const queryTable = useQueryTable(autoRefresh);
   const queryCategory = useQueryCategory(100, 0, undefined, undefined, true);
   const queryPOSInfo = useQueryPOSInfo(currentWarehouse?.id || "");
+  const queryPromotionSets = useQueryActivePromotionSets(currentWarehouse?.id);
 
   // Rebuild (and recalculate every order total) only when fetched data changes,
   // not on every render of the layout.
@@ -128,6 +130,7 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
   const categoryResult = queryCategory.categories?.data;
   const posInfoResult = queryPOSInfo.data?.result;
   const settingResult = setting?.data?.result;
+  const promotionSetsResult = queryPromotionSets.data?.result;
   const data = useMemo(() => {
     const tables = tableResult || [];
     const categories = categoryResult || [];
@@ -140,6 +143,8 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
     const orderDiscountRules = parseOrderDiscountRules(
       settingList.find((s) => s.option === "ORDER_DISCOUNT_RULES")?.value,
     );
+    // undefined until loaded: the cart then shows the server's stored rows.
+    const promotionSets = promotionSetsResult;
 
     return {
       tables: tables || [],
@@ -150,6 +155,7 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
       },
       currentWarehouse: currentWarehouse || undefined,
       orderDiscountRules,
+      promotionSets,
       activeTables:
         activeTables && activeTables.length > 0
           ? activeTables.map((x) => {
@@ -201,6 +207,7 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
                 printCount: x.order?.printCount || 0,
                 },
                 orderDiscountRules,
+                promotionSets,
               );
               return {
                 tables: x,
@@ -209,7 +216,14 @@ export function RestaurantLayout(props: WithLayoutPermissionProps) {
             })
           : [],
     };
-  }, [tableResult, categoryResult, posInfoResult, settingResult, currentWarehouse]);
+  }, [
+    tableResult,
+    categoryResult,
+    posInfoResult,
+    settingResult,
+    promotionSetsResult,
+    currentWarehouse,
+  ]);
 
   if (
     queryTable.isLoading ||

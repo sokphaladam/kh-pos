@@ -15,6 +15,12 @@ import {
   OrderDiscountRules,
   resolveVariantUnitCapByLine,
 } from "@/lib/order-discount-rules";
+import {
+  PromotionSetDefinition,
+  applyPromotionSets,
+  isPromotionDiscountId,
+  promotionDiscountId,
+} from "@/lib/promotion-set";
 import { Formatter } from "@/lib/formatter";
 import { generateId } from "@/lib/generate-id";
 import { Draft } from "immer";
@@ -107,13 +113,23 @@ export class RestaurantaAction {
       createdAt: d.createdAt || "",
     }));
 
-    // The product-variant menu discount ("variant") is per-unit and only
-    // covers the first `maxQtyPerLine` units — mirror the server here instead
-    // of letting applyStackDiscount subtract it once per line. The auto
-    // order-level slice ("order") is already resolved per line by the server;
-    // trust its stored amount. Everything else stacks per line.
+    // Promotion-set slices ("promo:<id>") are resolved across the whole order
+    // (calculateOrderTotal / the server) and come off first. The product-
+    // variant menu discount ("variant") is per-unit and only covers the first
+    // `maxQtyPerLine` units — mirror the server here instead of letting
+    // applyStackDiscount subtract it once per line. The auto order-level slice
+    // ("order") is already resolved per line by the server; trust its stored
+    // amount. Everything else stacks per line.
     let running = subtotal;
     const resolvedAmounts = new Map<string, number>();
+
+    for (const d of discountsArray) {
+      if (isPromotionDiscountId(d.discountId)) {
+        const amt = Math.min(Number(d.amount || 0), running);
+        resolvedAmounts.set(d.id, amt);
+        running -= amt;
+      }
+    }
 
     for (const d of discountsArray) {
       if (d.discountId === "variant") {
@@ -137,7 +153,10 @@ export class RestaurantaAction {
     }
 
     const stackables = discountsArray.filter(
-      (d) => d.discountId !== "variant" && d.discountId !== "order",
+      (d) =>
+        d.discountId !== "variant" &&
+        d.discountId !== "order" &&
+        !isPromotionDiscountId(d.discountId),
     );
     const { stackDiscount, finalPrice } = applyStackDiscount(running, stackables);
     for (const s of stackDiscount) {
@@ -157,16 +176,81 @@ export class RestaurantaAction {
     };
   }
 
+  /**
+   * Re-apply the active promotion sets to the cart with the shared engine (the
+   * same code the server runs), replacing any stored "promo:<id>" rows so the
+   * cart is right before the server round-trip. `undefined` = promotions not
+   * loaded: keep the server's stored rows as they are.
+   */
+  private static applyPromotionSetsToItems(
+    items: RestaurantOrderItem[],
+    promotions?: PromotionSetDefinition[],
+  ): RestaurantOrderItem[] {
+    if (!promotions) return items;
+
+    const { lines } = applyPromotionSets(
+      promotions,
+      items.map((it) => {
+        const category = it.productVariant?.basicProduct?.category;
+        return {
+          orderDetailId: it.orderDetailId,
+          variantId: it.variantId,
+          productId: it.productVariant?.productId ?? null,
+          categoryId: category?.categoryId ?? category?.id ?? null,
+          unitPrice: Number(it.price || 0),
+          qty: RestaurantaAction.itemQty(it),
+          // Unsaved lines have no createdAt yet: the engine judges them at now.
+          orderedAt: it.createdAt ?? null,
+        };
+      }),
+      Formatter.getNowDateTime(),
+    );
+
+    return items.map((it) => {
+      const others = (it.discounts ?? []).filter(
+        (d) => !isPromotionDiscountId(d.discountId),
+      );
+      const promo = lines
+        .filter((l) => l.orderDetailId === it.orderDetailId)
+        .map((l) => {
+          const discountId = promotionDiscountId(l.promotionId);
+          const stored = it.discounts?.find(
+            (d) => d.discountId === discountId,
+          );
+          return {
+            id: stored?.id ?? `${discountId}:${it.orderDetailId}`,
+            discountId,
+            orderDetailId: it.orderDetailId,
+            amount: l.amount,
+            name: l.title,
+            discountType: "AMOUNT" as const,
+            value: l.amount,
+            createdAt: stored?.createdAt,
+            isManualDiscount: false,
+          };
+        });
+      if (promo.length === 0 && others.length === (it.discounts ?? []).length) {
+        return it;
+      }
+      return { ...it, discounts: [...promo, ...others] };
+    });
+  }
+
   public static calculateOrderTotal(
     order: RestaurantOrder,
     rules?: OrderDiscountRules,
+    promotions?: PromotionSetDefinition[],
   ): RestaurantOrder {
+    const pricedItems = RestaurantaAction.applyPromotionSetsToItems(
+      order.items,
+      promotions,
+    );
     // Resolve the variant-discount unit cap for every line up front so the
     // `countBy: "PRODUCT" | "CATEGORY"` budget can be shared across lines.
     const unitCapByLine = rules
       ? resolveVariantUnitCapByLine(
           rules,
-          order.items.map((it) => {
+          pricedItems.map((it) => {
             const category = it.productVariant?.basicProduct?.category;
             return {
               orderDetailId: it.orderDetailId,
@@ -180,7 +264,7 @@ export class RestaurantaAction {
         )
       : undefined;
 
-    const items = order.items.map((it) =>
+    const items = pricedItems.map((it) =>
       RestaurantaAction.calculateItemTotals(
         it,
         rules,
@@ -509,7 +593,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules, draft.promotionSets);
   }
 
   public static handleUpdateProductQty(
@@ -576,7 +660,7 @@ export class RestaurantaAction {
       }
 
       draft.activeTables[activeTableIndex].orders =
-        RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
+        RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules, draft.promotionSets);
     }
   }
 
@@ -608,7 +692,7 @@ export class RestaurantaAction {
     if (itemIndex >= 0) {
       order.items.splice(itemIndex, 1);
       draft.activeTables[activeTableIndex].orders =
-        RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
+        RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules, draft.promotionSets);
     }
   }
   public static handleSendToKitchen(
@@ -728,7 +812,7 @@ export class RestaurantaAction {
     });
 
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules, draft.promotionSets);
   }
 
   public static handleCheckout(
@@ -792,7 +876,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules, draft.promotionSets);
     draft.tables.forEach((f) => {
       if (f.id === payload.table.id) {
         f.order = draft.activeTables[activeTableIndex].orders!;
@@ -839,7 +923,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules, draft.promotionSets);
   }
 
   public static handleRemoveModifier(
@@ -874,7 +958,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules, draft.promotionSets);
   }
 
   public static handleSetNotes(
@@ -903,7 +987,7 @@ export class RestaurantaAction {
 
     // Recalculate totals
     draft.activeTables[activeTableIndex].orders =
-      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules);
+      RestaurantaAction.calculateOrderTotal(order, draft.orderDiscountRules, draft.promotionSets);
   }
 
   public static handleRemoveOrder(
@@ -1001,7 +1085,7 @@ export class RestaurantaAction {
             ...payload.originalOrder!,
             items: payload.orderItems,
           },
-          draft.orderDiscountRules,
+          draft.orderDiscountRules, draft.promotionSets,
         ),
       });
 
@@ -1016,7 +1100,7 @@ export class RestaurantaAction {
             ...payload.originalOrder!,
             items: payload.orderItems,
           },
-          draft.orderDiscountRules,
+          draft.orderDiscountRules, draft.promotionSets,
         );
       }
     } else {
@@ -1031,7 +1115,7 @@ export class RestaurantaAction {
         draft.activeTables[destinationActiveTableIndex].orders =
           this.calculateOrderTotal(
             destinationOrder,
-            draft.orderDiscountRules,
+            draft.orderDiscountRules, draft.promotionSets,
           );
       }
     }
@@ -1056,7 +1140,7 @@ export class RestaurantaAction {
           ...payload.originalOrder!,
           items: remainingItems,
         },
-        draft.orderDiscountRules,
+        draft.orderDiscountRules, draft.promotionSets,
       );
     }
   }

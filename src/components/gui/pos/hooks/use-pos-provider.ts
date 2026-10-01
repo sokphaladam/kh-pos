@@ -231,12 +231,13 @@ export function usePOSProvider(id?: string) {
               recall?.();
             }
 
-            // The server auto-applies a product-variant menu discount on add;
-            // refetch so the cart line reflects it.
-            if (
-              (res.result as { variantDiscountApplied?: boolean })
-                ?.variantDiscountApplied
-            ) {
+            // The server auto-applies product-variant menu discounts and
+            // promotion sets on add; refetch so the cart lines reflect them.
+            const applied = res.result as {
+              variantDiscountApplied?: boolean;
+              promotionApplied?: boolean;
+            } | null;
+            if (applied?.variantDiscountApplied || applied?.promotionApplied) {
               recall?.();
             }
           } else {

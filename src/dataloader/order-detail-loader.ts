@@ -1,5 +1,6 @@
 import { OrderDetail } from "@/classes/order";
 import { table_customer_order_detail } from "@/generated/tables";
+import { Formatter } from "@/lib/formatter";
 import DataLoader from "dataloader";
 import { Knex } from "knex";
 import { LoaderFactory } from "./loader-factory";
@@ -65,6 +66,7 @@ export function createOrderDetailLoader(
           discountAmount: x.discount_amount || "0",
           modiferAmount: x.modifer_amount || "0",
           totalAmount: x.total_amount || "0",
+          createdAt: Formatter.toDbDateTime(x.created_at),
           productVariant,
           discounts,
           status,

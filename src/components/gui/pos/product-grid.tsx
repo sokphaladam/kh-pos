@@ -436,7 +436,7 @@ export function ProductGrid({
                           onClick={() => handleProductClick(item)}
                         >
                           {inCart && (
-                            <div className="absolute top-1 right-1 z-10 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">
+                            <div className="absolute right-3.5 top-3.5 sm:right-4 sm:top-4 z-10 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md">
                               {cartQty}
                             </div>
                           )}

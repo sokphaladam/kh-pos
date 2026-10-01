@@ -76,6 +76,33 @@ export function pushKitchenTicketsDirectToPrinter(
   }
 }
 
+/**
+ * Unit price for a new order line: the variant price plus the delivery
+ * surcharge for non-walk-in customers (category `markExtraFee`, else the
+ * customer's `extraPrice`), unless the category is excluded from it.
+ */
+function linePriceFor(
+  product: ProductVariantType,
+  order: RestaurantOrder | undefined,
+): number {
+  const customerType = order?.customerLoader?.type || "general";
+  const customerExtraPrice = Number(order?.customerLoader?.extraPrice || 0);
+  const excludeFeeDelivery = product.basicProduct?.category?.excludeFeeDelivery;
+  const markExtraFee = product.basicProduct?.category?.markExtraFee || 0;
+
+  let price = product.price ?? 0;
+  if (!excludeFeeDelivery && customerType !== "general") {
+    price += markExtraFee > 0 ? markExtraFee : customerExtraPrice;
+  }
+  return price;
+}
+
+/** One line of a promotion set to add to the cart. */
+export interface PromotionSetCartLine {
+  product: ProductVariantType & { modifiers?: ProductModifierType[] };
+  quantity: number;
+}
+
 export function useRestaurantActions() {
   const params = useSearchParams();
   const router = useRouter();
@@ -294,27 +321,10 @@ export function useRestaurantActions() {
           }
         } else {
           // If product does not exist in order, add it
-          const customerType =
-            state.activeTables[activeTableIndex].orders.customerLoader?.type ||
-            "general";
-          const customerExtraPrice = Number(
-            state.activeTables[activeTableIndex].orders.customerLoader
-              ?.extraPrice || 0,
+          const price = linePriceFor(
+            product,
+            state.activeTables[activeTableIndex].orders,
           );
-          const excludeFeeDelivery =
-            product.basicProduct?.category?.excludeFeeDelivery;
-          const markExtraFee =
-            product.basicProduct?.category?.markExtraFee || 0;
-
-          let price = product.price ?? 0;
-
-          if (!excludeFeeDelivery && customerType !== "general") {
-            if (markExtraFee > 0) {
-              price += markExtraFee;
-            } else {
-              price += customerExtraPrice;
-            }
-          }
 
           const res = await triggerCreateOrderItem({
             id,
@@ -360,6 +370,140 @@ export function useRestaurantActions() {
       triggerCreateOrder,
       triggerCreateOrderItem,
       triggerForceUpdateQtyByStatus,
+      setIsRequest,
+      onRefetch,
+    ],
+  );
+
+  /**
+   * Add every line of a promotion set to the table's order in one go. Each
+   * line goes on its own order line; the promotion-set engine (server and the
+   * local cart mirror) then prices the set. Returns true when all lines were
+   * added.
+   */
+  const selectPromotionSet = useCallback(
+    async (
+      lines: PromotionSetCartLine[],
+      table: table_restaurant_tables,
+    ): Promise<boolean> => {
+      const toAdd = lines.filter((l) => l.quantity > 0);
+      if (toAdd.length === 0) return false;
+
+      setIsRequest(true);
+      try {
+        const activeTable = state.activeTables.find(
+          (f) => f.tables?.id === table.id,
+        );
+        const order = activeTable?.orders;
+        const items = toAdd.map((l) => ({
+          id: generateId(),
+          product: {
+            ...l.product,
+            quantity: l.quantity,
+            modifiers: l.product.modifiers ?? [],
+          },
+          price: linePriceFor(l.product, order),
+        }));
+
+        if (!order?.invoiceNo) {
+          // No order on the table yet: create it with every line at once.
+          const invoice = await requestAutoInvoiceNumber(1);
+          if (!user || !invoice.success) {
+            toast.error("Failed to create order");
+            return false;
+          }
+          const create = (await triggerCreateOrder({
+            customerId: state.posInfo?.posCustomerId || "",
+            invoiceNo: Number(invoice.result?.at(0)),
+            slotId: state.posInfo?.posSlotId || "",
+            tableNumber: table.id || "",
+            warehouseId: state.currentWarehouse?.id || "",
+            items: items.map((it) => ({
+              id: it.id,
+              qty: it.product.quantity,
+              price: String(it.price),
+              discounts: [],
+              discountAmount: "0",
+              variantId: it.product.id,
+            })),
+          })) as ResponseType<unknown>;
+          if (!create.success) {
+            toast.error(create.error || "Failed to create order");
+            return false;
+          }
+
+          const [first, ...rest] = items;
+          dispatch({
+            type: "FIRST_ORDER",
+            payload: {
+              table,
+              invoiceNo: String(Number(invoice.result?.[0])),
+              orderId: String(create.result || ""),
+              itemId: first.id,
+              product: { ...first.product, price: first.price },
+            },
+          });
+          for (const it of rest) {
+            dispatch({
+              type: "SELECT_PRODUCT",
+              payload: {
+                table,
+                id: it.id,
+                product: { ...it.product, price: it.price },
+                forceNewLine: true,
+              },
+            });
+          }
+          if (
+            (create as { variantDiscountApplied?: boolean })
+              .variantDiscountApplied
+          ) {
+            onRefetch?.();
+          }
+          return true;
+        }
+
+        // Existing order: add the lines one after another (each call re-runs
+        // the server's order-wide discount pass, so keep them sequential).
+        let variantDiscountApplied = false;
+        for (const it of items) {
+          const res = await triggerCreateOrderItem({
+            id: it.id,
+            variantId: it.product.id,
+            qty: it.product.quantity,
+            price: String(it.price),
+            discounts: [],
+            discountAmount: "0",
+          });
+          if (!res.success) {
+            toast.error("Failed to add product to order");
+            return false;
+          }
+          variantDiscountApplied ||= !!(
+            res.result as { variantDiscountApplied?: boolean }
+          )?.variantDiscountApplied;
+          dispatch({
+            type: "SELECT_PRODUCT",
+            payload: {
+              table,
+              id: it.id,
+              product: { ...it.product, price: it.price },
+              forceNewLine: true,
+            },
+          });
+        }
+        if (variantDiscountApplied) onRefetch?.();
+        return true;
+      } finally {
+        setIsRequest(false);
+      }
+    },
+    [
+      dispatch,
+      state,
+      user,
+      triggerCreateOrder,
+      triggerCreateOrderItem,
       setIsRequest,
       onRefetch,
     ],
@@ -817,6 +961,7 @@ export function useRestaurantActions() {
   return {
     selectTable,
     selectProduct,
+    selectPromotionSet,
     updateProductQty,
     removeProduct,
     sendAllToKitchent,

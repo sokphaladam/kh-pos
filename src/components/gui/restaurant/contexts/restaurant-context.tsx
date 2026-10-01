@@ -6,6 +6,7 @@ import { Warehouse } from "@/dataloader/warehouse-loader";
 import { table_restaurant_tables } from "@/generated/tables";
 import { Category } from "@/lib/server-functions/category/create-category";
 import { OrderDiscountRules } from "@/lib/order-discount-rules";
+import { PromotionSetDefinition } from "@/lib/promotion-set";
 import {
   createContext,
   ReactNode,
@@ -48,6 +49,12 @@ export interface RestaurantState {
    * overrides) in step with the server. Undefined falls back to the default cap.
    */
   orderDiscountRules?: OrderDiscountRules;
+  /**
+   * Promotion sets running for this branch, fed to the shared engine
+   * (src/lib/promotion-set.ts) so the cart shows the same promotion discount
+   * the server charges. Undefined = not loaded; the server's rows are shown.
+   */
+  promotionSets?: PromotionSetDefinition[];
 }
 
 // Context
@@ -96,6 +103,7 @@ export function RestaurantProvider({
         categories: initialState.categories,
         posInfo: initialState.posInfo,
         currentWarehouse: initialState.currentWarehouse,
+        promotionSets: initialState.promotionSets,
       },
     });
   }, [initialState]);

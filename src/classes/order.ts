@@ -21,6 +21,7 @@ import {
   recalculateOrderLevelDiscount,
 } from "./order-discount";
 import { getOrderDiscountRules } from "@/lib/order-discount-rules";
+import { PromotionSetService } from "./promotion-set";
 import { applyModifierToOrderItem } from "./order-modifier";
 import { OrderReturn } from "./order-return";
 import { Payment, PaymentService } from "./payment";
@@ -119,6 +120,8 @@ export interface OrderDetail {
   discountAmount: string;
   modiferAmount: string;
   totalAmount: string;
+  /** When the line was added (`YYYY-MM-DD HH:mm:ss`); drives happy-hour promotions. */
+  createdAt?: string | null;
   orderReturns?: OrderReturn[];
   productVariant?: ProductVariantType;
   discounts?: CustomerOrderDiscount[];
@@ -511,10 +514,18 @@ export class OrderService {
         option.createdBy.id,
       );
 
+      // applyVariantDiscountLogs already ran the order-wide pass when it
+      // touched a line; otherwise evaluate promotion sets here.
+      const promotionApplied =
+        variantDiscountApplied > 0 ||
+        (items.length > 0 &&
+          (await refreshOrderPromotions(orderId, tx, option.createdBy.id)));
+
       return {
         order,
         items,
         variantDiscountApplied: variantDiscountApplied > 0,
+        promotionApplied,
       };
     });
   }
@@ -714,6 +725,9 @@ export class OrderService {
 
       // recalculate total amount of order
       await updateOrderTotalAmount(id, trx);
+
+      // Removing a line can break (or rebalance) a promotion set.
+      await refreshOrderPromotions(id, trx, this.user?.id ?? null);
     });
   }
 
@@ -797,7 +811,16 @@ export class OrderService {
         user.id,
       );
 
-      return { ...item, variantDiscountApplied: variantDiscountApplied > 0 };
+      // The new line may complete a promotion set (e.g. the 8th beer).
+      const promotionApplied =
+        variantDiscountApplied > 0 ||
+        (await refreshOrderPromotions(id, trx, user.id));
+
+      return {
+        ...item,
+        variantDiscountApplied: variantDiscountApplied > 0,
+        promotionApplied,
+      };
     });
   }
 
@@ -934,6 +957,7 @@ export async function recalculateCustomerOrder(
         trx,
         rules,
         orderItem.created_by ?? null,
+        orderRow?.warehouse_id ?? null,
       );
 
       // The order-level pass may have written an "order" discount slice onto
@@ -962,6 +986,40 @@ export async function recalculateCustomerOrder(
     }
     throw err;
   }
+}
+
+/**
+ * Re-run the order-wide discount pass (promotion sets + order-level threshold
+ * rules) after lines were added or removed. Skipped when the branch has no
+ * active promotion set, to keep add-item cheap; per-line edits already go
+ * through recalculateCustomerOrder, which always runs the pass.
+ *
+ * Returns true when the pass ran (the client should refetch the order).
+ */
+export async function refreshOrderPromotions(
+  orderId: string,
+  trx: Knex,
+  createdBy: string | null,
+): Promise<boolean> {
+  const orderRow = await trx
+    .table<table_customer_order>("customer_order")
+    .where({ order_id: orderId })
+    .first();
+  if (!orderRow) return false;
+  const warehouseId = orderRow.warehouse_id ?? null;
+
+  const promotions = await new PromotionSetService(trx).getActive(warehouseId);
+  if (promotions.length === 0) return false;
+
+  const rules = await getOrderDiscountRules(trx, warehouseId);
+  await recalculateOrderLevelDiscount(
+    orderId,
+    trx,
+    rules,
+    createdBy,
+    warehouseId,
+  );
+  return true;
 }
 
 export async function updateOrderTotalAmount(orderId: string, trx: Knex) {
