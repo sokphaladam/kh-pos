@@ -5,7 +5,10 @@ import { useQueryPublicInvoice } from "@/app/hooks/use-query-public-invoice";
 import { formatCurrency, getCurrencySymbol } from "@/lib/currency";
 import { Formatter } from "@/lib/formatter";
 import { layoutReceiptPromotions } from "@/lib/receipt-promotion-groups";
-import { summarizeReceiptDiscounts } from "@/lib/receipt-discount-breakdown";
+import {
+  discountSourceLabel,
+  summarizeReceiptDiscounts,
+} from "@/lib/receipt-discount-breakdown";
 import { Printer } from "lucide-react";
 import moment from "moment-timezone";
 import { useSearchParams } from "next/navigation";
@@ -492,9 +495,15 @@ function buildInvoiceModel(data: PublicInvoiceResult) {
     subtotal: money(total),
     hasDiscount: totalDiscount > 0,
     discount: money(totalDiscount),
-    discountSources: summarizeReceiptDiscounts(orderDetail, totalDiscount).map(
-      (d) => ({ key: d.key, label: d.label, amount: money(d.amount) }),
-    ),
+    discountSources: summarizeReceiptDiscounts(
+      orderDetail,
+      totalDiscount,
+      total,
+    ).map((d) => ({
+      key: d.key,
+      label: discountSourceLabel(d),
+      amount: money(d.amount),
+    })),
     total: money(totalAfterDiscount),
     totalApprox: approx(totalAfterDiscount),
     payments: payments.map((p: any) => {

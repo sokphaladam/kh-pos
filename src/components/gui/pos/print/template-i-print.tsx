@@ -60,6 +60,7 @@ export function TemplateIPrint({
   const discountSources = summarizeReceiptDiscounts(
     order?.orderDetail,
     totalDiscount || 0,
+    total,
   );
   const receive =
     order?.payments.reduce((a, b) => (a = a + Number(b.amountUsd)), 0) || 0;

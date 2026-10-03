@@ -101,6 +101,7 @@ export function DefaultPrint({
   const discountSources = summarizeReceiptDiscounts(
     order?.orderDetail,
     totalDiscount || 0,
+    total,
   );
   // No `order_payment` rows yet means this order hasn't actually been
   // checked out (e.g. printed from a pre-checkout "print bill" button) —

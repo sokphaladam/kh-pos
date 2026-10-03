@@ -12,6 +12,8 @@ interface LineDiscount {
   name?: string | null;
   amount: number | string;
   isManualDiscount?: boolean;
+  discountType?: "PERCENTAGE" | "AMOUNT" | null;
+  value?: number | string | null;
 }
 
 interface DiscountedLine {
@@ -23,7 +25,22 @@ export interface ReceiptDiscountSource {
   kind: "promotion" | "variant" | "campaign" | "manual" | "order" | "other";
   label: string;
   amount: number;
+  /**
+   * Percent shown next to the source: the configured rate when every row of
+   * the source is the same PERCENTAGE discount, else its share of `subtotal`.
+   * Null when neither is known.
+   */
+  percent: number | null;
 }
+
+/** "Manual discount (2.5%)": the label with its percent, as receipts print it. */
+export function discountSourceLabel(source: ReceiptDiscountSource): string {
+  return source.percent !== null
+    ? `${source.label} (${Number(source.percent.toFixed(2))}%)`
+    : source.label;
+}
+
+type Accumulator = ReceiptDiscountSource & { rate: number | null | "mixed" };
 
 const RANK: Record<ReceiptDiscountSource["kind"], number> = {
   promotion: 0,
@@ -34,7 +51,9 @@ const RANK: Record<ReceiptDiscountSource["kind"], number> = {
   other: 5,
 };
 
-function sourceOf(d: LineDiscount): Omit<ReceiptDiscountSource, "amount"> {
+function sourceOf(
+  d: LineDiscount,
+): Omit<ReceiptDiscountSource, "amount" | "percent"> {
   if (isPromotionDiscountId(d.discountId)) {
     return {
       key: d.discountId,
@@ -58,24 +77,46 @@ function sourceOf(d: LineDiscount): Omit<ReceiptDiscountSource, "amount"> {
  * Discount per source, largest-first within the same kind. When
  * `totalDiscount` (what the receipt charges) is given and the rows don't add
  * up to it, the gap is shown as "Other discount" so the list always matches.
+ * `subtotal` (before discounts) gives the percent of non-percentage sources.
  */
 export function summarizeReceiptDiscounts(
   lines: DiscountedLine[] | null | undefined,
   totalDiscount?: number,
+  subtotal?: number,
 ): ReceiptDiscountSource[] {
-  const byKey = new Map<string, ReceiptDiscountSource>();
+  const base = Number(subtotal || 0);
+  const shareOf = (amount: number) =>
+    base > 0 ? Math.round((amount / base) * 10000) / 100 : null;
+
+  const byKey = new Map<string, Accumulator>();
   for (const line of lines ?? []) {
     for (const d of line.discounts ?? []) {
       const amount = Number(d.amount || 0);
       if (!(amount > 0)) continue;
       const src = sourceOf(d);
-      const row = byKey.get(src.key) ?? { ...src, amount: 0 };
+      const rate =
+        d.discountType === "PERCENTAGE" && Number(d.value) > 0
+          ? Number(d.value)
+          : null;
+      const row: Accumulator = byKey.get(src.key) ?? {
+        ...src,
+        amount: 0,
+        percent: null,
+        rate,
+      };
+      if (row.rate !== rate) row.rate = "mixed";
       row.amount = Math.round(row.amount * 100 + amount * 100) / 100;
       byKey.set(src.key, row);
     }
   }
 
-  const list = [...byKey.values()].sort(
+  const list: ReceiptDiscountSource[] = [...byKey.values()]
+    .map(({ rate, ...row }) => ({
+      ...row,
+      percent:
+        typeof rate === "number" ? Math.min(rate, 100) : shareOf(row.amount),
+    }))
+    .sort(
     (a, b) => RANK[a.kind] - RANK[b.kind] || b.amount - a.amount,
   );
 
@@ -88,6 +129,7 @@ export function summarizeReceiptDiscounts(
         kind: "other",
         label: "Other discount",
         amount: gap / 100,
+        percent: shareOf(gap / 100),
       });
     }
   }

@@ -1,4 +1,7 @@
-import { ReceiptDiscountSource } from "@/lib/receipt-discount-breakdown";
+import {
+  discountSourceLabel,
+  ReceiptDiscountSource,
+} from "@/lib/receipt-discount-breakdown";
 
 // Receipts are printed from an iframe, so these rows use inline styles only.
 
@@ -46,7 +49,7 @@ export function ReceiptDiscountRows({
               wordBreak: "break-word",
             }}
           >
-            · {s.label}
+            · {discountSourceLabel(s)}
           </td>
           <td
             style={{

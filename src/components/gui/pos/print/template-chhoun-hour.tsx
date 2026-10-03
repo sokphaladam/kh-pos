@@ -52,6 +52,7 @@ export function TemplateChhounHour({
   const discountSources = summarizeReceiptDiscounts(
     order?.orderDetail,
     totalDiscount || 0,
+    total,
   );
   const invoiceReceiptValue = defaultInvoice
     ? defaultInvoice

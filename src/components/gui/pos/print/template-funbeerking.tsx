@@ -100,6 +100,7 @@ export function TemplateFunbeerking(props: Props) {
   const discountSources = summarizeReceiptDiscounts(
     order?.orderDetail,
     totalDiscount || 0,
+    total,
   );
 
   // Math.max(0, ...) also normalizes away the "-0.00"/"-៛0" that floating
