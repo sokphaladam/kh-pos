@@ -87,8 +87,30 @@ export class ProductServiceV2 {
     if (id) {
       query.where("product.id", id);
     }
-    if (searchTitle) {
-      query.where("product.title", "like", `%${searchTitle}%`);
+    // Every word must match the title or one of the product's live variants
+    // (name, SKU, barcode), so "coke 330" finds "Coca-Cola" / "330ml" and a
+    // scanned barcode finds its product.
+    const searchTokens = (searchTitle ?? "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 8)
+      .map((t) => `%${t.replace(/[\\%_]/g, (c) => `\\${c}`)}%`);
+    for (const like of searchTokens) {
+      query.where((qb) => {
+        qb.where("product.title", "like", like).orWhereExists((sub) => {
+          sub
+            .select(this.trx.raw("1"))
+            .from("product_variant as pv_search")
+            .whereRaw("pv_search.product_id = product.id")
+            .whereNull("pv_search.deleted_at")
+            .where((v) => {
+              v.where("pv_search.name", "like", like)
+                .orWhere("pv_search.barcode", "like", like)
+                .orWhereRaw("CAST(pv_search.sku AS CHAR) LIKE ?", [like]);
+            });
+        });
+      });
     }
     if (supplierId) {
       query.where("product.supplier_id", supplierId);
@@ -137,12 +159,23 @@ export class ProductServiceV2 {
         .groupBy("product.id");
     }
 
-    query.orderBy("product.created_at", "desc");
-
+    // Count before ordering/grouping: a grouped COUNT(*) returns one row per
+    // product, so `.first()` used to give the join size of a single product.
     const { total } = await query
       .clone()
-      .count("* as total")
+      .clear("group")
+      .countDistinct("product.id as total")
       .first<{ total: number }>();
+
+    const term = searchTitle?.trim();
+    if (term) {
+      // Exact title first, then titles starting with the term, then the rest.
+      query.orderByRaw(
+        "CASE WHEN product.title = ? THEN 0 WHEN product.title LIKE ? THEN 1 ELSE 2 END",
+        [term, `${term.replace(/[\\%_]/g, (c) => `\\${c}`)}%`],
+      );
+    }
+    query.orderBy("product.created_at", "desc");
 
     const productList: table_product[] = await query
       .select("product.*")

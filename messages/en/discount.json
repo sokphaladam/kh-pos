@@ -123,6 +123,20 @@
       "slotFixed": "{qty} × {name}",
       "addSet": "Add set to order",
       "selectTable": "Select a table first"
+    },
+    "menu": {
+      "title": "Promotions",
+      "subtitle": "Special sets available now",
+      "viewDetails": "See what's included",
+      "detailsTitle": "What's in this set",
+      "availableHours": "Available {start}–{end}",
+      "until": "Until {date}",
+      "orderHint": "Tap a set to add it to your order.",
+      "browseHint": "Scan the QR code on your table to order this set.",
+      "pickerHint": "Choose your items. The promotion price is applied automatically.",
+      "addToOrder": "Add to order",
+      "close": "Close",
+      "outOfZone": "You need to be at the restaurant to order."
     }
   }
 }

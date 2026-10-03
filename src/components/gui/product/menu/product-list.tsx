@@ -19,9 +19,17 @@ import { ProductImageDisplay } from "./product-image-display";
 import { productDetailsSheet } from "./product-details-sheet";
 import { useCart } from "./context/cart-provider";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
+import { Gift } from "lucide-react";
+import { usePromotionSetI18n } from "../../promotion-set/use-promotion-set-i18n";
+import {
+  MENU_PROMOTIONS_CATEGORY,
+  MenuPromotionCards,
+  useMenuAddPromotionSet,
+  useMenuPromotionSets,
+} from "./menu-promotions";
 
 export function ProductList() {
-  const { isRequest } = useCart();
+  const { isRequest, state } = useCart();
   const params = useSearchParams();
   const { height } = useWindowSize();
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,6 +43,23 @@ export function ProductList() {
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { formatForDisplay } = useCurrencyFormat();
+  const { t: tPromo } = usePromotionSetI18n();
+  const { promotions } = useMenuPromotionSets(params.get("warehouse") || "");
+  const { addPromotionSet, loadingId: promotionLoadingId } =
+    useMenuAddPromotionSet();
+  const isPromotionCategory = selectedCategory === MENU_PROMOTIONS_CATEGORY;
+  // Promotions lead the "All" view and match the search like products do.
+  const visiblePromotions = useMemo(() => {
+    if (selectedCategory !== "All" && !isPromotionCategory) return [];
+    const words = debouncedSearchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return promotions;
+    return promotions.filter((p) => {
+      const text = [p.title, ...p.items.map((i) => i.matchTitle ?? "")]
+        .join(" ")
+        .toLowerCase();
+      return words.every((w) => text.includes(w));
+    });
+  }, [promotions, selectedCategory, isPromotionCategory, debouncedSearchQuery]);
 
   const filter = useMemo(() => {
     return {
@@ -164,6 +189,23 @@ export function ProductList() {
                 >
                   All Categories
                 </Button>
+                {promotions.length > 0 && (
+                  <Button
+                    key="promotions"
+                    variant={isPromotionCategory ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(MENU_PROMOTIONS_CATEGORY)}
+                    className={cn(
+                      "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base gap-1.5",
+                      isPromotionCategory
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "border-primary/40 text-primary hover:bg-primary/5",
+                    )}
+                  >
+                    <Gift className="h-4 w-4" />
+                    {tPromo("menu.title")}
+                  </Button>
+                )}
                 {loadingCategory || isLoadingCategories
                   ? Array.from({ length: 5 }).map((_, index) => (
                       <div
@@ -198,8 +240,16 @@ export function ProductList() {
 
         {/* Products Grid */}
         <div className="p-2 sm:p-4 pt-3 sm:pt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 sm:gap-3 md:gap-4 pb-20 sm:pb-24">
-          {(isLoading || loading) &&
-          (page === 0 || displayProducts.length === 0)
+          <MenuPromotionCards
+            promotions={visiblePromotions}
+            onAdd={(p) => addPromotionSet(p, state.tables)}
+            loadingId={promotionLoadingId}
+            disabled={loading || isRequest || !!promotionLoadingId}
+          />
+          {isPromotionCategory
+            ? null
+            : (isLoading || loading) &&
+                (page === 0 || displayProducts.length === 0)
             ? Array.from({ length: 12 }).map((_, index) => (
                 <Card
                   key={`skeleton-${index}`}
@@ -279,7 +329,7 @@ export function ProductList() {
         </div>
 
         {/* Load More Button */}
-        {hasMore && displayProducts.length > 0 && (
+        {!isPromotionCategory && hasMore && displayProducts.length > 0 && (
           <div className="flex justify-center p-6">
             <Button
               onClick={loadMoreProducts}
@@ -304,7 +354,11 @@ export function ProductList() {
         )}
 
         {/* Empty State */}
-        {!loading && !isLoading && displayProducts.length === 0 && (
+        {!isPromotionCategory &&
+          visiblePromotions.length === 0 &&
+          !loading &&
+          !isLoading &&
+          displayProducts.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 px-4">
             <div className="text-muted-foreground/70 mb-4">
               <Search className="h-16 w-16 mx-auto" />

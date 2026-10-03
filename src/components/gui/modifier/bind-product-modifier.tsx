@@ -1,6 +1,10 @@
 import { createSheet } from "@/components/create-sheet";
-import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useCallback, useMemo } from "react";
+import {
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { useCallback, useMemo, useState } from "react";
 import { ProductV2 } from "@/classes/product-v2";
 import {
   useMutationAddBindProduct,
@@ -9,172 +13,244 @@ import {
 } from "@/app/hooks/use-query-modifier";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import { Badge } from "@/components/ui/badge";
-import { BasicMenuAction } from "@/components/basic-menu-action";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { EmptyState, LoadingState } from "@/components/ui/state";
 import { BasicProductType } from "@/dataloader/basic-product-loader";
 import { ProductImage } from "@/repository/product-image-repository";
 import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { DiscountSearchProduct } from "../discount/discount-search-product";
+import { ImageIcon, Loader2, PackageOpen, Search, X } from "lucide-react";
+import { ProductSearchPicker } from "../product/product-search-picker";
+
+interface BoundProduct {
+  product: BasicProductType;
+  images: ProductImage[];
+  variants: ProductVariantType[];
+}
 
 export const bindProductModifier = createSheet<{ id: string }>(({ id }) => {
-  const { data, isLoading, mutate, isValidating } =
-    useQueryModifierBindProduct(id);
-  const { trigger: triggerAdd, isMutating: isAdding } =
-    useMutationAddBindProduct(id);
-  const { trigger: triggerRemove, isMutating: isRemoving } =
-    useMutationRemoveBindProduct(id);
+  const { data, isLoading, mutate } = useQueryModifierBindProduct(id);
+  const { trigger: triggerAdd } = useMutationAddBindProduct(id);
+  const { trigger: triggerRemove } = useMutationRemoveBindProduct(id);
+  const [adding, setAdding] = useState<string[]>([]);
+  const [removing, setRemoving] = useState<string[]>([]);
+  const [filter, setFilter] = useState("");
 
-  const products: ProductV2[] = useMemo(() => {
-    return data
-      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (data.result as any[]).map(
-          (x: {
-            product: BasicProductType;
-            images: ProductImage[];
-            variants: ProductVariantType[];
-          }) => {
-            return {
-              id: x.product.id,
-              title: x.product.title,
-              description: x.product.description,
-              productImages: x.images,
-              productVariants: x.variants,
-              productCategories: [],
-            };
-          }
-        )
-      : [];
-  }, [data]);
+  const products: ProductV2[] = useMemo(
+    () =>
+      ((data?.result as BoundProduct[] | undefined) ?? []).map((x) => ({
+        id: x.product.id,
+        title: x.product.title,
+        description: x.product.description,
+        productImages: x.images,
+        productVariants: x.variants,
+        productCategories: [],
+      })),
+    [data],
+  );
+
+  const boundIds = useMemo(
+    () => [...products.map((p) => p.id), ...adding],
+    [products, adding],
+  );
+
+  const visible = useMemo(() => {
+    const words = filter.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return products;
+    return products.filter((p) => {
+      const haystack = [
+        p.title,
+        ...p.productVariants.flatMap((v) => [v.name, v.sku, v.barcode]),
+      ]
+        .map((s) => String(s ?? "").toLowerCase())
+        .join(" ");
+      return words.every((w) => haystack.includes(w));
+    });
+  }, [products, filter]);
 
   const onSelectProduct = useCallback(
-    (item: ProductV2) => {
-      const existingProduct = products.find((p) => p.id === item.id);
-
-      if (existingProduct) {
-        toast.error("Product is already bound to this modifier.");
+    async (item: ProductV2) => {
+      if (boundIds.includes(item.id)) {
+        toast.info(`${item.title} already has this modifier.`);
+        return;
       }
-
-      if (!existingProduct) {
-        triggerAdd({ productId: item.id }).then(() => {
-          mutate();
-        });
+      setAdding((prev) => [...prev, item.id]);
+      try {
+        const res = await triggerAdd({ productId: item.id });
+        if (!res?.success) throw new Error();
+        await mutate();
+        toast.success(`Applied to ${item.title}`);
+      } catch {
+        toast.error(`Couldn't apply the modifier to ${item.title}.`);
+      } finally {
+        setAdding((prev) => prev.filter((x) => x !== item.id));
       }
     },
-    [triggerAdd, mutate, products]
+    [boundIds, triggerAdd, mutate],
+  );
+
+  const onRemove = useCallback(
+    async (item: ProductV2) => {
+      setRemoving((prev) => [...prev, item.id]);
+      try {
+        const res = await triggerRemove({ productId: item.id });
+        if (!res?.success) throw new Error();
+        await mutate();
+        toast.success(`Removed from ${item.title}`);
+      } catch {
+        toast.error(`Couldn't remove ${item.title}.`);
+      } finally {
+        setRemoving((prev) => prev.filter((x) => x !== item.id));
+      }
+    },
+    [triggerRemove, mutate],
   );
 
   return (
     <>
       <SheetHeader>
-        <SheetTitle>Applies Modifier</SheetTitle>
+        <SheetTitle>Apply Modifier to Products</SheetTitle>
+        <SheetDescription>
+          The modifier is offered on every variant of the products below.
+        </SheetDescription>
       </SheetHeader>
-      <div className="my-4">
-        <DiscountSearchProduct
-          clearInput
-          disabled={isLoading || isValidating || isAdding || isRemoving}
+      <div className="my-4 space-y-4">
+        <ProductSearchPicker
+          selectedIds={boundIds}
           onChange={onSelectProduct}
+          disabled={isLoading}
         />
-        {products.length > 0 && (
-          <div
-            className={cn(
-              "my-4",
-              isLoading || isValidating || isAdding || isRemoving
-                ? "blur-md"
-                : ""
-            )}
-          >
-            {products.map((item, idx) => {
-              const image = item.productImages?.[0];
-              const stock = item.productVariants.reduce(
-                (a, b) => a + Number(b.stock),
-                0
-              );
-              const prices = item.productVariants.map((v) => Number(v.price));
-              const priceRange =
-                prices.length > 0
-                  ? `$${Math.min(...prices).toFixed(2)} - $${Math.max(
-                      ...prices
-                    ).toFixed(2)}`
-                  : "N/A";
 
-              return (
-                <div
-                  key={idx}
-                  className="flex flex-row justify-between items-center gap-3 py-3 px-4 border-b border-gray-100 last:border-b-0
-            hover:bg-blue-50 transition-colors duration-150 cursor-pointer"
-                >
-                  {image ? (
-                    <div className="w-14 h-14 flex items-center justify-center overflow-hidden rounded-md border border-border bg-card shadow-sm">
-                      <ImageWithFallback
-                        src={image.url}
-                        alt={item.title || ""}
-                        title={item.title || ""}
-                        className="max-w-full max-h-full object-contain w-auto h-auto p-0.5"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-14 h-14 bg-muted/40 rounded-md flex items-center justify-center text-muted-foreground/70 border border-border">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-6 h-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                  <div className="text-sm flex-1 min-w-0 flex flex-col">
-                    <span className="truncate font-medium text-foreground">
-                      {item.title || ""}
-                    </span>
-                    <div className="flex flex-row gap-2 items-center mt-0.5">
-                      <span className="text-xs text-muted-foreground truncate">
-                        SKU: {item.productVariants.length}
-                      </span>
-                      <div className="h-3 w-px bg-border"></div>
-                      <span className="text-xs font-semibold text-success">
-                        {priceRange}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <Badge
-                      variant={stock > 0 ? "secondary" : "outline"}
-                      className={`text-xs rounded-full h-[22px] min-w-[70px] px-3 font-medium whitespace-nowrap flex items-center justify-center ${
- stock <= 0
- ? "bg-destructive/10 text-destructive border-destructive/20"
- : stock < 5
- ? "bg-warning/10 text-warning border-warning/20"
- : "bg-success/10 text-success border-success/20"
- }`}
-                    >
-                      {stock > 0 ? `${stock} in stock` : "Out of stock"}
-                    </Badge>
-                    <BasicMenuAction
-                      value={item}
-                      onDelete={() => {
-                        triggerRemove({
-                          productId: item.id,
-                        }).then(() => {
-                          mutate();
-                        });
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-sm font-medium">
+            Applied products
+            <span className="ml-1.5 text-muted-foreground">
+              ({products.length})
+            </span>
+          </h3>
+          {adding.length > 0 && (
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Adding…
+            </span>
+          )}
+        </div>
+
+        {products.length > 5 && (
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Filter applied products…"
+              className="h-9 pl-8"
+            />
           </div>
+        )}
+
+        {isLoading ? (
+          <LoadingState label="Loading products" />
+        ) : products.length === 0 ? (
+          <EmptyState
+            icon={PackageOpen}
+            title="Not applied to any product yet"
+            description="Search above to pick the products that should offer this modifier."
+          />
+        ) : visible.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted-foreground">
+            No applied product matches &ldquo;{filter}&rdquo;.
+          </p>
+        ) : (
+          <ul className="divide-y rounded-md border">
+            {visible.map((item) => (
+              <BoundProductRow
+                key={item.id}
+                item={item}
+                removing={removing.includes(item.id)}
+                onRemove={onRemove}
+              />
+            ))}
+          </ul>
         )}
       </div>
     </>
   );
 });
+
+function BoundProductRow({
+  item,
+  removing,
+  onRemove,
+}: {
+  item: ProductV2;
+  removing: boolean;
+  onRemove: (item: ProductV2) => void;
+}) {
+  const image = item.productImages?.[0];
+  const variants = item.productVariants ?? [];
+  const shown = variants.slice(0, 4);
+
+  return (
+    <li
+      className={cn(
+        "flex items-center gap-3 px-3 py-2.5",
+        removing && "opacity-50",
+      )}
+    >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted/40">
+        {image ? (
+          <ImageWithFallback
+            src={image.url}
+            alt={item.title || ""}
+            title={item.title || ""}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <ImageIcon className="h-4 w-4 text-muted-foreground/60" />
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium">
+          {item.title || "Untitled"}
+        </div>
+        <div className="mt-1 flex flex-wrap gap-1">
+          {shown.map((v) => (
+            <Badge
+              key={v.id}
+              variant="outline"
+              className="rounded-full px-2 py-0 text-[11px] font-normal"
+            >
+              {v.name}
+              {v.price !== null && (
+                <span className="ml-1 text-muted-foreground">
+                  ${Number(v.price).toFixed(2)}
+                </span>
+              )}
+            </Badge>
+          ))}
+          {variants.length > shown.length && (
+            <span className="text-[11px] text-muted-foreground">
+              +{variants.length - shown.length} more
+            </span>
+          )}
+        </div>
+      </div>
+      <Button
+        type="button"
+        size="icon"
+        variant="ghost"
+        aria-label={`Remove ${item.title}`}
+        disabled={removing}
+        onClick={() => onRemove(item)}
+        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+      >
+        {removing ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <X className="h-4 w-4" />
+        )}
+      </Button>
+    </li>
+  );
+}

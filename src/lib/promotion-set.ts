@@ -101,6 +101,11 @@ export interface PromotionSetResult {
   lines: PromotionLineDiscount[];
   /** How many times each promotion set was applied. */
   applied: { promotionId: string; title: string; times: number }[];
+  /**
+   * Every line a set used, including full-price condition lines (amount 0).
+   * Display only (receipt grouping); pricing reads `lines`.
+   */
+  members: PromotionLineDiscount[];
 }
 
 /** `discount_log.discount_id` prefix for promotion-set rows: `promo:<setId>`. */
@@ -216,7 +221,7 @@ export function applyPromotionSets(
   lines: PromotionOrderLine[],
   now: string,
 ): PromotionSetResult {
-  const result: PromotionSetResult = { lines: [], applied: [] };
+  const result: PromotionSetResult = { lines: [], applied: [], members: [] };
   const active = promotions
     .filter(isPromotionSetEnabled)
     .sort(
@@ -341,8 +346,9 @@ export function applyPromotionSets(
     }
   }
 
+  result.members = [...acc.values()];
   // Only lines that actually got money off carry a discount row.
-  result.lines = [...acc.values()].filter((r) => r.amount > 0);
+  result.lines = result.members.filter((r) => r.amount > 0);
   return result;
 }
 

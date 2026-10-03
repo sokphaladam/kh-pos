@@ -9,6 +9,13 @@ import { useDebouncedValue } from "@/components/use-debounce";
 import { useWindowSize } from "@/components/use-window-size";
 import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
+import { Gift } from "lucide-react";
+import { usePromotionSetI18n } from "../../promotion-set/use-promotion-set-i18n";
+import {
+  MENU_PROMOTIONS_CATEGORY,
+  MenuPromotionCards,
+  useMenuPromotionSets,
+} from "./menu-promotions";
 import { Formatter } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
 import { variantDiscountLabel } from "@/lib/variant-discount";
@@ -163,6 +170,21 @@ export function ProductPublicLayout({
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { formatForDisplay } = useCurrencyFormat();
+  const { t: tPromo } = usePromotionSetI18n();
+  const { promotions } = useMenuPromotionSets(params.get("warehouse") || "");
+  const isPromotionCategory = selectedCategory === MENU_PROMOTIONS_CATEGORY;
+  // Promotions lead the "All" view and match the search like products do.
+  const visiblePromotions = useMemo(() => {
+    if (selectedCategory !== "All" && !isPromotionCategory) return [];
+    const words = debouncedSearchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return promotions;
+    return promotions.filter((p) => {
+      const text = [p.title, ...p.items.map((i) => i.matchTitle ?? "")]
+        .join(" ")
+        .toLowerCase();
+      return words.every((w) => text.includes(w));
+    });
+  }, [promotions, selectedCategory, isPromotionCategory, debouncedSearchQuery]);
 
   start();
 
@@ -369,6 +391,23 @@ export function ProductPublicLayout({
                 >
                   All Categories
                 </Button>
+                {promotions.length > 0 && (
+                  <Button
+                    key="promotions"
+                    variant={isPromotionCategory ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(MENU_PROMOTIONS_CATEGORY)}
+                    className={cn(
+                      "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base gap-1.5",
+                      isPromotionCategory
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "border-primary/40 text-primary hover:bg-primary/5",
+                    )}
+                  >
+                    <Gift className="h-4 w-4" />
+                    {tPromo("menu.title")}
+                  </Button>
+                )}
                 {loadingCategory || isLoadingCategories
                   ? Array.from({ length: 5 }).map((_, index) => (
                       <div
@@ -409,8 +448,13 @@ export function ProductPublicLayout({
       <div style={{ minHeight: height ? height - 120 : "80vh" }}>
         {/* Products Grid */}
         <div className="p-2 sm:p-4 pt-4 sm:pt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 sm:gap-3 md:gap-4 pb-20">
-          {(isLoading || loading) &&
-          (page === 0 || displayProducts.length === 0)
+          <MenuPromotionCards
+            promotions={visiblePromotions}
+          />
+          {isPromotionCategory
+            ? null
+            : (isLoading || loading) &&
+                (page === 0 || displayProducts.length === 0)
             ? // Loading skeleton
               Array.from({ length: 12 }).map((_, index) => (
                 <Card
@@ -488,7 +532,7 @@ export function ProductPublicLayout({
         </div>
 
         {/* Load More Button */}
-        {hasMore && displayProducts.length > 0 && (
+        {!isPromotionCategory && hasMore && displayProducts.length > 0 && (
           <div className="flex justify-center p-6">
             <Button
               onClick={loadMoreProducts}
@@ -513,7 +557,11 @@ export function ProductPublicLayout({
         )}
 
         {/* Empty State */}
-        {!loading && !isLoading && displayProducts.length === 0 && (
+        {!isPromotionCategory &&
+          visiblePromotions.length === 0 &&
+          !loading &&
+          !isLoading &&
+          displayProducts.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 px-4">
             <div className="text-muted-foreground/70 mb-4">
               <Search className="h-16 w-16 mx-auto" />

@@ -29,7 +29,7 @@ export function DiscountProductList({
   return (
     <div className="space-y-4 h-full">
       <DiscountSearchProduct
-        clearInput
+        selectedIds={productApplied.map((p) => p.id)}
         onChange={(v) => {
           onAddProduct(v);
         }}

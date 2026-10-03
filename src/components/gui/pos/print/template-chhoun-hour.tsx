@@ -4,6 +4,14 @@ import { Payment } from "@/classes/payment";
 import { Formatter } from "@/lib/formatter";
 import { useAuthentication } from "contexts/authentication-context";
 import moment from "moment-timezone";
+import { Fragment } from "react";
+import { summarizeReceiptDiscounts } from "@/lib/receipt-discount-breakdown";
+import { ReceiptDiscountRows } from "./receipt-discount-rows";
+import { layoutReceiptPromotions } from "@/lib/receipt-promotion-groups";
+import {
+  ReceiptPromotionFooterRow,
+  ReceiptPromotionHeaderRow,
+} from "./receipt-promotion-rows";
 
 export function TemplateChhounHour({
   order: orderInput,
@@ -28,6 +36,8 @@ export function TemplateChhounHour({
       : "4100"
   );
 
+  const promoLayout = layoutReceiptPromotions(order?.orderDetail);
+
   const total = Number(
     order?.orderDetail.reduce(
       (a, b) => a + Number(b.price) * Number(b.qty),
@@ -39,6 +49,10 @@ export function TemplateChhounHour({
     0
   );
   const totalAfterDiscount = total - (totalDiscount || 0);
+  const discountSources = summarizeReceiptDiscounts(
+    order?.orderDetail,
+    totalDiscount || 0,
+  );
   const invoiceReceiptValue = defaultInvoice
     ? defaultInvoice
     : setting?.data?.result?.find((f) => f.option === "INVOICE_RECEIPT")?.value;
@@ -202,97 +216,114 @@ export function TemplateChhounHour({
               </tr>
             </thead>
             <tbody>
-              {order?.orderDetail.map((x, i) => {
+              {promoLayout.lines.map((x, i) => {
                 return (
-                  <tr
-                    key={i}
-                    className={"border_x"}
-                    style={{
-                      borderBottomWidth: 1,
-                      borderBottomStyle: "solid",
-                      borderBottomColor: "black",
-                    }}
-                  >
-                    <td
+                  <Fragment key={i}>
+                    {promoLayout.groupStartingAt.has(x.orderDetailId) && (
+                      <ReceiptPromotionHeaderRow
+                        group={promoLayout.groupStartingAt.get(x.orderDetailId)!}
+                      />
+                    )}
+                    <tr
+                      className={"border_x"}
                       style={{
-                        borderRightStyle: "solid",
-                        borderRightWidth: 1,
-                        borderRightColor: "black",
-                        textAlign: "center",
+                        borderBottomWidth: 1,
+                        borderBottomStyle: "solid",
+                        borderBottomColor: "black",
                       }}
                     >
-                      {i + 1}
-                    </td>
-                    <td
-                      style={{
-                        textAlign: "start",
-                        borderRightStyle: "solid",
-                        borderRightWidth: 1,
-                        borderRightColor: "black",
-                        maxWidth: 150,
-                      }}
-                      // className="text-start flex flex-row !border-y-0"
-                    >
-                      <div
+                      <td
                         style={{
-                          whiteSpace: "normal",
-                          wordBreak: "break-word",
-                          overflowWrap: "anywhere",
-                          ...(invoiceReceipt.at(4) === "1"
-                            ? {
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                display: "-webkit-box",
-                                WebkitLineClamp: Number(
-                                  invoiceReceipt.at(5) || 1
-                                ),
-                                WebkitBoxOrient: "vertical",
-                              }
-                            : {}),
+                          borderRightStyle: "solid",
+                          borderRightWidth: 1,
+                          borderRightColor: "black",
+                          textAlign: "center",
                         }}
                       >
-                        {`${x?.title}`}
-                      </div>
-                    </td>
-                    <td
-                      style={{
-                        textAlign: "center",
-                        borderTopWidth: 0,
-                        borderBottomWidth: 0,
-                        borderRightStyle: "solid",
-                        borderRightWidth: 1,
-                        borderRightColor: "black",
-                      }}
-                      // className="!text-center !border-y-0"
-                    >
-                      {x?.qty}
-                    </td>
-                    <td
-                      style={{
-                        textAlign: "left",
-                        borderTopWidth: 0,
-                        borderBottomWidth: 0,
-                        borderRightStyle: "solid",
-                        borderRightWidth: 1,
-                        borderRightColor: "black",
-                      }}
-                      // className="text-left !border-y-0"
-                    >
-                      ${Number(x?.price || 0).toFixed(2)}
-                    </td>
-                    <td
-                      style={{
-                        textAlign: "right",
-                        borderTopWidth: 0,
-                        borderBottomWidth: 0,
-                      }}
-                      // className="text-right !border-y-0"
-                    >
-                      ${Number(x.totalAmount || 0).toFixed(2)}
-                    </td>
-                  </tr>
+                        {i + 1}
+                      </td>
+                      <td
+                        style={{
+                          textAlign: "start",
+                          borderRightStyle: "solid",
+                          borderRightWidth: 1,
+                          borderRightColor: "black",
+                          maxWidth: 150,
+                        }}
+                        // className="text-start flex flex-row !border-y-0"
+                      >
+                        <div
+                          style={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                            ...(invoiceReceipt.at(4) === "1"
+                              ? {
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: Number(
+                                    invoiceReceipt.at(5) || 1
+                                  ),
+                                  WebkitBoxOrient: "vertical",
+                                }
+                              : {}),
+                          }}
+                        >
+                          {promoLayout.inGroup.has(x.orderDetailId) ? "· " : ""}
+                          {`${x?.title}`}
+                        </div>
+                      </td>
+                      <td
+                        style={{
+                          textAlign: "center",
+                          borderTopWidth: 0,
+                          borderBottomWidth: 0,
+                          borderRightStyle: "solid",
+                          borderRightWidth: 1,
+                          borderRightColor: "black",
+                        }}
+                        // className="!text-center !border-y-0"
+                      >
+                        {x?.qty}
+                      </td>
+                      <td
+                        style={{
+                          textAlign: "left",
+                          borderTopWidth: 0,
+                          borderBottomWidth: 0,
+                          borderRightStyle: "solid",
+                          borderRightWidth: 1,
+                          borderRightColor: "black",
+                        }}
+                        // className="text-left !border-y-0"
+                      >
+                        ${Number(x?.price || 0).toFixed(2)}
+                      </td>
+                      <td
+                        style={{
+                          textAlign: "right",
+                          borderTopWidth: 0,
+                          borderBottomWidth: 0,
+                        }}
+                        // className="text-right !border-y-0"
+                      >
+                        ${Number(x.totalAmount || 0).toFixed(2)}
+                      </td>
+                    </tr>
+                    {promoLayout.groupEndingAt.has(x.orderDetailId) && (
+                      <ReceiptPromotionFooterRow
+                        group={promoLayout.groupEndingAt.get(x.orderDetailId)!}
+                        formatMoney={(n) => `$${n.toFixed(2)}`}
+                      />
+                    )}
+                  </Fragment>
                 );
               })}
+              <ReceiptDiscountRows
+                sources={discountSources}
+                formatMoney={(n) => `$${n.toFixed(2)}`}
+              />
               <tr className="border_t">
                 <td>
                   <div className="display-sub">

@@ -6,6 +6,13 @@ import { Formatter } from "@/lib/formatter";
 import { useAuthentication } from "contexts/authentication-context";
 import moment from "moment-timezone";
 import { Fragment } from "react";
+import { summarizeReceiptDiscounts } from "@/lib/receipt-discount-breakdown";
+import { ReceiptDiscountRows } from "./receipt-discount-rows";
+import { layoutReceiptPromotions } from "@/lib/receipt-promotion-groups";
+import {
+  ReceiptPromotionFooterRow,
+  ReceiptPromotionHeaderRow,
+} from "./receipt-promotion-rows";
 
 export function TemplateIPrint({
   order: orderInput,
@@ -30,6 +37,8 @@ export function TemplateIPrint({
       : "4100"
   );
 
+  const promoLayout = layoutReceiptPromotions(order?.orderDetail);
+
   const total = Number(
     order?.orderDetail.reduce((a, b) => {
       if (!!order.orderInfo.tableNumber) {
@@ -48,6 +57,10 @@ export function TemplateIPrint({
     0
   );
   const totalAfterDiscount = total - (totalDiscount || 0);
+  const discountSources = summarizeReceiptDiscounts(
+    order?.orderDetail,
+    totalDiscount || 0,
+  );
   const receive =
     order?.payments.reduce((a, b) => (a = a + Number(b.amountUsd)), 0) || 0;
   // Math.max(0, ...) also normalizes away the "-0.00"/"-៛0" that floating
@@ -231,7 +244,7 @@ export function TemplateIPrint({
               </tr>
             </thead>
             <tbody>
-              {order?.orderDetail.map((x, i) => {
+              {promoLayout.lines.map((x, i) => {
                 const qty = Number(
                   order.orderInfo.tableNumber
                     ? x.status?.reduce((a, b) => a + b.qty, 0)
@@ -244,6 +257,11 @@ export function TemplateIPrint({
                   : x.totalAmount;
                 return (
                   <Fragment key={i}>
+                    {promoLayout.groupStartingAt.has(x.orderDetailId) && (
+                      <ReceiptPromotionHeaderRow
+                        group={promoLayout.groupStartingAt.get(x.orderDetailId)!}
+                      />
+                    )}
                     <tr key={i} className={"border_x"}>
                       <td>{i + 1}</td>
                       <td
@@ -271,6 +289,7 @@ export function TemplateIPrint({
                               : {}),
                           }}
                         >
+                          {promoLayout.inGroup.has(x.orderDetailId) ? "· " : ""}
                           {`${x?.title}`}
                         </div>
                       </td>
@@ -347,9 +366,19 @@ export function TemplateIPrint({
                     ) : (
                       <></>
                     )}
+                    {promoLayout.groupEndingAt.has(x.orderDetailId) && (
+                      <ReceiptPromotionFooterRow
+                        group={promoLayout.groupEndingAt.get(x.orderDetailId)!}
+                        formatMoney={(n) => `$${n.toFixed(2)}`}
+                      />
+                    )}
                   </Fragment>
                 );
               })}
+              <ReceiptDiscountRows
+                sources={discountSources}
+                formatMoney={(n) => `$${n.toFixed(2)}`}
+              />
               <tr className="border_t">
                 <td>
                   <div className="display-sub">

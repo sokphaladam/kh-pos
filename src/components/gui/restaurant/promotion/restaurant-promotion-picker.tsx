@@ -67,10 +67,16 @@ function CandidateImage({ item }: { item: ProductSearchResult }) {
  * or null when cancelled.
  */
 export const restaurantPromotionPicker = createDialog<
-  { title: string; slots: PromotionSetChoiceSlot[] },
+  {
+    title: string;
+    slots: PromotionSetChoiceSlot[];
+    /** Overrides the cashier wording (e.g. on the customer menu). */
+    hint?: string;
+    submitLabel?: string;
+  },
   PromotionSetCartLine[] | null
 >(
-  ({ title, slots, close }) => {
+  ({ title, slots, hint, submitLabel, close }) => {
     const { t, rewardLabel } = usePromotionSetI18n();
     const tCommon = useTranslations("common");
     const { formatForDisplay } = useCurrencyFormat();
@@ -87,7 +93,7 @@ export const restaurantPromotionPicker = createDialog<
       <>
         <DialogHeader>
           <DialogTitle>{t("pos.pickerTitle", { title })}</DialogTitle>
-          <DialogDescription>{t("pos.pickerHint")}</DialogDescription>
+          <DialogDescription>{hint ?? t("pos.pickerHint")}</DialogDescription>
         </DialogHeader>
 
         <div className="flex max-h-[60vh] flex-col gap-5 overflow-y-auto py-2">
@@ -160,7 +166,7 @@ export const restaurantPromotionPicker = createDialog<
             {tCommon("cancel")}
           </Button>
           <Button disabled={!lines} onClick={() => close(lines)}>
-            {t("pos.addSet")}
+            {submitLabel ?? t("pos.addSet")}
           </Button>
         </DialogFooter>
       </>

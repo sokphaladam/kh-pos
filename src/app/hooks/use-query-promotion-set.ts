@@ -48,10 +48,23 @@ export function useDeletePromotionSet() {
   );
 }
 
-/** Menu choices for each slot of a promotion set (restaurant POS picker). */
+/** Menu choices for each slot of a promotion set (POS and table menu picker). */
 export async function requestPromotionSetChoices(id: string) {
   return requestDatabase<ResponseType<PromotionSetChoiceSlot[]>>(
     `/api/promotion-set/${encodeURIComponent(id)}/choices`,
     "GET",
+    undefined,
+    window.location.pathname === "/menu" ? "CUSTOMER" : "ADMIN",
+  );
+}
+
+/** Promotion sets running now at a branch, for the public customer menu. */
+export function useQueryMenuPromotionSets(warehouseId?: string) {
+  return useGenericSWR<ResponseType<PromotionSetDefinition[]>>(
+    warehouseId
+      ? `/api/public/promotion-set?warehouse=${encodeURIComponent(warehouseId)}`
+      : null,
+    // Happy-hour sets start and stop during the day.
+    { refreshInterval: 60_000, revalidateOnFocus: true },
   );
 }

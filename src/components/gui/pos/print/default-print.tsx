@@ -9,6 +9,13 @@ import { Formatter } from "@/lib/formatter";
 import { useAuthentication } from "contexts/authentication-context";
 import moment from "moment-timezone";
 import React from "react";
+import { summarizeReceiptDiscounts } from "@/lib/receipt-discount-breakdown";
+import { ReceiptDiscountRows } from "./receipt-discount-rows";
+import { layoutReceiptPromotions } from "@/lib/receipt-promotion-groups";
+import {
+  ReceiptPromotionFooterRow,
+  ReceiptPromotionHeaderRow,
+} from "./receipt-promotion-rows";
 
 // Lets a caller outside the authenticated app (e.g. the public invoice QR page)
 // feed the shop context that would normally come from `useAuthentication()`.
@@ -66,6 +73,8 @@ export function DefaultPrint({
       : "4100",
   );
 
+  const promoLayout = layoutReceiptPromotions(order?.orderDetail);
+
   const total = Number(
     order?.orderDetail.reduce((a, b) => {
       if (!!order.orderInfo.tableNumber) {
@@ -89,6 +98,10 @@ export function DefaultPrint({
   );
 
   const totalAfterDiscount = total - (totalDiscount || 0);
+  const discountSources = summarizeReceiptDiscounts(
+    order?.orderDetail,
+    totalDiscount || 0,
+  );
   // No `order_payment` rows yet means this order hasn't actually been
   // checked out (e.g. printed from a pre-checkout "print bill" button) —
   // Received Total/Change/Payment Method would all be misleadingly $0.00.
@@ -339,7 +352,7 @@ export function DefaultPrint({
               </tr>
             </thead>
             <tbody>
-              {order?.orderDetail.map((x, i) => {
+              {promoLayout.lines.map((x, i) => {
                 const qty = Number(
                   order.orderInfo.tableNumber
                     ? x.status?.reduce((a, b) => a + b.qty, 0)
@@ -389,6 +402,11 @@ export function DefaultPrint({
 
                 return (
                   <React.Fragment key={i}>
+                    {promoLayout.groupStartingAt.has(x.orderDetailId) && (
+                      <ReceiptPromotionHeaderRow
+                        group={promoLayout.groupStartingAt.get(x.orderDetailId)!}
+                      />
+                    )}
                     <tr key={i} className={"border_x"}>
                       <td
                         style={{
@@ -415,6 +433,7 @@ export function DefaultPrint({
                               : {}),
                           }}
                         >
+                          {promoLayout.inGroup.has(x.orderDetailId) ? "· " : ""}
                           {`${x?.title} `}
                           {booking
                             ? Object.values(booking).map((res: any, index) => {
@@ -553,6 +572,12 @@ export function DefaultPrint({
                     ) : (
                       <></>
                     )}
+                    {promoLayout.groupEndingAt.has(x.orderDetailId) && (
+                      <ReceiptPromotionFooterRow
+                        group={promoLayout.groupEndingAt.get(x.orderDetailId)!}
+                        formatMoney={(n) => formatForDisplay(n)}
+                      />
+                    )}
                   </React.Fragment>
                 );
               })}
@@ -610,6 +635,10 @@ export function DefaultPrint({
                   </td>
                 </tr>
               )}
+              <ReceiptDiscountRows
+                sources={discountSources}
+                formatMoney={(n) => formatForDisplay(n)}
+              />
               <tr className="border_dot_t">
                 <td
                   colSpan={2}

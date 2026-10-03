@@ -22,6 +22,7 @@ import {
 } from "./order-discount";
 import { getOrderDiscountRules } from "@/lib/order-discount-rules";
 import { PromotionSetService } from "./promotion-set";
+import { attachPromotionGroups } from "./order-promotion-groups";
 import { applyModifierToOrderItem } from "./order-modifier";
 import { OrderReturn } from "./order-return";
 import { Payment, PaymentService } from "./payment";
@@ -129,6 +130,20 @@ export interface OrderDetail {
   status?: OrderItemStatusType[];
   reservation?: SeatReservation[];
   kitchenLogs?: KitchenLog[];
+  /** Promotion sets this line belongs to (receipt grouping). */
+  promotions?: OrderLinePromotion[];
+}
+
+/** One promotion set's use of an order line. */
+export interface OrderLinePromotion {
+  promotionId: string;
+  title: string;
+  /** Units of the line used by the set; null when it could not be resolved. */
+  units: number | null;
+  /** Units of the line that got money off. */
+  discountedUnits: number | null;
+  /** Money off this line from the set (as charged). */
+  amount: number;
 }
 
 export class OrderService {
@@ -204,7 +219,10 @@ export class OrderService {
       user.currentWarehouseId || "",
     );
 
-    const orderDetail: OrderDetail[] = await orderDetailLoader.load(orderId);
+    const orderDetail: OrderDetail[] = await attachPromotionGroups(
+      this.tx,
+      await orderDetailLoader.load(orderId),
+    );
     // payment info
     const payments = await new PaymentService(this.tx).getPayment(orderId);
 

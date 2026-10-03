@@ -10,8 +10,9 @@ const MAX_CANDIDATES = 60;
 
 /**
  * For each slot of a promotion set, the sellable menu variants that can fill
- * it. The restaurant POS uses this to add a whole set to the cart in one tap
- * (asking the cashier to choose only when a slot has more than one option).
+ * it. The restaurant POS and the customer table menu use this to add a whole
+ * set to the cart in one tap (asking only when a slot has more than one
+ * option). Customers get the menu of the branch they are seated at.
  */
 export const GET = withAuthApi<
   { id: string },
@@ -26,9 +27,17 @@ export const GET = withAuthApi<
     );
   }
 
-  const warehouse = userAuth.admin?.currentWarehouseId || "";
+  // Walk-in customers run as the branch's system admin while in its zone.
+  if (!userAuth.admin) {
+    return NextResponse.json(
+      { success: false, error: "unauthorized" },
+      { status: 403 },
+    );
+  }
+  const warehouse =
+    userAuth.customer?.warehouseId || userAuth.admin.currentWarehouseId || "";
   const result = await db.transaction(async (trx) => {
-    const products = new ProductService(trx, userAuth.admin!);
+    const products = new ProductService(trx, userAuth.admin);
     const slots: PromotionSetChoiceSlot[] = [];
     for (const item of promotion.items) {
       const candidates = await products.searchProduct({
@@ -51,4 +60,4 @@ export const GET = withAuthApi<
   });
 
   return NextResponse.json({ success: true, result });
-});
+}, ["ADMIN", "CUSTOMER"]);

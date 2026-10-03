@@ -7,6 +7,7 @@ import { ProductList } from "./product-list";
 import { useQueryPOSInfo } from "@/app/hooks/use-query-order";
 import { useQueryTableById } from "@/app/hooks/use-query-table";
 import { SheetProvider } from "@/components/create-sheet";
+import { DialogProvider } from "@/components/create-dialog";
 import { WarehouseResponseType } from "@/lib/types";
 import { useSearchParams } from "next/navigation";
 import { RestaurantaAction } from "../../restaurant/class/restaurant";
@@ -84,6 +85,7 @@ export function ProductMenuLayout(props: ProductMenuLayoutProps) {
         processing={isValidating || isLoadingTable}
       >
         <SheetProvider slot="default" />
+        <DialogProvider slot="default" />
         <div className="min-h-screen bg-muted/40">
           <OrderHeader inZone={props.inZone} />
           <ProductList />

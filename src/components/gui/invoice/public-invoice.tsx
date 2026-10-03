@@ -4,6 +4,8 @@ import type { PublicInvoiceResult } from "@/app/api/public/invoice/[id]/route";
 import { useQueryPublicInvoice } from "@/app/hooks/use-query-public-invoice";
 import { formatCurrency, getCurrencySymbol } from "@/lib/currency";
 import { Formatter } from "@/lib/formatter";
+import { layoutReceiptPromotions } from "@/lib/receipt-promotion-groups";
+import { summarizeReceiptDiscounts } from "@/lib/receipt-discount-breakdown";
 import { Printer } from "lucide-react";
 import moment from "moment-timezone";
 import { useSearchParams } from "next/navigation";
@@ -196,7 +198,16 @@ export function PublicInvoice() {
 
               <ul className="inv-items-body">
                 {model.items.map((it, i) => (
-                  <li className="inv-item" key={i}>
+                  <React.Fragment key={i}>
+                  {it.promotionTitle && (
+                    <li className="inv-promo-head">
+                      <span className="inv-eyebrow">Promotion</span>
+                      <span>{it.promotionTitle}</span>
+                    </li>
+                  )}
+                  <li
+                    className={`inv-item${it.inPromotion ? " is-promo" : ""}`}
+                  >
                     <div className="inv-item-main">
                       <span className="inv-item-name">{it.name}</span>
                       <span className="inv-num">{it.qty}</span>
@@ -226,6 +237,17 @@ export function PublicInvoice() {
                       </div>
                     ))}
                   </li>
+                  {it.promotionEnds && (
+                    <li className="inv-promo-foot">
+                      <span>
+                        {it.promotionSaved ? "You saved" : "Promotion applied"}
+                      </span>
+                      {it.promotionSaved && (
+                        <span className="inv-num">−{it.promotionSaved}</span>
+                      )}
+                    </li>
+                  )}
+                  </React.Fragment>
                 ))}
               </ul>
             </section>
@@ -241,6 +263,14 @@ export function PublicInvoice() {
                   value={<>−{model.discount}</>}
                 />
               )}
+              {model.discountSources.map((d) => (
+                <LeaderRow
+                  key={d.key}
+                  label={<span className="inv-discount-src">{d.label}</span>}
+                  value={<>−{d.amount}</>}
+                  muted
+                />
+              ))}
               <div className="inv-total">
                 <span className="inv-eyebrow">Total</span>
                 <div className="inv-total-figures">
@@ -334,7 +364,9 @@ function buildInvoiceModel(data: PublicInvoiceResult) {
       isTable ? x.status?.reduce((a: number, b: any) => a + b.qty, 0) ?? 0 : x.qty,
     );
 
-  const items = orderDetail.map((x: any) => {
+  const promoLayout = layoutReceiptPromotions(orderDetail);
+
+  const items = promoLayout.lines.map((x: any) => {
     const qty = lineQty(x);
     const itemTotal = isTable ? Number(x.price) * qty : Number(x.totalAmount);
     const discountAmount = Number(x.discountAmount || 0);
@@ -377,8 +409,16 @@ function buildInvoiceModel(data: PublicInvoiceResult) {
           ? [{ label: "Discount", amount: money(discountAmount) }]
           : [];
 
+    const promoStart = promoLayout.groupStartingAt.get(x.orderDetailId);
+    const promoEnd = promoLayout.groupEndingAt.get(x.orderDetailId);
+
     return {
       name: x.title,
+      inPromotion: promoLayout.inGroup.has(x.orderDetailId),
+      promotionTitle: promoStart?.title ?? null,
+      promotionEnds: !!promoEnd,
+      promotionSaved:
+        promoEnd && promoEnd.saved > 0 ? money(promoEnd.saved) : null,
       qty: String(qty),
       price: money(Number(x.price)),
       amount: money(itemTotal - discountAmount),
@@ -452,6 +492,9 @@ function buildInvoiceModel(data: PublicInvoiceResult) {
     subtotal: money(total),
     hasDiscount: totalDiscount > 0,
     discount: money(totalDiscount),
+    discountSources: summarizeReceiptDiscounts(orderDetail, totalDiscount).map(
+      (d) => ({ key: d.key, label: d.label, amount: money(d.amount) }),
+    ),
     total: money(totalAfterDiscount),
     totalApprox: approx(totalAfterDiscount),
     payments: payments.map((p: any) => {
@@ -673,6 +716,32 @@ function Styles() {
         color: var(--muted);
       }
       .inv-item-sub.is-discount {
+        color: var(--accent);
+      }
+      .inv-discount-src {
+        padding-left: 12px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .inv-item.is-promo {
+        padding-left: 10px;
+        border-left: 2px solid var(--accent);
+      }
+      .inv-promo-head {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        padding: 12px 0 4px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .inv-promo-foot {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 6px 0 10px 10px;
+        border-bottom: 1px dashed var(--line);
+        font-size: 11px;
         color: var(--accent);
       }
 

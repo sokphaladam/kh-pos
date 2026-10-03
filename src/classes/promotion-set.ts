@@ -150,6 +150,18 @@ export class PromotionSetService {
   }
 
   /**
+   * Sets by id whatever their state (inactive, ended, deleted): a paid order
+   * still names them in its `promo:<id>` discount rows.
+   */
+  async getByIds(ids: string[]): Promise<PromotionSetDefinition[]> {
+    if (ids.length === 0) return [];
+    const rows: table_promotion_set[] = await this.db
+      .table<table_promotion_set>("promotion_set")
+      .whereIn("id", ids);
+    return this.hydrate(rows);
+  }
+
+  /**
    * Every switched-on promotion set that can still apply to an open order of
    * `warehouseId`. Global sets (no warehouse) apply to every branch.
    *

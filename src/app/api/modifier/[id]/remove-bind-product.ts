@@ -6,14 +6,14 @@ export const removeBindProduct = withAuthApi<
   { id: string },
   { productId: string },
   ResponseType<boolean>
->(async ({ db, params, body }) => {
+>(async ({ db, params, body, logger }) => {
   const id = params?.id;
   const productId = body?.productId;
 
   if (!id || !productId) {
     return NextResponse.json(
       { success: false, error: "Missing parameters" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -21,6 +21,13 @@ export const removeBindProduct = withAuthApi<
     .table("product_modifier")
     .where({ product_id: productId, modifier_id: id })
     .delete();
+
+  logger.serverLog("modifier:unbind-product", {
+    action: "delete",
+    table_name: "product_modifier",
+    key: id,
+    content: { modifierId: id, productId },
+  });
 
   return NextResponse.json({ success: true, result: true }, { status: 200 });
 });

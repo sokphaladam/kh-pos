@@ -21,9 +21,12 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 import { useCart } from "./cart-provider";
 import { requestUpdateTableStatus } from "@/app/hooks/use-query-table";
+import { useSWRConfig } from "swr";
+import type { PromotionSetCartLine } from "../../../restaurant/hooks/use-restaurant-actions";
 
 export function useCartActions() {
   const { dispatch, state, setIsRequest } = useCart();
+  const { mutate } = useSWRConfig();
   const { trigger: triggerCreateOrder } = useCreateOrder();
   const { trigger: triggerForceUpdateQtyByStatus } =
     useMutationForceUpdateQtyByStatus(state.orders?.orderId || "");
@@ -261,7 +264,79 @@ export function useCartActions() {
     [setIsRequest, dispatch, triggerForceUpdateOrderItemStatus]
   );
 
+  /**
+   * Add every line of a promotion set as new order lines. The server prices
+   * the set, so the cart re-syncs from the table query afterwards instead of
+   * guessing the promotion discount locally.
+   */
+  const addPromotionSet = useCallback(
+    async (
+      lines: PromotionSetCartLine[],
+      table: table_restaurant_tables,
+    ): Promise<boolean> => {
+      const toAdd = lines.filter((l) => l.quantity > 0);
+      if (toAdd.length === 0) return false;
+
+      setIsRequest(true);
+      try {
+        if (state.tables?.status === "available") {
+          await requestUpdateTableStatus(state.tables.id, "order_taken");
+        }
+
+        const items = toAdd.map((l) => ({
+          id: generateId(),
+          variantId: l.product.id,
+          qty: l.quantity,
+          price: String(l.product.price ?? 0),
+          discounts: [],
+          discountAmount: "0",
+        }));
+
+        if (!state.orders?.invoiceNo) {
+          const invoice = await requestAutoInvoiceNumber(1);
+          if (!invoice.success) {
+            toast.error("Failed to create order");
+            return false;
+          }
+          const create = (await triggerCreateOrder({
+            customerId: state.posInfo?.posCustomerId || "",
+            invoiceNo: Number(invoice.result?.at(0)),
+            slotId: state.posInfo?.posSlotId || "",
+            tableNumber: table.id || "",
+            warehouseId: state.currentWarehouse?.id || "",
+            items,
+          })) as ResponseType<unknown>;
+          if (!create?.success) {
+            toast.error(create?.error || "Failed to create order");
+            return false;
+          }
+        } else {
+          for (const item of items) {
+            const res = await triggerCreateOrderItem(item);
+            if (!res.success) {
+              toast.error("Failed to add product to order");
+              return false;
+            }
+          }
+        }
+        return true;
+      } finally {
+        // Pull the order back with the promotion prices applied.
+        await mutate(`/api/table/${table.id}`);
+        setIsRequest(false);
+      }
+    },
+    [
+      state,
+      setIsRequest,
+      triggerCreateOrder,
+      triggerCreateOrderItem,
+      mutate,
+    ],
+  );
+
   return {
+    addPromotionSet,
     selectProduct,
     removeProduct,
     updateProductQty,
