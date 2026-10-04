@@ -34,7 +34,11 @@ export const GET = withAuthApi<
     offset,
   );
 
-  return NextResponse.json({ success: true, result: { data: items, total } });
+  const data = await PromotionSetService.withDisplayImages(
+    items,
+    req.headers.get("host")?.split(":")[0],
+  );
+  return NextResponse.json({ success: true, result: { data, total } });
 });
 
 function saveHandler(isNew: boolean) {

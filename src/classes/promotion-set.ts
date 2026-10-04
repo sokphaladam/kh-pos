@@ -306,6 +306,42 @@ export class PromotionSetService {
   }
 
   /**
+   * Rewrites each slot's `matchImage` for the requesting host, the same way
+   * product images are (`ProductImageRepository.map`). Stored URLs can point
+   * at an internal upload host the browser can't reach. Only the display
+   * routes need this; pricing callers skip it.
+   */
+  static async withDisplayImages<T extends { items: PromotionSetItem[] }>(
+    sets: T[],
+    hostname?: string,
+  ): Promise<T[]> {
+    const urls = [
+      ...new Set(
+        sets.flatMap((s) =>
+          s.items.map((i) => i.matchImage).filter((u): u is string => !!u),
+        ),
+      ),
+    ];
+    const mapped = new Map<string, string>();
+    await Promise.all(
+      urls.map(async (url) => {
+        try {
+          mapped.set(url, await Formatter.displayImage(url, hostname));
+        } catch {
+          mapped.set(url, url);
+        }
+      }),
+    );
+    return sets.map((s) => ({
+      ...s,
+      items: s.items.map((i) => ({
+        ...i,
+        matchImage: i.matchImage ? (mapped.get(i.matchImage) ?? i.matchImage) : null,
+      })),
+    }));
+  }
+
+  /**
    * Display name and image for each slot target, keyed
    * `${matchType}:${matchId}`. Images: a variant's own image, else its
    * product's first image; a product's first image; a category's image.

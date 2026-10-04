@@ -18,6 +18,9 @@ export const GET = withAuthApi<
     req.nextUrl.searchParams.get("warehouseId") ||
     userAuth.admin?.currentWarehouseId ||
     null;
-  const result = await new PromotionSetService(db).getActive(warehouseId);
+  const result = await PromotionSetService.withDisplayImages(
+    await new PromotionSetService(db).getActive(warehouseId),
+    req.headers.get("host")?.split(":")[0],
+  );
   return NextResponse.json({ success: true, result });
 });

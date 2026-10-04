@@ -17,7 +17,7 @@ export const GET = withDatabaseApi<
   unknown,
   ResponseType<PromotionSetDefinition[]>,
   { warehouse?: string }
->(async ({ db, searchParams }) => {
+>(async ({ db, req, searchParams }) => {
   const warehouseId = searchParams?.warehouse;
   if (!warehouseId) {
     return NextResponse.json(
@@ -27,9 +27,12 @@ export const GET = withDatabaseApi<
   }
 
   const now = Formatter.getNowDateTime();
-  const result = (await new PromotionSetService(db).getActive(warehouseId))
-    .filter((p) => isPromotionSetActive(p, now))
-    .sort((a, b) => b.priority - a.priority || a.title.localeCompare(b.title));
+  const result = await PromotionSetService.withDisplayImages(
+    (await new PromotionSetService(db).getActive(warehouseId))
+      .filter((p) => isPromotionSetActive(p, now))
+      .sort((a, b) => b.priority - a.priority || a.title.localeCompare(b.title)),
+    req.headers.get("host")?.split(":")[0],
+  );
 
   return NextResponse.json({ success: true, result }, { status: 200 });
 });
