@@ -33,6 +33,9 @@ export function useAddPromotionSet() {
       setLoadingId(promotion.id);
       try {
         const res = await requestPromotionSetChoices(promotion.id);
+        if (res?.error === "notActive") {
+          return toast.info(t("pos.notStartedNoTime", { title: promotion.title }));
+        }
         const slots = res.success ? res.result : undefined;
         if (!slots) return toast.error(t("pos.loadFailed"));
         if (slots.some((s) => s.candidates.length === 0)) {

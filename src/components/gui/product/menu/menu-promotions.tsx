@@ -16,18 +16,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { table_restaurant_tables } from "@/generated/tables";
-import { Formatter } from "@/lib/formatter";
 import {
   describePromotionSet,
-  isPromotionSetActive,
   PromotionSetDefinition,
+  VisiblePromotionSet,
+  visiblePromotionSets,
 } from "@/lib/promotion-set";
 import { cn } from "@/lib/utils";
 import { Clock, Gift, Loader2 } from "lucide-react";
 import moment from "moment-timezone";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useNowMinute } from "../../promotion-set/use-now-minute";
 import { usePromotionSetI18n } from "../../promotion-set/use-promotion-set-i18n";
+import { PromotionAvailabilityOverlay } from "../../restaurant/promotion/promotion-availability-overlay";
 import { PromotionImageCollage } from "../../restaurant/promotion/promotion-image-collage";
 import {
   buildPromotionCartLines,
@@ -38,15 +40,18 @@ import { useCartActions } from "./context/use-cart-action";
 /** Category key for the "Promotions" chip on the customer menu. */
 export const MENU_PROMOTIONS_CATEGORY = "__promotions__";
 
-/** Promotion sets running now at the branch (re-checked every minute). */
+/**
+ * Promotion sets to show at the branch: running ones first, then ones waiting
+ * for today's happy hour (shown, not orderable yet). Re-checked every minute
+ * so a set unlocks / locks without a refresh.
+ */
 export function useMenuPromotionSets(warehouseId: string) {
   const { data, isLoading } = useQueryMenuPromotionSets(warehouseId);
-  const promotions = useMemo(() => {
-    // The server already filters; re-check so a set that just ended (happy
-    // hour) disappears before the next refresh.
-    const now = Formatter.getNowDateTime();
-    return (data?.result ?? []).filter((p) => isPromotionSetActive(p, now));
-  }, [data]);
+  const now = useNowMinute();
+  const promotions = useMemo(
+    () => visiblePromotionSets(data?.result ?? [], now),
+    [data, now],
+  );
   return { promotions, isLoading };
 }
 
@@ -70,6 +75,9 @@ export function useMenuAddPromotionSet() {
       setLoadingId(promotion.id);
       try {
         const res = await requestPromotionSetChoices(promotion.id);
+        if (res?.error === "notActive") {
+          return toast.info(t("pos.notStartedNoTime", { title: promotion.title }));
+        }
         const slots = res?.success ? res.result : undefined;
         if (!slots) return toast.error(t("pos.loadFailed"));
         if (slots.some((s) => s.candidates.length === 0)) {
@@ -106,18 +114,23 @@ export function useMenuAddPromotionSet() {
 
 /** What a set contains, its hours, and how to get it. */
 function PromotionDetailsDialog({
-  promotion,
+  entry,
   open,
   onOpenChange,
   onAdd,
 }: {
-  promotion: PromotionSetDefinition;
+  entry: VisiblePromotionSet;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAdd?: () => void;
 }) {
   const { t, currencySymbol, summaryLabels, rewardLabel } =
     usePromotionSetI18n();
+  const { promotion, availability, startsAt } = entry;
+  const waiting = availability === "waiting";
+  const waitingLabel = startsAt
+    ? t("menu.availableFrom", { time: startsAt })
+    : t("pos.notYet");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -175,13 +188,26 @@ function PromotionDetailsDialog({
           </ul>
         </div>
 
+        {waiting && (
+          <div className="flex items-center gap-2 rounded-lg border border-dashed bg-muted/50 p-2.5 text-sm">
+            <Clock className="size-4 shrink-0 text-primary" />
+            <span>
+              <span className="font-medium">{waitingLabel}</span>
+              <span className="text-muted-foreground">
+                {" · "}
+                {t("menu.waitingHint")}
+              </span>
+            </span>
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
           {promotion.dailyStartTime && promotion.dailyEndTime && (
             <span className="flex items-center gap-1">
               <Clock className="size-3.5" />
               {t("menu.availableHours", {
-                start: promotion.dailyStartTime,
-                end: promotion.dailyEndTime,
+                start: promotion.dailyStartTime.slice(0, 5),
+                end: promotion.dailyEndTime.slice(0, 5),
               })}
             </span>
           )}
@@ -201,12 +227,20 @@ function PromotionDetailsDialog({
                 {t("menu.close")}
               </Button>
               <Button
+                disabled={waiting}
                 onClick={() => {
                   onOpenChange(false);
                   onAdd();
                 }}
               >
-                {t("menu.addToOrder")}
+                {waiting ? (
+                  <>
+                    <Clock className="size-4" />
+                    {waitingLabel}
+                  </>
+                ) : (
+                  t("menu.addToOrder")
+                )}
               </Button>
             </>
           ) : (
@@ -231,7 +265,7 @@ export function MenuPromotionCards({
   loadingId,
   disabled,
 }: {
-  promotions: PromotionSetDefinition[];
+  promotions: VisiblePromotionSet[];
   onAdd?: (promotion: PromotionSetDefinition) => void;
   loadingId?: string | null;
   disabled?: boolean;
@@ -239,11 +273,13 @@ export function MenuPromotionCards({
   const { t, currencySymbol, summaryLabels, rewardLabel } =
     usePromotionSetI18n();
   const [openId, setOpenId] = useState<string | null>(null);
-  const open = promotions.find((p) => p.id === openId);
+  const open = promotions.find((p) => p.promotion.id === openId);
 
   return (
     <>
-      {promotions.map((promotion) => {
+      {promotions.map((entry) => {
+        const { promotion } = entry;
+        const waiting = entry.availability === "waiting";
         const itemCount = promotion.items.reduce((a, b) => a + b.qty, 0);
         const summary = describePromotionSet(
           promotion.items,
@@ -264,7 +300,10 @@ export function MenuPromotionCards({
               }
             }}
             className={cn(
-              "group relative flex h-full flex-col overflow-hidden rounded-xl border border-primary/40 bg-card shadow-sm transition-all duration-300",
+              "group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all duration-300",
+              waiting
+                ? "border-dashed border-muted-foreground/40"
+                : "border-primary/40",
               disabled
                 ? "cursor-not-allowed opacity-60"
                 : "cursor-pointer hover:-translate-y-1 hover:shadow-lg active:scale-95",
@@ -274,13 +313,16 @@ export function MenuPromotionCards({
               <PromotionImageCollage
                 items={promotion.items}
                 rewardLabel={rewardLabel}
-                className="rounded-lg"
+                className={cn("rounded-lg", waiting && "grayscale")}
               />
+              <PromotionAvailabilityOverlay entry={entry} />
               <div className="pointer-events-none absolute left-3.5 top-3.5 z-10 sm:left-4 sm:top-4">
                 <span
                   className={cn(
                     CARD_BADGE_CLASS,
-                    "bg-primary text-primary-foreground",
+                    waiting
+                      ? "bg-muted-foreground text-background"
+                      : "bg-primary text-primary-foreground",
                   )}
                 >
                   <Gift className="size-3 sm:size-3.5" />
@@ -307,7 +349,8 @@ export function MenuPromotionCards({
               {promotion.dailyStartTime && promotion.dailyEndTime && (
                 <span className="flex items-center gap-1 text-[10px] text-muted-foreground sm:text-xs">
                   <Clock className="size-3" />
-                  {promotion.dailyStartTime}–{promotion.dailyEndTime}
+                  {promotion.dailyStartTime.slice(0, 5)}–
+                  {promotion.dailyEndTime.slice(0, 5)}
                 </span>
               )}
             </div>
@@ -317,10 +360,10 @@ export function MenuPromotionCards({
       {/* Outside the cards: clicks in a portal still bubble to the parent. */}
       {open && (
         <PromotionDetailsDialog
-          promotion={open}
+          entry={open}
           open
           onOpenChange={(o) => !o && setOpenId(null)}
-          onAdd={onAdd ? () => onAdd(open) : undefined}
+          onAdd={onAdd ? () => onAdd(open.promotion) : undefined}
         />
       )}
     </>

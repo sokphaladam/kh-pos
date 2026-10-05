@@ -12,7 +12,7 @@ import { Gift } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   PROMOTIONS_CATEGORY,
-  useRunningPromotionSets,
+  useVisiblePromotionSets,
 } from "./promotion/restaurant-promotion-cards";
 
 interface Props {
@@ -26,7 +26,7 @@ export function RestaurantCategory(props: Props) {
   const { variant = "horizontal", className } = props;
   const { state, loading } = useRestaurant();
   const tPromo = useTranslations("discount.promotionSet.pos");
-  const hasPromotions = useRunningPromotionSets().length > 0;
+  const hasPromotions = useVisiblePromotionSets().length > 0;
   const categories = useMemo(
     () => state.categories.filter((f) => (f.forSaleCount || 0) > 0) || [],
     [state.categories],

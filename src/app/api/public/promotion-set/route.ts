@@ -1,7 +1,7 @@
 import { PromotionSetService } from "@/classes/promotion-set";
 import { Formatter } from "@/lib/formatter";
 import {
-  isPromotionSetActive,
+  promotionSetAvailability,
   PromotionSetDefinition,
 } from "@/lib/promotion-set";
 import withDatabaseApi from "@/lib/server-functions/with-database-api";
@@ -9,8 +9,9 @@ import { ResponseType } from "@/lib/types";
 import { NextResponse } from "next/server";
 
 /**
- * Public, read-only: promotion sets running right now at a branch, for the
- * customer menu (`/menu`). SELECT queries only.
+ * Public, read-only: promotion sets to show on the customer menu (`/menu`)
+ * of a branch: running now, or waiting for today's happy hour (the menu shows
+ * those locked until they start). SELECT queries only.
  */
 export const GET = withDatabaseApi<
   unknown,
@@ -29,7 +30,7 @@ export const GET = withDatabaseApi<
   const now = Formatter.getNowDateTime();
   const result = await PromotionSetService.withDisplayImages(
     (await new PromotionSetService(db).getActive(warehouseId))
-      .filter((p) => isPromotionSetActive(p, now))
+      .filter((p) => promotionSetAvailability(p, now) !== "hidden")
       .sort((a, b) => b.priority - a.priority || a.title.localeCompare(b.title)),
     req.headers.get("host")?.split(":")[0],
   );

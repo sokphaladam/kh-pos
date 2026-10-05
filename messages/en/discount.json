@@ -122,7 +122,12 @@
       "slotChoose": "Choose {qty} × {name}",
       "slotFixed": "{qty} × {name}",
       "addSet": "Add set to order",
-      "selectTable": "Select a table first"
+      "selectTable": "Select a table first",
+      "startsAt": "Starts {time}",
+      "notYet": "Not available yet",
+      "happyHourUntil": "Happy hour · until {end}",
+      "notStarted": "“{title}” can be ordered from {time}",
+      "notStartedNoTime": "“{title}” can’t be ordered yet"
     },
     "menu": {
       "title": "Promotions",
@@ -136,7 +141,9 @@
       "pickerHint": "Choose your items. The promotion price is applied automatically.",
       "addToOrder": "Add to order",
       "close": "Close",
-      "outOfZone": "You need to be at the restaurant to order."
+      "outOfZone": "You need to be at the restaurant to order.",
+      "availableFrom": "Available from {time}",
+      "waitingHint": "You can order this set once happy hour starts."
     }
   }
 }

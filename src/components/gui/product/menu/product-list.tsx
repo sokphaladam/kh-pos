@@ -53,7 +53,7 @@ export function ProductList() {
     if (selectedCategory !== "All" && !isPromotionCategory) return [];
     const words = debouncedSearchQuery.toLowerCase().split(/\s+/).filter(Boolean);
     if (!words.length) return promotions;
-    return promotions.filter((p) => {
+    return promotions.filter(({ promotion: p }) => {
       const text = [p.title, ...p.items.map((i) => i.matchTitle ?? "")]
         .join(" ")
         .toLowerCase();

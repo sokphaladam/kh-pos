@@ -1,5 +1,7 @@
 import { ProductService } from "@/classes/product-service";
 import { PromotionSetService } from "@/classes/promotion-set";
+import { Formatter } from "@/lib/formatter";
+import { isPromotionSetActive } from "@/lib/promotion-set";
 import withAuthApi from "@/lib/server-functions/with-auth-api";
 import { ResponseType } from "@/lib/types";
 import { NextResponse } from "next/server";
@@ -24,6 +26,14 @@ export const GET = withAuthApi<
     return NextResponse.json(
       { success: false, error: "notFound" },
       { status: 404 },
+    );
+  }
+
+  // Shown on the menu before its happy hour, but not orderable until then.
+  if (!isPromotionSetActive(promotion, Formatter.getNowDateTime())) {
+    return NextResponse.json(
+      { success: false, error: "notActive" },
+      { status: 409 },
     );
   }
 

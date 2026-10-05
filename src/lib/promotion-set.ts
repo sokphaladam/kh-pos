@@ -182,6 +182,70 @@ export function isPromotionSetActive(
   return isWithinDailyHours(promotion, at);
 }
 
+/**
+ * How a set shows on a menu at `at`:
+ * - `active`: it can be ordered now.
+ * - `waiting`: it runs today but not yet (outside its happy hour, or its
+ *   start date is later today). Shown so customers see it, not orderable.
+ * - `hidden`: switched off, ended, or not started by today.
+ */
+export type PromotionSetAvailability = "active" | "waiting" | "hidden";
+
+export function promotionSetAvailability(
+  promotion: PromotionSetDefinition,
+  at: string,
+): PromotionSetAvailability {
+  if (!isPromotionSetEnabled(promotion)) return "hidden";
+  if (promotion.endAt && at > promotion.endAt) return "hidden";
+  if (promotion.startAt && at < promotion.startAt) {
+    return promotion.startAt.slice(0, 10) === at.slice(0, 10)
+      ? "waiting"
+      : "hidden";
+  }
+  return isWithinDailyHours(promotion, at) ? "active" : "waiting";
+}
+
+/** `HH:mm` a `waiting` set becomes orderable (today), or null if unknown. */
+export function promotionSetStartsAt(
+  promotion: PromotionSetDefinition,
+  at: string,
+): string | null {
+  const daily = promotion.dailyStartTime?.slice(0, 5) || null;
+  if (promotion.startAt && at < promotion.startAt) {
+    const start = promotion.startAt.slice(11, 16);
+    if (daily && !isWithinDailyHours(promotion, promotion.startAt)) {
+      return daily > start ? daily : start;
+    }
+    return start;
+  }
+  return daily;
+}
+
+/** Menu sets with their availability, orderable ones first. */
+export function visiblePromotionSets(
+  promotions: PromotionSetDefinition[],
+  at: string,
+) {
+  return promotions
+    .map((promotion) => ({
+      promotion,
+      availability: promotionSetAvailability(promotion, at),
+      startsAt: promotionSetStartsAt(promotion, at),
+    }))
+    .filter((p) => p.availability !== "hidden")
+    .sort(
+      (a, b) =>
+        Number(b.availability === "active") -
+          Number(a.availability === "active") ||
+        b.promotion.priority - a.promotion.priority ||
+        a.promotion.title.localeCompare(b.promotion.title),
+    );
+}
+
+export type VisiblePromotionSet = ReturnType<
+  typeof visiblePromotionSets
+>[number];
+
 function lineMatches(line: PromotionOrderLine, item: PromotionSetItem) {
   switch (item.matchType) {
     case "VARIANT":

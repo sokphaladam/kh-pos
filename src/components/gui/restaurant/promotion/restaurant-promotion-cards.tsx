@@ -1,18 +1,20 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { Formatter } from "@/lib/formatter";
 import {
-  PromotionSetDefinition,
+  VisiblePromotionSet,
   describePromotionSet,
-  isPromotionSetActive,
+  visiblePromotionSets,
 } from "@/lib/promotion-set";
 import { cn } from "@/lib/utils";
 import { CARD_BADGE_CLASS } from "@/components/product-card-badges";
 import { Clock, Gift, Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
+import { toast } from "sonner";
+import { useNowMinute } from "../../promotion-set/use-now-minute";
 import { usePromotionSetI18n } from "../../promotion-set/use-promotion-set-i18n";
+import { PromotionAvailabilityOverlay } from "./promotion-availability-overlay";
 import { PromotionImageCollage } from "./promotion-image-collage";
 import { useRestaurant } from "../contexts/restaurant-context";
 import { useAddPromotionSet } from "./use-add-promotion-set";
@@ -20,15 +22,18 @@ import { useAddPromotionSet } from "./use-add-promotion-set";
 /** Category key for the "Promotions" entry in the restaurant category bar. */
 export const PROMOTIONS_CATEGORY = "__promotions__";
 
-/** Promotion sets that can be sold right now (enabled, in date range and hours). */
-export function useRunningPromotionSets(): PromotionSetDefinition[] {
+/**
+ * Promotion sets to show on the menu: running ones first, then ones waiting
+ * for today's happy hour (visible, not orderable yet). Re-checked each minute.
+ */
+export function useVisiblePromotionSets(): VisiblePromotionSet[] {
   const { state } = useRestaurant();
   const promotionSets = state.promotionSets;
-  return useMemo(() => {
-    const now = Formatter.getNowDateTime();
-    return (promotionSets ?? []).filter((p) => isPromotionSetActive(p, now));
-    // Re-evaluated whenever the restaurant state re-syncs (table polling).
-  }, [promotionSets]);
+  const now = useNowMinute();
+  return useMemo(
+    () => visiblePromotionSets(promotionSets ?? [], now),
+    [promotionSets, now],
+  );
 }
 
 /**
@@ -44,7 +49,7 @@ export function RestaurantPromotionCards({
     usePromotionSetI18n();
   const { state, loading, isRequest } = useRestaurant();
   const params = useSearchParams();
-  const promotions = useRunningPromotionSets();
+  const promotions = useVisiblePromotionSets();
   const { addPromotionSet, loadingId } = useAddPromotionSet();
 
   const table = state.activeTables.find(
@@ -54,17 +59,34 @@ export function RestaurantPromotionCards({
 
   return (
     <>
-      {promotions.map((promotion) => {
+      {promotions.map((entry) => {
+        const { promotion, availability, startsAt } = entry;
+        const waiting = availability === "waiting";
         const itemCount = promotion.items.reduce((a, b) => a + b.qty, 0);
         return (
           <Card
             key={promotion.id}
-            onClick={() => !disabled && addPromotionSet(promotion, table)}
+            aria-disabled={waiting || disabled}
+            onClick={() => {
+              if (disabled) return;
+              if (waiting) {
+                toast.info(
+                  startsAt
+                    ? t("pos.notStarted", { title: promotion.title, time: startsAt })
+                    : t("pos.notStartedNoTime", { title: promotion.title }),
+                );
+                return;
+              }
+              addPromotionSet(promotion, table);
+            }}
             className={cn(
-              "group relative flex h-full flex-col overflow-hidden rounded-xl border border-primary/30 bg-card shadow-sm transition-all duration-300",
+              "group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-all duration-300",
+              waiting ? "border-dashed border-muted-foreground/40" : "border-primary/30",
               disabled
                 ? "cursor-not-allowed opacity-60"
-                : "cursor-pointer hover:-translate-y-1 hover:shadow-lg active:scale-95",
+                : waiting
+                  ? "cursor-default"
+                  : "cursor-pointer hover:-translate-y-1 hover:shadow-lg active:scale-95",
             )}
           >
             {/* Square picture area, same size as a product card's image. */}
@@ -72,14 +94,18 @@ export function RestaurantPromotionCards({
               <PromotionImageCollage
                 items={promotion.items}
                 rewardLabel={rewardLabel}
-                className="rounded-lg"
+                className={cn("rounded-lg", waiting && "grayscale")}
               />
+
+              <PromotionAvailabilityOverlay entry={entry} />
 
               <div className="pointer-events-none absolute left-3.5 top-3.5 sm:left-4 sm:top-4 z-10 flex flex-col items-start gap-1">
                 <span
                   className={cn(
                     CARD_BADGE_CLASS,
-                    "bg-primary text-primary-foreground",
+                    waiting
+                      ? "bg-muted-foreground text-background"
+                      : "bg-primary text-primary-foreground",
                   )}
                 >
                   <Gift className="size-3 sm:size-3.5" />
@@ -115,7 +141,8 @@ export function RestaurantPromotionCards({
               {promotion.dailyStartTime && promotion.dailyEndTime && (
                 <span className="flex items-center gap-1 text-[10px] text-muted-foreground sm:text-xs">
                   <Clock className="size-3" />
-                  {promotion.dailyStartTime}–{promotion.dailyEndTime}
+                  {promotion.dailyStartTime.slice(0, 5)}–
+                  {promotion.dailyEndTime.slice(0, 5)}
                 </span>
               )}
             </div>
