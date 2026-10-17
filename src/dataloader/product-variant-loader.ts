@@ -54,6 +54,8 @@ export interface ProductVariantType {
   isPopular?: boolean;
   isNew?: boolean;
   isMostOrder?: boolean;
+  /** Kitchen printer bound to this variant in the branch; null = category's printer. */
+  printerId?: string | null;
   compositeVariants?: CompositeVariant[];
   slotStock?: {
     slotId: string;
@@ -127,6 +129,18 @@ export function createProductVariantLoader(
       "is_new",
       "is_most_order",
     );
+
+    const variantPrinters: { variant_id: string; printer_id: string }[] =
+      rows.length > 0
+        ? await db
+            .table("warehouse_variant_printer")
+            .where("warehouse_id", warehouseId)
+            .whereIn(
+              "variant_id",
+              rows.map((x) => x.id!),
+            )
+            .select("variant_id", "printer_id")
+        : [];
 
     const variantStockLoader = LoaderFactory.variantStockLoader(
       db,
@@ -208,6 +222,9 @@ export function createProductVariantLoader(
             branchVisibility?.is_most_order,
             x.is_most_order,
           ),
+          printerId:
+            variantPrinters.find((p) => p.variant_id === x.id)?.printer_id ??
+            null,
         };
 
         productVariantMap[x.product_id] = productVariantMap[x.product_id] || [];

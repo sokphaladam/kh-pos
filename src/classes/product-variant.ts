@@ -2,6 +2,7 @@ import { LoaderFactory } from "@/dataloader/loader-factory";
 import {
   table_product_variant,
   table_variant_composite,
+  table_warehouse_variant_printer,
 } from "@/generated/tables";
 import { Formatter } from "@/lib/formatter";
 import { generateId } from "@/lib/generate-id";
@@ -45,6 +46,9 @@ const inputProductVariantSchema = z
     isPopular: z.boolean().optional().default(false),
     isNew: z.boolean().optional().default(false),
     isMostOrder: z.boolean().optional().default(false),
+    // Kitchen printer for the current branch. null clears it (falls back to
+    // the category printer); undefined leaves the binding untouched.
+    printerId: z.string().nullable().optional(),
   })
   .refine(
     (data) => {
@@ -85,6 +89,35 @@ export class ProductVariantService {
 
     await this.insertProductVariant(variant, now);
     await this.insertProductVariantOptionValues(variant);
+    await ProductVariantService.saveVariantPrinter(
+      variant,
+      this.trx,
+      this.user,
+    );
+  }
+
+  static async saveVariantPrinter(
+    variant: ProductVariant,
+    trx: Knex,
+    user: UserInfo,
+  ) {
+    if (variant.printerId === undefined || !user.currentWarehouseId) return;
+    const where = {
+      warehouse_id: user.currentWarehouseId,
+      variant_id: variant.id,
+    };
+    if (variant.printerId) {
+      await trx
+        .table<table_warehouse_variant_printer>("warehouse_variant_printer")
+        .insert({ ...where, printer_id: variant.printerId })
+        .onConflict(["warehouse_id", "variant_id"])
+        .merge(["printer_id"]);
+    } else {
+      await trx
+        .table<table_warehouse_variant_printer>("warehouse_variant_printer")
+        .where(where)
+        .delete();
+    }
   }
 
   async triggerVariant(productId: string) {
@@ -156,6 +189,8 @@ export class ProductVariantService {
           is_new: variant.isNew ? 1 : 0,
           is_most_order: variant.isMostOrder ? 1 : 0,
         });
+
+      await ProductVariantService.saveVariantPrinter(variant, trx, user);
 
       // Update composite variants if it is a composite variant
       if (variant.isComposite) {

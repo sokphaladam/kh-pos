@@ -9,12 +9,17 @@ import { Plus } from "lucide-react";
 import { useCallback, useState } from "react";
 import { v4 } from "uuid";
 import { useProductForm } from "../context/product-form-context";
+import { useQueryCategoryById } from "@/app/hooks/use-query-category";
 import { createDialogProductVariant } from "./dialog-create-product-variant";
 import { ProductVariantList } from "./product-variant-list";
 
 export function ProductVariant() {
   const { product, setProduct, isMovie } = useProductForm();
   const [allPrice, setAllPrice] = useState<string>("");
+  const { category } = useQueryCategoryById(
+    product.productCategories.at(0)?.categoryId || "",
+  );
+  const categoryPrinterId = category?.printerId ?? null;
 
   const onClickOptions = useCallback(async () => {
     const options = product.productOption.map((x) => {
@@ -71,6 +76,7 @@ export function ProductVariant() {
               barcode: find?.barcode ? find.barcode : "",
               purchasedCost: find?.purchasedCost ?? 0,
               isDefault: find?.isDefault ?? x.isDefault,
+              printerId: find ? (find.printerId ?? null) : categoryPrinterId,
             };
           });
 
@@ -86,7 +92,7 @@ export function ProductVariant() {
         }),
       );
     }
-  }, [product, setProduct]);
+  }, [product, setProduct, categoryPrinterId]);
 
   return (
     <div className="space-y-6">

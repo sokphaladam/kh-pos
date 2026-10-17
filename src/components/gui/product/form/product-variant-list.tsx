@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuthentication } from "contexts/authentication-context";
+import { useQueryPrinters } from "@/app/hooks/use-query-printer";
 import { produce } from "immer";
 import React from "react";
 import { useProductForm } from "../context/product-form-context";
@@ -21,6 +22,7 @@ export function ProductVariantList() {
   const { currency } = useAuthentication();
   const { product, setProduct } = useProductForm();
   const { showDialog } = useCommonDialog();
+  const { printers } = useQueryPrinters();
 
   const handleToggleComposite = (idx: number, checked: boolean) => {
     showDialog({
@@ -88,6 +90,9 @@ export function ProductVariantList() {
           <TableHead className="text-xs whitespace-nowrap">Visible</TableHead>
           <TableHead className="text-xs whitespace-nowrap">
             Menu Tags
+          </TableHead>
+          <TableHead className="text-xs whitespace-nowrap">
+            Kitchen Printer
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -330,6 +335,32 @@ export function ProductVariantList() {
                     </label>
                   </div>
                 </TableCell>
+                <TableCell className="text-xs w-[180px]">
+                  <select
+                    className="h-[30px] w-full rounded-md border border-input bg-background px-1 text-xs"
+                    value={x.printerId ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setProduct(
+                        produce(product, (draft) => {
+                          (draft.productVariants || [])[idx].printerId =
+                            v || null;
+                        })
+                      );
+                    }}
+                  >
+                    <option value="">Category default</option>
+                    {printers.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.printerName})
+                      </option>
+                    ))}
+                    {!!x.printerId &&
+                      !printers.some((p) => p.id === x.printerId) && (
+                        <option value={x.printerId}>Unknown printer</option>
+                      )}
+                  </select>
+                </TableCell>
                 <TableCell className="text-right">
                   <BasicMenuAction
                     value={x}
@@ -345,7 +376,7 @@ export function ProductVariantList() {
               </TableRow>
               {showCompositeCard && (
                 <tr>
-                  <td colSpan={11} className="p-0">
+                  <td colSpan={13} className="p-0">
                     <CompositeCard
                       variant={x.compositeVariants?.map((cv) => ({
                         id: cv.id || undefined,

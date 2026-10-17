@@ -10,6 +10,7 @@ import {
   table_product_variant,
   table_restaurant_tables,
   table_setting,
+  table_warehouse_variant_printer,
 } from "@/generated/tables";
 import { Formatter } from "@/lib/formatter";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
@@ -445,11 +446,25 @@ async function getTableDetails(orderId: string, tx: Knex) {
     .first<table_restaurant_tables>();
 }
 
+// The variant's own printer wins; otherwise the category's default printer.
 async function getPrinterInfo(
   productVariantId: string,
   tx: Knex,
   user: UserInfo,
 ) {
+  const variantPrinter: table_warehouse_variant_printer | undefined = await tx
+    .table<table_warehouse_variant_printer>("warehouse_variant_printer")
+    .where({
+      warehouse_id: user.currentWarehouseId!,
+      variant_id: productVariantId,
+    })
+    .first();
+
+  if (variantPrinter) {
+    const printer = await getPrinterById(variantPrinter.printer_id, tx, user);
+    if (printer) return printer;
+  }
+
   const query = tx
     .table<table_product>("product")
     .innerJoin<table_product_variant>(

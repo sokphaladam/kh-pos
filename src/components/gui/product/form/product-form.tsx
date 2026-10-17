@@ -62,6 +62,13 @@ export function ProductForm() {
                   setProduct(
                     produce(product, (draft) => {
                       draft.productCategories = v ? [{ categoryId: v.id }] : [];
+                      // The category printer is the default for every
+                      // variant; each one can still be changed below.
+                      if (v) {
+                        for (const variant of draft.productVariants) {
+                          variant.printerId = v.printerId ?? null;
+                        }
+                      }
                     })
                   );
                 }}

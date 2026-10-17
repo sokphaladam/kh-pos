@@ -67,3 +67,4 @@ export * from "./tables/table_variables";
 export * from "./tables/table_variant_composite";
 export * from "./tables/table_warehouse";
 export * from "./tables/table_warehouse_slot";
+export * from "./tables/table_warehouse_variant_printer";

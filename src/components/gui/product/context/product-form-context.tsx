@@ -41,6 +41,7 @@ const createDefaultProductData = () => {
     isPopular: false,
     isNew: false,
     isMostOrder: false,
+    printerId: null,
   };
 
   return {
@@ -215,6 +216,7 @@ export function ProductFormContextProvider({
           isPopular: v.isPopular ?? false,
           isNew: v.isNew ?? false,
           isMostOrder: v.isMostOrder ?? false,
+          printerId: v.printerId ?? null,
         };
       }),
       productConversions: product.productConversions || [],
