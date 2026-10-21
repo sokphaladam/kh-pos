@@ -217,6 +217,7 @@ export function ProductFormContextProvider({
           isNew: v.isNew ?? false,
           isMostOrder: v.isMostOrder ?? false,
           printerId: v.printerId ?? null,
+          countFrequency: v.countFrequency ?? null,
         };
       }),
       productConversions: product.productConversions || [],

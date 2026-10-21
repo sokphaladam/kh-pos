@@ -1,0 +1,62 @@
+{
+  "title": "Stock Count",
+  "description": "Count what is left after service. Differences correct the stock and show where it went missing.",
+  "loading": "Loading stock counts",
+  "newCount": "New count",
+  "list": {
+    "date": "Count date",
+    "slot": "Slot",
+    "items": "Items",
+    "differences": "With difference",
+    "loss": "Loss",
+    "gain": "Gain",
+    "by": "Counted by",
+    "empty": "No counts yet",
+    "emptyDescription": "Start with meat, seafood and beer every day, and count everything on the last day of the month."
+  },
+  "sheet": {
+    "title": "New stock count",
+    "slot": "Slot",
+    "date": "Count date",
+    "dueOnly": "Due today",
+    "allItems": "All items",
+    "showExpected": "Show expected qty",
+    "blindHint": "Expected quantities are hidden so the count is not influenced.",
+    "search": "Search item",
+    "monthEnd": "Last day of the month: count everything.",
+    "lastCounted": "Last counted {date}",
+    "neverCounted": "Never counted",
+    "expected": "Expected {qty}",
+    "countedPlaceholder": "Counted",
+    "blankHint": "Leave blank if not counted; enter 0 if nothing is left.",
+    "progress": "{counted} of {total} counted",
+    "save": "Save count",
+    "saving": "Saving...",
+    "nothing": "Enter at least one counted quantity",
+    "noItems": "No items to count",
+    "noItemsDescription": "Only items with Track stock on are counted. Made-to-order sets are counted through their recipe items.",
+    "saved": "Count saved and stock corrected",
+    "uncategorized": "Other"
+  },
+  "frequency": {
+    "DAILY": "Daily",
+    "WEEKLY": "Weekly",
+    "MONTHLY": "Monthly"
+  },
+  "detail": {
+    "title": "Count {date}",
+    "counted": "Items counted",
+    "differences": "With difference",
+    "loss": "Missing (loss)",
+    "gain": "Extra (gain)",
+    "net": "Net",
+    "item": "Item",
+    "system": "System",
+    "countedQty": "Counted",
+    "diff": "Difference",
+    "unitCost": "Unit cost",
+    "amount": "Amount",
+    "back": "Back to counts",
+    "match": "Matches"
+  }
+}

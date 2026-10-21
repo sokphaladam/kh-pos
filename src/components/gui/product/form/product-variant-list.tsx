@@ -19,6 +19,10 @@ import { Switch } from "@/components/ui/switch";
 import { useQueryPrinters } from "@/app/hooks/use-query-printer";
 import { cn } from "@/lib/utils";
 import { computeVariantDiscount } from "@/lib/variant-discount";
+import {
+  CountFrequency,
+  DEFAULT_COUNT_FREQUENCY,
+} from "@/lib/stock-count";
 import { useAuthentication } from "contexts/authentication-context";
 import { produce } from "immer";
 import { ChevronDown, Eye, EyeOff, Layers } from "lucide-react";
@@ -45,6 +49,12 @@ const MENU_TAGS: { key: "isPopular" | "isNew" | "isMostOrder"; label: string }[]
     { key: "isNew", label: "New" },
     { key: "isMostOrder", label: "Best seller" },
   ];
+
+const COUNT_FREQUENCY_OPTIONS: { value: CountFrequency; label: string }[] = [
+  { value: "DAILY", label: "Daily (meat, seafood, bar)" },
+  { value: "WEEKLY", label: "Weekly (perishables)" },
+  { value: "MONTHLY", label: "Monthly (dry goods)" },
+];
 
 // Variants open by default only while the list is short enough to scan.
 const AUTO_EXPAND_LIMIT = 3;
@@ -314,6 +324,31 @@ function VariantCard({
                   )
                 }
               />
+              <div className="flex flex-col gap-1 -mt-2">
+                <span className="text-xs text-foreground/80">
+                  Count frequency
+                </span>
+                <Select
+                  disabled={!stockLevelsEnabled}
+                  value={variant.countFrequency ?? DEFAULT_COUNT_FREQUENCY}
+                  onValueChange={(value) =>
+                    onChange(
+                      (v) => void (v.countFrequency = value as CountFrequency),
+                    )
+                  }
+                >
+                  <SelectTrigger className="h-9 w-full text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNT_FREQUENCY_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value} className="text-xs">
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </Section>
 

@@ -8,6 +8,7 @@ import { CompositeVariant } from "./composite-variant-loader";
 import { LoaderFactory } from "./loader-factory";
 import { MovieInput } from "@/classes/movie";
 import { computeAvailableQty } from "@/lib/variant-availability";
+import { CountFrequency } from "@/lib/stock-count";
 
 export interface ProductModifierItemType {
   id: string;
@@ -61,6 +62,8 @@ export interface ProductVariantType {
   isPopular?: boolean;
   isNew?: boolean;
   isMostOrder?: boolean;
+  /** Stock count schedule; null = monthly. */
+  countFrequency?: CountFrequency | null;
   /** Kitchen printer bound to this variant in the branch; null = category's printer. */
   printerId?: string | null;
   compositeVariants?: CompositeVariant[];
@@ -242,6 +245,7 @@ export function createProductVariantLoader(
             branchVisibility?.is_most_order,
             x.is_most_order,
           ),
+          countFrequency: x.count_frequency ?? null,
           printerId:
             variantPrinters.find((p) => p.variant_id === x.id)?.printer_id ??
             null,

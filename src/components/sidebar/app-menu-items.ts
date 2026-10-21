@@ -5,6 +5,7 @@ import {
   Boxes,
   CirclePercent,
   Clapperboard,
+  ClipboardCheck,
   ClockAlert,
   Combine,
   Component,
@@ -175,6 +176,12 @@ export function useMenuItems() {
         title: t("wasteLog"),
         icon: Trash2,
         url: "/admin/waste",
+        subitems: [],
+      },
+      {
+        title: t("stockCount"),
+        icon: ClipboardCheck,
+        url: "/admin/stock-counting",
         subitems: [],
       },
       {
