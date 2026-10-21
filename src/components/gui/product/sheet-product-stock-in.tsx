@@ -495,7 +495,7 @@ export const sheetProductStockIn = createSheet<
                         value={x.lot?.costPerUnit}
                         className="text-xs"
                         type="number"
-                        step={0.1}
+                        step="any"
                         onChange={(e) => {
                           setStock(
                             produce((draft) => {

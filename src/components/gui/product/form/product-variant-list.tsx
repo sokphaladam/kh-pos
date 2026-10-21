@@ -252,7 +252,7 @@ function VariantCard({
                 label={`Purchase cost (${currency})`}
                 type="number"
                 min={0}
-                step={0.01}
+                step="any"
                 className="h-9"
                 value={Number(variant.purchasedCost || 0).toString()}
                 onChange={(e) =>

@@ -92,7 +92,7 @@ L-POS is a comprehensive Point of Sale system supporting:
 | sku                    | int           | UNIQUE | Auto-increment SKU number |
 | barcode                | varchar(255)  | UNIQUE | Scannable barcode         |
 | price                  | decimal(10,2) |        | Selling price             |
-| purchased_cost         | decimal(10,2) |        | Cost basis                |
+| purchased_cost         | decimal(16,6) |        | Cost basis                |
 | low_stock_qty          | int           |        | Reorder point             |
 | ideal_stock_qty        | int           |        | Target stock level        |
 | available              | tinyint(1)    |        | Available for sale        |
@@ -292,7 +292,7 @@ L-POS is a comprehensive Point of Sale system supporting:
 | lot_number             | varchar(255)  |     | Manufacturer lot code |
 | manufacturing_date     | date          |     | Production date       |
 | expiration_date        | date          |     | Expiration date       |
-| cost_per_unit          | decimal(10,2) |     | FIFO cost basis       |
+| cost_per_unit          | decimal(16,6) |     | FIFO cost basis       |
 | created_at, updated_at | datetime      |     | Timestamps            |
 
 ---
@@ -803,7 +803,7 @@ L-POS is a comprehensive Point of Sale system supporting:
 | supplier_purchase_order_id | char(36)      | FK  | Parent PO                    |
 | product_variant_id         | char(36)      | FK  | Variant being purchased      |
 | quantity                   | int           |     | Ordered quantity             |
-| purchased_cost             | decimal(10,2) |     | Cost per unit                |
+| purchased_cost             | decimal(16,6) |     | Cost per unit                |
 | status                     | enum          |     | pending, received, cancelled |
 | received_qty               | int           |     | Received quantity            |
 | created_at, updated_at     | datetime      |     | Timestamps                   |
@@ -819,8 +819,8 @@ L-POS is a comprehensive Point of Sale system supporting:
 | id                     | char(36)           | PK  | UUID                               |
 | supplier_id            | char(36)           | FK  | Supplier                           |
 | product_variant_id     | char(36)           | FK  | Variant                            |
-| price                  | decimal(10,2)      |     | Current price                      |
-| scheduled_price        | decimal(10,2)      |     | Upcoming price                     |
+| price                  | decimal(16,6)      |     | Current price                      |
+| scheduled_price        | decimal(16,6)      |     | Upcoming price                     |
 | scheduled_at           | datetime           |     | Schedule timestamp                 |
 | scheduled_by           | char(36)           | FK  | Scheduler                          |
 | effect_date            | date               |     | Effective date for scheduled price |

@@ -22,6 +22,8 @@ import { InventoryTransaction } from "@/dataloader/inventory-transaction-loader"
 import moment from "moment-timezone";
 import { useSearchParams } from "next/navigation";
 import React from "react";
+import { useAuthentication } from "contexts/authentication-context";
+import { formatCurrency } from "@/lib/currency";
 
 function getTransactionNameByType(
   type: InventoryTransaction["transactionType"]
@@ -65,6 +67,7 @@ function getTransactionNameByType(
 }
 
 export function TransactionList() {
+  const { currencyCode } = useAuthentication();
   const searchParams = useSearchParams();
   const offset = Number(searchParams.get("offset") || 0);
   const limit = Number(searchParams.get("limit") || 30);
@@ -176,17 +179,16 @@ export function TransactionList() {
                         : transaction.qty}
                     </TableCell>
                     <TableCell className="font-semibold text-success text-center">
-                      {transaction.transactionType === "SALE"
-                        ? `$${Math.abs(
-                            Number(transaction.productLot?.costPerUnit) *
-                              transaction.qty
-                          )}`
-                        : `${transaction.qty >= 0 ? "" : "-"}$${(
-                            Number(transaction.productLot?.costPerUnit) *
+                      {transaction.transactionType !== "SALE" &&
+                        transaction.qty < 0 &&
+                        "-"}
+                      {formatCurrency(
+                        Math.abs(
+                          Number(transaction.productLot?.costPerUnit || 0) *
                             transaction.qty
-                          )
-                            .toString()
-                            .replace("-", "")}`}
+                        ),
+                        currencyCode
+                      )}
                     </TableCell>
                   </TableRow>
                 );
