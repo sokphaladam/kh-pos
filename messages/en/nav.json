@@ -13,6 +13,8 @@
   "warehouse": "Warehouse",
   "slot": "Slot",
   "transactions": "Transactions",
+  "wasteLog": "Waste Log",
+  "stockCount": "Stock Count",
   "productGroup": "Product Group",
   "cinema": "Cinema",
   "showtimes": "Showtimes",

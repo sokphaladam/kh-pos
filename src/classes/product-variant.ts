@@ -1,4 +1,5 @@
 import { LoaderFactory } from "@/dataloader/loader-factory";
+import { COUNT_FREQUENCIES } from "@/lib/stock-count";
 import {
   table_product_variant,
   table_variant_composite,
@@ -49,6 +50,8 @@ const inputProductVariantSchema = z
     // Kitchen printer for the current branch. null clears it (falls back to
     // the category printer); undefined leaves the binding untouched.
     printerId: z.string().nullable().optional(),
+    // Stock count schedule; null = monthly (see src/lib/stock-count.ts).
+    countFrequency: z.enum(COUNT_FREQUENCIES).nullable().optional(),
   })
   .refine(
     (data) => {
@@ -188,6 +191,7 @@ export class ProductVariantService {
           is_popular: variant.isPopular ? 1 : 0,
           is_new: variant.isNew ? 1 : 0,
           is_most_order: variant.isMostOrder ? 1 : 0,
+          count_frequency: variant.countFrequency ?? null,
         });
 
       await ProductVariantService.saveVariantPrinter(variant, trx, user);
@@ -241,6 +245,7 @@ export class ProductVariantService {
         is_popular: variant.isPopular ? 1 : 0,
         is_new: variant.isNew ? 1 : 0,
         is_most_order: variant.isMostOrder ? 1 : 0,
+        count_frequency: variant.countFrequency ?? null,
       });
 
       // composite variants
