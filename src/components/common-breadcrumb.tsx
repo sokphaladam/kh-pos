@@ -50,6 +50,7 @@ const segmentToNavKey: Record<string, string> = {
   "stock-report": "stockReport",
   "stock-variance": "stockVariance",
   "stock-dashboard": "stockDashboard",
+  reorder: "reorder",
   "cinema-showtime-sale": "showtimeSaleReport",
   setting: "setting",
   payment: "paymentMethod",

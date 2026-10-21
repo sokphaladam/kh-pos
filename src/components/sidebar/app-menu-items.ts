@@ -297,6 +297,12 @@ export function useMenuItems() {
         subitems: [],
       },
       {
+        title: t("reorder"),
+        icon: PackageSearch,
+        url: "/admin/reorder",
+        subitems: [],
+      },
+      {
         title: t("replenishment"),
         icon: Grid,
         url: "/admin/replenishment",
