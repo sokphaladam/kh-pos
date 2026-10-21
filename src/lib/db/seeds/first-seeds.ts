@@ -1,8 +1,13 @@
-import { Formatter } from "@/lib/formatter";
+import moment from "moment-timezone";
 import { readFileSync } from "fs";
 import { Knex } from "knex";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
+
+// Same as Formatter.getNowDateTime(); the knex seed loader (ts-node/esm)
+// cannot resolve the "@/" path alias, so it is not imported here.
+const getNowDateTime = () =>
+  moment().tz("Asia/Phnom_Penh").format("YYYY-MM-DD HH:mm:ss");
 
 export async function seed(knex: Knex): Promise<void> {
   const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -58,14 +63,14 @@ export async function seed(knex: Knex): Promise<void> {
     {
       id: "404a9109-d8bd-47c3-8806-ba2b559db018",
       role: "OWNER",
-      created_at: Formatter.getNowDateTime(),
+      created_at: getNowDateTime(),
       is_default: 1,
       permissions: null,
     },
     {
       id: "a24ad104-bc07-47fd-886c-c26370722192",
       role: "Cashier",
-      created_at: Formatter.getNowDateTime(),
+      created_at: getNowDateTime(),
       is_default: 0,
       permissions:
         '{"order": "create,read,update", "shift": "create,read,update", "expiry": "create,read,update", "product": "read,create,update", "category": "read", "end-of-day": "create,read,update,delete", "restaurant": "read,update,create", "sale-report": "create,read,update,delete", "sale-breakdown": "create,read,update", "sale-item-report": "create,read,update,delete", "order-preparation": "create,read,update"}',
@@ -73,7 +78,7 @@ export async function seed(knex: Knex): Promise<void> {
     {
       id: "c089c2dc-b435-4711-9562-2e772def0dd8",
       role: "SUPERVISOR",
-      created_at: Formatter.getNowDateTime(),
+      created_at: getNowDateTime(),
       is_default: 0,
       permissions:
         '{"order": "create,read,update", "shift": "create,read,update", "expiry": "create,read,update,delete", "payment": "create,read,update", "product": "create,read,update,delete", "setting": "create,read,update", "category": "create,read,update", "transfer": "create,read,update", "dashboard": "create,read,update,delete", "end-of-day": "create,read,update,delete", "restaurant": "create,read,update", "sale-report": "create,read,update,delete", "transaction": "create,read,update", "purchase-order": "create,read,update", "sale-breakdown": "create,read,update,delete", "sale-item-report": "create,read,update,delete", "order-preparation": "create,read,update"}',
@@ -81,7 +86,7 @@ export async function seed(knex: Knex): Promise<void> {
     {
       id: "f7c33b45-0208-4dc0-9795-2819f3e8df7a",
       role: "Service",
-      created_at: Formatter.getNowDateTime(),
+      created_at: getNowDateTime(),
       is_default: 0,
       permissions:
         '{"order": "create,read,update,delete", "restaurant": "read,delete,create,update", "order-preparation": "read,create,update,delete"}',

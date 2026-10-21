@@ -10,6 +10,11 @@ import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import { ProductCategory } from "@/repository/product-category-repository";
 import { ProductImage } from "@/repository/product-image-repository";
 import { Knex } from "knex";
+import {
+  ProductSaleStatusFilter,
+  ProductStockStatusFilter,
+  ProductTypeFilter,
+} from "@/lib/product-list-filters";
 import { z } from "zod";
 import { ProductVariantConversionType } from "./product-variant-conversion";
 
@@ -21,6 +26,9 @@ export interface ProductFilterProps {
   supplierId?: string;
   barcode?: string;
   categoryId?: string;
+  saleStatus?: ProductSaleStatusFilter;
+  productType?: ProductTypeFilter;
+  stockStatus?: ProductStockStatusFilter;
 }
 
 export interface ProductV2 {
@@ -81,6 +89,9 @@ export class ProductServiceV2 {
     supplierId,
     barcode,
     categoryId,
+    saleStatus,
+    productType,
+    stockStatus,
   }: ProductFilterProps) {
     const isMain = this.user.warehouse?.isMain || false;
     const query = this.trx.table("product").where("product.deleted_at", null);
@@ -138,6 +149,13 @@ export class ProductServiceV2 {
 
     const useMainBranchVisibility =
       !isMain && !!this.user?.warehouse?.useMainBranchVisibility;
+
+    this.applyListFilters(query, {
+      saleStatus,
+      productType,
+      stockStatus,
+      useMainBranchVisibility,
+    });
 
     if (useMainBranchVisibility) {
       query
@@ -254,6 +272,114 @@ export class ProductServiceV2 {
       data,
       total,
     };
+  }
+
+  // Status filters of the admin product list. Stock is the current branch's
+  // on-hand qty summed over its slots.
+  private applyListFilters(
+    query: Knex.QueryBuilder,
+    {
+      saleStatus,
+      productType,
+      stockStatus,
+      useMainBranchVisibility,
+    }: Pick<ProductFilterProps, "saleStatus" | "productType" | "stockStatus"> & {
+      useMainBranchVisibility: boolean;
+    },
+  ) {
+    const trx = this.trx;
+    const warehouseId = this.user.currentWarehouseId!;
+
+    if (saleStatus) {
+      const forSale = saleStatus === "for_sale";
+      if (useMainBranchVisibility) {
+        const branchForSale = trx
+          .table("product_warehouse_visibility as pwv")
+          .select(trx.raw("1"))
+          .whereRaw("pwv.product_id = product.id")
+          .where("pwv.warehouse_id", warehouseId)
+          .where("pwv.is_for_sale", 1);
+        if (forSale) query.whereExists(branchForSale);
+        else query.whereNotExists(branchForSale);
+      } else {
+        query.where("product.is_for_sale", forSale ? 1 : 0);
+      }
+    }
+
+    const compositeVariant = () =>
+      trx
+        .table("product_variant as pv_c")
+        .select(trx.raw("1"))
+        .whereRaw("pv_c.product_id = product.id")
+        .whereNull("pv_c.deleted_at")
+        .where("pv_c.is_composite", 1);
+    const isComposite = (qb: Knex.QueryBuilder) =>
+      qb.where("product.is_composite", 1).orWhereExists(compositeVariant());
+
+    if (productType === "standard") {
+      query
+        .where((qb) =>
+          qb.where("product.is_composite", 0).orWhereNull("product.is_composite"),
+        )
+        .whereNotExists(compositeVariant());
+    } else if (productType) {
+      query.where(isComposite);
+      if (productType === "made_to_order") {
+        query.where((qb) =>
+          qb
+            .where("product.use_production", 0)
+            .orWhereNull("product.use_production"),
+        );
+      } else if (productType === "pre_produced") {
+        query.where("product.use_production", 1);
+      }
+    }
+
+    if (stockStatus === "not_tracked") {
+      query.where((qb) =>
+        qb.where("product.track_stock", 0).orWhereNull("product.track_stock"),
+      );
+    } else if (stockStatus) {
+      // Made-to-order composites hold no stock of their own, so they are
+      // never "low" or "out".
+      query
+        .where("product.track_stock", 1)
+        .whereNot((qb) =>
+          isComposite(qb).where((p) =>
+            p
+              .where("product.use_production", 0)
+              .orWhereNull("product.use_production"),
+          ),
+        );
+
+      const branchStock = (variantColumn: string) =>
+        `COALESCE((SELECT SUM(i.qty) FROM inventory i
+          INNER JOIN warehouse_slot ws ON ws.id = i.slot_id
+          WHERE i.variant_id = ${variantColumn} AND ws.warehouse_id = ?), 0)`;
+
+      if (stockStatus === "out") {
+        query.whereNotExists(
+          trx
+            .table("product_variant as pv_s")
+            .select(trx.raw("1"))
+            .whereRaw("pv_s.product_id = product.id")
+            .whereNull("pv_s.deleted_at")
+            .whereRaw(`${branchStock("pv_s.id")} > 0`, [warehouseId]),
+        );
+      } else {
+        query.whereExists(
+          trx
+            .table("product_variant as pv_l")
+            .select(trx.raw("1"))
+            .whereRaw("pv_l.product_id = product.id")
+            .whereNull("pv_l.deleted_at")
+            .where("pv_l.low_stock_qty", ">", 0)
+            .whereRaw(`${branchStock("pv_l.id")} < pv_l.low_stock_qty`, [
+              warehouseId,
+            ]),
+        );
+      }
+    }
   }
 
   async groupProductByCategory() {

@@ -12,9 +12,15 @@ import { Category } from "@/lib/server-functions/category/create-category";
 interface Props {
   variant?: "default" | "standard";
   className?: string;
+  /** Show the clear button; off when the parent renders its own. */
+  showClear?: boolean;
 }
 
-export function ProductSupplierFilter({ variant, className }: Props) {
+export function ProductSupplierFilter({
+  variant,
+  className,
+  showClear = true,
+}: Props) {
   const { push } = useRouter();
   const pathname = usePathname();
   const search = useSearchParams();
@@ -74,7 +80,7 @@ export function ProductSupplierFilter({ variant, className }: Props) {
           className={className}
         />
       </div>
-      {(supplierId || categoryId) && (
+      {showClear && (supplierId || categoryId) && (
         <Button
           variant="outline"
           size="sm"

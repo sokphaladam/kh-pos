@@ -10,9 +10,51 @@ import { Package, Tag, ImageIcon, Settings } from "lucide-react";
 import SupplierPicker from "@/components/supplier-picker";
 import { ProductCategoryPicker } from "./product-cateory";
 import { ProductMovieForm } from "./product-movie-form";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
+
+const COMPOSITE_MODES = [
+  {
+    useProduction: false,
+    title: "Made to order",
+    description:
+      "Each sale deducts the recipe items from stock (dishes, sets, combos).",
+  },
+  {
+    useProduction: true,
+    title: "Pre-produced",
+    description:
+      "Made ahead in Production; each sale deducts this item's own stock.",
+  },
+];
+
+function SettingSwitch({
+  title,
+  description,
+  checked,
+  onCheckedChange,
+}: {
+  title: string;
+  description: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-start justify-between gap-3 rounded-lg border p-3 hover:bg-muted/40">
+      <div>
+        <div className="text-sm font-medium">{title}</div>
+        <div className="text-xs text-muted-foreground mt-0.5">
+          {description}
+        </div>
+      </div>
+      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+    </label>
+  );
+}
 
 export function ProductForm() {
   const { product, setProduct, isMovie } = useProductForm();
+  const hasRecipe = product.productVariants.some((v) => v.isComposite);
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 p-4 md:p-6">
@@ -91,46 +133,69 @@ export function ProductForm() {
                 className="min-h-[100px] resize-y"
               />
             </div>
-            <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-4 md:gap-6 w-full">
-              <div className="md:col-span-2 flex items-center gap-2">
-                For Sale
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={product.productBasic.isForSale || false}
-                    onChange={(e) =>
-                      setProduct(
-                        produce(product, (draft) => {
-                          draft.productBasic.isForSale = e.target.checked;
-                        })
-                      )
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-7 h-4 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-info rounded-full peer peer-checked:bg-info transition-all"></div>
-                  <div className="absolute left-0.5 top-0.5 bg-card w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
-                </label>
-              </div>
-              <div className="md:col-span-2 flex items-center gap-2">
-                Track Stock
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={product.productBasic.trackStock || false}
-                    onChange={(e) =>
-                      setProduct(
-                        produce(product, (draft) => {
-                          draft.productBasic.trackStock = e.target.checked;
-                        })
-                      )
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-7 h-4 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-info rounded-full peer peer-checked:bg-info transition-all"></div>
-                  <div className="absolute left-0.5 top-0.5 bg-card w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
-                </label>
-              </div>
+            <div className="md:col-span-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <SettingSwitch
+                title="For sale"
+                description="Show on the POS and menu so it can be sold."
+                checked={!!product.productBasic.isForSale}
+                onCheckedChange={(checked) =>
+                  setProduct(
+                    produce(product, (draft) => {
+                      draft.productBasic.isForSale = checked;
+                    })
+                  )
+                }
+              />
+              <SettingSwitch
+                title="Track stock"
+                description="Count on-hand quantity, alert on low stock and suggest purchase orders."
+                checked={!!product.productBasic.trackStock}
+                onCheckedChange={(checked) =>
+                  setProduct(
+                    produce(product, (draft) => {
+                      draft.productBasic.trackStock = checked;
+                    })
+                  )
+                }
+              />
             </div>
+            {hasRecipe && (
+              <div className="md:col-span-2 space-y-2">
+                <div className="text-sm font-medium">Composite stock</div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {COMPOSITE_MODES.map((mode) => {
+                    const active =
+                      !!product.productBasic.useProduction === mode.useProduction;
+                    return (
+                      <button
+                        key={mode.title}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() =>
+                          setProduct(
+                            produce(product, (draft) => {
+                              draft.productBasic.useProduction =
+                                mode.useProduction;
+                            })
+                          )
+                        }
+                        className={cn(
+                          "rounded-lg border p-3 text-left transition-colors",
+                          active
+                            ? "border-primary bg-primary/5 ring-1 ring-primary"
+                            : "border-border hover:bg-muted/50"
+                        )}
+                      >
+                        <div className="text-sm font-medium">{mode.title}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {mode.description}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

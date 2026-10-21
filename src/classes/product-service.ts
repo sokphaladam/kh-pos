@@ -160,7 +160,19 @@ export class ProductService {
       }
 
       if (settingValue.onlyInStock) {
-        query.where("inventory.qty", ">", 0);
+        // Made-to-order composites hold no stock of their own (their recipe
+        // components are cut at sale), so they stay on the menu.
+        query.where((qb) => {
+          qb.where("inventory.qty", ">", 0).orWhere((made) => {
+            made
+              .where("product_variant.is_composite", 1)
+              .where((p) =>
+                p
+                  .where("product.use_production", 0)
+                  .orWhereNull("product.use_production"),
+              );
+          });
+        });
       }
     }
 

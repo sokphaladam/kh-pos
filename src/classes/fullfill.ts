@@ -8,6 +8,7 @@ import { SlotMovementService } from "./slot-movement";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import { generateId } from "@/lib/generate-id";
 import { Formatter } from "@/lib/formatter";
+import { resolveStockLines } from "./stock-recipe";
 
 interface FulfillOption {
   items: {
@@ -72,15 +73,27 @@ export class FullfillService {
           throw new Error("Order item variant id is null");
         }
 
-        const stockTrxIds = await movementService.stockout({
-          slotId: item.slotId,
-          variantId: orderItem.variant_id!,
-          qty: item.qty,
-          createdBy,
-          transactionType: "SALE",
-          fallbackBacklogOrder: true,
-          referenceOrderItemId: orderItem.order_detail_id,
-        });
+        // Made-to-order composites (restaurant dishes, combos) take their
+        // recipe components out of stock, not the composite itself.
+        const stockLines = await resolveStockLines(
+          tx,
+          orderItem.variant_id,
+          item.qty,
+        );
+
+        const stockTrxIds: string[] = [];
+        for (const line of stockLines) {
+          const ids = await movementService.stockout({
+            slotId: item.slotId,
+            variantId: line.variantId,
+            qty: line.qty,
+            createdBy,
+            transactionType: "SALE",
+            fallbackBacklogOrder: true,
+            referenceOrderItemId: orderItem.order_detail_id,
+          });
+          stockTrxIds.push(...ids);
+        }
         if (stockTrxIds.length === 0) continue;
 
         transactionIdsMap.push({

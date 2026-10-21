@@ -158,9 +158,7 @@ export function ProductVariant() {
 
       {/* Variants List */}
       {product.productVariants.length > 0 ? (
-        <div className="border border-border/50 rounded-lg overflow-hidden">
-          <ProductVariantList />
-        </div>
+        <ProductVariantList />
       ) : (
         <div className="text-center py-8 text-muted-foreground border border-dashed border-border/50 rounded-lg">
           <div className="mb-3">📦</div>

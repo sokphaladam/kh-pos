@@ -50,6 +50,9 @@ export function useProductList(filter: ProductFilterProps) {
     ...(filter.supplierId ? { supplierId: filter.supplierId } : {}),
     ...(filter.barcode ? { barcode: filter.barcode } : {}),
     ...(filter.categoryId ? { categoryId: filter.categoryId } : {}),
+    ...(filter.saleStatus ? { saleStatus: filter.saleStatus } : {}),
+    ...(filter.productType ? { productType: filter.productType } : {}),
+    ...(filter.stockStatus ? { stockStatus: filter.stockStatus } : {}),
   });
 
   return useGenericSWR<ResponseType<{ data: ProductV2[]; total: number }>>(

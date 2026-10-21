@@ -8,10 +8,15 @@ import { useProductList } from "@/app/hooks/use-query-product";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuthentication } from "../../../../contexts/authentication-context";
 import { ProductListSkeleton } from "@/components/product-list-skeleton";
-import { ProductSupplierFilter } from "./product-supplier-filter";
+import { ProductListFilters } from "./product-list-filters";
 import { Button } from "@/components/ui/button";
 import { WithLayoutPermissionProps } from "@/hoc/with-layout-permission";
-import { ProductFilterProps } from "@/classes/product-v2";
+import type { ProductFilterProps } from "@/classes/product-v2";
+import {
+  PRODUCT_SALE_STATUS_FILTERS,
+  PRODUCT_STOCK_STATUS_FILTERS,
+  PRODUCT_TYPE_FILTERS,
+} from "@/lib/product-list-filters";
 import { ProductUploadExcel } from "./product-upload-excel";
 
 export function LayoutProduct(props: WithLayoutPermissionProps) {
@@ -24,6 +29,15 @@ export function LayoutProduct(props: WithLayoutPermissionProps) {
   const supplierId = search.get("supplierId");
   const barcode = search.get("barcode");
   const categoryId = search.get("categoryId");
+  const saleStatus = pickOption(
+    search.get("saleStatus"),
+    PRODUCT_SALE_STATUS_FILTERS,
+  );
+  const productType = pickOption(search.get("productType"), PRODUCT_TYPE_FILTERS);
+  const stockStatus = pickOption(
+    search.get("stockStatus"),
+    PRODUCT_STOCK_STATUS_FILTERS,
+  );
 
   const filter = useMemo(() => {
     const param: ProductFilterProps = {
@@ -46,9 +60,21 @@ export function LayoutProduct(props: WithLayoutPermissionProps) {
     if (categoryId) {
       param.categoryId = categoryId;
     }
+    param.saleStatus = saleStatus;
+    param.productType = productType;
+    param.stockStatus = stockStatus;
 
     return param;
-  }, [barcode, offset, searchProduct, supplierId, categoryId]);
+  }, [
+    barcode,
+    offset,
+    searchProduct,
+    supplierId,
+    categoryId,
+    saleStatus,
+    productType,
+    stockStatus,
+  ]);
 
   const { data, isLoading, mutate, isValidating } = useProductList(filter);
 
@@ -62,7 +88,6 @@ export function LayoutProduct(props: WithLayoutPermissionProps) {
   const headerRight = useMemo(() => {
     return (
       <div className="flex flex-row items-center gap-2">
-        <ProductSupplierFilter />
         {currentWarehouse?.isMain && (
           <Button
             size="sm"
@@ -86,6 +111,7 @@ export function LayoutProduct(props: WithLayoutPermissionProps) {
         searchEnabled
         headerRight={headerRight}
       />
+      <ProductListFilters />
       <div>
         {isLoading || isValidating ? (
           <ProductListSkeleton />
@@ -101,4 +127,11 @@ export function LayoutProduct(props: WithLayoutPermissionProps) {
       </div>
     </div>
   );
+}
+
+function pickOption<T extends string>(
+  value: string | null,
+  options: readonly T[],
+): T | undefined {
+  return options.find((o) => o === value);
 }

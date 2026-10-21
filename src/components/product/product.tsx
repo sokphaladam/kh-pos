@@ -29,6 +29,7 @@ import {
   DollarSign,
   Eye,
   EyeOff,
+  Layers,
   Package,
   ShoppingCart,
   Tag,
@@ -98,6 +99,69 @@ function VariantBadgeToggles({
       ))}
     </div>
   );
+}
+
+function StatusChip({
+  tone,
+  icon: Icon,
+  children,
+  hint,
+}: {
+  tone: "success" | "muted" | "info" | "warning" | "destructive";
+  icon?: React.ComponentType<{ className?: string }>;
+  children: React.ReactNode;
+  hint?: string;
+}) {
+  const chip = (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-1.5 py-px text-[10px] font-medium leading-4 whitespace-nowrap",
+        tone === "success" && "border-success/30 bg-success/10 text-success",
+        tone === "muted" && "border-border bg-muted text-muted-foreground",
+        tone === "info" && "border-info/30 bg-info/10 text-info",
+        tone === "warning" && "border-warning/30 bg-warning/10 text-warning",
+        tone === "destructive" &&
+          "border-destructive/30 bg-destructive/10 text-destructive",
+      )}
+    >
+      {Icon && <Icon className="h-3 w-3" />}
+      {children}
+    </span>
+  );
+  if (!hint) return chip;
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>{chip}</TooltipTrigger>
+        <TooltipContent>
+          <p className="max-w-xs text-xs">{hint}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+/** "200 x Pork Belly, 50 x Lettuce" for a composite variant. */
+function recipeText(variant: ProductVariantType) {
+  return (variant.compositeVariants || [])
+    .map((c) => {
+      const title = c.componentVariant?.basicProduct?.title || "Unknown item";
+      const name = c.componentVariant?.name;
+      const label =
+        name && name !== "Default" && name !== "ns"
+          ? `${title} (${name})`
+          : title;
+      return `${c.qty ?? 0} × ${label}`;
+    })
+    .join(", ");
+}
+
+function priceLabel(variants: ProductVariantType[], currency = "") {
+  const prices = variants.map((v) => Number(v.price || 0));
+  if (prices.length === 0) return `${currency}0`;
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  return min === max ? `${currency}${min}` : `${currency}${min} – ${max}`;
 }
 
 export function Product({
@@ -364,11 +428,6 @@ export function Product({
     [product, onCompleted],
   );
 
-  const price =
-    product.productVariants?.length > 0
-      ? product.productVariants[0].price || 0
-      : 0;
-
   const hasLowStock =
     product.trackStock &&
     !!product.productVariants?.find(
@@ -389,6 +448,77 @@ export function Product({
         (acc, variant) => acc + (variant.stock || 0),
         0,
       ) || 0;
+
+  const compositeVariants =
+    product.productVariants?.filter((v) => v.isComposite) || [];
+  const isComposite = product.isComposite || compositeVariants.length > 0;
+  // Made-to-order composites hold no stock: their recipe is cut at sale.
+  const isMadeToOrder = isComposite && !product.useProduction;
+  const isOutOfStock =
+    !!product.trackStock && !isMadeToOrder && !hasConversion && totalStock <= 0;
+
+  const statusBadges = (
+    <div className="flex flex-wrap items-center gap-1 mt-1">
+      {!isSubWarehouseWithGroups &&
+        (product.isForSale ? (
+          <StatusChip tone="success" icon={ShoppingCart}>
+            For sale
+          </StatusChip>
+        ) : (
+          <StatusChip tone="muted" hint="Hidden from the POS and menu">
+            Not for sale
+          </StatusChip>
+        ))}
+      {isComposite && (
+        <StatusChip
+          tone="info"
+          icon={Layers}
+          hint={
+            isMadeToOrder
+              ? "Made to order: each sale deducts the recipe ingredients"
+              : "Pre-produced: made in Production, each sale deducts this item's own stock"
+          }
+        >
+          {isMadeToOrder ? "Made to order" : "Pre-produced"}
+        </StatusChip>
+      )}
+      {!product.trackStock && (
+        <StatusChip tone="muted" hint="Stock is not tracked for this product">
+          Not tracked
+        </StatusChip>
+      )}
+      {isOutOfStock ? (
+        <StatusChip tone="destructive" icon={AlertTriangle}>
+          Out of stock
+        </StatusChip>
+      ) : (
+        hasLowStock && (
+          <StatusChip tone="warning" icon={AlertTriangle}>
+            Low stock
+          </StatusChip>
+        )
+      )}
+    </div>
+  );
+
+  const stockCell = hasConversion ? (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <ArrowLeftRight className="w-3 h-3 text-info cursor-help mx-auto" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Has unit conversion</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  ) : isMadeToOrder ? (
+    <span className="text-xs text-muted-foreground">Recipe</span>
+  ) : !product.trackStock ? (
+    <span className="text-muted-foreground">—</span>
+  ) : (
+    totalStock
+  );
 
   // Mobile Card View
   const renderMobileCard = (
@@ -424,13 +554,8 @@ export function Product({
                   <Package className="w-3 h-3 mr-1" />
                   {product.productVariants?.length || 0} variants
                 </Badge>
-                {hasLowStock && (
-                  <Badge variant="destructive" className="text-xs">
-                    <AlertTriangle className="w-3 h-3 mr-1" />
-                    Low Stock
-                  </Badge>
-                )}
               </div>
+              <div className="mb-2 -mt-1">{statusBadges}</div>
               {isSubWarehouseWithGroups && (
                 <div className="flex items-center gap-1.5">
                   <Switch
@@ -479,7 +604,7 @@ export function Product({
                 hasLowStock ? "text-destructive" : "text-foreground",
               )}
             >
-              {hasConversion ? "N/A" : totalStock}
+              {stockCell}
             </span>
           </div>
 
@@ -487,9 +612,7 @@ export function Product({
             <DollarSign className="w-4 h-4 mr-2 text-success" />
             <span className="text-xs">Price: </span>
             <span className="font-medium ml-1 text-xs text-foreground">
-              {product.productVariants?.every((v) => v.price === price)
-                ? `${currency}${price}`
-                : "Varies"}
+              {priceLabel(product.productVariants || [], currency)}
             </span>
           </div>
 
@@ -588,7 +711,7 @@ export function Product({
           </div>
         </div>
       </TableCell>
-      <TableCell className="font-medium text-sm w-[180px] max-w-[180px]">
+      <TableCell className="font-medium text-sm w-[240px] max-w-[240px]">
         <div className="flex flex-col">
           <TooltipProvider>
             <Tooltip>
@@ -602,12 +725,7 @@ export function Product({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          {hasLowStock && (
-            <Badge variant="destructive" className="w-fit mt-1 text-xs">
-              <AlertTriangle className="w-3 h-3 mr-1" />
-              Low Stock
-            </Badge>
-          )}
+          {statusBadges}
           {isSubWarehouseWithGroups && (
             <TooltipProvider>
               <Tooltip>
@@ -655,32 +773,11 @@ export function Product({
           hasLowStock ? "text-destructive" : "text-foreground",
         )}
       >
-        {hasConversion ? (
-          <div className="flex items-center justify-center gap-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <ArrowLeftRight className="w-3 h-3 text-info cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Has unit conversion</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        ) : (
-          totalStock
-        )}
+        {stockCell}
       </TableCell>
       <TableCell className="text-sm font-medium text-center w-[80px]">
-        <span className="text-success">
-          {product.productVariants?.every((v) => v.price === price) ? (
-            `${currency}${price}`
-          ) : (
-            <Badge variant="outline" className="text-xs">
-              Varies
-            </Badge>
-          )}
+        <span className="text-success whitespace-nowrap">
+          {priceLabel(product.productVariants || [], currency)}
         </span>
       </TableCell>
       <TableCell className="text-sm w-[140px] max-w-[140px]">
@@ -759,6 +856,11 @@ export function Product({
                         <div className="text-xs text-muted-foreground">
                           {variant.optionValues.map((x) => x.value).join(" / ")}
                         </div>
+                        {variant.isComposite && (
+                          <div className="text-[11px] text-info mt-0.5">
+                            Recipe: {recipeText(variant) || "no items"}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <BasicMenuAction
@@ -895,7 +997,7 @@ export function Product({
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-xs font-medium w-[180px] max-w-[180px]">
+                <TableCell className="text-xs font-medium w-[240px] max-w-[240px]">
                   <div className="flex flex-col">
                     <TooltipProvider>
                       <Tooltip>
@@ -988,12 +1090,18 @@ export function Product({
                   </div>
                 </TableCell>
                 <TableCell className="text-xs text-center w-[90px]">
-                  {/* Empty - no variant count display */}
                   {variant.isComposite && (
-                    <Badge variant="outline" className="text-xs">
-                      <Package className="w-3 h-3 mr-1" />
-                      Composite
-                    </Badge>
+                    <StatusChip
+                      tone="info"
+                      icon={Layers}
+                      hint={
+                        variant.compositeVariants?.length
+                          ? `Recipe per 1: ${recipeText(variant)}`
+                          : "Composite without recipe lines"
+                      }
+                    >
+                      {variant.compositeVariants?.length || 0} items
+                    </StatusChip>
                   )}
                 </TableCell>
                 <TableCell
@@ -1005,7 +1113,13 @@ export function Product({
                       : "text-foreground",
                   )}
                 >
-                  {variant.stock}
+                  {variant.isComposite && isMadeToOrder ? (
+                    <span className="text-muted-foreground font-normal">
+                      Recipe
+                    </span>
+                  ) : (
+                    variant.stock
+                  )}
                 </TableCell>
                 <TableCell className="text-xs font-medium text-center text-success w-[80px]">
                   {currency}

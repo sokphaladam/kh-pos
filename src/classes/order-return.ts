@@ -133,15 +133,13 @@ export class OrderReturnService {
 
       const stockMovementService = new SlotMovementService(trx);
 
-      let remainingQuantity = orderReturn.quantity;
+      const returnLines = await planReturnLines(
+        trx,
+        orderReturn,
+        inventoryTransactions
+      );
 
-      for (const transaction of inventoryTransactions) {
-        const quantityToReturn = Math.min(
-          remainingQuantity,
-          Math.abs(transaction.qty)
-        );
-        if (quantityToReturn <= 0) break;
-
+      for (const { transaction, qty: quantityToReturn } of returnLines) {
         const productLotInfo: table_product_lot = await trx
           .table("product_lot")
           .select("*")
@@ -170,13 +168,8 @@ export class OrderReturnService {
 
         await trx.table("return_stock_in_transaction").insert({
           return_id: id,
-          transaction_id: stockintransactionId,
+          transaction_id: stockintransactionId.transactionId,
         });
-
-        remainingQuantity -= quantityToReturn;
-
-        // If no remaining quantity, break
-        if (remainingQuantity <= 0) break;
       }
 
       // Update all order returns to stock_in status
@@ -301,25 +294,16 @@ export class OrderReturnService {
         .orderBy("inventory_transactions.created_at", "desc")
         .where("fulfilment_detail.order_detail_id", orderReturn.order_item_id);
 
-      let remainingQuantity = orderReturn.quantity;
-      const result = [];
-
-      for (const transaction of inventoryTransactions) {
-        const quantityToReturn = Math.min(
-          remainingQuantity,
-          Math.abs(transaction.qty)
-        );
-        if (quantityToReturn <= 0) break;
-        result.push({
-          variantId: transaction.variant_id,
-          slotId: transaction.slot_id,
-          qty: quantityToReturn,
-        });
-
-        remainingQuantity -= quantityToReturn;
-        // If no remaining quantity, break
-        if (remainingQuantity <= 0) break;
-      }
+      const returnLines = await planReturnLines(
+        trx,
+        orderReturn,
+        inventoryTransactions
+      );
+      const result = returnLines.map(({ transaction, qty }) => ({
+        variantId: transaction.variant_id,
+        slotId: transaction.slot_id,
+        qty,
+      }));
 
       // aggregate result by variantId and slotId
       const aggregatedResult: {
@@ -374,4 +358,52 @@ export class OrderReturnService {
       )) as FindProductInSlotResult[];
     });
   }
+}
+
+// How much of each sale transaction a return puts back. A composite line has
+// one set of transactions per recipe component, so each component gets back
+// its share: sold component qty x returned qty / sold qty.
+async function planReturnLines(
+  trx: Knex,
+  orderReturn: table_order_return,
+  inventoryTransactions: table_inventory_transactions[]
+) {
+  const orderItem: table_customer_order_detail | undefined = await trx
+    .table<table_customer_order_detail>("customer_order_detail")
+    .where("order_detail_id", orderReturn.order_item_id)
+    .first();
+  const soldQty = orderItem?.fulfilled_qty || orderItem?.qty || 0;
+
+  const soldByVariant = new Map<string, number>();
+  for (const transaction of inventoryTransactions) {
+    soldByVariant.set(
+      transaction.variant_id,
+      (soldByVariant.get(transaction.variant_id) ?? 0) +
+        Math.abs(transaction.qty)
+    );
+  }
+
+  const remainingByVariant = new Map<string, number>();
+  for (const [variantId, soldComponentQty] of soldByVariant) {
+    remainingByVariant.set(
+      variantId,
+      soldQty > 0
+        ? Math.min(
+            soldComponentQty,
+            Math.round((soldComponentQty * orderReturn.quantity) / soldQty)
+          )
+        : orderReturn.quantity
+    );
+  }
+
+  const lines: { transaction: table_inventory_transactions; qty: number }[] =
+    [];
+  for (const transaction of inventoryTransactions) {
+    const remaining = remainingByVariant.get(transaction.variant_id) ?? 0;
+    const qty = Math.min(remaining, Math.abs(transaction.qty));
+    if (qty <= 0) continue;
+    lines.push({ transaction, qty });
+    remainingByVariant.set(transaction.variant_id, remaining - qty);
+  }
+  return lines;
 }
