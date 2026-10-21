@@ -39,6 +39,7 @@ export type Resource =
   | "expiry"
   | "stock-report"
   | "stock-variance"
+  | "stock-dashboard"
   | "end-of-day"
   | "cinema-showtime-sale"
   | "sale-item-report"
@@ -90,6 +91,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Resource, Action[]> = {
   "guest-number": actions,
   "stock-report": actions,
   "stock-variance": actions,
+  "stock-dashboard": actions,
   "end-of-day": actions,
   "cinema-showtime-sale": actions,
   "sale-item-report": actions,

@@ -1,0 +1,57 @@
+{
+  "title": "Stock Dashboard",
+  "description": "This month against last month: usage, waste and saving / (loss). Review with the kitchen and bar leads and agree 1–3 actions.",
+  "loading": "Loading dashboard",
+  "month": "Month",
+  "vsLast": "vs {month}",
+  "noPrevious": "No data last month",
+  "kpi": {
+    "sales": "Sales",
+    "standard": "Standard usage",
+    "actual": "Actual usage",
+    "saving": "Saving / (loss)",
+    "waste": "Waste",
+    "nonSale": "Staff meals & comps",
+    "costPct": "Actual cost % of sales",
+    "wastePct": "Waste % of consumption",
+    "ofStandard": "{pct} of standard"
+  },
+  "alerts": {
+    "investigate": "{count, plural, =1 {# item to investigate} other {# items to investigate}}",
+    "notCounted": "{count, plural, =1 {# item not counted this month} other {# items not counted this month}}",
+    "open": "Open variance report"
+  },
+  "trend": {
+    "title": "Last 6 months",
+    "standard": "Standard usage",
+    "actual": "Actual usage",
+    "waste": "Waste",
+    "sales": "Sales",
+    "month": "Month"
+  },
+  "category": {
+    "title": "By category",
+    "name": "Category",
+    "standard": "Standard",
+    "actual": "Actual",
+    "saving": "Saving / (loss)",
+    "waste": "Waste",
+    "other": "Other"
+  },
+  "reasons": {
+    "title": "Waste by reason",
+    "reason": "Reason",
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "empty": "No waste recorded"
+  },
+  "top": {
+    "losses": "Top 10 losses",
+    "waste": "Top 10 wasted items",
+    "item": "Item",
+    "value": "Value",
+    "qty": "Qty",
+    "emptyLosses": "No losses from stock counts this month",
+    "emptyWaste": "No waste this month"
+  }
+}

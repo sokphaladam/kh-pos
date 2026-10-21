@@ -382,6 +382,12 @@ export function useMenuItems() {
         url: "/admin/reports/stock-variance",
         subitems: [],
       },
+      {
+        title: t("stockDashboard"),
+        icon: LayoutDashboard,
+        url: "/admin/reports/stock-dashboard",
+        subitems: [],
+      },
       ...(type_pos === "CINEMA"
         ? [
             {

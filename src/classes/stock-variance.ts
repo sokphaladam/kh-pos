@@ -76,6 +76,19 @@ interface MovementRow {
 }
 
 const n = (v: string | number | null | undefined) => Number(v || 0);
+const list = (types: string[]) => types.map((t) => `'${t}'`).join(",");
+// Cost of a movement: its lot cost, else the variant's purchase cost.
+const MOVEMENT_COST = "t.qty * COALESCE(l.cost_per_unit, v.purchased_cost, 0)";
+
+export interface VarianceMonth {
+  /** "YYYY-MM" */
+  month: string;
+  standardValue: number;
+  wasteValue: number;
+  nonSaleValue: number;
+  savingValue: number;
+  actualValue: number;
+}
 
 export class StockVarianceService {
   constructor(
@@ -98,9 +111,7 @@ export class StockVarianceService {
     const db = this.db;
 
     const inPeriod = "t.created_at <= ?";
-    const list = (types: string[]) => types.map((t) => `'${t}'`).join(",");
-    // Cost of a movement: its lot cost, else the variant's purchase cost.
-    const cost = "t.qty * COALESCE(l.cost_per_unit, v.purchased_cost, 0)";
+    const cost = MOVEMENT_COST;
 
     const [items, stockRows, movementRows, countRows] = await Promise.all([
       stockItemsQuery(db, this.user).orderBy([
@@ -300,5 +311,55 @@ export class StockVarianceService {
         statusCount,
       },
     };
+  }
+
+  /**
+   * Branch totals per calendar month (standard usage, waste, non-sale and
+   * count saving/(loss)) in one pass over the ledger, for trends.
+   */
+  async monthlyTotals(from: string, to: string): Promise<VarianceMonth[]> {
+    const db = this.db;
+    const rows: {
+      month: string;
+      standard_value: string | null;
+      waste_value: string | null;
+      non_sale_value: string | null;
+      adjust_value: string | null;
+    }[] = await db
+      .table("inventory_transactions as t")
+      .innerJoin("warehouse_slot as ws", "ws.id", "t.slot_id")
+      .leftJoin("product_lot as l", "l.id", "t.lot_id")
+      .leftJoin("product_variant as v", "v.id", "t.variant_id")
+      .leftJoin("stock_waste_transaction as swt", "swt.transaction_id", "t.id")
+      .leftJoin("stock_waste as sw", "sw.id", "swt.waste_id")
+      .where("ws.warehouse_id", this.user.currentWarehouseId!)
+      .where("t.created_at", ">=", `${from} 00:00:00`)
+      .where("t.created_at", "<=", `${to} 23:59:59`)
+      .groupBy("month")
+      .orderBy("month")
+      .select(
+        db.raw("DATE_FORMAT(t.created_at, '%Y-%m') as month"),
+        db.raw(
+          `-SUM(CASE WHEN t.transaction_type IN (${list(STANDARD_USE)}) THEN ${MOVEMENT_COST} ELSE 0 END) as standard_value`,
+        ),
+        db.raw(
+          `-SUM(CASE WHEN t.transaction_type = 'DAMAGE' AND COALESCE(sw.waste_type, 'WASTE') = 'WASTE' THEN ${MOVEMENT_COST} ELSE 0 END) as waste_value`,
+        ),
+        db.raw(
+          `-SUM(CASE WHEN t.transaction_type = 'DAMAGE' AND sw.waste_type = 'NON_SALE' THEN ${MOVEMENT_COST} ELSE 0 END) as non_sale_value`,
+        ),
+        db.raw(
+          `SUM(CASE WHEN t.transaction_type IN (${list(COUNT_ADJUSTMENT)}) THEN ${MOVEMENT_COST} ELSE 0 END) as adjust_value`,
+        ),
+      );
+
+    return rows.map((r) => ({
+      month: r.month,
+      standardValue: n(r.standard_value),
+      wasteValue: n(r.waste_value),
+      nonSaleValue: n(r.non_sale_value),
+      savingValue: n(r.adjust_value),
+      actualValue: n(r.standard_value) - n(r.adjust_value),
+    }));
   }
 }
