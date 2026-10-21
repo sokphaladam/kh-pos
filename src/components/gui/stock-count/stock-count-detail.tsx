@@ -151,9 +151,11 @@ export function StockCountDetailView() {
                           : item.diffQty}
                     </TableCell>
                     <TableCell className="text-right text-xs text-muted-foreground">
-                      {formatCurrency(item.unitCost, currencyCode, {
-                        maximumFractionDigits: 6,
-                      })}
+                      {item.diffQty === 0
+                        ? "—"
+                        : formatCurrency(item.unitCost, currencyCode, {
+                            maximumFractionDigits: 6,
+                          })}
                     </TableCell>
                     <TableCell
                       className={cn("text-right font-medium whitespace-nowrap", tone)}

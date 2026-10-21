@@ -22,6 +22,7 @@ export const namespaces = [
   "transaction",
   "waste",
   "stockCount",
+  "stockVariance",
   "shift",
   "returnOrder",
   "backlog",

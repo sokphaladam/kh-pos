@@ -18,6 +18,7 @@ import {
   PackageSearch,
   Puzzle,
   Receipt,
+  Scale,
   ShoppingBag,
   ShoppingCart,
   Ticket,
@@ -373,6 +374,12 @@ export function useMenuItems() {
         title: t("stockReport"),
         icon: Warehouse,
         url: "/admin/reports/stock-report",
+        subitems: [],
+      },
+      {
+        title: t("stockVariance"),
+        icon: Scale,
+        url: "/admin/reports/stock-variance",
         subitems: [],
       },
       ...(type_pos === "CINEMA"

@@ -38,6 +38,7 @@ export type Resource =
   | "guest-number"
   | "expiry"
   | "stock-report"
+  | "stock-variance"
   | "end-of-day"
   | "cinema-showtime-sale"
   | "sale-item-report"
@@ -88,6 +89,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Resource, Action[]> = {
   "void-order": actions,
   "guest-number": actions,
   "stock-report": actions,
+  "stock-variance": actions,
   "end-of-day": actions,
   "cinema-showtime-sale": actions,
   "sale-item-report": actions,

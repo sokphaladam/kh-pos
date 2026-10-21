@@ -48,6 +48,7 @@ const segmentToNavKey: Record<string, string> = {
   "guest-number": "guestNumberReport",
   expiry: "expiryReport",
   "stock-report": "stockReport",
+  "stock-variance": "stockVariance",
   "cinema-showtime-sale": "showtimeSaleReport",
   setting: "setting",
   payment: "paymentMethod",
