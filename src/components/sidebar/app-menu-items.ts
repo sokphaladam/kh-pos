@@ -122,6 +122,18 @@ export function useMenuItems() {
           : "/admin/board-member-dashboard",
         subitems: [],
       },
+      {
+        title: t("stockDashboard"),
+        icon: LayoutDashboard,
+        url: "/admin/reports/stock-dashboard",
+        subitems: [],
+      },
+      {
+        title: t("menuAnalysis"),
+        icon: Receipt,
+        url: "/admin/reports/menu-analysis",
+        subitems: [],
+      },
     ],
   });
 
@@ -386,18 +398,6 @@ export function useMenuItems() {
         title: t("stockVariance"),
         icon: Scale,
         url: "/admin/reports/stock-variance",
-        subitems: [],
-      },
-      {
-        title: t("stockDashboard"),
-        icon: LayoutDashboard,
-        url: "/admin/reports/stock-dashboard",
-        subitems: [],
-      },
-      {
-        title: t("menuAnalysis"),
-        icon: Receipt,
-        url: "/admin/reports/menu-analysis",
         subitems: [],
       },
       ...(type_pos === "CINEMA"
