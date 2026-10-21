@@ -43,6 +43,7 @@ const MENU_ROUTES_CONFIG: MenuRoute[] = [
   { path: "/admin/reports/expiry", resource: "expiry" },
   { path: "/admin/reports/stock-variance", resource: "stock-variance" },
   { path: "/admin/reports/stock-dashboard", resource: "stock-dashboard" },
+  { path: "/admin/reports/menu-analysis", resource: "menu-analysis" },
   { path: "/admin/setting", resource: "setting" },
   { path: "/admin/users", resource: "users" },
   { path: "/admin/setting/payment", resource: "payment" },

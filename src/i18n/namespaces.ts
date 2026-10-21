@@ -25,6 +25,7 @@ export const namespaces = [
   "stockVariance",
   "stockDashboard",
   "reorder",
+  "menuAnalysis",
   "shift",
   "returnOrder",
   "backlog",

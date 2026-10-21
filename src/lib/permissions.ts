@@ -41,6 +41,7 @@ export type Resource =
   | "stock-variance"
   | "stock-dashboard"
   | "reorder"
+  | "menu-analysis"
   | "end-of-day"
   | "cinema-showtime-sale"
   | "sale-item-report"
@@ -94,6 +95,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Resource, Action[]> = {
   "stock-variance": actions,
   "stock-dashboard": actions,
   reorder: actions,
+  "menu-analysis": actions,
   "end-of-day": actions,
   "cinema-showtime-sale": actions,
   "sale-item-report": actions,

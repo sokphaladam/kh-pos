@@ -394,6 +394,12 @@ export function useMenuItems() {
         url: "/admin/reports/stock-dashboard",
         subitems: [],
       },
+      {
+        title: t("menuAnalysis"),
+        icon: Receipt,
+        url: "/admin/reports/menu-analysis",
+        subitems: [],
+      },
       ...(type_pos === "CINEMA"
         ? [
             {
