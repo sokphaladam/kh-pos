@@ -199,10 +199,15 @@ export async function getCategoryList({
     }
   }
 
-  const { total } = await raws
+  // Ungrouped distinct count: a grouped COUNT returns one row per category,
+  // and no row at all when nothing matches (e.g. no printer bound yet).
+  const totalRow = await raws
     .clone()
-    .count("* as total")
+    .clear("group")
+    .clear("order")
+    .countDistinct("product_category.id as total")
     .first<{ total: number }>();
+  const total = Number(totalRow?.total ?? 0);
 
   const query = raws
     .clone()
