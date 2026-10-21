@@ -61,6 +61,7 @@ export function createProductVariantByIdLoader(db: Knex, warehouseId?: string) {
           optionValues,
           basicProduct,
           slotStock: variantStock?.slotStock || [],
+          isComposite: !!x.is_composite,
           visible: x.visible ? Boolean(x.visible) : false,
           movie,
         };

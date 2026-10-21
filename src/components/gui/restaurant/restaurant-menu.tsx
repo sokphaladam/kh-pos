@@ -1,4 +1,5 @@
 "use client";
+import { variantStockStatus } from "@/lib/variant-availability";
 import { ProductSearchResult } from "@/app/api/product/search-product/types";
 import { useLazyQuerySearchProduct } from "@/app/hooks/use-query-product";
 import { Button } from "@/components/ui/button";
@@ -430,10 +431,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                         <ProductImageSlideshow
                           images={images}
                           title={item.productTitle || ""}
-                          stockStatus={{
-                            stock: variant?.stock || 0,
-                            isInStock: (variant?.stock || 0) > 0,
-                          }}
+                          stockStatus={variantStockStatus(variant)}
                           {...variantPriceProps(variant, item)}
                         />
                       </Card>
@@ -555,10 +553,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                       <ProductImageSlideshow
                         images={images}
                         title={item.productTitle || ""}
-                        stockStatus={{
-                          stock: variant?.stock || 0,
-                          isInStock: (variant?.stock || 0) > 0,
-                        }}
+                        stockStatus={variantStockStatus(variant)}
                         {...variantPriceProps(variant, item)}
                       />
                     </Card>

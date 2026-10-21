@@ -1,5 +1,6 @@
 "use client";
 
+import { variantStockStatus } from "@/lib/variant-availability";
 import { ProductSearchResult } from "@/app/api/product/search-product/types";
 import { useLazyPublicProductList } from "@/app/hooks/use-query-product";
 import { Button } from "@/components/ui/button";
@@ -394,8 +395,9 @@ export function ProductGrid({
                             },
                           ];
 
-                      const stock = variant?.stock || item.stock || 0;
-                      const isInStock = stock > 0;
+                      const { stock, isInStock } = variantStockStatus(
+                        variant ?? { stock: item.stock },
+                      );
                       const basePrice = variant?.price || item.price || 0;
                       const discountedPrice =
                         variant?.discountedPrice ??
