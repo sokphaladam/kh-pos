@@ -27,6 +27,7 @@ const segmentToNavKey: Record<string, string> = {
   warehouse: "warehouse",
   slot: "slot",
   transaction: "transactions",
+  waste: "wasteLog",
   order: "customerOrder",
   return: "orderReturn",
   backlog: "backLog",

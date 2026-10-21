@@ -21,6 +21,7 @@ import {
   ShoppingCart,
   Ticket,
   Timer,
+  Trash2,
   Users,
   UsersRound,
   Warehouse,
@@ -168,6 +169,12 @@ export function useMenuItems() {
         title: t("transactions"),
         icon: FileClock,
         url: "/admin/transaction",
+        subitems: [],
+      },
+      {
+        title: t("wasteLog"),
+        icon: Trash2,
+        url: "/admin/waste",
         subitems: [],
       },
       {

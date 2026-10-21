@@ -20,6 +20,7 @@ export const namespaces = [
   "replenishment",
   "restaurant",
   "transaction",
+  "waste",
   "shift",
   "returnOrder",
   "backlog",
