@@ -55,6 +55,8 @@ export * from "./tables/table_seat_reservation";
 export * from "./tables/table_setting";
 export * from "./tables/table_shift";
 export * from "./tables/table_showtime";
+export * from "./tables/table_stock_waste";
+export * from "./tables/table_stock_waste_transaction";
 export * from "./tables/table_supplier";
 export * from "./tables/table_supplier_po_addition_cost";
 export * from "./tables/table_supplier_product_prices";

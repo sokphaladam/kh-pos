@@ -25,6 +25,7 @@ export type Resource =
   | "modifier"
   | "production"
   | "transaction"
+  | "waste"
   | "backlog"
   | "expiry"
   | "restaurant"
@@ -75,6 +76,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Resource, Action[]> = {
   modifier: actions,
   production: actions,
   transaction: actions,
+  waste: actions,
   backlog: actions,
   expiry: actions,
   restaurant: actions,

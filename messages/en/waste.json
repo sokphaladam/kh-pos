@@ -1,0 +1,68 @@
+{
+  "title": "Waste Log",
+  "description": "Stock taken out without a sale: waste, staff meals and complimentary items.",
+  "loading": "Loading waste log",
+  "record": "Record waste",
+  "summary": {
+    "waste": "Waste cost",
+    "nonSale": "Staff meals & comps",
+    "entries": "{count, plural, =1 {# entry} other {# entries}}",
+    "topReason": "Top waste reason",
+    "none": "None"
+  },
+  "filters": {
+    "type": "Type",
+    "reason": "Reason",
+    "all": "All",
+    "clear": "Clear filters"
+  },
+  "types": {
+    "WASTE": "Waste",
+    "NON_SALE": "Non-sale"
+  },
+  "reasons": {
+    "SPOILED": "Spoiled / expired",
+    "PREP_TRIM": "Prep / trim loss",
+    "OVERPRODUCTION": "Overproduction / leftover",
+    "COOKING_ERROR": "Burnt / cooking error",
+    "DROPPED": "Dropped / broken",
+    "CUSTOMER_RETURN": "Customer return / complaint",
+    "STORAGE_DAMAGE": "Storage damage (power cut, freezer burn)",
+    "OTHER": "Other",
+    "STAFF_MEAL": "Staff meal",
+    "COMPLIMENTARY": "Complimentary / promotion",
+    "TASTING": "Tasting / training"
+  },
+  "table": {
+    "date": "Date",
+    "item": "Item",
+    "qty": "Qty",
+    "reason": "Reason",
+    "cost": "Cost",
+    "by": "Recorded by",
+    "slot": "Slot"
+  },
+  "empty": {
+    "title": "No waste recorded",
+    "description": "Record spoiled, burnt or dropped items, staff meals and comps here."
+  },
+  "form": {
+    "title": "Record waste",
+    "description": "Takes the stock out and keeps the reason for the waste report.",
+    "item": "Item",
+    "selectItem": "Choose an item",
+    "itemHint": "A set or dish takes out its recipe items.",
+    "slot": "Taken from slot",
+    "qty": "Quantity",
+    "qtyHint": "In the item's stock unit (g, ml, can...)",
+    "reason": "Reason",
+    "wasteGroup": "Waste",
+    "nonSaleGroup": "Non-sale (not counted as waste)",
+    "note": "Note",
+    "notePlaceholder": "What happened / action taken",
+    "save": "Save",
+    "saveAndNew": "Save & add another",
+    "saved": "Waste recorded",
+    "required": "Choose an item, slot, quantity and reason"
+  }
+}

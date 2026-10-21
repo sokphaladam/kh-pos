@@ -29,6 +29,7 @@ const MENU_ROUTES_CONFIG: MenuRoute[] = [
   { path: "/admin/warehouse", resource: "warehouse" },
   { path: "/admin/slot", resource: "slot" },
   { path: "/admin/transaction", resource: "transaction" },
+  { path: "/admin/waste", resource: "waste" },
   { path: "/admin/order", resource: "order" },
   { path: "/admin/a/transfer", resource: "transfer" },
   { path: "/admin/return", resource: "return" },
