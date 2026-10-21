@@ -1,0 +1,54 @@
+{
+  "title": "Reorder",
+  "description": "What to order, from each item's real usage. Reorder point = daily usage × (lead time + safety days); order up to par = daily usage × (lead time + order cycle + safety days).",
+  "loading": "Calculating reorder",
+  "export": "Export order list",
+  "params": {
+    "lookback": "Usage over last (days)",
+    "leadTime": "Lead time (days)",
+    "orderCycle": "Order cycle (days)",
+    "safety": "Safety stock (days)",
+    "apply": "Recalculate"
+  },
+  "summary": {
+    "toOrder": "Items to order",
+    "out": "Out of stock",
+    "value": "Order value"
+  },
+  "filter": {
+    "toOrder": "To order",
+    "all": "All items",
+    "noUsage": "No usage"
+  },
+  "status": {
+    "OUT": "Out of stock",
+    "ORDER": "Order now",
+    "OK": "OK",
+    "NO_USAGE": "No usage"
+  },
+  "table": {
+    "item": "Item",
+    "current": "In stock",
+    "avgDaily": "Use / day",
+    "days": "Days left",
+    "reorderPoint": "Reorder at",
+    "par": "Par",
+    "orderQty": "Order qty",
+    "value": "Value",
+    "status": "Status",
+    "saved": "Saved {low} / {ideal}",
+    "notSaved": "Not set",
+    "noSupplier": "No supplier"
+  },
+  "levels": {
+    "apply": "Save as low / ideal stock ({count})",
+    "applied": "Stock levels saved for {count} items",
+    "hint": "Saves reorder point as low stock and par as ideal stock: low-stock alerts and purchase orders use them.",
+    "mainOnly": "Only the main branch can change stock levels (shared by all branches).",
+    "selectAll": "Select all"
+  },
+  "empty": {
+    "title": "Nothing to order",
+    "description": "Every item with usage has enough stock for the lead time and safety days."
+  }
+}

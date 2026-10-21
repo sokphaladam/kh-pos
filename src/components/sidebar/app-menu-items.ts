@@ -18,6 +18,7 @@ import {
   PackageSearch,
   Puzzle,
   Receipt,
+  Scale,
   ShoppingBag,
   ShoppingCart,
   Ticket,
@@ -119,6 +120,18 @@ export function useMenuItems() {
         url: !actions["board-member-dashboard"]
           ? "/admin/dashboard"
           : "/admin/board-member-dashboard",
+        subitems: [],
+      },
+      {
+        title: t("stockDashboard"),
+        icon: LayoutDashboard,
+        url: "/admin/reports/stock-dashboard",
+        subitems: [],
+      },
+      {
+        title: t("menuAnalysis"),
+        icon: Receipt,
+        url: "/admin/reports/menu-analysis",
         subitems: [],
       },
     ],
@@ -296,6 +309,12 @@ export function useMenuItems() {
         subitems: [],
       },
       {
+        title: t("reorder"),
+        icon: PackageSearch,
+        url: "/admin/reorder",
+        subitems: [],
+      },
+      {
         title: t("replenishment"),
         icon: Grid,
         url: "/admin/replenishment",
@@ -373,6 +392,12 @@ export function useMenuItems() {
         title: t("stockReport"),
         icon: Warehouse,
         url: "/admin/reports/stock-report",
+        subitems: [],
+      },
+      {
+        title: t("stockVariance"),
+        icon: Scale,
+        url: "/admin/reports/stock-variance",
         subitems: [],
       },
       ...(type_pos === "CINEMA"

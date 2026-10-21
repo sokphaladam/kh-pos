@@ -87,36 +87,8 @@ export class StockCountService {
     countDate: string,
     includeExpected: boolean,
   ): Promise<CountSheetItem[]> {
-    const query = this.db
-      .table("product_variant as v")
-      .innerJoin("product as p", "p.id", "v.product_id")
-      .whereNull("v.deleted_at")
-      .whereNull("p.deleted_at")
-      .where("v.available", 1)
-      .where("p.track_stock", 1)
-      .whereNot((qb) =>
-        qb
-          .where("v.is_composite", 1)
-          .where((m) =>
-            m.where("p.use_production", 0).orWhereNull("p.use_production"),
-          ),
-      )
+    const query = stockItemsQuery(this.db, this.user)
       .select(
-        "v.id as variantId",
-        "v.name as variantName",
-        "v.count_frequency as countFrequency",
-        "p.title as productTitle",
-        this.db.raw(
-          `(SELECT MIN(c.title) FROM product_categories pc
-            INNER JOIN product_category c ON c.id = pc.category_id
-            WHERE pc.product_id = p.id) as categoryTitle`,
-        ),
-        this.db.raw(
-          `(SELECT pi.image_url FROM product_images pi
-            WHERE pi.product_id = p.id
-            ORDER BY (pi.product_variant_id = v.id) DESC, pi.image_order ASC
-            LIMIT 1) as image`,
-        ),
         this.db.raw(
           `(SELECT DATE_FORMAT(MAX(sc.count_date), '%Y-%m-%d') FROM stock_count sc
             INNER JOIN stock_count_item sci ON sci.count_id = sc.id
@@ -130,31 +102,6 @@ export class StockCountService {
         ),
       )
       .orderBy([{ column: "p.title" }, { column: "v.sku" }]);
-
-    const isMain = this.user.warehouse?.isMain || false;
-    if (!isMain && this.user.warehouse?.useMainBranchVisibility) {
-      // Only variants in a product group assigned to this branch.
-      query.whereIn(
-        "v.id",
-        this.db
-          .table("group_products")
-          .select("product_variant_id")
-          .whereIn(
-            "group_id",
-            this.db
-              .table("warehouse_groups")
-              .select("group_id")
-              .where("warehouse_id", this.warehouseId),
-          )
-          .whereIn(
-            "group_id",
-            this.db
-              .table("product_groups")
-              .select("group_id")
-              .whereNull("deleted_at"),
-          ),
-      );
-    }
 
     const rows: (Omit<CountSheetItem, "due" | "systemQty"> & {
       systemQty: number | string;
@@ -230,22 +177,21 @@ export class StockCountService {
         const systemQty = lots.reduce((sum, l) => sum + l.qty, 0);
         const diff = item.countedQty - systemQty;
 
-        // Value the difference at the average cost of what is on hand.
+        // The difference is valued at the cost of the lots it is booked
+        // against, the same cost the stock variance report reads from the
+        // movements. A lot without a cost falls back to the purchase cost.
+        const purchaseCost = Number(variant?.purchased_cost || 0);
+        const lotCost = (lot: { cost_per_unit: string | null }) =>
+          lot.cost_per_unit != null ? Number(lot.cost_per_unit) : purchaseCost;
         const onHand = lots.filter((l) => l.qty > 0);
-        const onHandQty = onHand.reduce((sum, l) => sum + l.qty, 0);
-        const unitCost =
-          onHandQty > 0
-            ? onHand.reduce(
-                (sum, l) => sum + l.qty * Number(l.cost_per_unit || 0),
-                0,
-              ) / onHandQty
-            : Number(variant?.purchased_cost || 0);
+        let diffAmount = 0;
 
         if (diff < 0) {
           let remaining = -diff;
           for (const lot of onHand) {
             if (remaining <= 0) break;
             const take = Math.min(remaining, lot.qty);
+            diffAmount -= take * lotCost(lot);
             transactionIds.push(
               await movement.adjustStock({
                 variantId: item.variantId,
@@ -261,6 +207,7 @@ export class StockCountService {
         } else if (diff > 0) {
           const newest = lots[lots.length - 1];
           if (newest) {
+            diffAmount = diff * lotCost(newest);
             transactionIds.push(
               await movement.adjustStock({
                 variantId: item.variantId,
@@ -272,6 +219,7 @@ export class StockCountService {
               }),
             );
           } else {
+            diffAmount = diff * purchaseCost;
             const { transactionId } = await movement.stockin({
               variantId: item.variantId,
               slotId: input.slotId,
@@ -280,7 +228,7 @@ export class StockCountService {
               transactionType: "ADJUSTMENT_IN",
               productLot: {
                 variantId: item.variantId,
-                costPerUnit: unitCost,
+                costPerUnit: purchaseCost,
               },
             });
             transactionIds.push(transactionId);
@@ -294,8 +242,8 @@ export class StockCountService {
           system_qty: systemQty,
           counted_qty: item.countedQty,
           diff_qty: diff,
-          unit_cost: unitCost.toFixed(6),
-          diff_amount: (diff * unitCost).toFixed(6),
+          unit_cost: (diff !== 0 ? diffAmount / diff : 0).toFixed(6),
+          diff_amount: diffAmount.toFixed(6),
         });
       }
 
@@ -448,4 +396,67 @@ export class StockCountService {
         .reduce((sum, i) => sum + i.diffAmount, 0),
     };
   }
+}
+
+/**
+ * Stock items of the user's branch: stock-tracked variants, except
+ * made-to-order composites (their stock lives on the recipe items). Aliases:
+ * product_variant v, product p. Shared by the count sheet and variance report.
+ */
+export function stockItemsQuery(db: Knex, user: UserInfo) {
+  const query = db
+    .table("product_variant as v")
+    .innerJoin("product as p", "p.id", "v.product_id")
+    .whereNull("v.deleted_at")
+    .whereNull("p.deleted_at")
+    .where("v.available", 1)
+    .where("p.track_stock", 1)
+    .whereNot((qb) =>
+      qb
+        .where("v.is_composite", 1)
+        .where((m) =>
+          m.where("p.use_production", 0).orWhereNull("p.use_production"),
+        ),
+    )
+    .select(
+      "v.id as variantId",
+      "v.name as variantName",
+      "v.count_frequency as countFrequency",
+      "v.purchased_cost as purchasedCost",
+      "p.title as productTitle",
+      db.raw(
+        `(SELECT MIN(c.title) FROM product_categories pc
+          INNER JOIN product_category c ON c.id = pc.category_id
+          WHERE pc.product_id = p.id) as categoryTitle`,
+      ),
+      db.raw(
+        `(SELECT pi.image_url FROM product_images pi
+          WHERE pi.product_id = p.id
+          ORDER BY (pi.product_variant_id = v.id) DESC, pi.image_order ASC
+          LIMIT 1) as image`,
+      ),
+    );
+
+  const isMain = user.warehouse?.isMain || false;
+  if (!isMain && user.warehouse?.useMainBranchVisibility) {
+    // Only variants in a product group assigned to this branch.
+    query.whereIn(
+      "v.id",
+      db
+        .table("group_products")
+        .select("product_variant_id")
+        .whereIn(
+          "group_id",
+          db
+            .table("warehouse_groups")
+            .select("group_id")
+            .where("warehouse_id", user.currentWarehouseId!),
+        )
+        .whereIn(
+          "group_id",
+          db.table("product_groups").select("group_id").whereNull("deleted_at"),
+        ),
+    );
+  }
+  return query;
 }

@@ -1,0 +1,52 @@
+{
+  "title": "Menu Analysis",
+  "description": "Cost %, profit per serving and menu engineering for what was sold. Protect Stars, fix Plowhorses, promote Puzzles, review Dogs.",
+  "loading": "Analysing menu",
+  "export": "Export",
+  "category": "Category",
+  "allCategories": "All categories",
+  "target": "Target cost %",
+  "summary": {
+    "revenue": "Sales",
+    "cost": "Cost of sales",
+    "costPct": "Cost %",
+    "margin": "Gross profit",
+    "avgMargin": "Avg profit / serving {value}"
+  },
+  "class": {
+    "STAR": "Stars",
+    "PLOWHORSE": "Plowhorses",
+    "PUZZLE": "Puzzles",
+    "DOG": "Dogs"
+  },
+  "classHint": {
+    "STAR": "Popular and profitable: keep quality and placement.",
+    "PLOWHORSE": "Popular, low profit: review portion, recipe cost or price.",
+    "PUZZLE": "Profitable, sells little: promote, rename or reposition.",
+    "DOG": "Low popularity and profit: rework or remove."
+  },
+  "axis": {
+    "popular": "Popular",
+    "notPopular": "Less popular",
+    "profitable": "High profit",
+    "notProfitable": "Low profit"
+  },
+  "table": {
+    "item": "Item",
+    "qty": "Sold",
+    "mix": "Mix",
+    "price": "Price",
+    "costServing": "Cost",
+    "costPct": "Cost %",
+    "margin": "Profit / serving",
+    "total": "Total profit",
+    "class": "Class",
+    "estimated": "Part of the cost estimated from today's recipe / purchase cost",
+    "aboveTarget": "Above target"
+  },
+  "rules": "Popular = sells at least 70% of a fair share (1 / items sold). High profit = profit per serving at or above the menu average.",
+  "empty": {
+    "title": "No sales in this period",
+    "description": "Pick another period or category."
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "title": "Stock Variance",
+  "description": "Standard usage from sales and recipes against actual usage from stock counts. Follow up items marked Investigate.",
+  "loading": "Calculating variance",
+  "export": "Export",
+  "search": "Search item",
+  "formula": "Actual usage = standard usage − saving / (loss). Saving / (loss) = counted − expected, from stock counts in the period.",
+  "summary": {
+    "standard": "Standard usage",
+    "actual": "Actual usage",
+    "saving": "Saving / (loss)",
+    "ofStandard": "{pct} of standard",
+    "waste": "Waste",
+    "nonSale": "Staff meals & comps"
+  },
+  "status": {
+    "ALL": "All",
+    "INVESTIGATE": "Investigate",
+    "CHECK": "Check",
+    "OK": "OK",
+    "NOT_COUNTED": "Not counted"
+  },
+  "statusHint": {
+    "INVESTIGATE": "Loss or gain above 5% of standard usage",
+    "CHECK": "Between 2% and 5% of standard usage",
+    "OK": "Within 2%, or too small to matter",
+    "NOT_COUNTED": "No stock count in this period, so actual usage is unknown"
+  },
+  "table": {
+    "item": "Item",
+    "opening": "Opening",
+    "received": "Received",
+    "standard": "Standard use",
+    "waste": "Waste",
+    "nonSale": "Non-sale",
+    "actual": "Actual use",
+    "closing": "Closing",
+    "saving": "Saving / (loss)",
+    "pct": "%",
+    "status": "Status",
+    "lastCount": "Counted {date}",
+    "otherOut": "Other out {qty}"
+  },
+  "empty": {
+    "title": "No stock activity",
+    "description": "Nothing was received, sold, wasted or counted in this period."
+  }
+}
