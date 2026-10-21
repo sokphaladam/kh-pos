@@ -7,6 +7,7 @@ import { BasicProductType } from "./basic-product-loader";
 import { CompositeVariant } from "./composite-variant-loader";
 import { LoaderFactory } from "./loader-factory";
 import { MovieInput } from "@/classes/movie";
+import { computeAvailableQty } from "@/lib/variant-availability";
 
 export interface ProductModifierItemType {
   id: string;
@@ -37,6 +38,12 @@ export interface ProductVariantType {
   lowStockQty: number | null;
   idealStockQty: number | null;
   stock: number | null;
+  /**
+   * How many can be sold from stock in this branch: own stock, or for a
+   * made-to-order composite what its recipe components can make. null = not
+   * limited (stock not tracked). See computeAvailableQty.
+   */
+  availableQty?: number | null;
   discountType?: "AMOUNT" | "PERCENTAGE" | null;
   discountValue?: number | null;
   /** Unit price after the variant menu discount, or null when there is none. */
@@ -200,6 +207,19 @@ export function createProductVariantLoader(
           lowStockQty: x.low_stock_qty ? Number(x.low_stock_qty) : null,
           idealStockQty: x.ideal_stock_qty ? Number(x.ideal_stock_qty) : null,
           stock: variantStock?.stock ?? 0,
+          availableQty: computeAvailableQty({
+            stock: variantStock?.stock ?? 0,
+            trackStock: !!basicProduct?.trackStock,
+            madeToOrder: !!x.is_composite && !basicProduct?.useProduction,
+            components: compositeVariants?.map((c) => ({
+              qty: Number(c.qty ?? 0),
+              stock: c.componentVariant?.stock ?? 0,
+              trackStock: !!c.componentVariant?.basicProduct?.trackStock,
+              madeToOrder:
+                !!c.componentVariant?.isComposite &&
+                !c.componentVariant?.basicProduct?.useProduction,
+            })),
+          }),
           discountType,
           discountValue,
           discountedPrice: variantDiscount?.discountedUnitPrice ?? null,

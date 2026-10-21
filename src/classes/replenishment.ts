@@ -24,6 +24,7 @@ import {
   FindProductProps,
 } from "./find-product-in-slot";
 import { SlotMovementService } from "./slot-movement";
+import { resolveStockLines } from "./stock-recipe";
 
 const replenishmentDetailInputSchema = z.object({
   variantId: z.string(),
@@ -481,8 +482,13 @@ export class ReplenishmentService {
 
     // if replenishmentId is provided, find product in replenishment picking list
     if (itemToFind !== undefined && itemToFind?.length > 0) {
+      // A POS sale takes a made-to-order composite's recipe items out of
+      // stock (see FullfillService), so those are what must be on hand.
+      const items = forReplenishment
+        ? itemToFind
+        : await expandSaleItems(this.trx, itemToFind);
       const result = await findProductService.findProduct(
-        itemToFind,
+        items,
         needConversion,
       );
 
@@ -773,4 +779,24 @@ export class ReplenishmentService {
       return true;
     });
   }
+}
+
+async function expandSaleItems(
+  db: Knex,
+  items: FindProductProps[],
+): Promise<FindProductProps[]> {
+  const merged = new Map<string, number>();
+  for (const item of items) {
+    for (const line of await resolveStockLines(
+      db,
+      item.variantId,
+      item.toFindQty,
+    )) {
+      merged.set(line.variantId, (merged.get(line.variantId) ?? 0) + line.qty);
+    }
+  }
+  return Array.from(merged, ([variantId, toFindQty]) => ({
+    variantId,
+    toFindQty,
+  }));
 }

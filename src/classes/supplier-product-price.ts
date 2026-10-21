@@ -174,7 +174,7 @@ export class SupplierProductPriceService {
         data.push({
           supplier_id: item.supplierId,
           product_variant_id: item.productVariantId,
-          price: item.price.toFixed(2),
+          price: item.price.toString(),
           effect_date: item.effectDate,
           created_by: this.user.id,
           created_at: now,
@@ -197,7 +197,7 @@ export class SupplierProductPriceService {
         .update({
           supplier_id: item.supplierId,
           product_variant_id: item.productVariantId,
-          price: item.price.toFixed(2),
+          price: item.price.toString(),
           effect_date: item.effectDate,
           scheduled_price: item.scheduledPrice,
           scheduled_at: item.scheduledAt,

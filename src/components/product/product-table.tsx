@@ -89,7 +89,7 @@ export function ProductsTable({
               <TableHead className="w-[140px] text-xs">
                 <span>Product</span>
               </TableHead>
-              <TableHead className="w-[180px]">Title</TableHead>
+              <TableHead className="w-[240px]">Title</TableHead>
               <TableHead className="text-center text-xs w-[90px]">
                 Variants
               </TableHead>

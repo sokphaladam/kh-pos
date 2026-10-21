@@ -1,68 +1,105 @@
 import { ProductSearchResult } from "@/app/api/product/search-product/types";
 import { BasicMenuAction } from "@/components/basic-menu-action";
 import { useCommonDialog } from "@/components/common-dialog";
+import { Badge } from "@/components/ui/badge";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { MaterialInput } from "@/components/ui/material-input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useAuthentication } from "contexts/authentication-context";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useQueryPrinters } from "@/app/hooks/use-query-printer";
+import { cn } from "@/lib/utils";
+import { computeVariantDiscount } from "@/lib/variant-discount";
+import { useAuthentication } from "contexts/authentication-context";
 import { produce } from "immer";
-import React from "react";
-import { useProductForm } from "../context/product-form-context";
+import { ChevronDown, Eye, EyeOff, Layers } from "lucide-react";
+import React, { useState } from "react";
+import {
+  ProductInputWithCompositeDetails,
+  useProductForm,
+} from "../context/product-form-context";
 import { CompositeCard } from "./composite-card";
 import { DropImage } from "./drop-image";
 
+type Variant = ProductInputWithCompositeDetails["productVariants"][number];
+
+const DISCOUNT_TYPES: { value: Variant["discountType"]; label: string }[] = [
+  { value: null, label: "No discount" },
+  { value: "AMOUNT", label: "Amount" },
+  { value: "PERCENTAGE", label: "% off" },
+];
+const CATEGORY_PRINTER = "category";
+
+const MENU_TAGS: { key: "isPopular" | "isNew" | "isMostOrder"; label: string }[] =
+  [
+    { key: "isPopular", label: "Popular" },
+    { key: "isNew", label: "New" },
+    { key: "isMostOrder", label: "Best seller" },
+  ];
+
+// Variants open by default only while the list is short enough to scan.
+const AUTO_EXPAND_LIMIT = 3;
+
+function numberOrNull(value: string) {
+  return value === "" || isNaN(Number(value)) ? null : Number(value);
+}
+
+function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {title}
+        </h4>
+        {description && (
+          <p className="text-xs text-muted-foreground/80 mt-0.5">
+            {description}
+          </p>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export function ProductVariantList() {
-  const { currency } = useAuthentication();
   const { product, setProduct } = useProductForm();
   const { showDialog } = useCommonDialog();
-  const { printers } = useQueryPrinters();
 
-  const handleToggleComposite = (idx: number, checked: boolean) => {
-    showDialog({
-      title: checked ? "Enable Composite" : "Disable Composite",
-      content: `Are you sure you want to ${
-        checked ? "enable" : "disable"
-      } composite for this variant?`,
-      actions: [
-        {
-          text: "Confirm",
-          onClick: async () => {
-            setProduct(
-              produce(product, (draft) => {
-                (draft.productVariants || [])[idx].isComposite = checked;
-              })
-            );
-          },
-        },
-      ],
-    });
+  const updateVariant = (idx: number, update: (variant: Variant) => void) => {
+    setProduct(
+      produce(product, (draft) => {
+        update(draft.productVariants[idx]);
+      }),
+    );
   };
 
-  const handleToggleVisible = (idx: number, checked: boolean) => {
+  const confirmToggle = (
+    title: string,
+    content: string,
+    onConfirm: () => void,
+  ) => {
     showDialog({
-      title: checked ? "Make Visible" : "Make Hidden",
-      content: `Are you sure you want to ${
-        checked ? "make visible" : "make hidden"
-      } this variant?`,
-      actions: [
-        {
-          text: "Confirm",
-          onClick: async () => {
-            setProduct(
-              produce(product, (draft) => {
-                (draft.productVariants || [])[idx].visible = checked;
-              })
-            );
-          },
-        },
-      ],
+      title,
+      content,
+      actions: [{ text: "Confirm", onClick: async () => onConfirm() }],
     });
   };
 
@@ -71,380 +108,452 @@ export function ProductVariantList() {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="text-xs text-nowrap">Image</TableHead>
-          <TableHead className="text-xs text-nowrap">Variant</TableHead>
-          <TableHead className="text-xs text-nowrap">
-            Price({currency})
-          </TableHead>
-          <TableHead className="text-xs text-nowrap">Discount</TableHead>
-          <TableHead className="text-xs text-nowrap">Barcode</TableHead>
-          <TableHead className="text-xs text-nowrap">Low Stock</TableHead>
-          <TableHead className="text-xs text-nowrap">Ideal Stock</TableHead>
-          <TableHead className="text-xs whitespace-nowrap">
-            Purchase Cost({currency})
-          </TableHead>
-          <TableHead className="text-xs whitespace-nowrap">Composite</TableHead>
-          <TableHead className="text-xs whitespace-nowrap">Visible</TableHead>
-          <TableHead className="text-xs whitespace-nowrap">
-            Menu Tags
-          </TableHead>
-          <TableHead className="text-xs whitespace-nowrap">
-            Kitchen Printer
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {product.productVariants.map((x, idx) => {
-          const showCompositeCard = x.isComposite;
-          return (
-            <React.Fragment key={idx}>
-              <TableRow>
-                <TableCell>
-                  <DropImage variantId={x.id} />
-                </TableCell>
-                <TableCell className="text-xs">{x.name}</TableCell>
-                <TableCell className="text-xs w-[150px]">
-                  <div>
-                    <MaterialInput
-                      placeholder=""
-                      label=""
-                      className="h-[30px]"
-                      type="number"
-                      value={Number(x.price || 0).toString()}
-                      onChange={(e) => {
-                        setProduct(
-                          produce(product, (draft) => {
-                            (draft.productVariants || [])[idx].price = Number(
-                              e.target.value
-                            );
-                          })
-                        );
-                      }}
-                      min={0}
-                      step={0.1}
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs w-[190px]">
-                  <div className="flex items-center gap-1">
-                    <select
-                      className="h-[30px] rounded-md border border-input bg-background px-1 text-xs"
-                      value={x.discountType ?? ""}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        setProduct(
-                          produce(product, (draft) => {
-                            const variant = (draft.productVariants || [])[idx];
-                            variant.discountType =
-                              v === "AMOUNT" || v === "PERCENTAGE" ? v : null;
-                            if (!variant.discountType) {
-                              variant.discountValue = null;
-                            }
-                          })
-                        );
-                      }}
-                    >
-                      <option value="">—</option>
-                      <option value="AMOUNT">{currency}</option>
-                      <option value="PERCENTAGE">%</option>
-                    </select>
-                    <MaterialInput
-                      placeholder="0"
-                      label=""
-                      className="h-[30px] w-[70px]"
-                      type="number"
-                      min={0}
-                      step={x.discountType === "PERCENTAGE" ? 1 : 0.1}
-                      disabled={!x.discountType}
-                      value={
-                        x.discountValue != null
-                          ? x.discountValue.toString()
-                          : ""
-                      }
-                      onChange={(e) => {
-                        setProduct(
-                          produce(product, (draft) => {
-                            (draft.productVariants || [])[idx].discountValue =
-                              e.target.value === "" ||
-                              isNaN(Number(e.target.value))
-                                ? null
-                                : Number(e.target.value);
-                          })
-                        );
-                      }}
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs w-[150px]">
-                  <div>
-                    <MaterialInput
-                      placeholder=""
-                      label=""
-                      className="h-[30px]"
-                      type="text"
-                      value={x.barcode || ""}
-                      onChange={(e) => {
-                        setProduct(
-                          produce(product, (draft) => {
-                            (draft.productVariants || [])[idx].barcode =
-                              e.target.value;
-                          })
-                        );
-                      }}
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs w-[150px]">
-                  <div>
-                    <MaterialInput
-                      className="h-[30px]"
-                      value={x.lowStockQty || ""}
-                      onChange={(e) => {
-                        setProduct(
-                          produce(product, (draft) => {
-                            (draft.productVariants || [])[idx].lowStockQty =
-                              isNaN(Number(e.target.value))
-                                ? null
-                                : Number(e.target.value);
-                          })
-                        );
-                      }}
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs w-[150px]">
-                  <div>
-                    <MaterialInput
-                      className="h-[30px]"
-                      value={x.idealStockQty || ""}
-                      onChange={(e) => {
-                        setProduct(
-                          produce(product, (draft) => {
-                            (draft.productVariants || [])[idx].idealStockQty =
-                              isNaN(Number(e.target.value))
-                                ? null
-                                : Number(e.target.value);
-                          })
-                        );
-                      }}
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs w-[150px]">
-                  <div>
-                    <MaterialInput
-                      className="h-[30px]"
-                      value={Number(x.purchasedCost || 0).toString()}
-                      type="number"
-                      step={1}
-                      onChange={(e) => {
-                        setProduct(
-                          produce(product, (draft) => {
-                            (draft.productVariants || [])[idx].purchasedCost =
-                              isNaN(Number(e.target.value))
-                                ? 0
-                                : Number(e.target.value);
-                          })
-                        );
-                      }}
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs w-[150px]">
-                  {/* Composite toggle */}
-                  <div className="flex items-center gap-2">
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={x.isComposite || false}
-                        onChange={(e) =>
-                          handleToggleComposite(idx, e.target.checked)
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-7 h-4 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-info rounded-full peer peer-checked:bg-info transition-all"></div>
-                      <div className="absolute left-0.5 top-0.5 bg-card w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
-                    </label>
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs w-[150px]">
-                  <div className="flex items-center gap-2">
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={x.visible || false}
-                        onChange={(e) =>
-                          handleToggleVisible(idx, e.target.checked)
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-7 h-4 bg-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-info rounded-full peer peer-checked:bg-info transition-all"></div>
-                      <div className="absolute left-0.5 top-0.5 bg-card w-3 h-3 rounded-full transition-all peer-checked:translate-x-3.5"></div>
-                    </label>
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs w-[180px]">
-                  <div className="flex flex-col gap-1">
-                    <label className="flex items-center gap-1.5 text-xs cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={x.isPopular || false}
-                        onChange={(e) =>
-                          setProduct(
-                            produce(product, (draft) => {
-                              (draft.productVariants || [])[idx].isPopular =
-                                e.target.checked;
-                            })
-                          )
-                        }
-                      />
-                      Popular
-                    </label>
-                    <label className="flex items-center gap-1.5 text-xs cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={x.isNew || false}
-                        onChange={(e) =>
-                          setProduct(
-                            produce(product, (draft) => {
-                              (draft.productVariants || [])[idx].isNew =
-                                e.target.checked;
-                            })
-                          )
-                        }
-                      />
-                      New
-                    </label>
-                    <label className="flex items-center gap-1.5 text-xs cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={x.isMostOrder || false}
-                        onChange={(e) =>
-                          setProduct(
-                            produce(product, (draft) => {
-                              (draft.productVariants || [])[idx].isMostOrder =
-                                e.target.checked;
-                            })
-                          )
-                        }
-                      />
-                      Most Order
-                    </label>
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs w-[180px]">
-                  <select
-                    className="h-[30px] w-full rounded-md border border-input bg-background px-1 text-xs"
-                    value={x.printerId ?? ""}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      setProduct(
-                        produce(product, (draft) => {
-                          (draft.productVariants || [])[idx].printerId =
-                            v || null;
-                        })
-                      );
-                    }}
-                  >
-                    <option value="">Category default</option>
-                    {printers.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} ({p.printerName})
-                      </option>
-                    ))}
-                    {!!x.printerId &&
-                      !printers.some((p) => p.id === x.printerId) && (
-                        <option value={x.printerId}>Unknown printer</option>
-                      )}
-                  </select>
-                </TableCell>
-                <TableCell className="text-right">
-                  <BasicMenuAction
-                    value={x}
-                    onDelete={() => {
-                      setProduct(
-                        produce(product, (draft) => {
-                          draft.productVariants.splice(idx, 1);
-                        })
-                      );
-                    }}
-                  />
-                </TableCell>
-              </TableRow>
-              {showCompositeCard && (
-                <tr>
-                  <td colSpan={13} className="p-0">
-                    <CompositeCard
-                      variant={x.compositeVariants?.map((cv) => ({
-                        id: cv.id || undefined,
-                        variantId: cv.variantId,
-                        image: cv.image,
-                        title: cv.title,
-                        quantity: cv.quantity,
-                      }))}
-                      onAddComponent={(
-                        item: ProductSearchResult,
-                        qty: number
-                      ) => {
-                        setProduct(
-                          produce(product, (draft) => {
-                            const compositeVariants =
-                              (draft.productVariants || [])[idx]
-                                .compositeVariants || [];
-                            const existingIdx = compositeVariants.findIndex(
-                              (cv) => cv.variantId === item.variantId
-                            );
-                            if (existingIdx === -1) {
-                              (draft.productVariants || [])[
-                                idx
-                              ].compositeVariants = [
-                                ...compositeVariants,
-                                {
-                                  variantId: item.variantId,
-                                  quantity: qty,
-                                  image:
-                                    item.images?.find(
-                                      (img) =>
-                                        img.productVariantId === item.variantId
-                                    )?.url || undefined,
-                                  title: item.productTitle || "",
-                                },
-                              ];
-                            } else {
-                              (draft.productVariants || [])[
-                                idx
-                              ].compositeVariants[existingIdx].quantity = qty;
-                            }
-                          })
-                        );
-                      }}
-                      onRemoveComponent={(compIdx) => {
-                        setProduct(
-                          produce(product, (draft) => {
-                            (draft.productVariants || [])[
-                              idx
-                            ].compositeVariants = (draft.productVariants || [])[
-                              idx
-                            ].compositeVariants.filter(
-                              (
-                                _: { variantId: string; quantity: number },
-                                i: number
-                              ) => i !== compIdx
-                            );
-                          })
-                        );
-                      }}
-                    />
-                  </td>
-                </tr>
+    <div className="space-y-3">
+      {product.productVariants.map((variant, idx) => (
+        <VariantCard
+          key={variant.id || idx}
+          variant={variant}
+          defaultOpen={product.productVariants.length <= AUTO_EXPAND_LIMIT}
+          trackStock={!!product.productBasic.trackStock}
+          madeToOrder={!!variant.isComposite && !product.productBasic.useProduction}
+          onChange={(update) => updateVariant(idx, update)}
+          onToggleComposite={(checked) =>
+            confirmToggle(
+              checked ? "Use a recipe" : "Remove recipe",
+              checked
+                ? "This variant will be made from other items. Add its recipe below."
+                : "This variant will no longer use its recipe. Continue?",
+              () => updateVariant(idx, (v) => void (v.isComposite = checked)),
+            )
+          }
+          onToggleVisible={(checked) =>
+            confirmToggle(
+              checked ? "Show variant" : "Hide variant",
+              `Are you sure you want to ${checked ? "show" : "hide"} this variant on the POS and menu?`,
+              () => updateVariant(idx, (v) => void (v.visible = checked)),
+            )
+          }
+          onDelete={() =>
+            setProduct(
+              produce(product, (draft) => {
+                draft.productVariants.splice(idx, 1);
+              }),
+            )
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
+function VariantCard({
+  variant,
+  defaultOpen,
+  trackStock,
+  madeToOrder,
+  onChange,
+  onToggleComposite,
+  onToggleVisible,
+  onDelete,
+}: {
+  variant: Variant;
+  defaultOpen: boolean;
+  trackStock: boolean;
+  madeToOrder: boolean;
+  onChange: (update: (variant: Variant) => void) => void;
+  onToggleComposite: (checked: boolean) => void;
+  onToggleVisible: (checked: boolean) => void;
+  onDelete: () => void;
+}) {
+  const { currency } = useAuthentication();
+  const { printers } = useQueryPrinters();
+  const [open, setOpen] = useState(defaultOpen);
+
+  const displayName =
+    variant.name && variant.name !== "ns" ? variant.name : "Default";
+  const recipeCount = variant.compositeVariants?.length || 0;
+  const stockLevelsEnabled = trackStock && !madeToOrder;
+
+  return (
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className={cn(
+        "rounded-lg border bg-card transition-colors",
+        !variant.visible && "bg-muted/40",
+      )}
+    >
+      {/* Header: identity + quick summary, always visible */}
+      <div className="flex items-center gap-3 p-3">
+        <DropImage variantId={variant.id} />
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="flex flex-1 min-w-0 items-center gap-3 text-left"
+          >
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="truncate text-sm font-semibold">
+                  {displayName}
+                </span>
+                {variant.isDefault && (
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                    Default
+                  </Badge>
+                )}
+              </div>
+              <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                <span className="font-medium text-success">
+                  {currency}
+                  {Number(variant.price || 0)}
+                </span>
+                {variant.barcode && <span>#{variant.barcode}</span>}
+                {variant.isComposite && (
+                  <span className="inline-flex items-center gap-1 text-info">
+                    <Layers className="h-3 w-3" />
+                    Recipe · {recipeCount} item{recipeCount === 1 ? "" : "s"}
+                  </span>
+                )}
+                {!variant.visible && (
+                  <span className="inline-flex items-center gap-1">
+                    <EyeOff className="h-3 w-3" />
+                    Hidden
+                  </span>
+                )}
+              </div>
+            </div>
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                open && "rotate-180",
               )}
-            </React.Fragment>
-          );
-        })}
-      </TableBody>
-    </Table>
+            />
+          </button>
+        </CollapsibleTrigger>
+        <BasicMenuAction value={variant} onDelete={onDelete} />
+      </div>
+
+      <CollapsibleContent>
+        <div className="space-y-6 border-t px-4 py-4">
+          <Section title="Pricing">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <MaterialInput
+                label={`Selling price (${currency})`}
+                type="number"
+                min={0}
+                step={0.1}
+                className="h-9"
+                value={Number(variant.price || 0).toString()}
+                onChange={(e) =>
+                  onChange((v) => void (v.price = Number(e.target.value)))
+                }
+              />
+              <MaterialInput
+                label={`Purchase cost (${currency})`}
+                type="number"
+                min={0}
+                step="any"
+                className="h-9"
+                value={Number(variant.purchasedCost || 0).toString()}
+                onChange={(e) =>
+                  onChange(
+                    (v) => void (v.purchasedCost = numberOrNull(e.target.value) ?? 0),
+                  )
+                }
+              />
+              <MaterialInput
+                label="Barcode"
+                className="h-9"
+                value={variant.barcode || ""}
+                onChange={(e) =>
+                  onChange((v) => void (v.barcode = e.target.value))
+                }
+              />
+            </div>
+            <DiscountField
+              variant={variant}
+              currency={currency || "$"}
+              onChange={onChange}
+            />
+          </Section>
+
+          <Section
+            title="Stock levels"
+            description={
+              madeToOrder
+                ? "Made to order: stock is kept on the recipe items, so set their levels instead."
+                : trackStock
+                  ? "Used for low-stock alerts and purchase order suggestions."
+                  : "Turn on Track stock above to use stock levels."
+            }
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <MaterialInput
+                label="Low stock alert at"
+                type="number"
+                min={0}
+                className="h-9"
+                disabled={!stockLevelsEnabled}
+                value={variant.lowStockQty ?? ""}
+                onChange={(e) =>
+                  onChange(
+                    (v) => void (v.lowStockQty = numberOrNull(e.target.value)),
+                  )
+                }
+              />
+              <MaterialInput
+                label="Ideal stock"
+                type="number"
+                min={0}
+                className="h-9"
+                disabled={!stockLevelsEnabled}
+                value={variant.idealStockQty ?? ""}
+                onChange={(e) =>
+                  onChange(
+                    (v) => void (v.idealStockQty = numberOrNull(e.target.value)),
+                  )
+                }
+              />
+            </div>
+          </Section>
+
+          <Section title="Menu & kitchen">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <span className="text-xs text-muted-foreground">Menu tags</span>
+                <div className="flex flex-wrap gap-2">
+                  {MENU_TAGS.map((tag) => {
+                    const active = !!variant[tag.key];
+                    return (
+                      <button
+                        key={tag.key}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() =>
+                          onChange((v) => void (v[tag.key] = !active))
+                        }
+                        className={cn(
+                          "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                          active
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border text-muted-foreground hover:bg-muted",
+                        )}
+                      >
+                        {tag.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs text-muted-foreground">
+                  Kitchen printer
+                </span>
+                <Select
+                  value={variant.printerId ?? CATEGORY_PRINTER}
+                  onValueChange={(value) =>
+                    onChange(
+                      (v) =>
+                        void (v.printerId =
+                          value === CATEGORY_PRINTER ? null : value),
+                    )
+                  }
+                >
+                  <SelectTrigger className="h-9 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={CATEGORY_PRINTER} className="text-xs">
+                      Category default
+                    </SelectItem>
+                    {printers.map((p) => (
+                      <SelectItem key={p.id} value={p.id} className="text-xs">
+                        {p.name} ({p.printerName})
+                      </SelectItem>
+                    ))}
+                    {!!variant.printerId &&
+                      !printers.some((p) => p.id === variant.printerId) && (
+                        <SelectItem
+                          value={variant.printerId}
+                          className="text-xs"
+                        >
+                          Unknown printer
+                        </SelectItem>
+                      )}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
+              <Switch
+                checked={!!variant.visible}
+                onCheckedChange={onToggleVisible}
+              />
+              <span className="inline-flex items-center gap-1">
+                {variant.visible ? (
+                  <Eye className="h-3.5 w-3.5" />
+                ) : (
+                  <EyeOff className="h-3.5 w-3.5" />
+                )}
+                Visible on POS and menu
+              </span>
+            </label>
+          </Section>
+
+          <Section
+            title="Recipe (composite)"
+            description="Use when this variant is made from other stock items, e.g. a set or a dish. Quantities are per 1 sold, in each item's stock unit."
+          >
+            <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
+              <Switch
+                checked={!!variant.isComposite}
+                onCheckedChange={onToggleComposite}
+              />
+              Made from other items
+            </label>
+            {variant.isComposite && (
+              <CompositeCard
+                variant={variant.compositeVariants?.map((cv) => ({
+                  id: cv.id || undefined,
+                  variantId: cv.variantId,
+                  image: cv.image,
+                  title: cv.title,
+                  quantity: cv.quantity,
+                }))}
+                onAddComponent={(item: ProductSearchResult, qty: number) =>
+                  onChange((v) => {
+                    const components = v.compositeVariants || [];
+                    const existing = components.find(
+                      (cv) => cv.variantId === item.variantId,
+                    );
+                    if (existing) {
+                      existing.quantity = qty;
+                      return;
+                    }
+                    v.compositeVariants = [
+                      ...components,
+                      {
+                        variantId: item.variantId,
+                        quantity: qty,
+                        image:
+                          item.images?.find(
+                            (img) => img.productVariantId === item.variantId,
+                          )?.url || undefined,
+                        title: item.productTitle || "",
+                      },
+                    ];
+                  })
+                }
+                onRemoveComponent={(compIdx) =>
+                  onChange(
+                    (v) =>
+                      void (v.compositeVariants = v.compositeVariants.filter(
+                        (_, i) => i !== compIdx,
+                      )),
+                  )
+                }
+              />
+            )}
+          </Section>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+function DiscountField({
+  variant,
+  currency,
+  onChange,
+}: {
+  variant: Variant;
+  currency: string;
+  onChange: (update: (variant: Variant) => void) => void;
+}) {
+  const price = Number(variant.price || 0);
+  // Same function the POS and order engine use, so the preview matches the till.
+  const discounted = computeVariantDiscount(
+    price,
+    variant.discountType,
+    variant.discountValue,
+  );
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs text-foreground/80">Menu discount</span>
+      <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
+        <div
+          role="radiogroup"
+          aria-label="Discount type"
+          className="flex h-9 items-center rounded-md border bg-muted/40 p-0.5"
+        >
+          {DISCOUNT_TYPES.map((type) => {
+            const active = (variant.discountType ?? null) === type.value;
+            return (
+              <button
+                key={type.label}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                onClick={() =>
+                  onChange((v) => {
+                    v.discountType = type.value;
+                    if (!type.value) v.discountValue = null;
+                  })
+                }
+                className={cn(
+                  "h-full rounded px-3 text-xs font-medium transition-colors",
+                  active
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {type.value === "AMOUNT" ? `${currency} off` : type.label}
+              </button>
+            );
+          })}
+        </div>
+        {variant.discountType && (
+          <div className="w-[140px]">
+            <MaterialInput
+              label={
+                variant.discountType === "PERCENTAGE"
+                  ? "Discount (%)"
+                  : `Discount (${currency})`
+              }
+              type="number"
+              min={0}
+              step={variant.discountType === "PERCENTAGE" ? 1 : 0.1}
+              className="h-9"
+              value={variant.discountValue?.toString() ?? ""}
+              onChange={(e) =>
+                onChange(
+                  (v) => void (v.discountValue = numberOrNull(e.target.value)),
+                )
+              }
+            />
+          </div>
+        )}
+        {variant.discountType && (
+          <div className="pb-2 text-xs text-muted-foreground">
+            Price after discount:{" "}
+            {discounted ? (
+              <>
+                <span className="line-through">
+                  {currency}
+                  {price}
+                </span>{" "}
+                <span className="font-semibold text-success">
+                  {currency}
+                  {discounted.discountedUnitPrice}
+                </span>
+              </>
+            ) : (
+              <span>enter a value</span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

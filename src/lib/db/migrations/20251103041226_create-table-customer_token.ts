@@ -1,6 +1,19 @@
 import type { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
+  // 20251024032428_add-token-to-customer already created a first version of
+  // this table (no id / device_id), so a fresh database failed here with
+  // "table already exists". Replace that version; keep its rows aside if any.
+  if (await knex.schema.hasTable("customer_token")) {
+    if (await knex.schema.hasColumn("customer_token", "device_id")) return;
+    const [{ n }] = await knex("customer_token").count({ n: "*" });
+    if (Number(n) > 0) {
+      await knex.schema.renameTable("customer_token", "customer_token_legacy");
+    } else {
+      await knex.schema.dropTable("customer_token");
+    }
+  }
+
   await knex.schema.createTable("customer_token", (table) => {
     table.increments("id").primary();
     table.string("customer_id").notNullable();

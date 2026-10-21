@@ -1,4 +1,5 @@
 "use client";
+import { formatCurrency } from "@/lib/currency";
 import { useDeleteSupplierProductPrice } from "@/app/hooks/use-query-supplier-product-price";
 import { SupplierProductPrice } from "@/classes/supplier-product-price";
 import { BasicMenuAction } from "@/components/basic-menu-action";
@@ -29,7 +30,7 @@ interface Props {
 }
 
 export function SupplierProductPriceList(props: Props) {
-  const { currency } = useAuthentication();
+  const { currency, currencyCode } = useAuthentication();
   const { showDialog } = useCommonDialog();
   const { trigger, isMutating: isDeleteLoading } =
     useDeleteSupplierProductPrice();
@@ -121,8 +122,9 @@ export function SupplierProductPriceList(props: Props) {
                   </TableCell>
                   <TableCell className="text-nowrap">
                     <Badge variant={"secondary"} className="font-bold">
-                      {currency}
-                      {Number(row.price).toFixed(2)}
+                      {formatCurrency(row.price, currencyCode, {
+                        maximumFractionDigits: 6,
+                      })}
                     </Badge>
                   </TableCell>
                   <TableCell>

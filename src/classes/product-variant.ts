@@ -290,20 +290,20 @@ async function updateCompositeVariants(
     }
     const oldCompositeVariants = data.filter((v) => v.id);
 
-    // mark variants that are not in the data as deleted
-    if (oldCompositeVariants.length > 0) {
-      await trx
-        .table<table_variant_composite>("variant_composite")
-        .update({
-          deleted_at: now,
-          deleted_by: user.id,
-        })
-        .where({ variant_composite_id: compositeId })
-        .whereNotIn(
-          "id",
-          oldCompositeVariants.map((v) => v.id!)
-        );
-    }
+    // mark variants that are not in the data as deleted (also when every
+    // component was replaced, otherwise the old recipe lines stay active)
+    await trx
+      .table<table_variant_composite>("variant_composite")
+      .update({
+        deleted_at: now,
+        deleted_by: user.id,
+      })
+      .where({ variant_composite_id: compositeId })
+      .whereNull("deleted_at")
+      .whereNotIn(
+        "id",
+        oldCompositeVariants.map((v) => v.id!)
+      );
 
     // update old composite variants
     for (const variant of oldCompositeVariants) {
