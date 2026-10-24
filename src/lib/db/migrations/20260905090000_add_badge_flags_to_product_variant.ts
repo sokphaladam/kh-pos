@@ -7,6 +7,7 @@ export async function up(knex: Knex): Promise<void> {
     table.boolean("is_popular").notNullable().defaultTo(false);
     table.boolean("is_new").notNullable().defaultTo(false);
     table.boolean("is_most_order").notNullable().defaultTo(false);
+    table.boolean("is_not_available").notNullable().defaultTo(false);
   });
 }
 
@@ -15,5 +16,6 @@ export async function down(knex: Knex): Promise<void> {
     table.dropColumn("is_popular");
     table.dropColumn("is_new");
     table.dropColumn("is_most_order");
+    table.dropColumn("is_not_available");
   });
 }

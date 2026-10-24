@@ -2,6 +2,7 @@ import type { VariantBadge } from "@/lib/variant-badges";
 import { cn } from "@/lib/utils";
 import {
   BadgePercent,
+  Ban,
   Flame,
   Sparkles,
   Trophy,
@@ -12,6 +13,7 @@ const BADGE_ICON: Record<VariantBadge["key"], LucideIcon> = {
   popular: Flame,
   new: Sparkles,
   mostOrder: Trophy,
+  notAvailable: Ban,
 };
 
 /** Shared pill style for every badge on a product / promotion card. */

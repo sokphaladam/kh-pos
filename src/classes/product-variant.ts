@@ -47,6 +47,7 @@ const inputProductVariantSchema = z
     isPopular: z.boolean().optional().default(false),
     isNew: z.boolean().optional().default(false),
     isMostOrder: z.boolean().optional().default(false),
+    isNotAvailable: z.boolean().optional().default(false),
     // Kitchen printer for the current branch. null clears it (falls back to
     // the category printer); undefined leaves the binding untouched.
     printerId: z.string().nullable().optional(),
@@ -191,6 +192,7 @@ export class ProductVariantService {
           is_popular: variant.isPopular ? 1 : 0,
           is_new: variant.isNew ? 1 : 0,
           is_most_order: variant.isMostOrder ? 1 : 0,
+          is_not_available: variant.isNotAvailable ? 1 : 0,
           count_frequency: variant.countFrequency ?? null,
         });
 
@@ -245,6 +247,7 @@ export class ProductVariantService {
         is_popular: variant.isPopular ? 1 : 0,
         is_new: variant.isNew ? 1 : 0,
         is_most_order: variant.isMostOrder ? 1 : 0,
+        is_not_available: variant.isNotAvailable ? 1 : 0,
         count_frequency: variant.countFrequency ?? null,
       });
 

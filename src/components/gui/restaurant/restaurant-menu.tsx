@@ -173,6 +173,8 @@ function variantPriceProps(variant?: ProductVariantType, item?: ProductSearchRes
       isPopular: variant?.isPopular ?? item?.isPopular,
       isNew: variant?.isNew ?? item?.isNew,
       isMostOrder: variant?.isMostOrder ?? item?.isMostOrder,
+      isNotAvailable:
+        variant?.isNotAvailable ?? item?.isNotAvailable,
     }),
   };
 }
@@ -301,6 +303,7 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
       event: React.MouseEvent<HTMLDivElement>,
     ) => {
       if (!props.allowCreate) return;
+      if (variant?.isNotAvailable ?? item.isNotAvailable) return;
       if (!loading && !isRequest) {
         // Trigger flying animation
         const clickedElement = event.currentTarget;
@@ -415,6 +418,8 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                           props.allowCreate
                             ? ""
                             : "cursor-not-allowed opacity-50",
+                          (variant?.isNotAvailable ?? item.isNotAvailable) &&
+                            "cursor-not-allowed opacity-50 grayscale",
                         )}
                         onClick={(event) => handleClick(variant, item, event)}
                       >
@@ -537,6 +542,8 @@ export function RestaurantMenu(props: WithLayoutPermissionProps) {
                         props.allowCreate
                           ? ""
                           : "cursor-not-allowed opacity-50",
+                        (variant?.isNotAvailable ?? item.isNotAvailable) &&
+                          "cursor-not-allowed opacity-50 grayscale",
                       )}
                       onClick={(event) => handleClick(variant, item, event)}
                     >

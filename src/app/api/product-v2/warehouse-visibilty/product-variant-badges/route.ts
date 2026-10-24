@@ -10,10 +10,11 @@ export const PUT = withAuthApi<
     isPopular?: boolean | null;
     isNew?: boolean | null;
     isMostOrder?: boolean | null;
+    isNotAvailable?: boolean | null;
   },
   ResponseType<unknown>
 >(async ({ db, body, userAuth }) => {
-  const { productVariantId, isPopular, isNew, isMostOrder } = body || {};
+  const { productVariantId, isPopular, isNew, isMostOrder, isNotAvailable } = body || {};
 
   const productWarehouseVisibilityService =
     new ProductWarehouseVisibilityService(db);
@@ -21,7 +22,7 @@ export const PUT = withAuthApi<
   await productWarehouseVisibilityService.setBadgesProductWarehouseVisibility(
     productVariantId || "",
     userAuth.admin?.currentWarehouseId || "",
-    { isPopular, isNew, isMostOrder },
+    { isPopular, isNew, isMostOrder, isNotAvailable },
   );
 
   return NextResponse.json(
@@ -32,6 +33,7 @@ export const PUT = withAuthApi<
         isPopular,
         isNew,
         isMostOrder,
+        isNotAvailable,
         warehouseId: userAuth.admin?.currentWarehouseId || "",
       },
     },

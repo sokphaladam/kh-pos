@@ -49,6 +49,7 @@ export interface ProductSearchResult {
   isPopular?: boolean;
   isNew?: boolean;
   isMostOrder?: boolean;
+  isNotAvailable?: boolean;
 }
 
 export const productSearchFilterSchema = z.object({

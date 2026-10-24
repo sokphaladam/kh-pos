@@ -62,6 +62,7 @@ export interface ProductVariantType {
   isPopular?: boolean;
   isNew?: boolean;
   isMostOrder?: boolean;
+  isNotAvailable?: boolean;
   /** Stock count schedule; null = monthly. */
   countFrequency?: CountFrequency | null;
   /** Kitchen printer bound to this variant in the branch; null = category's printer. */
@@ -138,6 +139,7 @@ export function createProductVariantLoader(
       "is_popular",
       "is_new",
       "is_most_order",
+      "is_not_available",
     );
 
     const variantPrinters: { variant_id: string; printer_id: string }[] =
@@ -179,7 +181,9 @@ export function createProductVariantLoader(
             x.id ? variantStockLoader.load(x.id) : null,
             x.id ? movieLoader.load(x.id) : null,
             basicProductLoader.load(x.product_id),
-            x.is_composite ? compositeVariantLoader.load(x.id ?? "") : undefined,
+            x.is_composite
+              ? compositeVariantLoader.load(x.id ?? "")
+              : undefined,
           ]);
 
         const optionValues = variantValue
@@ -249,6 +253,10 @@ export function createProductVariantLoader(
           printerId:
             variantPrinters.find((p) => p.variant_id === x.id)?.printer_id ??
             null,
+          isNotAvailable: resolveBadge(
+            branchVisibility?.is_not_available,
+            x.is_not_available,
+          ),
         };
 
         productVariantMap[x.product_id] = productVariantMap[x.product_id] || [];

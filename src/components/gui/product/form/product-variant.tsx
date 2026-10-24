@@ -87,6 +87,7 @@ export function ProductVariant() {
             isPopular: false,
             isNew: false,
             isMostOrder: false,
+            isNotAvailable: false,
             ...variant,
           }));
         }),

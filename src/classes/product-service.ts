@@ -118,8 +118,8 @@ export class ProductService {
     const query = searchQuery
       .select("product_variant.*")
       .select("product.title")
-      .select("inventory.slot_id")
-      .select("product_categories.category_id");
+      .select(this.trx.raw("min(inventory.slot_id) as slot_id"))
+      .select(this.trx.raw("min(product_categories.category_id) as category_id"));
 
     if (useMainBranchVisibility) {
       query.leftJoin(
@@ -218,18 +218,20 @@ export class ProductService {
     // floating to the top of that category, since it's the only one shown.
     // A sub-warehouse's own badge override (product_warehouse_visibility)
     // wins over the main warehouse's flag when one is set.
+    // Aggregates keep the ORDER BY valid under only_full_group_by (the query
+    // groups by variant id).
     if (useMainBranchVisibility) {
       searchQuery.orderByRaw(
-        "(coalesce(product_warehouse_visibility.is_popular, product_variant.is_popular, 0) + " +
-          "coalesce(product_warehouse_visibility.is_new, product_variant.is_new, 0) + " +
-          "coalesce(product_warehouse_visibility.is_most_order, product_variant.is_most_order, 0)) desc, " +
-          "product_categories.category_id asc, " +
+        "(max(coalesce(product_warehouse_visibility.is_popular, product_variant.is_popular, 0)) + " +
+          "max(coalesce(product_warehouse_visibility.is_new, product_variant.is_new, 0)) + " +
+          "max(coalesce(product_warehouse_visibility.is_most_order, product_variant.is_most_order, 0))) desc, " +
+          "min(product_categories.category_id) asc, " +
           "product.title asc",
       );
     } else {
       searchQuery.orderByRaw(
         "(coalesce(product_variant.is_popular, 0) + coalesce(product_variant.is_new, 0) + coalesce(product_variant.is_most_order, 0)) desc, " +
-          "product_categories.category_id asc, " +
+          "min(product_categories.category_id) asc, " +
           "product.title asc",
       );
     }
@@ -289,6 +291,7 @@ export class ProductService {
           isPopular: Boolean(r.is_popular),
           isNew: Boolean(r.is_new),
           isMostOrder: Boolean(r.is_most_order),
+          isNotAvailable: Boolean(r.is_not_available),
         };
       }),
     );

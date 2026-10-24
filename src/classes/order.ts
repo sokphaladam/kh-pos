@@ -402,10 +402,53 @@ export class OrderService {
     };
   }
 
+  /**
+   * Throws when any variant is flagged "not available" for the branch (the
+   * branch override wins, else the main flag). Such variants stay visible on
+   * the menu but can't be ordered.
+   */
+  private async assertVariantsAvailable(
+    trx: Knex | Knex.Transaction,
+    warehouseId: string | null | undefined,
+    variantIds: string[],
+  ) {
+    const ids = [...new Set(variantIds.filter(Boolean))];
+    if (ids.length === 0) return;
+
+    const rows = await trx
+      .table("product_variant")
+      .leftJoin("product_warehouse_visibility", function () {
+        this.on(
+          "product_warehouse_visibility.product_variant_id",
+          "product_variant.id",
+        ).andOn(
+          "product_warehouse_visibility.warehouse_id",
+          trx.raw("?", [warehouseId ?? ""]),
+        );
+      })
+      .whereIn("product_variant.id", ids)
+      .whereRaw(
+        "coalesce(product_warehouse_visibility.is_not_available, product_variant.is_not_available, 0) = 1",
+      )
+      .select("product_variant.name");
+
+    if (rows.length > 0) {
+      throw new Error(
+        `Not available: ${rows.map((r) => r.name).join(", ")}`,
+      );
+    }
+  }
+
   async create(option: CreateOrderOption) {
     return await this.tx.transaction(async (tx) => {
       const now = Formatter.getNowDateTime();
       const orderId = generateId();
+
+      await this.assertVariantsAvailable(
+        tx,
+        option.warehouseId,
+        option.items.map((i) => i.variantId),
+      );
 
       if (!!option.tableNumber) {
         const checkHaveOrderOnTable = await tx
@@ -758,6 +801,14 @@ export class OrderService {
     return await this.tx.transaction(async (trx) => {
       const now = Formatter.getNowDateTime();
       const totalPrice = parseFloat(data.price) * data.qty;
+
+      if (type === "NORMAL") {
+        await this.assertVariantsAvailable(
+          trx,
+          user.currentWarehouseId,
+          [data.variantId],
+        );
+      }
 
       const setting = await trx
         .table("setting")

@@ -496,10 +496,13 @@ export function ProductPublicLayout({
                     variant?.discountType ?? item.discountType,
                     variant?.discountValue ?? item.discountValue,
                   ) ?? undefined;
+                const unavailable = !!(variant?.isNotAvailable ?? item.isNotAvailable);
                 const badges = getVariantBadges({
                   isPopular: variant?.isPopular ?? item.isPopular,
                   isNew: variant?.isNew ?? item.isNew,
                   isMostOrder: variant?.isMostOrder ?? item.isMostOrder,
+                  isNotAvailable:
+                    variant?.isNotAvailable ?? item.isNotAvailable,
                 });
 
                 return (
@@ -510,8 +513,10 @@ export function ProductPublicLayout({
                       loading
                         ? "cursor-not-allowed opacity-60"
                         : "cursor-pointer hover:-translate-y-1 active:scale-95",
+                      unavailable &&
+                        "cursor-not-allowed opacity-50 grayscale",
                     )}
-                    onClick={() => !loading && handleProductClick(item)}
+                    onClick={() => !loading && !unavailable && handleProductClick(item)}
                   >
                     {/* Product Image */}
                     <ProductImageDisplay

@@ -43,11 +43,12 @@ const DISCOUNT_TYPES: { value: Variant["discountType"]; label: string }[] = [
 ];
 const CATEGORY_PRINTER = "category";
 
-const MENU_TAGS: { key: "isPopular" | "isNew" | "isMostOrder"; label: string }[] =
+const MENU_TAGS: { key: "isPopular" | "isNew" | "isMostOrder" | "isNotAvailable"; label: string }[] =
   [
     { key: "isPopular", label: "Popular" },
     { key: "isNew", label: "New" },
     { key: "isMostOrder", label: "Best seller" },
+    { key: "isNotAvailable", label: "Not available" },
   ];
 
 const COUNT_FREQUENCY_OPTIONS: { value: CountFrequency; label: string }[] = [

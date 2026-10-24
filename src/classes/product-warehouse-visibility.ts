@@ -112,6 +112,7 @@ export class ProductWarehouseVisibilityService {
       isPopular?: boolean | null;
       isNew?: boolean | null;
       isMostOrder?: boolean | null;
+      isNotAvailable?: boolean | null;
     },
   ) {
     const update: Record<string, boolean | null> = {};
@@ -119,6 +120,8 @@ export class ProductWarehouseVisibilityService {
     if (badges.isNew !== undefined) update.is_new = badges.isNew;
     if (badges.isMostOrder !== undefined)
       update.is_most_order = badges.isMostOrder;
+    if (badges.isNotAvailable !== undefined)
+      update.is_not_available = badges.isNotAvailable;
 
     await this.knex
       .table("product_warehouse_visibility")

@@ -419,6 +419,8 @@ export function ProductGrid({
                         isPopular: variant?.isPopular ?? item.isPopular,
                         isNew: variant?.isNew ?? item.isNew,
                         isMostOrder: variant?.isMostOrder ?? item.isMostOrder,
+                        isNotAvailable:
+                          variant?.isNotAvailable ?? item.isNotAvailable,
                       });
 
                       const cartQty =

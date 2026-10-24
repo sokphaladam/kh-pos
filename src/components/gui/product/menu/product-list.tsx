@@ -292,10 +292,13 @@ export function ProductList() {
                     variant?.discountType ?? item.discountType,
                     variant?.discountValue ?? item.discountValue,
                   ) ?? undefined;
+                const unavailable = !!(variant?.isNotAvailable ?? item.isNotAvailable);
                 const badges = getVariantBadges({
                   isPopular: variant?.isPopular ?? item.isPopular,
                   isNew: variant?.isNew ?? item.isNew,
                   isMostOrder: variant?.isMostOrder ?? item.isMostOrder,
+                  isNotAvailable:
+                    variant?.isNotAvailable ?? item.isNotAvailable,
                 });
 
                 return (
@@ -306,9 +309,11 @@ export function ProductList() {
                       loading || isRequest
                         ? "cursor-not-allowed opacity-60"
                         : "cursor-pointer active:scale-95",
+                      unavailable &&
+                        "cursor-not-allowed opacity-50 grayscale",
                     )}
                     onClick={() =>
-                      !loading && !isRequest && handleProductClick(item)
+                      !loading && !isRequest && !unavailable && handleProductClick(item)
                     }
                   >
                     <ProductImageDisplay

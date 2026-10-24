@@ -2,10 +2,11 @@ export interface VariantBadgeFlags {
   isPopular?: boolean | null;
   isNew?: boolean | null;
   isMostOrder?: boolean | null;
+  isNotAvailable?: boolean | null;
 }
 
 export interface VariantBadge {
-  key: "popular" | "new" | "mostOrder";
+  key: "popular" | "new" | "mostOrder" | "notAvailable";
   label: string;
   className: string;
 }
@@ -17,6 +18,14 @@ export interface VariantBadge {
  */
 export function getVariantBadges(flags: VariantBadgeFlags): VariantBadge[] {
   const badges: VariantBadge[] = [];
+
+  if (flags.isNotAvailable) {
+    badges.push({
+      key: "notAvailable",
+      label: "Not available",
+      className: "bg-muted-foreground text-background",
+    });
+  }
 
   if (flags.isPopular) {
     badges.push({

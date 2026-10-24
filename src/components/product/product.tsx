@@ -50,7 +50,7 @@ import { useWindowSize } from "../use-window-size";
 import { productDialog } from "./dialog-product";
 import { printLabel } from "./print-label";
 
-type VariantBadgeKey = "isPopular" | "isNew" | "isMostOrder";
+type VariantBadgeKey = "isPopular" | "isNew" | "isMostOrder" | "isNotAvailable";
 
 const VARIANT_BADGE_CHIPS: {
   key: VariantBadgeKey;
@@ -64,6 +64,11 @@ const VARIANT_BADGE_CHIPS: {
     label: "Best Seller",
     activeClass: "bg-purple-500 text-white border-purple-500",
   },
+  {
+    key: "isNotAvailable",
+    label: "Not available",
+    activeClass: "bg-destructive text-white border-destructive",
+  },
 ];
 
 /** Per-branch override toggles for the popular/new/most-order menu badges. */
@@ -72,7 +77,12 @@ function VariantBadgeToggles({
   disabled,
   onToggle,
 }: {
-  state: { isPopular: boolean; isNew: boolean; isMostOrder: boolean };
+  state: {
+    isPopular: boolean;
+    isNew: boolean;
+    isMostOrder: boolean;
+    isNotAvailable: boolean;
+  };
   disabled?: boolean;
   onToggle: (key: VariantBadgeKey, value: boolean) => void;
 }) {
@@ -208,7 +218,12 @@ export function Product({
   const [variantBadgeState, setVariantBadgeState] = useState<
     Record<
       string,
-      { isPopular: boolean; isNew: boolean; isMostOrder: boolean }
+      {
+        isPopular: boolean;
+        isNew: boolean;
+        isMostOrder: boolean;
+        isNotAvailable: boolean;
+      }
     >
   >(() =>
     Object.fromEntries(
@@ -218,6 +233,7 @@ export function Product({
           isPopular: v.isPopular ?? false,
           isNew: v.isNew ?? false,
           isMostOrder: v.isMostOrder ?? false,
+          isNotAvailable: v.isNotAvailable ?? false,
         },
       ]) ?? [],
     ),
@@ -299,6 +315,7 @@ export function Product({
         isPopular?: boolean;
         isNew?: boolean;
         isMostOrder?: boolean;
+        isNotAvailable?: boolean;
       } = { productVariantId: variantId };
       payload[key] = newValue;
       setBadgesMutation.trigger(payload).then((res) => {
@@ -958,6 +975,8 @@ export function Product({
                               isPopular: variant.isPopular ?? false,
                               isNew: variant.isNew ?? false,
                               isMostOrder: variant.isMostOrder ?? false,
+                              isNotAvailable:
+                                variant.isNotAvailable ?? false,
                             }
                           }
                           disabled={setBadgesMutation.isMutating}
@@ -1078,6 +1097,8 @@ export function Product({
                               isPopular: variant.isPopular ?? false,
                               isNew: variant.isNew ?? false,
                               isMostOrder: variant.isMostOrder ?? false,
+                              isNotAvailable:
+                                variant.isNotAvailable ?? false,
                             }
                           }
                           disabled={setBadgesMutation.isMutating}

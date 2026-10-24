@@ -43,6 +43,7 @@ export function useMutationSetBadgesProductWarehouseVisibility() {
       isPopular?: boolean | null;
       isNew?: boolean | null;
       isMostOrder?: boolean | null;
+      isNotAvailable?: boolean | null;
     },
     ResponseType<unknown>
   >(`PUT`, "/api/product-v2/warehouse-visibilty/product-variant-badges");

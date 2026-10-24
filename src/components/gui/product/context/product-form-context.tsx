@@ -41,6 +41,7 @@ const createDefaultProductData = () => {
     isPopular: false,
     isNew: false,
     isMostOrder: false,
+    isNotAvailable: false,
     printerId: null,
   };
 
@@ -148,6 +149,7 @@ export function ProductFormContextProvider({
           isPopular: v.isPopular ?? false,
           isNew: v.isNew ?? false,
           isMostOrder: v.isMostOrder ?? false,
+          isNotAvailable: v.isNotAvailable ?? false,
         };
       }),
       productImages: product.productImages.map((m, idx) => {
@@ -216,6 +218,7 @@ export function ProductFormContextProvider({
           isPopular: v.isPopular ?? false,
           isNew: v.isNew ?? false,
           isMostOrder: v.isMostOrder ?? false,
+          isNotAvailable: v.isNotAvailable ?? false,
           printerId: v.printerId ?? null,
           countFrequency: v.countFrequency ?? null,
         };

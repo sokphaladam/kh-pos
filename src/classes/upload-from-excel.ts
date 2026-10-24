@@ -119,6 +119,7 @@ export class UploadFromExcel {
           isPopular: false,
           isNew: false,
           isMostOrder: false,
+          isNotAvailable: false,
         };
 
         await productVariantService.createProductVariant(variant);
