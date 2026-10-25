@@ -1,4 +1,4 @@
-import { table_product_variant } from "@/generated/tables";
+import { table_product_variant, table_warehouse } from "@/generated/tables";
 import { computeVariantDiscount } from "@/lib/variant-discount";
 import { UserInfo } from "@/lib/server-functions/get-auth-from-token";
 import DataLoader from "dataloader";
@@ -88,13 +88,16 @@ export function createProductVariantLoader(
       .where("product_variant.deleted_at", null)
       .where("product_variant.available", 1);
 
-    const useMainBranchVisibility =
-      user && user?.warehouse?.useMainBranchVisibility;
+    const warehouse: table_warehouse = await db("warehouse")
+      .where({ id: (user ? user.currentWarehouseId : warehouseId) || "" })
+      .first();
+
+    const useMainBranchVisibility = warehouse.use_main_branch_visibility === 1;
 
     const queryProductWarehouseVisibility = db
       .table("product_warehouse_visibility")
       .where({
-        warehouse_id: user?.currentWarehouseId || "",
+        warehouse_id: warehouse.id,
       });
 
     if (useMainBranchVisibility) {
@@ -109,7 +112,7 @@ export function createProductVariantLoader(
             db
               .table("warehouse_groups")
               .select("group_id")
-              .where("warehouse_id", user?.currentWarehouseId || ""),
+              .where("warehouse_id", warehouse.id),
           )
           .whereIn(
             "group_id",
@@ -146,7 +149,7 @@ export function createProductVariantLoader(
       rows.length > 0
         ? await db
             .table("warehouse_variant_printer")
-            .where("warehouse_id", warehouseId)
+            .where("warehouse_id", warehouse.id)
             .whereIn(
               "variant_id",
               rows.map((x) => x.id!),
@@ -156,13 +159,13 @@ export function createProductVariantLoader(
 
     const variantStockLoader = LoaderFactory.variantStockLoader(
       db,
-      warehouseId,
+      warehouse.id || "",
     );
 
     const basicProductLoader = LoaderFactory.basicProductLoader(db);
     const compositeVariantLoader = LoaderFactory.compositeVariantLoader(
       db,
-      warehouseId,
+      warehouse.id || "",
     );
 
     const variantValue = await getVariantOptionValue(

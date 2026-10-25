@@ -76,7 +76,9 @@ function ProductImageDisplay({
             className,
           )}
         >
-          <span className="text-muted-foreground/70 text-xs sm:text-sm">No Image</span>
+          <span className="text-muted-foreground/70 text-xs sm:text-sm">
+            No Image
+          </span>
 
           {topBadges}
           {/* Price and Stock Status Overlay */}
@@ -176,7 +178,10 @@ export function ProductPublicLayout({
   // Promotions lead the "All" view and match the search like products do.
   const visiblePromotions = useMemo(() => {
     if (selectedCategory !== "All" && !isPromotionCategory) return [];
-    const words = debouncedSearchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+    const words = debouncedSearchQuery
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean);
     if (!words.length) return promotions;
     return promotions.filter(({ promotion: p }) => {
       const text = [p.title, ...p.items.map((i) => i.matchTitle ?? "")]
@@ -396,7 +401,9 @@ export function ProductPublicLayout({
                     key="promotions"
                     variant={isPromotionCategory ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedCategory(MENU_PROMOTIONS_CATEGORY)}
+                    onClick={() =>
+                      setSelectedCategory(MENU_PROMOTIONS_CATEGORY)
+                    }
                     className={cn(
                       "whitespace-nowrap transition-all duration-200 snap-start flex-shrink-0 text-base gap-1.5",
                       isPromotionCategory
@@ -448,92 +455,94 @@ export function ProductPublicLayout({
       <div style={{ minHeight: height ? height - 120 : "80vh" }}>
         {/* Products Grid */}
         <div className="p-2 sm:p-4 pt-4 sm:pt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 sm:gap-3 md:gap-4 pb-20">
-          <MenuPromotionCards
-            promotions={visiblePromotions}
-          />
+          <MenuPromotionCards promotions={visiblePromotions} />
           {isPromotionCategory
             ? null
             : (isLoading || loading) &&
                 (page === 0 || displayProducts.length === 0)
-            ? // Loading skeleton
-              Array.from({ length: 12 }).map((_, index) => (
-                <Card
-                  key={`skeleton-${index}`}
-                  className="overflow-hidden border-0 shadow-sm bg-card rounded-xl h-full"
-                >
-                  <div className="aspect-[5/5] w-full bg-muted animate-pulse rounded-t-xl" />
-                  <div className="p-1.5 sm:p-2 flex justify-center">
-                    <div className="h-3 sm:h-4 bg-muted animate-pulse rounded w-3/4" />
-                  </div>
-                </Card>
-              ))
-            : displayProducts.map((item, index) => {
-                const variant = (item.variants as ProductVariantType[])?.find(
-                  (f) => f.id === item.variantId,
-                );
-                const imageByVariant = item.images?.find(
-                  (f) => f.productVariantId === item.variantId,
-                );
-                const images = imageByVariant
-                  ? [imageByVariant]
-                  : [
-                      {
-                        productVariantId: item.variantId,
-                        url: "",
-                      },
-                    ];
-
-                const basePrice = variant?.price || item.price || 0;
-                const discountedPrice =
-                  variant?.discountedPrice ?? item.discountedPrice ?? null;
-                const price = formatForDisplay(discountedPrice ?? basePrice);
-                const originalPrice =
-                  discountedPrice != null
-                    ? formatForDisplay(basePrice)
-                    : undefined;
-                const discountLabel =
-                  variantDiscountLabel(
-                    variant?.discountType ?? item.discountType,
-                    variant?.discountValue ?? item.discountValue,
-                  ) ?? undefined;
-                const unavailable = !!(variant?.isNotAvailable ?? item.isNotAvailable);
-                const badges = getVariantBadges({
-                  isPopular: variant?.isPopular ?? item.isPopular,
-                  isNew: variant?.isNew ?? item.isNew,
-                  isMostOrder: variant?.isMostOrder ?? item.isMostOrder,
-                  isNotAvailable:
-                    variant?.isNotAvailable ?? item.isNotAvailable,
-                });
-
-                return (
+              ? // Loading skeleton
+                Array.from({ length: 12 }).map((_, index) => (
                   <Card
-                    key={`${item.variantId}-${index}`}
-                    className={cn(
-                      "group overflow-hidden border border-border shadow-sm hover:shadow-lg transition-all duration-300 bg-card rounded-xl hover:border-border h-full flex flex-col relative",
-                      loading
-                        ? "cursor-not-allowed opacity-60"
-                        : "cursor-pointer hover:-translate-y-1 active:scale-95",
-                      unavailable &&
-                        "cursor-not-allowed opacity-50 grayscale",
-                    )}
-                    onClick={() => !loading && !unavailable && handleProductClick(item)}
+                    key={`skeleton-${index}`}
+                    className="overflow-hidden border-0 shadow-sm bg-card rounded-xl h-full"
                   >
-                    {/* Product Image */}
-                    <ProductImageDisplay
-                      images={images}
-                      title={item.productTitle || ""}
-                      stockStatus={{
-                        stock: variant?.stock || item.stock || 0,
-                        isInStock: (variant?.stock || item.stock || 0) > 0,
-                      }}
-                      price={price}
-                      originalPrice={originalPrice}
-                      discountLabel={discountLabel}
-                      badges={badges}
-                    />
+                    <div className="aspect-[5/5] w-full bg-muted animate-pulse rounded-t-xl" />
+                    <div className="p-1.5 sm:p-2 flex justify-center">
+                      <div className="h-3 sm:h-4 bg-muted animate-pulse rounded w-3/4" />
+                    </div>
                   </Card>
-                );
-              })}
+                ))
+              : displayProducts.map((item, index) => {
+                  const variant = (item.variants as ProductVariantType[])?.find(
+                    (f) => f.id === item.variantId,
+                  );
+                  const imageByVariant = item.images?.find(
+                    (f) => f.productVariantId === item.variantId,
+                  );
+                  const images = imageByVariant
+                    ? [imageByVariant]
+                    : [
+                        {
+                          productVariantId: item.variantId,
+                          url: "",
+                        },
+                      ];
+
+                  const basePrice = variant?.price || item.price || 0;
+                  const discountedPrice =
+                    variant?.discountedPrice ?? item.discountedPrice ?? null;
+                  const price = formatForDisplay(discountedPrice ?? basePrice);
+                  const originalPrice =
+                    discountedPrice != null
+                      ? formatForDisplay(basePrice)
+                      : undefined;
+                  const discountLabel =
+                    variantDiscountLabel(
+                      variant?.discountType ?? item.discountType,
+                      variant?.discountValue ?? item.discountValue,
+                    ) ?? undefined;
+                  const unavailable = !!(
+                    variant?.isNotAvailable ?? item.isNotAvailable
+                  );
+                  const badges = getVariantBadges({
+                    isPopular: variant?.isPopular ?? item.isPopular,
+                    isNew: variant?.isNew ?? item.isNew,
+                    isMostOrder: variant?.isMostOrder ?? item.isMostOrder,
+                    isNotAvailable:
+                      variant?.isNotAvailable ?? item.isNotAvailable,
+                  });
+
+                  return (
+                    <Card
+                      key={`${item.variantId}-${index}`}
+                      className={cn(
+                        "group overflow-hidden border border-border shadow-sm hover:shadow-lg transition-all duration-300 bg-card rounded-xl hover:border-border h-full flex flex-col relative",
+                        loading
+                          ? "cursor-not-allowed opacity-60"
+                          : "cursor-pointer hover:-translate-y-1 active:scale-95",
+                        unavailable &&
+                          "cursor-not-allowed opacity-50 grayscale",
+                      )}
+                      onClick={() =>
+                        !loading && !unavailable && handleProductClick(item)
+                      }
+                    >
+                      {/* Product Image */}
+                      <ProductImageDisplay
+                        images={images}
+                        title={item.productTitle || ""}
+                        stockStatus={{
+                          stock: variant?.stock || item.stock || 0,
+                          isInStock: (variant?.stock || item.stock || 0) > 0,
+                        }}
+                        price={price}
+                        originalPrice={originalPrice}
+                        discountLabel={discountLabel}
+                        badges={badges}
+                      />
+                    </Card>
+                  );
+                })}
         </div>
 
         {/* Load More Button */}
@@ -567,20 +576,20 @@ export function ProductPublicLayout({
           !loading &&
           !isLoading &&
           displayProducts.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 px-4">
-            <div className="text-muted-foreground/70 mb-4">
-              <Search className="h-16 w-16 mx-auto" />
+            <div className="flex flex-col items-center justify-center py-16 px-4">
+              <div className="text-muted-foreground/70 mb-4">
+                <Search className="h-16 w-16 mx-auto" />
+              </div>
+              <h3 className="text-lg font-medium text-foreground mb-2">
+                No products found
+              </h3>
+              <p className="text-muted-foreground text-center max-w-md">
+                {searchQuery
+                  ? `No products match "${searchQuery}". Try adjusting your search terms.`
+                  : "No products are available at the moment."}
+              </p>
             </div>
-            <h3 className="text-lg font-medium text-foreground mb-2">
-              No products found
-            </h3>
-            <p className="text-muted-foreground text-center max-w-md">
-              {searchQuery
-                ? `No products match "${searchQuery}". Try adjusting your search terms.`
-                : "No products are available at the moment."}
-            </p>
-          </div>
-        )}
+          )}
       </div>
     </div>
   );

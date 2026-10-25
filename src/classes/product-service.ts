@@ -119,7 +119,9 @@ export class ProductService {
       .select("product_variant.*")
       .select("product.title")
       .select(this.trx.raw("min(inventory.slot_id) as slot_id"))
-      .select(this.trx.raw("min(product_categories.category_id) as category_id"));
+      .select(
+        this.trx.raw("min(product_categories.category_id) as category_id"),
+      );
 
     if (useMainBranchVisibility) {
       query.leftJoin(
@@ -221,13 +223,34 @@ export class ProductService {
     // Aggregates keep the ORDER BY valid under only_full_group_by (the query
     // groups by variant id).
     if (useMainBranchVisibility) {
-      searchQuery.orderByRaw(
-        "(max(coalesce(product_warehouse_visibility.is_popular, product_variant.is_popular, 0)) + " +
-          "max(coalesce(product_warehouse_visibility.is_new, product_variant.is_new, 0)) + " +
-          "max(coalesce(product_warehouse_visibility.is_most_order, product_variant.is_most_order, 0))) desc, " +
-          "min(product_categories.category_id) asc, " +
-          "product.title asc",
-      );
+      searchQuery
+        .orderByRaw(
+          "(max(coalesce(product_warehouse_visibility.is_popular, product_variant.is_popular, 0)) + " +
+            "max(coalesce(product_warehouse_visibility.is_new, product_variant.is_new, 0)) + " +
+            "max(coalesce(product_warehouse_visibility.is_most_order, product_variant.is_most_order, 0))) desc, " +
+            "min(product_categories.category_id) asc, " +
+            "product.title asc",
+        )
+        .select(
+          this.trx.raw(
+            "MAX(COALESCE(product_warehouse_visibility.is_new, product_variant.is_new, 0)) AS is_new",
+          ),
+        )
+        .select(
+          this.trx.raw(
+            "MAX(COALESCE(product_warehouse_visibility.is_popular, product_variant.is_popular, 0)) AS is_popular",
+          ),
+        )
+        .select(
+          this.trx.raw(
+            "MAX(COALESCE(product_warehouse_visibility.is_most_order, product_variant.is_most_order, 0)) AS is_most_order",
+          ),
+        )
+        .select(
+          this.trx.raw(
+            "MAX(COALESCE(product_warehouse_visibility.is_not_available, product_variant.is_not_available, 0)) AS is_not_available",
+          ),
+        );
     } else {
       searchQuery.orderByRaw(
         "(coalesce(product_variant.is_popular, 0) + coalesce(product_variant.is_new, 0) + coalesce(product_variant.is_most_order, 0)) desc, " +
@@ -241,7 +264,7 @@ export class ProductService {
     const productImageLoader = LoaderFactory.productImageLoader(this.trx);
     const variantLoader = LoaderFactory.productVariantLoader(
       this.trx,
-      this.user?.currentWarehouseId || "",
+      warehouse?.id || "",
       this.user,
     );
     const modifierByProductLoader = LoaderFactory.modifierByProductLoader(
