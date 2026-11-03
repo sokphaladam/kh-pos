@@ -123,7 +123,8 @@ export const restaurantDiscountSheet = createDialog<
       if (value <= 0) return 0;
       const raw =
         discountType === "PERCENTAGE"
-          ? Math.floor(netBase * value) / 100
+          ? // integer-cents flooring, identical to the server (order-discount.ts)
+            Math.floor((Math.round(netBase * 100) * value) / 100) / 100
           : includedNetBase > 0
             ? value * (netBase / includedNetBase)
             : 0;
@@ -286,7 +287,7 @@ export const restaurantDiscountSheet = createDialog<
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 py-4 max-h-[60vh] overflow-y-auto overscroll-contain pr-1">
           {/* Discount Type Selection */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Discount Type</Label>
