@@ -124,11 +124,19 @@ export class ProductService {
       );
 
     if (useMainBranchVisibility) {
-      query.leftJoin(
-        "product_warehouse_visibility",
-        "product_warehouse_visibility.product_variant_id",
-        "product_variant.id",
-      );
+      // Scope to this branch, or every other branch's overrides (not available,
+      // hidden, badges) leak in through the MAX() aggregates below.
+      query.leftJoin("product_warehouse_visibility", (join) => {
+        join
+          .on(
+            "product_warehouse_visibility.product_variant_id",
+            "product_variant.id",
+          )
+          .andOn(
+            "product_warehouse_visibility.warehouse_id",
+            this.trx.raw("?", [warehouse?.id ?? ""]),
+          );
+      });
     }
 
     const setting = await this.trx

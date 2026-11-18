@@ -33,7 +33,7 @@ const MENU_ROUTES_CONFIG: MenuRoute[] = [
   { path: "/admin/stock-counting", resource: "stock-counting" },
   { path: "/admin/order", resource: "order" },
   { path: "/admin/a/transfer", resource: "transfer" },
-  { path: "/admin/return", resource: "return" },
+  { path: "/admin/return", resource: "order" },
   { path: "/admin/backlog", resource: "backlog" },
   { path: "/admin/shift", resource: "shift" },
   { path: "/admin/supplier", resource: "supplier" },

@@ -6,6 +6,20 @@ const DEFAULT_FAVICON = "/favicon.ico";
 
 export const dynamic = "force-dynamic";
 
+// NextResponse.redirect rejects relative URLs, and req.url may be the internal
+// container host behind the proxy, so set Location directly (browsers accept relative).
+function redirect(location: string) {
+  return new NextResponse(null, {
+    status: 302,
+    headers: {
+      Location: location,
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+    },
+  });
+}
+
 export async function GET() {
   try {
     const db = await getKnex();
@@ -18,17 +32,8 @@ export async function GET() {
       result.find((f: any) => f.option === "BRAND")?.value || "{}",
     );
 
-    const iconUrl: string = brand?.icon || DEFAULT_FAVICON;
-
-    return NextResponse.redirect(iconUrl, {
-      status: 302,
-      headers: {
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        Pragma: "no-cache",
-        Expires: "0",
-      },
-    });
+    return redirect(brand?.icon || DEFAULT_FAVICON);
   } catch {
-    return NextResponse.redirect(DEFAULT_FAVICON, { status: 302 });
+    return redirect(DEFAULT_FAVICON);
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { AppProgressProvider } from "@bprogress/next";
+import { OfflineScreen } from "./offline-screen";
 
 export function LooadingProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -10,6 +11,7 @@ export function LooadingProviders({ children }: { children: React.ReactNode }) {
       options={{ showSpinner: false }}
     >
       {children}
+      <OfflineScreen />
     </AppProgressProvider>
   );
 }

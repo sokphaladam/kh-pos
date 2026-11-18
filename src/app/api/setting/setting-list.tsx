@@ -20,10 +20,13 @@ export const settingList = withAuthApi<
       warehouseId = userAuth.customer?.warehouseId;
     }
 
+    // Public callers have no warehouse: return global settings only.
     const list = await db
       .table("setting")
       .where({ warehouse: null })
-      .orWhere("warehouse", warehouseId);
+      .modify((q) => {
+        if (warehouseId) q.orWhere("warehouse", warehouseId);
+      });
 
     const result = list;
 

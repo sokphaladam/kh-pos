@@ -8,7 +8,8 @@ const dbConfig: { [key: string]: Knex.Config } = {
     client: "mysql2",
     connection: process.env.DB_MAIN,
     pool: {
-      min: 2,
+      // min 0 so idle connections are reaped before MySQL wait_timeout drops them
+      min: 0,
       max: 10,
     },
     migrations: {
@@ -23,7 +24,8 @@ const dbConfig: { [key: string]: Knex.Config } = {
     client: "mysql2",
     connection: process.env.DB_MAIN,
     pool: {
-      min: 2,
+      // min 0 so idle connections are reaped before MySQL wait_timeout drops them
+      min: 0,
       max: 10,
     },
     migrations: {

@@ -125,5 +125,8 @@
   "of": "of",
   "rowsPerPage": "Rows per page",
   "showing": "Showing",
-  "results": "results"
+  "results": "results",
+  "offlineTitle": "No internet connection",
+  "offlineMessage": "Check your network connection. The app will continue automatically when you are back online.",
+  "retry": "Retry"
 }
