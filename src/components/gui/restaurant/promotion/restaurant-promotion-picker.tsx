@@ -12,8 +12,16 @@ import {
 } from "@/components/ui/dialog";
 import { ProductVariantType } from "@/dataloader/product-variant-loader";
 import { useCurrencyFormat } from "@/hooks/use-currency-format";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
-import { Check, Gift } from "lucide-react";
+import { Check, Gift, LayoutGrid, List } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { usePromotionSetI18n } from "../../promotion-set/use-promotion-set-i18n";
@@ -50,15 +58,38 @@ export function buildPromotionCartLines(
   return [...byVariant.values()];
 }
 
-function CandidateImage({ item }: { item: ProductSearchResult }) {
+function CandidateImage({
+  item,
+  className = "size-12",
+}: {
+  item: ProductSearchResult;
+  className?: string;
+}) {
   const url = item.images?.find((i) => i.productVariantId === item.variantId)
     ?.url;
   return url ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={url} alt="" className="size-12 rounded-md object-contain" />
+    <img
+      src={url}
+      alt=""
+      className={cn("shrink-0 rounded-md object-contain", className)}
+    />
   ) : (
-    <div className="size-12 rounded-md bg-muted" />
+    <div className={cn("shrink-0 rounded-md bg-muted", className)} />
   );
+}
+
+type PickerView = "card" | "select";
+const VIEW_STORAGE_KEY = "restaurant-promotion-picker-view";
+
+function readStoredView(): PickerView {
+  try {
+    return localStorage.getItem(VIEW_STORAGE_KEY) === "select"
+      ? "select"
+      : "card";
+  } catch {
+    return "card";
+  }
 }
 
 /**
@@ -84,6 +115,23 @@ export const restaurantPromotionPicker = createDialog<
       () => slots.map((s) => (s.candidates.length === 1 ? s.candidates[0] : undefined)),
     );
 
+    const [view, setView] = useState<PickerView>(readStoredView);
+    const changeView = (value: string) => {
+      if (value !== "card" && value !== "select") return;
+      setView(value);
+      try {
+        localStorage.setItem(VIEW_STORAGE_KEY, value);
+      } catch {
+        // storage unavailable: keep the choice for this dialog only
+      }
+    };
+    const choose = (index: number, candidate: ProductSearchResult) =>
+      setChosen((prev) => {
+        const next = [...prev];
+        next[index] = candidate;
+        return next;
+      });
+
     const lines = useMemo(
       () => buildPromotionCartLines(slots, chosen),
       [slots, chosen],
@@ -92,11 +140,40 @@ export const restaurantPromotionPicker = createDialog<
     return (
       <>
         <DialogHeader>
-          <DialogTitle>{t("pos.pickerTitle", { title })}</DialogTitle>
-          <DialogDescription>{hint ?? t("pos.pickerHint")}</DialogDescription>
+          <div className="flex items-start justify-between gap-3 pr-6">
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <DialogTitle>{t("pos.pickerTitle", { title })}</DialogTitle>
+              <DialogDescription>
+                {hint ?? t("pos.pickerHint")}
+              </DialogDescription>
+            </div>
+            <ToggleGroup
+              type="single"
+              size="sm"
+              variant="outline"
+              value={view}
+              onValueChange={changeView}
+              className="shrink-0"
+            >
+              <ToggleGroupItem
+                value="card"
+                aria-label={t("pos.viewCards")}
+                title={t("pos.viewCards")}
+              >
+                <LayoutGrid className="size-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="select"
+                aria-label={t("pos.viewDropdown")}
+                title={t("pos.viewDropdown")}
+              >
+                <List className="size-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
         </DialogHeader>
 
-        <div className="flex max-h-[60vh] flex-col gap-5 overflow-y-auto py-2">
+        <div className="flex max-h-[70vh] flex-col gap-5 overflow-y-auto py-2 pr-1">
           {slots.map((slot, index) => {
             const name = slot.item.matchTitle || "";
             const reward = rewardLabel(slot.item);
@@ -117,31 +194,55 @@ export const restaurantPromotionPicker = createDialog<
                     </span>
                   )}
                 </div>
-                {!fixed && (
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {!fixed && view === "select" && (
+                  <Select
+                    value={chosen[index]?.variantId ?? ""}
+                    onValueChange={(variantId) => {
+                      const c = slot.candidates.find(
+                        (x) => x.variantId === variantId,
+                      );
+                      if (c) choose(index, c);
+                    }}
+                  >
+                    <SelectTrigger className="h-auto min-h-12 py-1.5">
+                      <SelectValue placeholder={t("pos.selectPlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-80">
+                      {slot.candidates.map((c) => (
+                        <SelectItem key={c.variantId} value={c.variantId}>
+                          <div className="flex items-center gap-3">
+                            <CandidateImage item={c} className="size-9" />
+                            <span className="font-medium">
+                              {c.productTitle}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {formatForDisplay(Number(c.price ?? 0))}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {!fixed && view === "card" && (
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                     {slot.candidates.map((c) => {
                       const selected = chosen[index]?.variantId === c.variantId;
                       return (
                         <button
                           type="button"
                           key={c.variantId}
-                          onClick={() =>
-                            setChosen((prev) => {
-                              const next = [...prev];
-                              next[index] = c;
-                              return next;
-                            })
-                          }
+                          onClick={() => choose(index, c)}
                           className={cn(
-                            "relative flex items-center gap-2 rounded-lg border p-2 text-left transition-colors",
+                            "relative flex flex-col items-center gap-2 rounded-lg border p-3 text-center transition-colors",
                             selected
                               ? "border-primary bg-primary/5 ring-1 ring-primary"
                               : "hover:bg-muted/60",
                           )}
                         >
-                          <CandidateImage item={c} />
-                          <div className="min-w-0">
-                            <div className="line-clamp-2 text-xs font-medium">
+                          <CandidateImage item={c} className="size-20" />
+                          <div className="w-full min-w-0">
+                            <div className="line-clamp-2 text-sm font-medium">
                               {c.productTitle}
                             </div>
                             <div className="text-xs text-muted-foreground">
@@ -149,7 +250,7 @@ export const restaurantPromotionPicker = createDialog<
                             </div>
                           </div>
                           {selected && (
-                            <Check className="absolute right-1.5 top-1.5 size-4 text-primary" />
+                            <Check className="absolute right-2 top-2 size-4 text-primary" />
                           )}
                         </button>
                       );
@@ -172,5 +273,8 @@ export const restaurantPromotionPicker = createDialog<
       </>
     );
   },
-  { defaultValue: null },
+  {
+    defaultValue: null,
+    className: "max-w-[95vw] sm:max-w-3xl lg:max-w-4xl",
+  },
 );
