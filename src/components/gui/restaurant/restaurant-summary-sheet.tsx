@@ -8,7 +8,7 @@ import { Check, CookingPot, PersonStanding } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { RestaurantTable, useRestaurant } from "./contexts/restaurant-context";
 import { useRestaurantActions } from "./hooks/use-restaurant-actions";
-import { RestaurantItem } from "./item/restaurant-item";
+import { RestaurantCartItems } from "./item/restaurant-cart-items";
 import { useMemo } from "react";
 import { restartCustomCustomer } from "./custom-order/restaurant-custom-customer";
 
@@ -74,18 +74,11 @@ export const RestaurantSummarySheet = createSheet<
               </div>
             ) : (
               <>
-                <div className="space-y-3 mb-4">
-                  {currentOrder.map((item, index) => (
-                    <div key={index} data-item-index={index}>
-                      <RestaurantItem
-                        key={index}
-                        item={item}
-                        idx={index}
-                        {...rest}
-                      />
-                    </div>
-                  ))}
-                </div>
+                <RestaurantCartItems
+                  items={currentOrder}
+                  className="space-y-3 mb-4"
+                  {...rest}
+                />
               </>
             )}
           </div>

@@ -23,6 +23,7 @@ import {
 import { getOrderDiscountRules } from "@/lib/order-discount-rules";
 import { PromotionSetService } from "./promotion-set";
 import { attachPromotionGroups } from "./order-promotion-groups";
+import { promotionAutoApplyFor } from "@/lib/promotion-set";
 import { applyModifierToOrderItem } from "./order-modifier";
 import { OrderReturn } from "./order-return";
 import { Payment, PaymentService } from "./payment";
@@ -43,6 +44,8 @@ interface CreateOrderOptionItem {
   qty: number;
   price: string;
   reservation?: ReservationItem[];
+  /** Promotion slot (`promotion_set_item.id`) this line was added for. */
+  promotionSlotId?: string | null;
 }
 
 interface CreateOrderOption {
@@ -132,6 +135,8 @@ export interface OrderDetail {
   kitchenLogs?: KitchenLog[];
   /** Promotion sets this line belongs to (receipt grouping). */
   promotions?: OrderLinePromotion[];
+  /** Promotion slot (`promotion_set_item.id`) the line is pinned to. */
+  promotionSlotId?: string | null;
 }
 
 /** One promotion set's use of an order line. */
@@ -222,6 +227,7 @@ export class OrderService {
     const orderDetail: OrderDetail[] = await attachPromotionGroups(
       this.tx,
       await orderDetailLoader.load(orderId),
+      promotionAutoApplyFor(order.table_number),
     );
     // payment info
     const payments = await new PaymentService(this.tx).getPayment(orderId);
@@ -512,6 +518,10 @@ export class OrderService {
           created_at: now,
           created_by: option.createdBy.id,
           variant_id: item.variantId,
+          // Only written when set, so plain lines don't depend on the column.
+          ...(item.promotionSlotId
+            ? { promotion_set_item_id: item.promotionSlotId }
+            : {}),
           discount_amount: "0",
           order_id: orderId,
           price: item.price.toString(),
@@ -827,6 +837,9 @@ export class OrderService {
         created_at: now,
         created_by: user.id,
         variant_id: data.variantId,
+        ...(data.promotionSlotId
+          ? { promotion_set_item_id: data.promotionSlotId }
+          : {}),
         discount_amount: "0",
         order_id: id,
         price: String(data.price),

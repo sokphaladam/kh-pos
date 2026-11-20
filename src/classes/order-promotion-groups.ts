@@ -24,6 +24,8 @@ import { PromotionSetService } from "./promotion-set";
 export async function attachPromotionGroups(
   db: Knex,
   lines: OrderDetail[],
+  /** See `PromotionSetOptions.autoApply`; must match how the order was priced. */
+  autoApply = true,
 ): Promise<OrderDetail[]> {
   const stored = lines.flatMap((l) =>
     (l.discounts ?? [])
@@ -83,9 +85,11 @@ export async function attachPromotionGroups(
         unitPrice: Number(l.price || 0),
         qty: Number(l.qty || 0),
         orderedAt: Formatter.toDbDateTime(l.createdAt),
+        promotionSlotId: l.promotionSlotId ?? null,
       };
     }),
     Formatter.getNowDateTime(),
+    { autoApply },
   );
 
   const byLine = new Map<string, OrderLinePromotion[]>();

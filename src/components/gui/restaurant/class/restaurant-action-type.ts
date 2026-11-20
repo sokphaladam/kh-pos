@@ -45,6 +45,8 @@ export type RestaurantAction =
          * full price (see RestaurantaAction.resolveAddTarget).
          */
         forceNewLine?: boolean;
+        /** Promotion slot the new line is pinned to (promotion-set add). */
+        promotionSlotId?: string | null;
       };
     }
   | {
@@ -99,6 +101,8 @@ export type RestaurantAction =
           notes?: OrderModifierType;
           modifiers?: ProductModifierType[];
         };
+        /** Promotion slot the line is pinned to (promotion-set add). */
+        promotionSlotId?: string | null;
       };
     }
   | { type: "TRANSFER_PRODUCT"; payload: { table: table_restaurant_tables } }

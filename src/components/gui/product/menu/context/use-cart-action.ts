@@ -290,6 +290,7 @@ export function useCartActions() {
           price: String(l.product.price ?? 0),
           discounts: [],
           discountAmount: "0",
+          promotionSlotId: l.slotId ?? null,
         }));
 
         if (!state.orders?.invoiceNo) {

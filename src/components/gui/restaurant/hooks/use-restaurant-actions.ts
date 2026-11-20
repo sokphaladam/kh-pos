@@ -101,6 +101,11 @@ function linePriceFor(
 export interface PromotionSetCartLine {
   product: ProductVariantType & { modifiers?: ProductModifierType[] };
   quantity: number;
+  /**
+   * The promotion slot (`promotion_set_item.id`) this line fills. Saved on the
+   * order line so the engine keeps the cashier's full-price / free choice.
+   */
+  slotId?: string;
 }
 
 export function useRestaurantActions() {
@@ -403,6 +408,7 @@ export function useRestaurantActions() {
             modifiers: l.product.modifiers ?? [],
           },
           price: linePriceFor(l.product, order),
+          promotionSlotId: l.slotId ?? null,
         }));
 
         if (!order?.invoiceNo) {
@@ -425,6 +431,7 @@ export function useRestaurantActions() {
               discounts: [],
               discountAmount: "0",
               variantId: it.product.id,
+              promotionSlotId: it.promotionSlotId,
             })),
           })) as ResponseType<unknown>;
           if (!create.success) {
@@ -441,6 +448,7 @@ export function useRestaurantActions() {
               orderId: String(create.result || ""),
               itemId: first.id,
               product: { ...first.product, price: first.price },
+              promotionSlotId: first.promotionSlotId,
             },
           });
           for (const it of rest) {
@@ -451,6 +459,7 @@ export function useRestaurantActions() {
                 id: it.id,
                 product: { ...it.product, price: it.price },
                 forceNewLine: true,
+                promotionSlotId: it.promotionSlotId,
               },
             });
           }
@@ -474,6 +483,7 @@ export function useRestaurantActions() {
             price: String(it.price),
             discounts: [],
             discountAmount: "0",
+            promotionSlotId: it.promotionSlotId,
           });
           if (!res.success) {
             toast.error("Failed to add product to order");
@@ -489,6 +499,7 @@ export function useRestaurantActions() {
               id: it.id,
               product: { ...it.product, price: it.price },
               forceNewLine: true,
+              promotionSlotId: it.promotionSlotId,
             },
           });
         }
@@ -576,6 +587,37 @@ export function useRestaurantActions() {
       }
     },
     [dispatch, setIsRequest, state, triggerDeleteOrderItem],
+  );
+
+  /**
+   * Delete every line of a promotion set from the order in one go (a set is
+   * removed as a whole, never item by item). Returns true when all went.
+   */
+  const removePromotionSet = useCallback(
+    async (
+      orderDetailIds: string[],
+      table: table_restaurant_tables,
+    ): Promise<boolean> => {
+      setIsRequest(true);
+      try {
+        for (const orderDetailId of orderDetailIds) {
+          const res = await triggerDeleteOrderItem({ item_id: orderDetailId });
+          if (!res?.success) {
+            toast.error("Failed to delete promotion");
+            onRefetch?.();
+            return false;
+          }
+          dispatch({
+            type: "REMOVE_PRODUCT",
+            payload: { orderDetailId, table, status: "" },
+          });
+        }
+        return true;
+      } finally {
+        setIsRequest(false);
+      }
+    },
+    [dispatch, setIsRequest, triggerDeleteOrderItem, onRefetch],
   );
 
   const sendAllToKitchent = useCallback(
@@ -962,6 +1004,7 @@ export function useRestaurantActions() {
     selectTable,
     selectProduct,
     selectPromotionSet,
+    removePromotionSet,
     updateProductQty,
     removeProduct,
     sendAllToKitchent,

@@ -18,6 +18,7 @@ import {
   PromotionOrderLine,
   PromotionSetDefinition,
   applyPromotionSets,
+  promotionAutoApplyFor,
   isPromotionDiscountId,
   promotionDiscountId,
   PROMOTION_DISCOUNT_PREFIX,
@@ -496,13 +497,16 @@ export async function recalculateOrderLevelDiscount(
     .where({ order_id: orderId });
   if (lines.length === 0) return;
 
+  const orderRow = await trx
+    .table("customer_order")
+    .where({ order_id: orderId })
+    .first("warehouse_id", "table_number");
   if (warehouseId === undefined) {
-    const order = await trx
-      .table("customer_order")
-      .where({ order_id: orderId })
-      .first("warehouse_id");
-    warehouseId = (order?.warehouse_id as string | null) ?? null;
+    warehouseId = (orderRow?.warehouse_id as string | null) ?? null;
   }
+  const promotionAutoApply = promotionAutoApplyFor(
+    orderRow?.table_number as string | null | undefined,
+  );
   const promotions = await new PromotionSetService(trx).getActive(
     warehouseId ?? null,
   );
@@ -613,11 +617,13 @@ export async function recalculateOrderLevelDiscount(
         unitPrice: Number(l.price || 0),
         qty: Number(l.qty || 0),
         orderedAt: Formatter.toDbDateTime(l.created_at),
+        promotionSlotId: l.promotion_set_item_id ?? null,
       };
     }),
     promotions,
     trx,
     createdBy,
+    promotionAutoApply,
   );
 
   // Rebuild each line from gross (modifiers + line discounts, but NOT the
@@ -714,6 +720,7 @@ async function syncPromotionSetLogs(
   promotions: PromotionSetDefinition[],
   trx: Knex,
   createdBy: string | null,
+  autoApply: boolean,
 ): Promise<void> {
   const existing: table_discount_log[] = await trx
     .table<table_discount_log>("discount_log")
@@ -725,7 +732,9 @@ async function syncPromotionSetLogs(
   if (promotions.length === 0 && existing.length === 0) return;
 
   const now = Formatter.getNowDateTime();
-  const { lines: results } = applyPromotionSets(promotions, lines, now);
+  const { lines: results } = applyPromotionSets(promotions, lines, now, {
+    autoApply,
+  });
 
   const keyOf = (discountId: string, orderDetailId: string) =>
     `${discountId}|${orderDetailId}`;

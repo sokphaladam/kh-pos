@@ -83,6 +83,14 @@ export interface PromotionOrderLine {
   qty: number;
   /** When the line was added, `YYYY-MM-DD HH:mm:ss`; missing = `now`. */
   orderedAt?: string | null;
+  /**
+   * The promotion slot (`promotion_set_item.id`) the cashier added this line
+   * for. A pinned line only ever fills that slot, and that slot takes its
+   * pinned lines before any other matching line, so the cashier's choice of
+   * "this one full price, that one free" is kept and plain menu items added
+   * later never get pulled into (or reshuffle) the set.
+   */
+  promotionSlotId?: string | null;
 }
 
 /** The discount a promotion set puts on one order line. */
@@ -119,6 +127,25 @@ export function isPromotionDiscountId(
   discountId: string | null | undefined,
 ): boolean {
   return !!discountId && discountId.startsWith(PROMOTION_DISCOUNT_PREFIX);
+}
+
+export interface PromotionSetOptions {
+  /**
+   * true (default): any matching line can fill a slot, so scanning the items
+   * one by one forms the set (retail POS). false: only lines pinned to a slot
+   * (`promotionSlotId`, added from the promotion card) count, so plain menu
+   * items never form or join a set (restaurant table orders).
+   */
+  autoApply?: boolean;
+}
+
+/**
+ * Restaurant / menu orders sit on a table and add promotion sets explicitly
+ * from the promotion card; everything else (retail POS) forms sets by
+ * scanning the matching items.
+ */
+export function promotionAutoApplyFor(tableNumber: string | null | undefined) {
+  return !tableNumber;
 }
 
 /** Hard stop so a malformed set can never spin forever. */
@@ -263,6 +290,8 @@ interface Unit {
   line: number;
   price: number;
   used: boolean;
+  /** Slot this unit is pinned to (see `PromotionOrderLine.promotionSlotId`). */
+  slotId: string | null;
 }
 
 /**
@@ -274,8 +303,11 @@ interface Unit {
  * Allocation rules, per application of a set:
  * - Slots are filled most specific first (variant, then product, then
  *   category); within the same specificity, condition (paid) slots first.
- * - A paid slot takes the most expensive matching units, a discounted slot
- *   takes the cheapest ones ("cheapest item free"), the industry default.
+ * - A unit pinned to a slot (`promotionSlotId`, the cashier picked it for that
+ *   slot) only fills that slot, and a slot takes its pinned units first.
+ *   With `autoApply: false` only pinned units are used at all.
+ * - Otherwise a paid slot takes the most expensive matching units, a
+ *   discounted slot takes the cheapest ones ("cheapest item free").
  * - If any slot cannot be filled, the application is rolled back and the set
  *   stops applying.
  * Sets run by `priority` (high first), then by title / id.
@@ -284,7 +316,9 @@ export function applyPromotionSets(
   promotions: PromotionSetDefinition[],
   lines: PromotionOrderLine[],
   now: string,
+  options: PromotionSetOptions = {},
 ): PromotionSetResult {
+  const autoApply = options.autoApply ?? true;
   const result: PromotionSetResult = { lines: [], applied: [], members: [] };
   const active = promotions
     .filter(isPromotionSetEnabled)
@@ -303,15 +337,32 @@ export function applyPromotionSets(
     .sort((a, b) =>
       a.line.orderDetailId.localeCompare(b.line.orderDetailId),
     );
+  const knownSlots = new Set(
+    active.flatMap((p) => p.items.map((i) => i.id)),
+  );
   const units: Unit[] = [];
   for (const { line, index } of sortedLines) {
     const qty = Math.max(0, Math.floor(Number(line.qty) || 0));
     const price = Math.max(0, Number(line.unitPrice) || 0);
-    for (let k = 0; k < qty; k++) units.push({ line: index, price, used: false });
+    // A pin to a slot that no longer exists (set deleted / edited) is ignored.
+    const slotId =
+      line.promotionSlotId && knownSlots.has(line.promotionSlotId)
+        ? line.promotionSlotId
+        : null;
+    for (let k = 0; k < qty; k++) {
+      units.push({ line: index, price, used: false, slotId });
+    }
   }
-  // Stable sort: ties keep line-id order.
-  const byPriceDesc = [...units].sort((a, b) => b.price - a.price);
-  const byPriceAsc = [...units].sort((a, b) => a.price - b.price);
+  // Stable sort: ties keep line-id order. Pinned units come first so a slot
+  // always takes the units the cashier picked for it before any other.
+  const pinnedFirst = (a: Unit, b: Unit) =>
+    Number(!a.slotId) - Number(!b.slotId);
+  const byPriceDesc = [...units].sort(
+    (a, b) => pinnedFirst(a, b) || b.price - a.price,
+  );
+  const byPriceAsc = [...units].sort(
+    (a, b) => pinnedFirst(a, b) || a.price - b.price,
+  );
 
   // key: `${promotionId}|${lineIndex}`
   const acc = new Map<string, PromotionLineDiscount>();
@@ -353,6 +404,7 @@ export function applyPromotionSets(
           if (
             unit.used ||
             !eligible[unit.line] ||
+            (unit.slotId === null ? !autoApply : unit.slotId !== slot.id) ||
             !lineMatches(lines[unit.line], slot)
           ) {
             continue;

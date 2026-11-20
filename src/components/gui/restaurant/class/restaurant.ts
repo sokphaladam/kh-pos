@@ -18,7 +18,9 @@ import {
 import {
   PromotionSetDefinition,
   applyPromotionSets,
+  PROMOTION_DISCOUNT_PREFIX,
   isPromotionDiscountId,
+  promotionAutoApplyFor,
   promotionDiscountId,
 } from "@/lib/promotion-set";
 import { Formatter } from "@/lib/formatter";
@@ -31,6 +33,26 @@ import {
   RestaurantState,
 } from "../contexts/restaurant-context";
 import { Customer } from "@/classes/customer";
+
+/** Every restaurant POS order sits on a table (see promotionAutoApplyFor). */
+const RESTAURANT_TABLE_ORDER = "table";
+
+/** A run of cart lines shown together: one promotion set, or a single line. */
+export interface CartItemGroup {
+  key: string;
+  promotion: {
+    id: string;
+    title: string;
+    /** Times the set applied on the order. */
+    times: number;
+    /** Money off from the set across its lines. */
+    saved: number;
+    /** Sum of the group lines' totals. */
+    total: number;
+  } | null;
+  /** Lines with their index in the order's items. */
+  items: { item: RestaurantOrderItem; index: number }[];
+}
 
 export class RestaurantaAction {
   // Calculation Helper Methods
@@ -201,9 +223,13 @@ export class RestaurantaAction {
           qty: RestaurantaAction.itemQty(it),
           // Unsaved lines have no createdAt yet: the engine judges them at now.
           orderedAt: it.createdAt ?? null,
+          promotionSlotId: it.promotionSlotId ?? null,
         };
       }),
       Formatter.getNowDateTime(),
+      // Restaurant orders are table orders: sets come only from the
+      // promotion card (pinned lines), as on the server.
+      { autoApply: promotionAutoApplyFor(RESTAURANT_TABLE_ORDER) },
     );
 
     return items.map((it) => {
@@ -234,6 +260,91 @@ export class RestaurantaAction {
       }
       return { ...it, discounts: [...promo, ...others] };
     });
+  }
+
+  /**
+   * Group cart lines for display: lines used by a promotion set (its paid
+   * condition lines as well as its discounted ones) sit together under that
+   * set; every other line is its own group. Groups keep the position of their
+   * first line. Membership comes from the shared engine when the promotion
+   * sets are loaded, otherwise from the stored "promo:<id>" discount rows.
+   */
+  public static groupItemsByPromotion(
+    items: RestaurantOrderItem[],
+    promotions?: PromotionSetDefinition[],
+  ): CartItemGroup[] {
+    const promoOf = new Map<string, { id: string; title: string }>();
+    const timesById = new Map<string, number>();
+    if (promotions) {
+      const { members, applied } = applyPromotionSets(
+        promotions,
+        items.map((it) => {
+          const category = it.productVariant?.basicProduct?.category;
+          return {
+            orderDetailId: it.orderDetailId,
+            variantId: it.variantId,
+            productId: it.productVariant?.productId ?? null,
+            categoryId: category?.categoryId ?? category?.id ?? null,
+            unitPrice: Number(it.price || 0),
+            qty: RestaurantaAction.itemQty(it),
+            orderedAt: it.createdAt ?? null,
+            promotionSlotId: it.promotionSlotId ?? null,
+          };
+        }),
+        Formatter.getNowDateTime(),
+        { autoApply: promotionAutoApplyFor(RESTAURANT_TABLE_ORDER) },
+      );
+      for (const m of members) {
+        if (!promoOf.has(m.orderDetailId)) {
+          promoOf.set(m.orderDetailId, { id: m.promotionId, title: m.title });
+        }
+      }
+      for (const a of applied) timesById.set(a.promotionId, a.times);
+    } else {
+      for (const it of items) {
+        const d = it.discounts?.find((x) => isPromotionDiscountId(x.discountId));
+        if (d?.discountId) {
+          promoOf.set(it.orderDetailId, {
+            id: d.discountId.slice(PROMOTION_DISCOUNT_PREFIX.length),
+            title: d.name || "",
+          });
+        }
+      }
+    }
+
+    const groups: CartItemGroup[] = [];
+    const byPromotion = new Map<string, CartItemGroup>();
+    items.forEach((item, index) => {
+      const promo = promoOf.get(item.orderDetailId);
+      if (!promo) {
+        groups.push({ key: item.orderDetailId, promotion: null, items: [{ item, index }] });
+        return;
+      }
+      let group = byPromotion.get(promo.id);
+      if (!group) {
+        group = {
+          key: `promo:${promo.id}`,
+          promotion: {
+            id: promo.id,
+            title: promo.title,
+            times: timesById.get(promo.id) ?? 1,
+            saved: 0,
+            total: 0,
+          },
+          items: [],
+        };
+        byPromotion.set(promo.id, group);
+        groups.push(group);
+      }
+      group.items.push({ item, index });
+      const p = group.promotion!;
+      const off = (item.discounts ?? [])
+        .filter((x) => x.discountId === promotionDiscountId(promo.id))
+        .reduce((acc, x) => acc + Number(x.amount || 0), 0);
+      p.saved = Math.round((p.saved + off) * 100) / 100;
+      p.total = Math.round((p.total + Number(item.totalAmount || 0)) * 100) / 100;
+    });
+    return groups;
   }
 
   public static calculateOrderTotal(
@@ -292,11 +403,13 @@ export class RestaurantaAction {
       modifiers?: ProductModifierType[];
     },
     id?: string,
+    promotionSlotId?: string | null,
   ): RestaurantOrderItem {
     const orderItemId = id ? id : generateId();
     return {
       orderDetailId: orderItemId,
       variantId: product.id,
+      promotionSlotId: promotionSlotId ?? null,
       title: product.basicProduct?.title || "",
       discountAmount: "0",
       totalAmount: "0",
@@ -324,6 +437,10 @@ export class RestaurantaAction {
   ): boolean {
     const existingModifierLength = existingItem.orderModifiers?.length || 0;
     return (
+      // A line added for a promotion-set slot stays on its own: a plain tap
+      // of the same variant must start (or bump) a normal line, never grow
+      // the promotion line.
+      !existingItem.promotionSlotId &&
       existingItem.variantId === newProduct.id &&
       existingModifierLength === 0 &&
       existingItem.notes === undefined
@@ -533,6 +650,7 @@ export class RestaurantaAction {
       };
       id?: string;
       forceNewLine?: boolean;
+      promotionSlotId?: string | null;
     },
   ): void {
     const activeTableIndex = draft.activeTables.findIndex(
@@ -587,6 +705,7 @@ export class RestaurantaAction {
       const newItem = RestaurantaAction.createNewOrderItem(
         payload.product,
         payload.id,
+        payload.promotionSlotId,
       );
       order.items?.push(newItem);
     }
@@ -850,6 +969,7 @@ export class RestaurantaAction {
         modifiers?: ProductModifierType[];
       };
       itemId: string;
+      promotionSlotId?: string | null;
     },
   ): void {
     const activeTableIndex = draft.activeTables.findIndex(
@@ -870,6 +990,7 @@ export class RestaurantaAction {
     const newItem = RestaurantaAction.createNewOrderItem(
       payload.product,
       payload.itemId,
+      payload.promotionSlotId,
     );
     order.customer = 1;
     order.items?.push(newItem);

@@ -16,6 +16,7 @@ const inputSchema = z.object({
       variantId: z.string(),
       qty: z.number(),
       price: z.string(),
+      promotionSlotId: z.string().nullish(),
       reservation: z
         .array(
           z.object({

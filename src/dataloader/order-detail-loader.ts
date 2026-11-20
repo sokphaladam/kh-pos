@@ -67,6 +67,7 @@ export function createOrderDetailLoader(
           modiferAmount: x.modifer_amount || "0",
           totalAmount: x.total_amount || "0",
           createdAt: Formatter.toDbDateTime(x.created_at),
+          promotionSlotId: x.promotion_set_item_id ?? null,
           productVariant,
           discounts,
           status,

@@ -23,7 +23,7 @@ import {
 } from "./contexts/restaurant-context";
 import { restartCustomCustomer } from "./custom-order/restaurant-custom-customer";
 import { useRestaurantActions } from "./hooks/use-restaurant-actions";
-import { RestaurantItem } from "./item/restaurant-item";
+import { RestaurantCartItems } from "./item/restaurant-cart-items";
 import { RestaurantCheckout } from "./restaurant-checkout";
 import { restaurantDiscountSheet } from "./restaurant-discount-sheet";
 import { transferTable } from "./transfer/transfer-table";
@@ -263,13 +263,11 @@ export function RestaurantSummary(props: WithLayoutPermissionProps) {
               <p className="text-muted-foreground/70 text-xs">Add items from the menu</p>
             </div>
           ) : (
-            <div className="space-y-2 p-3 pb-20">
-              {currentOrder.map((item, index) => (
-                <div key={index} data-item-index={index}>
-                  <RestaurantItem item={item} idx={index} {...props} />
-                </div>
-              ))}
-            </div>
+            <RestaurantCartItems
+              items={currentOrder}
+              className="space-y-2 p-3 pb-20"
+              {...props}
+            />
           )}
         </div>
 

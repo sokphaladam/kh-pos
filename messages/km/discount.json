@@ -130,7 +130,12 @@
       "notYet": "មិនទាន់មានលក់នៅឡើយ",
       "happyHourUntil": "ម៉ោងពិសេស · ដល់ {end}",
       "notStarted": "“{title}” អាចកម្ម៉ង់បានចាប់ពីម៉ោង {time}",
-      "notStartedNoTime": "“{title}” មិនទាន់អាចកម្ម៉ង់បាននៅឡើយ"
+      "notStartedNoTime": "“{title}” មិនទាន់អាចកម្ម៉ង់បាននៅឡើយ",
+      "cartSaved": "សន្សំ {amount}",
+      "cartDeleteSet": "លុបប្រូម៉ូសិន",
+      "cartDeleteSetConfirm": "លុប «{title}» និងមុខទំនិញទាំង {count} របស់វាចេញពីការកម្ម៉ង់?",
+      "cartDeleteSetSent": "មុខទំនិញខ្លះបានផ្ញើទៅផ្ទះបាយរួចហើយ។",
+      "cartDeleted": "បានលុប «{title}»"
     },
     "menu": {
       "title": "ប្រូម៉ូសិន",

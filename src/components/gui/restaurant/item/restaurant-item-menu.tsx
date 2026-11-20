@@ -27,11 +27,14 @@ interface RestaurantItemMenuProps extends WithLayoutPermissionProps {
   item: RestaurantOrderItem;
   table?: table_restaurant_tables;
   orderId: string;
+  /** Line belongs to a promotion set: delete the set from its group header. */
+  lockDelete?: boolean;
 }
 
 export function RestaurantItemMenu({
   item,
   table,
+  lockDelete,
   ...rest
 }: RestaurantItemMenuProps) {
   const { showDialog } = useCommonDialog();
@@ -64,6 +67,8 @@ export function RestaurantItemMenu({
   if (!rest.allowDelete && (qtyArePending || 0) > 0 && qtyAreNotPending === 0) {
     allowDelete = true;
   }
+
+  if (lockDelete) allowDelete = false;
 
   const notInPendingStatus = item.status
     ?.filter((s) => s.status !== "pending" && s.qty > 0)

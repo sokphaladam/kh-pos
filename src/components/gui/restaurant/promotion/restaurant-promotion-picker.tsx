@@ -39,23 +39,23 @@ export function toCartProduct(
 }
 
 /**
- * Turn one chosen candidate per slot into cart lines, merging slots that
- * resolve to the same variant (e.g. "6 x Beer" + "2 x Beer free" -> 8 x Beer).
+ * Turn one chosen candidate per slot into cart lines: one line per slot, each
+ * pinned to its slot, so the item the cashier picked for the free slot is the
+ * one that gets the discount (even if it is not the cheapest). Slots that pick
+ * the same variant stay separate lines ("6 x Beer" + "2 x Beer free").
  */
 export function buildPromotionCartLines(
   slots: PromotionSetChoiceSlot[],
   chosen: (ProductSearchResult | undefined)[],
 ): PromotionSetCartLine[] | null {
-  const byVariant = new Map<string, PromotionSetCartLine>();
+  const lines: PromotionSetCartLine[] = [];
   for (const [index, slot] of slots.entries()) {
     const candidate = chosen[index];
     const product = candidate ? toCartProduct(candidate) : null;
     if (!product) return null;
-    const line = byVariant.get(product.id);
-    if (line) line.quantity += slot.item.qty;
-    else byVariant.set(product.id, { product, quantity: slot.item.qty });
+    lines.push({ product, quantity: slot.item.qty, slotId: slot.item.id });
   }
-  return [...byVariant.values()];
+  return lines;
 }
 
 function CandidateImage({

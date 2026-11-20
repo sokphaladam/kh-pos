@@ -130,7 +130,12 @@
       "notYet": "Not available yet",
       "happyHourUntil": "Happy hour · until {end}",
       "notStarted": "“{title}” can be ordered from {time}",
-      "notStartedNoTime": "“{title}” can’t be ordered yet"
+      "notStartedNoTime": "“{title}” can’t be ordered yet",
+      "cartSaved": "Saved {amount}",
+      "cartDeleteSet": "Delete promotion",
+      "cartDeleteSetConfirm": "Delete “{title}” and all {count} of its items from the order?",
+      "cartDeleteSetSent": "Some of these items were already sent to the kitchen.",
+      "cartDeleted": "“{title}” removed"
     },
     "menu": {
       "title": "Promotions",

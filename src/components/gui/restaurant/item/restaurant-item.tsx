@@ -18,6 +18,8 @@ interface RestaurantItemProps extends WithLayoutPermissionProps {
   item: RestaurantOrderItem;
   idx: number;
   viewOnly?: boolean;
+  /** Line belongs to a promotion set: no per-item delete. */
+  lockDelete?: boolean;
 }
 
 /* eslint-disable @next/next/no-img-element */

@@ -11,6 +11,8 @@ export const inputOrderItemSchema = z.object({
   price: z.string(),
   discountAmount: z.string(),
   discount: z.array(discountInputSchema).optional(),
+  /** Promotion slot (`promotion_set_item.id`) this line is added for. */
+  promotionSlotId: z.string().nullish(),
   reservation: z
     .array(
       z.object({
